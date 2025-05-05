@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#333"/>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json"> <!-- Add later for PWA features -->
+    <title>Gym Tracker</title>
+</head>
+<body>
+    <header>
+        <h1>Gym Tracker</h1>
+        <nav>
+            <button id="nav-dashboard">Dashboard</button>
+            <button id="nav-history">Historial</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Dashboard View -->
+        <section id="dashboard-view">
+            <h2>Dashboard</h2>
+            <p>Fecha: <span id="current-date"></span></p>
+            <label for="day-select">Selecciona el entrenamiento de hoy:</label>
+            <select id="day-select">
+                <option value="">-- Elige un día --</option>
+                <!-- Options will be populated by JS -->
+            </select>
+            <button id="start-session-btn" disabled>Iniciar Sesión</button>
+            <!-- Optional Calendar Placeholder -->
+            <div id="calendar-placeholder" style="margin-top: 20px; border: 1px dashed #ccc; padding: 10px; text-align: center;">
+                (Calendario de historial próximamente)
+            </div>
+        </section>
+
+        <!-- Session View (hidden by default) -->
+        <section id="session-view" class="hidden">
+            <h2 id="session-title"></h2>
+            <form id="session-form">
+                <div id="exercise-list"></div>
+                <button type="submit" id="save-session-btn">Guardar Sesión</button>
+                <button type="button" id="cancel-session-btn">Cancelar</button>
+            </form>
+        </section>
+
+        <!-- History View (hidden by default) -->
+        <section id="history-view" class="hidden">
+            <h2>Historial de Sesiones</h2>
+            <ul id="history-list">
+                <!-- History items will be populated by JS -->
+                <li>Cargando historial...</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Simple Gym Tracker</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
