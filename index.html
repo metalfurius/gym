@@ -12,15 +12,47 @@
     <header>
         <h1>Gym Tracker</h1>
         <nav>
-            <button id="nav-dashboard">Dashboard</button>
-            <button id="nav-history">Historial</button>
+            <button id="nav-dashboard" class="hidden">Dashboard</button>
+            <button id="nav-history" class="hidden">Historial</button>
+            <button id="logout-btn" class="hidden">Cerrar Sesión</button>
         </nav>
     </header>
 
     <main>
-        <!-- Dashboard View -->
-        <section id="dashboard-view">
+        <!-- Auth View -->
+        <section id="auth-view">
+            <h2>Acceso / Registro</h2>
+            <div id="auth-container">
+                <!-- Email/Password Form -->
+                <form id="email-password-form">
+                    <h3>Email y Contraseña</h3>
+                    <label for="email">Email:</label>
+                    <input type="email" id="auth-email" required>
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="auth-password" required minlength="6">
+                    <div class="auth-buttons">
+                        <button type="button" id="login-email-btn">Iniciar Sesión</button>
+                        <button type="button" id="signup-email-btn">Registrarse</button>
+                    </div>
+                    <p id="auth-error" class="error-message"></p>
+                </form>
+
+                <!-- Provider Buttons -->
+                <div class="provider-buttons">
+                    <h3>Otras opciones</h3>
+                    <button type="button" id="google-signin-btn">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" width="20" height="20">
+                        <span>Continuar con Google</span>
+                    </button>
+                    <!-- <button type="button" id="anon-signin-btn">Entrar como Anónimo</button> -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard View (hidden by default) -->
+        <section id="dashboard-view" class="hidden">
             <h2>Dashboard</h2>
+            <p>Usuario: <span id="user-email"></span></p>
             <p>Fecha: <span id="current-date"></span></p>
             <label for="day-select">Selecciona el entrenamiento de hoy:</label>
             <select id="day-select">

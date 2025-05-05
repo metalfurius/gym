@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, collection, addDoc, Timestamp, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 // Your web app's Firebase configuration
 // WARNING: Exposing API keys client-side is standard for web apps,
@@ -18,6 +19,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app); // Initialize Firestore
+const auth = getAuth(app); // Initialize Firebase Auth
+const googleProvider = new GoogleAuthProvider();
 const sesionesCollectionRef = collection(db, "sesiones_entrenamiento");
 
 // --- Workout Routine Data ---
@@ -26,95 +29,104 @@ const workoutRoutine = {
         name: "A1: Pull",
         exercises: [
             { name: "Dominadas", sets: 4, reps: "6-10" },
-            { name: "Remo Barra", sets: 4, reps: "8-12" },
-            { name: "Remo Gironda", sets: 3, reps: "10-15" },
-            { name: "Face Pull", sets: 3, reps: "15-20" },
-            { name: "Curl Barra Z", sets: 4, reps: "8-12" },
-            { name: "Curl Martillo", sets: 3, reps: "10-15" }
+            { name: "Remo con Barra", sets: 3, reps: "8-12" },
+            { name: "Remo Gironda (Polea baja)", sets: 3, reps: "10-15" },
+            { name: "Face Pull", sets: 4, reps: "12-15" },
+            { name: "Curl con Barra Z", sets: 3, reps: "8-12" },
+            { name: "Curl Martillo", sets: 3, reps: "10-12" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "A2": {
         name: "A2: Push",
         exercises: [
-            { name: "Press Banca Barra", sets: 4, reps: "6-10" },
-            { name: "Press Inclinado Manc", sets: 4, reps: "8-12" },
-            { name: "Fondos", sets: 3, reps: "Al fallo" },
-            { name: "Elev. Laterales Manc", sets: 4, reps: "12-15" },
-            { name: "Press Francés", sets: 3, reps: "10-15" },
-            { name: "Ext. Tríceps Polea", sets: 3, reps: "12-15" }
+            { name: "Press de Banca Plano (Barra)", sets: 3, reps: "6-10" },
+            { name: "Press Inclinado Mancuernas", sets: 3, reps: "8-12" },
+            { name: "Fondos Paralelas", sets: 3, reps: "Fallo" },
+            { name: "Elevaciones Laterales Mancuernas", sets: 4, reps: "10-15" },
+            { name: "Press Francés", sets: 3, reps: "10-12" },
+            { name: "Extensiones Tríceps Polea Alta (Cuerda)", sets: 3, reps: "12-15" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "A3": {
-        name: "A3: Piernas + Abs",
+        name: "A3: Piernas + Abdominales",
         exercises: [
             { name: "Sentadilla Hack", sets: 4, reps: "8-12" },
             { name: "Peso Muerto Rumano", sets: 4, reps: "10-12" },
-            { name: "Ext. Cuádriceps", sets: 3, reps: "12-15" },
-            { name: "Curl Femoral", sets: 3, reps: "12-15" },
-            { name: "Elev. Talones", sets: 4, reps: "15-20" },
-            { name: "Elev. Piernas", sets: 3, reps: "Al fallo" },
-            { name: "Crunch Polea", sets: 3, reps: "15-20" }
+            { name: "Extensiones Cuádriceps", sets: 3, reps: "12-15" },
+            { name: "Curl Femoral Tumbado", sets: 3, reps: "12-15" },
+            { name: "Elevación Talones (De pie/Sentado)", sets: 4, reps: "15-20" },
+            { name: "Elevaciones Piernas (Colgado/Tumbado)", sets: 3, reps: "Fallo" },
+            { name: "Crunch Polea Alta", sets: 3, reps: "12-15" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "(Opcional) 15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "A4": {
         name: "A4: V-Taper Focus",
         exercises: [
-            { name: "Jalón Pecho Ancho", sets: 4, reps: "8-12" },
-            { name: "Remo Sentado Abierto", sets: 4, reps: "10-15" },
-            { name: "Pull-over Polea", sets: 3, reps: "12-15" },
-            { name: "Elev. Lat Polea Uni", sets: 3, reps: "12-15" },
-            { name: "Pájaros Manc", sets: 3, reps: "15-20" },
-            { name: "Encogimientos", sets: 4, reps: "10-15" }
+            { name: "Jalón al Pecho (Agarre Ancho)", sets: 4, reps: "10-12" },
+            { name: "Remo Sentado Polea (Agarre Abierto)", sets: 3, reps: "10-15" },
+            { name: "Pull-over Polea Alta", sets: 3, reps: "12-15" },
+            { name: "Elevaciones Laterales Polea Baja (Unilateral)", sets: 4, reps: "12-15 / brazo" },
+            { name: "Pájaros con Mancuernas", sets: 3, reps: "12-15" },
+            { name: "Encogimientos (Mancuernas/Barra)", sets: 3, reps: "10-15" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "B1": {
         name: "B1: Pull",
         exercises: [
-            { name: "Remo T", sets: 4, reps: "6-10" },
-            { name: "Jalón Neutro/Supino", sets: 4, reps: "8-12" },
-            { name: "Remo Mancuerna", sets: 3, reps: "10-12" },
-            { name: "Reverse Pec Deck", sets: 3, reps: "15-20" },
-            { name: "Curl Inclinado", sets: 4, reps: "10-12" },
-            { name: "Curl Concentrado", sets: 3, reps: "12-15" }
+            { name: "Remo T Barra", sets: 4, reps: "6-10" },
+            { name: "Jalón Pecho (Neutro/Supino)", sets: 3, reps: "8-12" },
+            { name: "Remo Mancuerna (Serrucho)", sets: 3, reps: "8-12 / brazo" },
+            { name: "Reverse Pec Deck", sets: 4, reps: "12-15" },
+            { name: "Curl Inclinado Mancuernas", sets: 3, reps: "10-12" },
+            { name: "Curl Concentrado / Polea Baja", sets: 3, reps: "12-15" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "B2": {
         name: "B2: Push",
         exercises: [
-            { name: "Press Militar Barra", sets: 4, reps: "6-10" },
-            { name: "Press Plano Manc", sets: 4, reps: "8-12" },
-            { name: "Aperturas Inclinadas", sets: 3, reps: "12-15" },
-            { name: "Elev. Laterales Manc", sets: 4, reps: "12-15" },
-            { name: "Press Cerrado", sets: 3, reps: "8-12" },
-            { name: "Ext. Tríceps Cabeza", sets: 3, reps: "10-15" }
+            { name: "Press Militar Barra", sets: 3, reps: "6-10" },
+            { name: "Press Plano Mancuernas", sets: 3, reps: "8-12" },
+            { name: "Aperturas Inclinadas / Cruces Polea Baja", sets: 3, reps: "12-15" },
+            { name: "Elevaciones Laterales Mancuernas", sets: 4, reps: "12-15" },
+            { name: "Press Cerrado Banca", sets: 3, reps: "8-12" },
+            { name: "Extensiones Tríceps Sobre Cabeza", sets: 3, reps: "12-15" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "B3": {
-        name: "B3: Piernas + Abs",
+        name: "B3: Piernas + Abdominales",
         exercises: [
-            { name: "Prensa", sets: 4, reps: "10-15" },
-            { name: "Curl Femoral Sentado", sets: 4, reps: "10-15" },
-            { name: "Sentadilla Búlgara/Zancadas", sets: 3, reps: "10-12" },
-            { name: "Hip Thrust", sets: 4, reps: "8-12" },
-            { name: "Elev. Talones Sentado", sets: 4, reps: "15-20" },
-            { name: "Plancha", sets: 3, reps: "Al fallo" },
-            { name: "Russian Twist", sets: 3, reps: "15-20" }
+            { name: "Prensa Piernas", sets: 4, reps: "10-15" },
+            { name: "Curl Femoral Sentado", sets: 4, reps: "12-15" },
+            { name: "Sentadilla Búlgara / Zancadas", sets: 3, reps: "10-12 / pierna" },
+            { name: "Hip Thrust", sets: 3, reps: "10-12" },
+            { name: "Elevación Talones (Sentado/Prensa)", sets: 4, reps: "15-25" },
+            { name: "Plancha", sets: 3, reps: "45-60 seg" },
+            { name: "Russian Twist / Leñador Polea", sets: 3, reps: "15-20" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "(Opcional) 15-25 min LISS / 10-15 min HIIT" }
         ]
     },
     "B4": {
         name: "B4: V-Taper Focus",
         exercises: [
-            { name: "Dominadas Asist/Jalón", sets: 4, reps: "8-12" },
-            { name: "Remo Alto Cara", sets: 4, reps: "10-15" },
-            { name: "Elev. Lat Máquina/Cable", sets: 3, reps: "12-15" },
-            { name: "Elev. Frontales", sets: 3, reps: "12-15" },
-            { name: "Curl Bíceps Polea Alta", sets: 3, reps: "12-15" },
-            { name: "Ext. Tríceps Tras Nuca", sets: 3, reps: "10-15" }
+            { name: "Dominadas Asistidas / Jalón Pecho", sets: 4, reps: "10-12" },
+            { name: "Remo Alto a la Cara (Face Pull Ancho)", sets: 3, reps: "12-15" },
+            { name: "Elevaciones Laterales (Máquina/Cable)", sets: 4, reps: "12-15" },
+            { name: "Elevaciones Frontales (Disco/Mancuerna)", sets: 3, reps: "10-12" },
+            { name: "Curl Bíceps Polea Alta", sets: "2-3", reps: "12-15" },
+            { name: "Extensión Tríceps Polea (Tras nuca)", sets: "2-3", reps: "12-15" },
+            { name: "Cardio Post-Entreno", sets: 1, reps: "15-25 min LISS / 10-15 min HIIT" }
         ]
     }
 };
 
 // --- DOM Elements ---
+const authView = document.getElementById('auth-view');
 const dashboardView = document.getElementById('dashboard-view');
 const sessionView = document.getElementById('session-view');
 const historyView = document.getElementById('history-view');
@@ -128,17 +140,49 @@ const cancelSessionBtn = document.getElementById('cancel-session-btn');
 const historyList = document.getElementById('history-list');
 const navDashboardBtn = document.getElementById('nav-dashboard');
 const navHistoryBtn = document.getElementById('nav-history');
+const logoutBtn = document.getElementById('logout-btn');
+const userEmailEl = document.getElementById('user-email');
+
+// Auth Elements
+const emailInput = document.getElementById('auth-email');
+const passwordInput = document.getElementById('auth-password');
+const loginEmailBtn = document.getElementById('login-email-btn');
+const signupEmailBtn = document.getElementById('signup-email-btn');
+const googleSigninBtn = document.getElementById('google-signin-btn');
+const authErrorEl = document.getElementById('auth-error');
 
 // --- State ---
 let currentWorkoutDayId = null;
+let currentUser = null; // Store the current user object
 
 // --- Functions ---
 
 function showView(viewToShow) {
+    authView.classList.add('hidden');
     dashboardView.classList.add('hidden');
     sessionView.classList.add('hidden');
     historyView.classList.add('hidden');
     viewToShow.classList.remove('hidden');
+}
+
+function updateNavButtonsVisibility(isLoggedIn) {
+    if (isLoggedIn) {
+        navDashboardBtn.classList.remove('hidden');
+        navHistoryBtn.classList.remove('hidden');
+        logoutBtn.classList.remove('hidden');
+    } else {
+        navDashboardBtn.classList.add('hidden');
+        navHistoryBtn.classList.add('hidden');
+        logoutBtn.classList.add('hidden');
+    }
+}
+
+function clearAuthError() {
+    authErrorEl.textContent = '';
+}
+
+function displayAuthError(message) {
+    authErrorEl.textContent = message;
 }
 
 function formatDate(date) {
@@ -178,44 +222,53 @@ function renderSessionView(dayId) {
 
         const target = document.createElement('p');
         target.className = 'target-reps';
-        target.textContent = `Objetivo: ${exercise.sets} sets x ${exercise.reps} reps`;
+        const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} sets` : exercise.sets;
+        target.textContent = `Objetivo: ${setsDisplay} x ${exercise.reps} reps`;
         exerciseBlock.appendChild(target);
 
-        for (let i = 0; i < exercise.sets; i++) {
-            const setRow = document.createElement('div');
-            setRow.className = 'set-row';
-            setRow.dataset.setIndex = i;
+        const numberOfSets = parseInt(exercise.sets, 10);
+        if (!isNaN(numberOfSets) && numberOfSets > 0) {
+            for (let i = 0; i < numberOfSets; i++) {
+                const setRow = document.createElement('div');
+                setRow.className = 'set-row';
+                setRow.dataset.setIndex = i;
 
-            const setLabel = document.createElement('label');
-            setLabel.textContent = `Set ${i + 1}:`;
-            setLabel.htmlFor = `weight-${exerciseIndex}-${i}`; // Accessibility
-            setRow.appendChild(setLabel);
+                const setLabel = document.createElement('label');
+                setLabel.textContent = `Set ${i + 1}:`;
+                setLabel.htmlFor = `weight-${exerciseIndex}-${i}`;
+                setRow.appendChild(setLabel);
 
-            const weightInput = document.createElement('input');
-            weightInput.type = 'number';
-            weightInput.id = `weight-${exerciseIndex}-${i}`;
-            weightInput.name = `weight-${exerciseIndex}-${i}`;
-            weightInput.placeholder = 'Peso (kg)';
-            weightInput.min = "0";
-            weightInput.step = "0.5"; // Allow .5 increments
-            setRow.appendChild(weightInput);
+                const weightInput = document.createElement('input');
+                weightInput.type = 'number';
+                weightInput.id = `weight-${exerciseIndex}-${i}`;
+                weightInput.name = `weight-${exerciseIndex}-${i}`;
+                weightInput.placeholder = 'Peso (kg)';
+                weightInput.min = "0";
+                weightInput.step = "0.5";
+                setRow.appendChild(weightInput);
 
-            const repsInput = document.createElement('input');
-            repsInput.type = 'number';
-            repsInput.id = `reps-${exerciseIndex}-${i}`;
-            repsInput.name = `reps-${exerciseIndex}-${i}`;
-            repsInput.placeholder = 'Reps';
-            repsInput.min = "0";
-            setRow.appendChild(repsInput);
+                const repsInput = document.createElement('input');
+                repsInput.type = 'number';
+                repsInput.id = `reps-${exerciseIndex}-${i}`;
+                repsInput.name = `reps-${exerciseIndex}-${i}`;
+                repsInput.placeholder = 'Reps';
+                repsInput.min = "0";
+                setRow.appendChild(repsInput);
 
-            exerciseBlock.appendChild(setRow);
+                exerciseBlock.appendChild(setRow);
+            }
+        } else {
+            const infoPara = document.createElement('p');
+            infoPara.textContent = "(No se requiere entrada de peso/reps para este item)";
+            infoPara.style.fontSize = '0.9em';
+            infoPara.style.color = '#666';
+            exerciseBlock.appendChild(infoPara);
         }
 
-        // Optional Notes Field
         const notesLabel = document.createElement('label');
         notesLabel.textContent = "Notas (opcional):";
         notesLabel.htmlFor = `notes-${exerciseIndex}`;
-        notesLabel.style.marginTop = '10px'; // Add some space
+        notesLabel.style.marginTop = '10px';
         exerciseBlock.appendChild(notesLabel);
 
         const notesTextarea = document.createElement('textarea');
@@ -232,14 +285,18 @@ function renderSessionView(dayId) {
 }
 
 async function saveSessionData(event) {
-    event.preventDefault(); // Prevent default form submission
-    if (!currentWorkoutDayId) return;
+    event.preventDefault();
+    if (!currentWorkoutDayId || !currentUser) {
+        alert("Error: No se ha seleccionado un día o no has iniciado sesión.");
+        return;
+    }
 
     const workout = workoutRoutine[currentWorkoutDayId];
     const sessionData = {
         fecha: Timestamp.now(),
         diaEntrenamiento: currentWorkoutDayId,
-        nombreEntrenamiento: workout.name, // Store the name for easier display
+        nombreEntrenamiento: workout.name,
+        userId: currentUser.uid, // Associate data with the user
         ejercicios: []
     };
 
@@ -254,59 +311,73 @@ async function saveSessionData(event) {
         };
 
         const setRows = block.querySelectorAll('.set-row');
-        setRows.forEach((row, setIndex) => {
-            const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
-            const repsInput = row.querySelector(`input[name="reps-${exerciseIndex}-${setIndex}"]`);
+        if (setRows.length > 0) {
+            setRows.forEach((row, setIndex) => {
+                const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
+                const repsInput = row.querySelector(`input[name="reps-${exerciseIndex}-${setIndex}"]`);
 
-            // Only add set if both weight and reps have values
-            const weight = parseFloat(weightInput.value);
-            const reps = parseInt(repsInput.value, 10);
+                const weight = parseFloat(weightInput.value);
+                const reps = parseInt(repsInput.value, 10);
 
-            if (!isNaN(weight) && !isNaN(reps) && weight >= 0 && reps >= 0) {
-                 exerciseEntry.sets.push({ peso: weight, reps: reps });
-            } else if (weightInput.value || repsInput.value) {
-                // Optionally warn user about incomplete set data, or just skip
-                console.warn(`Set ${setIndex + 1} for ${exercise.name} has incomplete data and was not saved.`);
-            }
-        });
-
-        // Only add exercise if at least one set was recorded
-        if (exerciseEntry.sets.length > 0) {
-            sessionData.ejercicios.push(exerciseEntry);
+                if (!isNaN(weight) && !isNaN(reps) && weight >= 0 && reps >= 0) {
+                    exerciseEntry.sets.push({ peso: weight, reps: reps });
+                } else if (weightInput.value || repsInput.value) {
+                    console.warn(`Set ${setIndex + 1} for ${exercise.name} has incomplete data and was not saved.`);
+                }
+            });
         }
+
+        sessionData.ejercicios.push(exerciseEntry);
     });
 
-    if (sessionData.ejercicios.length === 0) {
-        alert("No se registraron datos para ningún ejercicio. Introduce peso y repeticiones para al menos un set.");
+    const exercisesToSave = sessionData.ejercicios.filter(ex => ex.sets.length > 0 || ex.notasEjercicio.trim() !== '');
+
+    if (exercisesToSave.length === 0) {
+        alert("No se registraron datos (peso/reps o notas) para ningún ejercicio. Introduce datos o notas para guardar la sesión.");
         return;
     }
 
-    console.log("Saving session data:", sessionData);
+    sessionData.ejercicios = exercisesToSave;
+
+    console.log("Saving session data for user:", currentUser.uid, sessionData);
+
+    const saveButton = sessionForm.querySelector('#save-session-btn');
+    saveButton.disabled = true;
+    saveButton.textContent = 'Guardando...';
 
     try {
-        const docRef = await addDoc(sesionesCollectionRef, sessionData);
+        const userSessionsCollectionRef = collection(db, "users", currentUser.uid, "sesiones_entrenamiento");
+        const docRef = await addDoc(userSessionsCollectionRef, sessionData);
         console.log("Document written with ID: ", docRef.id);
         alert("¡Sesión guardada con éxito!");
-        sessionForm.reset(); // Clear the form
+        sessionForm.reset();
         currentWorkoutDayId = null;
-        showView(dashboardView); // Go back to dashboard after saving
-        // Optionally, refresh history view if it was the active view before session
-        // renderHistoryView();
+        showView(dashboardView);
     } catch (e) {
         console.error("Error adding document: ", e);
         alert("Error al guardar la sesión. Por favor, inténtalo de nuevo.");
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = 'Guardar Sesión';
     }
 }
 
 async function renderHistoryView() {
-    historyList.innerHTML = '<li>Cargando historial...</li>'; // Show loading state
+    if (!currentUser) {
+        historyList.innerHTML = '<li>Debes iniciar sesión para ver tu historial.</li>';
+        showView(historyView);
+        return;
+    }
+
+    historyList.innerHTML = '<li>Cargando historial...</li>';
     showView(historyView);
 
     try {
-        const q = query(sesionesCollectionRef, orderBy("fecha", "desc"));
+        const userSessionsCollectionRef = collection(db, "users", currentUser.uid, "sesiones_entrenamiento");
+        const q = query(userSessionsCollectionRef, orderBy("fecha", "desc"));
         const querySnapshot = await getDocs(q);
 
-        historyList.innerHTML = ''; // Clear loading/previous items
+        historyList.innerHTML = '';
 
         if (querySnapshot.empty) {
             historyList.innerHTML = '<li>No hay sesiones guardadas todavía.</li>';
@@ -316,16 +387,13 @@ async function renderHistoryView() {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const listItem = document.createElement('li');
-            // Format the timestamp
-            const sessionDate = data.fecha.toDate(); // Convert Firebase Timestamp to JS Date
+            const sessionDate = data.fecha.toDate();
             listItem.textContent = `${formatDate(sessionDate)} - ${data.nombreEntrenamiento || data.diaEntrenamiento}`;
-            listItem.dataset.docId = doc.id; // Store doc ID for potential detail view
+            listItem.dataset.docId = doc.id;
 
-            // TODO: Add event listener to show session details on click
             listItem.addEventListener('click', () => {
                 alert(`Detalles para la sesión ${doc.id} (próximamente):
 ${JSON.stringify(data, null, 2)}`);
-                // Implement detailed view rendering here
             });
 
             historyList.appendChild(listItem);
@@ -333,6 +401,95 @@ ${JSON.stringify(data, null, 2)}`);
     } catch (error) {
         console.error("Error fetching history:", error);
         historyList.innerHTML = '<li>Error al cargar el historial.</li>';
+    }
+}
+
+// --- Auth Functions ---
+
+async function handleEmailSignup() {
+    clearAuthError();
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    if (!email || !password) {
+        displayAuthError("Por favor, introduce email y contraseña.");
+        return;
+    }
+    if (password.length < 6) {
+        displayAuthError("La contraseña debe tener al menos 6 caracteres.");
+        return;
+    }
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("User signed up:", userCredential.user);
+    } catch (error) {
+        console.error("Signup error:", error);
+        displayAuthError(getFriendlyAuthErrorMessage(error));
+    }
+}
+
+async function handleEmailLogin() {
+    clearAuthError();
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    if (!email || !password) {
+        displayAuthError("Por favor, introduce email y contraseña.");
+        return;
+    }
+
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("User logged in:", userCredential.user);
+    } catch (error) {
+        console.error("Login error:", error);
+        displayAuthError(getFriendlyAuthErrorMessage(error));
+    }
+}
+
+async function handleGoogleSignIn() {
+    clearAuthError();
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log("Google sign in successful:", result.user);
+    } catch (error) {
+        console.error("Google sign in error:", error);
+        displayAuthError(getFriendlyAuthErrorMessage(error));
+    }
+}
+
+async function handleLogout() {
+    try {
+        await signOut(auth);
+        console.log("User logged out");
+    } catch (error) {
+        console.error("Logout error:", error);
+        alert("Error al cerrar sesión.");
+    }
+}
+
+function getFriendlyAuthErrorMessage(error) {
+    switch (error.code) {
+        case 'auth/invalid-email':
+            return "El formato del email no es válido.";
+        case 'auth/user-disabled':
+            return "Esta cuenta de usuario ha sido deshabilitada.";
+        case 'auth/user-not-found':
+            return "No se encontró ningún usuario con este email.";
+        case 'auth/wrong-password':
+            return "La contraseña es incorrecta.";
+        case 'auth/email-already-in-use':
+            return "Este email ya está registrado. Intenta iniciar sesión.";
+        case 'auth/weak-password':
+            return "La contraseña es demasiado débil.";
+        case 'auth/operation-not-allowed':
+            return "El inicio de sesión con email/contraseña no está habilitado.";
+        case 'auth/popup-closed-by-user':
+            return "Has cerrado la ventana de inicio de sesión antes de completar el proceso.";
+        case 'auth/cancelled-popup-request':
+            return "Se ha cancelado la solicitud de inicio de sesión.";
+        default:
+            console.error("Unhandled Auth Error:", error);
+            return "Ha ocurrido un error inesperado durante la autenticación.";
     }
 }
 
@@ -359,12 +516,37 @@ cancelSessionBtn.addEventListener('click', () => {
 
 navDashboardBtn.addEventListener('click', () => showView(dashboardView));
 navHistoryBtn.addEventListener('click', renderHistoryView);
+logoutBtn.addEventListener('click', handleLogout);
+
+// Auth Event Listeners
+loginEmailBtn.addEventListener('click', handleEmailLogin);
+signupEmailBtn.addEventListener('click', handleEmailSignup);
+googleSigninBtn.addEventListener('click', handleGoogleSignIn);
 
 // --- Initialization ---
-function initializeAppUI() {
-    currentDateEl.textContent = formatDate(new Date());
-    populateDaySelector();
-    showView(dashboardView); // Start on the dashboard
+function initializeAppUI(user) {
+    currentUser = user;
+    if (user) {
+        console.log("User is logged in:", user.uid, user.email);
+        userEmailEl.textContent = user.email || 'Usuario Anónimo';
+        updateNavButtonsVisibility(true);
+        populateDaySelector();
+        currentDateEl.textContent = formatDate(new Date());
+        showView(dashboardView);
+    } else {
+        console.log("User is logged out");
+        currentUser = null;
+        userEmailEl.textContent = '';
+        updateNavButtonsVisibility(false);
+        showView(authView);
+        sessionForm.reset();
+        currentWorkoutDayId = null;
+        historyList.innerHTML = '';
+        daySelect.innerHTML = '<option value="">-- Elige un día --</option>';
+    }
+    clearAuthError();
 }
 
-initializeAppUI();
+onAuthStateChanged(auth, (user) => {
+    initializeAppUI(user);
+});
