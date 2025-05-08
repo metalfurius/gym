@@ -1,8 +1,8 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { auth } from './firebase-config.js';
-import { showView, updateNav, displayAuthError, displayAuthSuccess, clearAuthMessages, authElements, dashboardElements, populateDaySelector } from './ui.js';
-import { loadInProgressSession, clearInProgressSession } from './store.js';
-import { initializeAppAfterAuth } from './app.js'; // To notify app.js about auth state
+import { showView, updateNav, displayAuthError, displayAuthSuccess, clearAuthMessages, authElements, dashboardElements } from './ui.js';
+import { clearInProgressSession } from './store.js';
+import { initializeAppAfterAuth, initializeUserRoutines } from './app.js'; // Added initializeUserRoutines
 
 let currentUser = null;
 
@@ -26,7 +26,8 @@ function getFriendlyAuthErrorMessage(error) {
     }
 }
 
-export async function handleEmailSignup() {
+export async function handleEmailSignup(event) {
+    event.preventDefault(); // Prevent form submission if attached to form
     clearAuthMessages();
     const email = authElements.emailInput.value;
     const password = authElements.passwordInput.value;
@@ -43,10 +44,10 @@ export async function handleEmailSignup() {
     authElements.loginBtn.disabled = true;
 
     try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will handle the rest
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // onAuthStateChanged will handle the rest, including initializing sample routines
         displayAuthSuccess("¡Registro exitoso! Serás redirigido.");
-        // No need to manually navigate, onAuthStateChanged will do it
+        await initializeUserRoutines(userCredential.user, true); // true indicates new user
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
     } finally {
@@ -55,7 +56,8 @@ export async function handleEmailSignup() {
     }
 }
 
-export async function handleEmailLogin() {
+export async function handleEmailLogin(event) {
+    event.preventDefault(); // Prevent form submission
     clearAuthMessages();
     const email = authElements.emailInput.value;
     const password = authElements.passwordInput.value;
@@ -69,8 +71,8 @@ export async function handleEmailLogin() {
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will handle the rest
         displayAuthSuccess("¡Inicio de sesión exitoso! Serás redirigido.");
+        // onAuthStateChanged will handle fetching routines for existing user
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
     } finally {
@@ -82,31 +84,44 @@ export async function handleEmailLogin() {
 export async function handleLogout() {
     try {
         await firebaseSignOut(auth);
-        clearInProgressSession(); // Clear any pending session on logout
-        // onAuthStateChanged will handle UI changes
+        clearInProgressSession();
     } catch (error) {
         console.error("Logout error:", error);
         alert("Error al cerrar sesión.");
     }
 }
 
-// Listener for authentication state changes
-onAuthStateChanged(auth, (user) => {
+// Attach event listeners to the auth buttons
+// Ensure this runs after the DOM is ready and elements are available.
+// Since auth.js is a module and imports authElements from ui.js (which queries the DOM),
+// this should generally be fine.
+if (authElements.loginBtn) {
+    authElements.loginBtn.addEventListener('click', handleEmailLogin);
+} else {
+    console.error("Login button not found for attaching event listener.");
+}
+
+if (authElements.signupBtn) {
+    authElements.signupBtn.addEventListener('click', handleEmailSignup);
+} else {
+    console.error("Signup button not found for attaching event listener.");
+}
+
+onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
         console.log("User logged in:", user.email);
         dashboardElements.userEmail.textContent = user.email;
         updateNav(true);
-        populateDaySelector(); // Populate selector once user is logged in
-        initializeAppAfterAuth(user); // Notify app.js
-        showView('dashboard'); // Go to dashboard after login/signup
+        await initializeAppAfterAuth(user); // This will now fetch/initialize routines
+        showView('dashboard'); 
     } else {
         console.log("User logged out");
         updateNav(false);
         dashboardElements.userEmail.textContent = '';
-        showView('auth'); // Go to auth view if not logged in
-        authElements.form.reset(); // Clear auth form
-        initializeAppAfterAuth(null); // Notify app.js
+        showView('auth'); 
+        authElements.form.reset(); 
+        initializeAppAfterAuth(null);
     }
     clearAuthMessages();
 });

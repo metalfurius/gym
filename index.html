@@ -6,16 +6,17 @@
     <meta name="theme-color" content="#2c3e50"/>
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png"> <!-- For iOS -->
-    <title>Gym Tracker Pro</title>
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    <title>My Workout Tracker</title>
 </head>
 <body>
     <header>
-        <h1>Gym Tracker Pro</h1>
+        <h1>My Workout Tracker</h1>
         <nav>
             <button id="nav-dashboard" class="hidden">Dashboard</button>
+            <button id="nav-manage-routines" class="hidden">Mis Rutinas</button> <!-- New Nav Item -->
             <button id="nav-history" class="hidden">Historial</button>
-            <button id="logout-btn" class="hidden secondary-action">Cerrar Sesión</button>
+            <button id="logout-btn" class="hidden secondary">Cerrar Sesión</button>
         </nav>
     </header>
 
@@ -30,8 +31,8 @@
                 <label for="auth-password">Contraseña:</label>
                 <input type="password" id="auth-password" required minlength="6" autocomplete="current-password">
                 <div class="auth-buttons">
-                    <button type="button" id="login-email-btn">Iniciar Sesión</button>
-                    <button type="button" id="signup-email-btn">Registrarse</button>
+                    <button type="submit" id="login-email-btn">Iniciar Sesión</button> <!-- Changed to submit -->
+                    <button type="submit" id="signup-email-btn">Registrarse</button> <!-- Changed to submit -->
                 </div>
                 <p id="auth-error" class="error-message"></p>
             </form>
@@ -40,41 +41,75 @@
         <!-- Dashboard View -->
         <section id="dashboard-view" class="hidden">
             <h2>Dashboard</h2>
-            <div id="user-info" class="hidden">
+            <div id="user-info" class="hidden" style="margin-bottom: 15px;">
                  <p>Usuario: <span id="user-email"></span></p>
                  <p>Fecha: <span id="current-date"></span></p>
             </div>
             <div id="resume-session-area" style="margin-bottom: 15px;">
                 <p id="resume-session-info" style="font-style: italic; color: #555;"></p>
-                <button id="resume-session-btn" class="ghost-action hidden" style="width:auto; margin-top:5px;">Continuar Sesión</button>
+                <button id="resume-session-btn" class="ghost hidden" style="width:auto; margin-top:5px;">Continuar Sesión</button>
             </div>
-            <label for="day-select">Selecciona el entrenamiento de hoy:</label>
+            <label for="day-select">Elige una rutina para hoy:</label>
             <select id="day-select">
-                <option value="">-- Elige un día --</option>
+                <option value="">-- Cargando rutinas... --</option>
             </select>
-            <button id="start-session-btn" class="primary-action" disabled>Iniciar Nueva Sesión</button>
+            <button id="start-session-btn" disabled>Iniciar Nueva Sesión</button>
+            <button id="manage-routines-link-btn" class="ghost" style="margin-top: 15px; width: 100%;">Gestionar Mis Rutinas</button>
         </section>
 
         <!-- Session View -->
         <section id="session-view" class="hidden">
             <h2 id="session-title"></h2>
             <form id="session-form">
-                <div id="exercise-list">
-                    <!-- Exercise blocks will be populated by JS -->
-                </div>
-                <button type="submit" id="save-session-btn" class="primary-action">Guardar Sesión</button>
-                <button type="button" id="cancel-session-btn" class="secondary-action" style="margin-top:10px;">Cancelar Sesión</button>
+                <div id="exercise-list"></div>
+                <button type="submit" id="save-session-btn">Guardar Sesión</button>
+                <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;">Cancelar Sesión</button>
             </form>
         </section>
 
         <!-- History View -->
         <section id="history-view" class="hidden">
             <h2>Historial de Sesiones</h2>
-            <div id="history-loading" class="spinner hidden"></div>
-            <ul id="history-list">
-                <!-- History items will be populated by JS -->
-            </ul>
+            <div id="history-loading" class="spinner"></div>
+            <ul id="history-list"></ul>
         </section>
+
+        <!-- Manage Routines View -->
+        <section id="manage-routines-view" class="hidden">
+            <h2>Gestionar Mis Rutinas</h2>
+            <button id="add-new-routine-btn">Crear Nueva Rutina</button>
+            <div id="routines-loading" class="spinner"></div>
+            <ul id="routine-list">
+                <!-- User routines will be listed here by JS -->
+            </ul>
+             <button type="button" id="initialize-sample-routines-btn" class="ghost" style="margin-top: 20px;">Restaurar/Añadir Rutinas de Muestra</button>
+        </section>
+
+        <!-- Routine Editor View -->
+        <section id="routine-editor-view" class="hidden">
+            <h2 id="routine-editor-title">Editar Rutina</h2>
+            <form id="routine-editor-form">
+                <input type="hidden" id="routine-id" name="routine-id">
+                
+                <label for="routine-name">Nombre de la Rutina:</label>
+                <input type="text" id="routine-name" name="routine-name" required>
+
+                <fieldset>
+                    <legend>Ejercicios</legend>
+                    <div id="routine-exercises-container">
+                        <!-- Exercise editor blocks will be added here by JS -->
+                    </div>
+                    <button type="button" id="add-exercise-to-routine-btn" class="ghost" style="width: auto;">+ Añadir Ejercicio</button>
+                </fieldset>
+                
+                <div class="form-buttons-group">
+                    <button type="submit" id="save-routine-btn">Guardar Rutina</button>
+                    <button type="button" id="cancel-edit-routine-btn" class="ghost">Cancelar</button>
+                </div>
+                <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;">Eliminar Rutina</button>
+            </form>
+        </section>
+
 
         <!-- Session Detail Modal -->
         <div id="session-detail-modal" class="modal">
@@ -82,21 +117,15 @@
                 <span class="modal-close">×</span>
                 <h3 id="session-detail-title">Detalle de Sesión</h3>
                 <p id="session-detail-date"></p>
-                <ul id="session-detail-exercises">
-                    <!-- Exercise details here -->
-                </ul>
+                <ul id="session-detail-exercises"></ul>
             </div>
         </div>
-
     </main>
 
     <footer>
-        <p>© 2025 Gym Tracker Pro. Hecho con 💪.</p>
+        <p>© 2024 My Workout Tracker. Hecho con 💪.</p>
     </footer>
 
-    <!-- Firebase SDKs and App Logic -->
-    <!-- NOTE: These are ES Modules, they will be loaded by app.js -->
     <script type="module" src="js/app.js"></script>
-
 </body>
 </html>

@@ -1,11 +1,11 @@
 {
-    "name": "Gym Tracker Pro",
-    "short_name": "GymTrack",
-    "description": "Tu compañero de entrenamiento personal para registrar tus progresos en el gimnasio.",
+    "name": "My Workout Tracker",
+    "short_name": "WorkoutApp",
+    "description": "Tu compañero de entrenamiento personal para registrar y personalizar tus progresos.",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#f4f4f4",
-    "theme_color": "#333333",
+    "background_color": "#f0f2f5",
+    "theme_color": "#2c3e50",
     "orientation": "portrait-primary",
     "icons": [
       {

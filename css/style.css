@@ -33,17 +33,17 @@ header h1 {
 nav {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 8px; /* Reduced gap slightly */
 }
 
 nav button {
-    padding: 10px 15px;
+    padding: 10px 12px; /* Adjusted padding */
     cursor: pointer;
     background-color: #34495e; /* Slightly lighter than header */
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 0.9rem;
+    font-size: 0.85rem; /* Adjusted font size */
     transition: background-color 0.2s ease;
 }
 
@@ -77,6 +77,12 @@ h2 {
     border-bottom: 2px solid #ecf0f1;
     font-size: 1.5rem;
 }
+h3 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+}
+
 
 label {
     display: block;
@@ -112,10 +118,7 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-button.primary-action,
-.auth-buttons button,
-#start-session-btn,
-#save-session-btn {
+button, .button { /* Added .button class for a-tags styled as buttons */
     background-color: #3498db; /* Primary blue */
     color: white;
     padding: 12px 20px;
@@ -126,36 +129,36 @@ button.primary-action,
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
-button.primary-action:hover,
-.auth-buttons button:hover,
-#start-session-btn:hover,
-#save-session-btn:hover {
+button:hover, .button:hover {
     background-color: #2980b9;
 }
 
-button.secondary-action,
-#cancel-session-btn {
+button.secondary, .button.secondary {
     background-color: #e74c3c; /* Red for cancel/danger */
 }
-button.secondary-action:hover,
-#cancel-session-btn:hover {
+button.secondary:hover, .button.secondary:hover {
     background-color: #c0392b;
 }
 
-button.ghost-action {
+button.ghost, .button.ghost {
     background-color: transparent;
     color: #3498db;
     border: 1px solid #3498db;
 }
-button.ghost-action:hover {
+button.ghost:hover, .button.ghost:hover {
     background-color: rgba(52, 152, 219, 0.1);
 }
 
 
-button:disabled {
+button:disabled, .button:disabled {
     background-color: #bdc3c7 !important; /* Use !important to override specific button styles */
+    color: #7f8c8d !important;
+    border-color: #bdc3c7 !important;
     cursor: not-allowed;
 }
 
@@ -218,7 +221,7 @@ button:disabled {
     background-color: #f9f9f9;
 }
 
-.exercise-block h3 {
+.exercise-block h3.exercise-name-title { /* More specific selector for exercise name in session view */
     margin-bottom: 5px;
     font-size: 1.2em;
     color: #34495e;
@@ -232,11 +235,15 @@ button:disabled {
 
 .set-row {
     display: grid; /* Using grid for better alignment */
-    grid-template-columns: auto 1fr 1fr 40px; /* Label, Weight, Reps, (Optional: Check) */
+    grid-template-columns: auto 1fr 1fr; /* Label, Input1, Input2 (Weight/Reps or Duration) */
     gap: 10px;
     align-items: center;
     margin-bottom: 10px;
 }
+.set-row.cardio-set-row {
+    grid-template-columns: auto 1fr; /* Label, Input (Duration/Notes) */
+}
+
 
 .set-row label {
     margin-bottom: 0;
@@ -245,17 +252,9 @@ button:disabled {
     font-size: 0.9rem;
 }
 
-.set-row input[type="number"] {
+.set-row input[type="number"], .set-row input[type="text"] {
     margin-bottom: 0;
     padding: 8px; /* Smaller padding for set inputs */
-}
-
-.add-set-btn {
-    display: block;
-    margin: 10px auto 0;
-    width: auto; /* Don't make it full width */
-    padding: 8px 15px;
-    font-size: 0.9em;
 }
 
 /* History View Specific Styles */
@@ -349,6 +348,99 @@ button:disabled {
 }
 
 
+/* Manage Routines View */
+#routine-list {
+    list-style: none;
+    padding: 0;
+}
+#routine-list li {
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#routine-list li .routine-name {
+    font-weight: 500;
+}
+#routine-list li .actions button {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    margin-left: 8px;
+}
+#add-new-routine-btn {
+    margin-bottom: 20px;
+}
+
+/* Routine Editor Form */
+#routine-editor-form fieldset {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+#routine-editor-form legend {
+    padding: 0 10px;
+    font-weight: bold;
+    color: #34495e;
+}
+.routine-exercise-editor {
+    border: 1px dashed #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+.routine-exercise-editor .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.routine-exercise-editor label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+.routine-exercise-editor input,
+.routine-exercise-editor select,
+.routine-exercise-editor textarea {
+    margin-bottom: 10px; /* Smaller margin within editor */
+    padding: 10px;
+}
+.remove-exercise-btn {
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    width: auto; /* Don't make it full width */
+    display: block;
+    margin-top: 10px;
+    float: right;
+}
+.remove-exercise-btn:hover {
+    background-color: #c0392b;
+}
+#add-exercise-to-routine-btn {
+    background-color: #2ecc71;
+    margin: 15px 0;
+}
+#add-exercise-to-routine-btn:hover {
+    background-color: #27ae60;
+}
+
+.form-buttons-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.form-buttons-group button {
+    flex: 1;
+}
+
+
 footer {
     text-align: center;
     margin-top: 40px;
@@ -381,13 +473,10 @@ footer {
         font-size: 2rem;
     }
     nav button {
-        padding: 10px 20px;
-        font-size: 1rem;
+        padding: 10px 15px; /* Adjusted padding */
+        font-size: 0.9rem; /* Adjusted font size */
     }
     .auth-buttons {
         flex-direction: row;
-    }
-    .set-row {
-        /* Grid setup for wider screens is fine as is, or adjust as needed */
     }
 }

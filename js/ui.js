@@ -1,15 +1,16 @@
-import { workoutRoutine } from './store.js';
-
 // --- DOM Elements ---
 export const views = {
     auth: document.getElementById('auth-view'),
     dashboard: document.getElementById('dashboard-view'),
     session: document.getElementById('session-view'),
-    history: document.getElementById('history-view')
+    history: document.getElementById('history-view'),
+    manageRoutines: document.getElementById('manage-routines-view'),
+    routineEditor: document.getElementById('routine-editor-view')
 };
 
 export const navButtons = {
     dashboard: document.getElementById('nav-dashboard'),
+    manageRoutines: document.getElementById('nav-manage-routines'), // New nav button
     history: document.getElementById('nav-history'),
     logout: document.getElementById('logout-btn')
 };
@@ -26,10 +27,11 @@ export const authElements = {
 export const dashboardElements = {
     userEmail: document.getElementById('user-email'),
     currentDate: document.getElementById('current-date'),
-    daySelect: document.getElementById('day-select'),
+    daySelect: document.getElementById('day-select'), // Now populates with user's routines
     startSessionBtn: document.getElementById('start-session-btn'),
     resumeSessionBtn: document.getElementById('resume-session-btn'),
     resumeSessionInfo: document.getElementById('resume-session-info'),
+    manageRoutinesLinkBtn: document.getElementById('manage-routines-link-btn')
 };
 
 export const sessionElements = {
@@ -51,7 +53,27 @@ export const sessionDetailModal = {
     title: document.getElementById('session-detail-title'),
     date: document.getElementById('session-detail-date'),
     exercises: document.getElementById('session-detail-exercises')
-}
+};
+
+export const manageRoutinesElements = {
+    list: document.getElementById('routine-list'),
+    loadingSpinner: document.getElementById('routines-loading'),
+    addNewBtn: document.getElementById('add-new-routine-btn'),
+    initializeSampleRoutinesBtn: document.getElementById('initialize-sample-routines-btn') // <<< AÑADIR ESTA LÍNEA
+};
+
+export const routineEditorElements = {
+    form: document.getElementById('routine-editor-form'),
+    title: document.getElementById('routine-editor-title'),
+    routineIdInput: document.getElementById('routine-id'), // Hidden input for ID
+    routineNameInput: document.getElementById('routine-name'),
+    exercisesContainer: document.getElementById('routine-exercises-container'),
+    addExerciseBtn: document.getElementById('add-exercise-to-routine-btn'),
+    saveRoutineBtn: document.getElementById('save-routine-btn'),
+    cancelEditRoutineBtn: document.getElementById('cancel-edit-routine-btn'),
+    deleteRoutineBtn: document.getElementById('delete-routine-btn')
+};
+
 
 // --- UI Functions ---
 
@@ -63,22 +85,20 @@ export function showView(viewToShowId) {
         console.error(`View with id ${viewToShowId} not found.`);
     }
 
-    // Highlight active nav button
     Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
     if (viewToShowId === 'dashboard' && navButtons.dashboard) navButtons.dashboard.classList.add('active');
+    if (viewToShowId === 'manageRoutines' && navButtons.manageRoutines) navButtons.manageRoutines.classList.add('active');
     if (viewToShowId === 'history' && navButtons.history) navButtons.history.classList.add('active');
+    // routineEditor is a sub-view, doesn't need nav highlighting
 }
 
 export function updateNav(isLoggedIn) {
+    const commonButtons = [navButtons.dashboard, navButtons.manageRoutines, navButtons.history, navButtons.logout];
     if (isLoggedIn) {
-        navButtons.dashboard.classList.remove('hidden');
-        navButtons.history.classList.remove('hidden');
-        navButtons.logout.classList.remove('hidden');
+        commonButtons.forEach(btn => btn.classList.remove('hidden'));
         dashboardElements.userEmail.parentElement.classList.remove('hidden');
     } else {
-        navButtons.dashboard.classList.add('hidden');
-        navButtons.history.classList.add('hidden');
-        navButtons.logout.classList.add('hidden');
+        commonButtons.forEach(btn => btn.classList.add('hidden'));
         dashboardElements.userEmail.parentElement.classList.add('hidden');
         dashboardElements.resumeSessionBtn.classList.add('hidden');
         dashboardElements.resumeSessionInfo.textContent = '';
@@ -91,11 +111,10 @@ export function displayAuthError(message) {
     authElements.errorMsg.classList.add('error-message');
 }
 export function displayAuthSuccess(message) {
-    authElements.errorMsg.textContent = message; // Using same element for simplicity
+    authElements.errorMsg.textContent = message;
     authElements.errorMsg.classList.remove('error-message');
     authElements.errorMsg.classList.add('success-message');
 }
-
 export function clearAuthMessages() {
     authElements.errorMsg.textContent = '';
 }
@@ -109,47 +128,64 @@ export function formatDateShort(date) {
     return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-
-export function populateDaySelector() {
-    dashboardElements.daySelect.innerHTML = '<option value="">-- Elige un día --</option>'; // Reset
-    for (const dayId in workoutRoutine) {
+// Populates the day selector on the dashboard with the user's routines
+export function populateDaySelector(userRoutines) {
+    dashboardElements.daySelect.innerHTML = '<option value="">-- Elige una rutina --</option>'; // Reset
+    if (userRoutines && userRoutines.length > 0) {
+        userRoutines.forEach(routine => {
+            const option = document.createElement('option');
+            option.value = routine.id; // Firestore document ID
+            option.textContent = routine.name;
+            dashboardElements.daySelect.appendChild(option);
+        });
+    } else {
         const option = document.createElement('option');
-        option.value = dayId;
-        option.textContent = workoutRoutine[dayId].name;
+        option.value = "";
+        option.textContent = "No tienes rutinas. ¡Crea una!";
+        option.disabled = true;
         dashboardElements.daySelect.appendChild(option);
     }
+    dashboardElements.startSessionBtn.disabled = true; // Disable until a routine is selected
 }
 
-export function renderSessionView(dayId, inProgressData = null) {
-    const workout = workoutRoutine[dayId];
-    if (!workout) {
-        console.error("Workout day not found:", dayId);
-        alert("Error: Día de entrenamiento no encontrado.");
+
+export function renderSessionView(routine, inProgressData = null) {
+    if (!routine || !routine.exercises) {
+        console.error("Routine data is invalid for session view:", routine);
+        alert("Error: Datos de la rutina no válidos.");
         showView('dashboard');
         return;
     }
 
-    sessionElements.title.textContent = workout.name;
+    sessionElements.title.textContent = routine.name;
     sessionElements.exerciseList.innerHTML = ''; // Clear previous exercises
 
-    workout.exercises.forEach((exercise, exerciseIndex) => {
+    routine.exercises.forEach((exercise, exerciseIndex) => {
         const exerciseBlock = document.createElement('div');
         exerciseBlock.className = 'exercise-block';
-        exerciseBlock.dataset.exerciseIndex = exerciseIndex; // Store original index
+        exerciseBlock.dataset.exerciseIndex = exerciseIndex;
 
         const title = document.createElement('h3');
+        title.classList.add('exercise-name-title');
         title.textContent = exercise.name;
         exerciseBlock.appendChild(title);
 
         const target = document.createElement('p');
         target.className = 'target-info';
-        const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} series` : exercise.sets;
-        target.textContent = `Objetivo: ${setsDisplay} x ${exercise.reps} reps`;
+
+        if (exercise.type === 'strength') {
+            const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} series` : exercise.sets;
+            target.textContent = `Objetivo: ${setsDisplay} x ${exercise.reps} reps`;
+        } else if (exercise.type === 'cardio') {
+            target.textContent = `Objetivo: ${exercise.duration || 'Tiempo/Distancia'}`;
+        } else {
+            target.textContent = `Objetivo: ${exercise.reps || 'Completar'}`; // Fallback for unknown or old types
+        }
         exerciseBlock.appendChild(target);
 
-        // Inputs for sets (weight and reps)
-        if (exercise.type !== 'cardio' && !exercise.reps.toLowerCase().includes("min")) { // Don't show for cardio/timed
-            const numberOfSets = parseInt(exercise.sets) || 0; // Fallback to 0 if not a number
+        // Inputs for sets
+        if (exercise.type === 'strength') {
+            const numberOfSets = parseInt(exercise.sets) || 0;
             for (let i = 0; i < numberOfSets; i++) {
                 const setRow = document.createElement('div');
                 setRow.className = 'set-row';
@@ -166,30 +202,29 @@ export function renderSessionView(dayId, inProgressData = null) {
                 weightInput.name = `weight-${exerciseIndex}-${i}`;
                 weightInput.placeholder = 'Peso (kg)';
                 weightInput.min = "0";
-                weightInput.step = "0.25"; // Common increment
-                if (inProgressData && inProgressData.ejercicios[exerciseIndex]?.sets[i]) {
+                weightInput.step = "0.25";
+                if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]) {
                     weightInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].peso || '';
                 }
                 setRow.appendChild(weightInput);
 
                 const repsInput = document.createElement('input');
-                repsInput.type = 'number';
+repsInput.type = 'number';
                 repsInput.id = `reps-${exerciseIndex}-${i}`;
                 repsInput.name = `reps-${exerciseIndex}-${i}`;
                 repsInput.placeholder = 'Reps';
                 repsInput.min = "0";
-                if (inProgressData && inProgressData.ejercicios[exerciseIndex]?.sets[i]) {
+                if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]) {
                     repsInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].reps || '';
                 }
                 setRow.appendChild(repsInput);
-                
                 exerciseBlock.appendChild(setRow);
             }
-        } else {
-             const infoPara = document.createElement('p');
-            infoPara.textContent = exercise.reps.toLowerCase().includes("min") || exercise.reps.toLowerCase().includes("seg") ?
-                                   "Registra el tiempo/distancia en las notas." :
-                                   "(No se requiere entrada de peso/reps para este ítem)";
+        } else if (exercise.type === 'cardio') {
+            // For cardio, maybe just one input for actual duration/distance or rely on notes
+            // Or could have a specific input if desired, for now, it's simpler
+            const infoPara = document.createElement('p');
+            infoPara.textContent = "Registra los detalles en las notas.";
             infoPara.style.fontSize = '0.9em';
             infoPara.style.color = '#666';
             exerciseBlock.appendChild(infoPara);
@@ -205,22 +240,20 @@ export function renderSessionView(dayId, inProgressData = null) {
         const notesTextarea = document.createElement('textarea');
         notesTextarea.id = `notes-${exerciseIndex}`;
         notesTextarea.name = `notes-${exerciseIndex}`;
-        notesTextarea.placeholder = 'Añade notas sobre este ejercicio...';
+        notesTextarea.placeholder = exercise.type === 'cardio' ? 'Ej: 20 min a 140bpm, o 5km en 25 min...' : 'Añade notas sobre este ejercicio...';
         notesTextarea.className = 'exercise-notes';
-        if (inProgressData && inProgressData.ejercicios[exerciseIndex]) {
+        if (inProgressData?.ejercicios[exerciseIndex]) {
             notesTextarea.value = inProgressData.ejercicios[exerciseIndex].notasEjercicio || '';
         }
         exerciseBlock.appendChild(notesTextarea);
-
         sessionElements.exerciseList.appendChild(exerciseBlock);
     });
     showView('session');
 }
 
-
 export function renderHistoryList(sessions) {
     historyElements.loadingSpinner.classList.add('hidden');
-    historyElements.list.innerHTML = ''; // Clear previous
+    historyElements.list.innerHTML = ''; 
 
     if (!sessions || sessions.length === 0) {
         const li = document.createElement('li');
@@ -231,10 +264,10 @@ export function renderHistoryList(sessions) {
 
     sessions.forEach(session => {
         const li = document.createElement('li');
-        li.dataset.sessionId = session.id; // Store Firebase doc ID
+        li.dataset.sessionId = session.id; 
 
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
+        nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento; // diaEntrenamiento is legacy
 
         const dateSpan = document.createElement('span');
         dateSpan.className = 'date';
@@ -247,19 +280,15 @@ export function renderHistoryList(sessions) {
 }
 
 export function showSessionDetail(sessionData) {
-    if (!sessionData) {
-        console.error("No session data provided to show detail");
-        return;
-    }
+    if (!sessionData) return;
     sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || "Detalle de Sesión";
     sessionDetailModal.date.textContent = `Fecha: ${formatDate(sessionData.fecha.toDate())}`;
-    
-    sessionDetailModal.exercises.innerHTML = ''; // Clear previous
+    sessionDetailModal.exercises.innerHTML = ''; 
     
     sessionData.ejercicios.forEach(ex => {
         const exLi = document.createElement('li');
-        let exHtml = `<strong>${ex.nombreEjercicio}</strong>`;
-        if (ex.sets && ex.sets.length > 0) {
+        let exHtml = `<strong>${ex.nombreEjercicio}</strong> (${ex.tipoEjercicio || 'fuerza'})`; // Show type
+        if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
             exHtml += '<ul>';
             ex.sets.forEach((set, index) => {
                 exHtml += `<li>Serie ${index + 1}: ${set.peso} kg x ${set.reps} reps</li>`;
@@ -272,13 +301,141 @@ export function showSessionDetail(sessionData) {
         exLi.innerHTML = exHtml;
         sessionDetailModal.exercises.appendChild(exLi);
     });
-
     sessionDetailModal.modal.style.display = 'block';
 }
-
 export function hideSessionDetail() {
     sessionDetailModal.modal.style.display = 'none';
 }
+
+export function renderManageRoutinesView(routines) {
+    manageRoutinesElements.loadingSpinner.classList.add('hidden');
+    manageRoutinesElements.list.innerHTML = '';
+
+    if (!routines || routines.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No tienes rutinas personalizadas. ¡Crea una o usa las de muestra!';
+        // Optionally add a button here to "Copiar rutinas de muestra"
+        manageRoutinesElements.list.appendChild(li);
+        return;
+    }
+
+    routines.forEach(routine => {
+        const li = document.createElement('li');
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'routine-name';
+        nameSpan.textContent = routine.name;
+        li.appendChild(nameSpan);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Editar';
+        editBtn.classList.add('ghost');
+        editBtn.dataset.routineId = routine.id;
+        editBtn.addEventListener('click', (e) => {
+            // Callback to app.js to handle edit
+            const event = new CustomEvent('editRoutineClicked', { detail: { routineId: e.target.dataset.routineId }});
+            document.dispatchEvent(event);
+        });
+        actionsDiv.appendChild(editBtn);
+        
+        // Delete button can be added here later if needed
+        // const deleteBtn = document.createElement('button'); /* ... */
+
+        li.appendChild(actionsDiv);
+        manageRoutinesElements.list.appendChild(li);
+    });
+    showView('manageRoutines');
+}
+
+let exerciseEditorCounter = 0; // To give unique IDs to dynamically added exercise fields
+
+export function renderRoutineEditor(routine = null) {
+    routineEditorElements.form.reset();
+    routineEditorElements.exercisesContainer.innerHTML = ''; // Clear existing exercises
+    exerciseEditorCounter = 0;
+
+    if (routine) { // Editing existing routine
+        routineEditorElements.title.textContent = 'Editar Rutina';
+        routineEditorElements.routineIdInput.value = routine.id;
+        routineEditorElements.routineNameInput.value = routine.name;
+        routineEditorElements.deleteRoutineBtn.classList.remove('hidden');
+        routineEditorElements.deleteRoutineBtn.dataset.routineId = routine.id;
+
+
+        routine.exercises.forEach(ex => addExerciseToEditorForm(ex));
+    } else { // Creating new routine
+        routineEditorElements.title.textContent = 'Crear Nueva Rutina';
+        routineEditorElements.routineIdInput.value = ''; // No ID yet for new
+        routineEditorElements.deleteRoutineBtn.classList.add('hidden');
+        addExerciseToEditorForm(); // Add one empty exercise to start
+    }
+    showView('routineEditor');
+}
+
+
+export function addExerciseToEditorForm(exerciseData = null) {
+    exerciseEditorCounter++;
+    const exerciseDiv = document.createElement('div');
+    exerciseDiv.className = 'routine-exercise-editor';
+    exerciseDiv.dataset.editorId = `exEditor-${exerciseEditorCounter}`;
+
+    let exerciseType = exerciseData?.type || 'strength';
+
+    exerciseDiv.innerHTML = `
+        <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}">× Quitar</button>
+        <label for="ex-name-${exerciseEditorCounter}">Nombre del Ejercicio:</label>
+        <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${exerciseData?.name || ''}" required>
+
+        <label for="ex-type-${exerciseEditorCounter}">Tipo de Ejercicio:</label>
+        <select id="ex-type-${exerciseEditorCounter}" name="ex-type">
+            <option value="strength" ${exerciseType === 'strength' ? 'selected' : ''}>Fuerza (Series/Reps)</option>
+            <option value="cardio" ${exerciseType === 'cardio' ? 'selected' : ''}>Cardio (Duración)</option>
+        </select>
+
+        <div class="strength-fields" style="display: ${exerciseType === 'strength' ? 'block' : 'none'};">
+            <div class="form-grid">
+                <div>
+                    <label for="ex-sets-${exerciseEditorCounter}">Series:</label>
+                    <input type="number" id="ex-sets-${exerciseEditorCounter}" name="ex-sets" min="0" value="${exerciseData?.sets || ''}">
+                </div>
+                <div>
+                    <label for="ex-reps-${exerciseEditorCounter}">Reps/Objetivo:</label>
+                    <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${exerciseData?.reps || ''}">
+                </div>
+            </div>
+        </div>
+        <div class="cardio-fields" style="display: ${exerciseType === 'cardio' ? 'block' : 'none'};">
+            <label for="ex-duration-${exerciseEditorCounter}">Duración/Objetivo:</label>
+            <input type="text" id="ex-duration-${exerciseEditorCounter}" name="ex-duration" value="${exerciseData?.duration || ''}">
+        </div>
+        <label for="ex-notes-${exerciseEditorCounter}">Notas Adicionales (opcional):</label>
+        <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="Ej: usar agarre supino, aumentar peso la próxima vez...">${exerciseData?.notes || ''}</textarea>
+    `;
+    routineEditorElements.exercisesContainer.appendChild(exerciseDiv);
+
+    const typeSelect = exerciseDiv.querySelector('select[name="ex-type"]');
+    const strengthFields = exerciseDiv.querySelector('.strength-fields');
+    const cardioFields = exerciseDiv.querySelector('.cardio-fields');
+
+    typeSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'strength') {
+            strengthFields.style.display = 'block';
+            cardioFields.style.display = 'none';
+        } else {
+            strengthFields.style.display = 'none';
+            cardioFields.style.display = 'block';
+        }
+    });
+
+    const removeBtn = exerciseDiv.querySelector('.remove-exercise-btn');
+    removeBtn.addEventListener('click', () => {
+        exerciseDiv.remove();
+    });
+}
+
 
 export function showLoading(buttonElement, text = 'Cargando...') {
     if (buttonElement) {
@@ -287,7 +444,6 @@ export function showLoading(buttonElement, text = 'Cargando...') {
         buttonElement.innerHTML = `<span class="spinner" style="width:18px; height:18px; border-width:2px; display:inline-block; vertical-align:middle; margin-right:5px;"></span> ${text}`;
     }
 }
-
 export function hideLoading(buttonElement) {
      if (buttonElement) {
         buttonElement.disabled = false;

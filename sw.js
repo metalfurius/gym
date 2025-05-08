@@ -14,14 +14,13 @@ const urlsToCache = [
   'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js',
   'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'
-  // Añade aquí cualquier otra fuente o imagen estática importante
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
+        console.log('SW: Opened cache');
         return cache.addAll(urlsToCache);
       })
   );
@@ -30,37 +29,47 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
+      .then(cachedResponse => {
         // Cache hit - return response
-        if (response) {
-          return response;
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return fetch(event.request).then(
-          // Si la petición es exitosa, la clonamos y la guardamos en cache
-          // Es importante clonar porque la respuesta es un Stream y solo puede ser consumida una vez
-          function(response) {
-            // Comprueba si recibimos una respuesta válida
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              if (event.request.url.includes('firestore.googleapis.com')) { // No cachear peticiones de Firestore
-                return response;
-              }
-            }
 
-            // No cachear peticiones a Firestore directamente aquí para evitar datos desactualizados,
-            // Firebase SDK maneja su propia cache offline si está habilitada.
-            // Solo cacheamos nuestros assets estáticos.
-            if (!event.request.url.includes('firestore.googleapis.com') && !event.request.url.includes('firebaseapp.com')) {
-                const responseToCache = response.clone();
-                caches.open(CACHE_NAME)
-                  .then(cache => {
-                    cache.put(event.request, responseToCache);
-                  });
+        // Not in cache, fetch from network
+        return fetch(event.request).then(
+          networkResponse => {
+            // IMPORTANT: Check if we received a valid response AND if it's something we WANT to cache.
+            // This is the crucial part that fixes the errors.
+            if (
+              networkResponse &&                          // We got a response
+              networkResponse.status === 200 &&           // It's a successful response
+              event.request.method === 'GET' &&           // <<< ONLY cache GET requests
+              (event.request.url.startsWith('http:') ||   // <<< ONLY cache http or https schemes
+               event.request.url.startsWith('https:')) &&
+              !event.request.url.includes('firestore.googleapis.com') && // Don't cache Firestore API calls
+              !event.request.url.includes('firebaseapp.com') // Generally, don't cache auth domain interactions unless specific static assets
+                                                             // This also helps avoid caching other potential Firebase service calls.
+            ) {
+              // Clone the response to use it in the cache and to return to the browser.
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(event.request, responseToCache);
+                });
             }
-            return response;
+            return networkResponse; // Return the original network response
           }
-        );
+        ).catch(error => {
+          // Handle fetch errors, e.g., when offline.
+          // For GET requests, you might want to return a fallback page.
+          console.warn('SW: Network fetch failed for:', event.request.url, error);
+          // Example: if (event.request.mode === 'navigate') return caches.match('/offline.html');
+          // For now, just rethrow to let the browser handle it or show its default offline page.
+          // This prevents the SW from breaking on POST/PUT errors when offline if not handled.
+          // throw error; // Uncomment if you want the browser's default error for fetch failures.
+        });
       })
-    );
+  );
 });
 
 self.addEventListener('activate', event => {
@@ -70,10 +79,13 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('SW: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  // Force the SW to become active immediately
+  return self.clients.claim();
 });
