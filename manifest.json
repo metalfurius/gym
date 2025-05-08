@@ -1,0 +1,24 @@
+{
+    "name": "Gym Tracker Pro",
+    "short_name": "GymTrack",
+    "description": "Tu compañero de entrenamiento personal para registrar tus progresos en el gimnasio.",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#f4f4f4",
+    "theme_color": "#333333",
+    "orientation": "portrait-primary",
+    "icons": [
+      {
+        "src": "assets/icons/icon-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "assets/icons/icon-512x512.png",
+        "type": "image/png",
+        "sizes": "512x512",
+        "purpose": "any maskable"
+      }
+    ]
+  }

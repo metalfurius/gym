@@ -1,0 +1,393 @@
+/* Basic Reset & Mobile First Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.6;
+    background-color: #f0f2f5; /* Slightly lighter background */
+    color: #333;
+    padding-bottom: 70px; /* Space for potential fixed bottom nav */
+}
+
+header {
+    background-color: #2c3e50; /* Darker, more modern blue/grey */
+    color: #ecf0f1; /* Lighter text color */
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky; /* Make header sticky */
+    top: 0;
+    z-index: 1000;
+}
+
+header h1 {
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+nav button {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #34495e; /* Slightly lighter than header */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+nav button:hover, nav button.active {
+    background-color: #4e6a85;
+}
+
+nav button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+main {
+    padding: 15px;
+    max-width: 700px; /* Max width for content on larger screens */
+    margin: 20px auto; /* Add top margin and center */
+}
+
+section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ecf0f1;
+    font-size: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+select,
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #fdfdfd;
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+button.primary-action,
+.auth-buttons button,
+#start-session-btn,
+#save-session-btn {
+    background-color: #3498db; /* Primary blue */
+    color: white;
+    padding: 12px 20px;
+    font-size: 1.05rem;
+    font-weight: 500;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button.primary-action:hover,
+.auth-buttons button:hover,
+#start-session-btn:hover,
+#save-session-btn:hover {
+    background-color: #2980b9;
+}
+
+button.secondary-action,
+#cancel-session-btn {
+    background-color: #e74c3c; /* Red for cancel/danger */
+}
+button.secondary-action:hover,
+#cancel-session-btn:hover {
+    background-color: #c0392b;
+}
+
+button.ghost-action {
+    background-color: transparent;
+    color: #3498db;
+    border: 1px solid #3498db;
+}
+button.ghost-action:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+
+button:disabled {
+    background-color: #bdc3c7 !important; /* Use !important to override specific button styles */
+    cursor: not-allowed;
+}
+
+.hidden {
+    display: none !important; /* Use !important to ensure it overrides other display properties */
+}
+
+/* Auth View */
+#auth-form h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.auth-buttons button {
+    flex: 1;
+}
+#login-email-btn { background-color: #3498db; }
+#signup-email-btn { background-color: #2ecc71; }
+#login-email-btn:hover { background-color: #2980b9; }
+#signup-email-btn:hover { background-color: #27ae60; }
+
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9em;
+    margin-top: 10px;
+    text-align: center;
+    min-height: 1.2em;
+}
+.success-message {
+    color: #2ecc71;
+    font-size: 0.9em;
+    margin-top: 10px;
+    text-align: center;
+    min-height: 1.2em;
+}
+
+
+/* Dashboard View */
+#user-info p {
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+}
+#user-info #user-email {
+    font-weight: bold;
+    color: #34495e;
+}
+
+/* Session View Specific Styles */
+.exercise-block {
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+}
+
+.exercise-block h3 {
+    margin-bottom: 5px;
+    font-size: 1.2em;
+    color: #34495e;
+}
+
+.exercise-block .target-info {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.set-row {
+    display: grid; /* Using grid for better alignment */
+    grid-template-columns: auto 1fr 1fr 40px; /* Label, Weight, Reps, (Optional: Check) */
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.set-row label {
+    margin-bottom: 0;
+    font-weight: normal;
+    text-align: right;
+    font-size: 0.9rem;
+}
+
+.set-row input[type="number"] {
+    margin-bottom: 0;
+    padding: 8px; /* Smaller padding for set inputs */
+}
+
+.add-set-btn {
+    display: block;
+    margin: 10px auto 0;
+    width: auto; /* Don't make it full width */
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+/* History View Specific Styles */
+#history-list {
+    list-style: none;
+    padding: 0;
+}
+
+#history-list li {
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#history-list li:hover {
+    background-color: #f5f7fa;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+#history-list li .date {
+    font-size: 0.85em;
+    color: #777;
+}
+
+/* Session Detail Modal */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* Dim background */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 25px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.modal-close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#session-detail-content h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+#session-detail-exercises {
+    list-style: none;
+    padding-left: 0;
+}
+#session-detail-exercises li {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+#session-detail-exercises li:last-child {
+    border-bottom: none;
+}
+#session-detail-exercises strong {
+    color: #34495e;
+}
+
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 15px;
+    color: #7f8c8d;
+    font-size: 0.9em;
+    background-color: #ecf0f1;
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #3498db;
+    animation: spin 1s ease infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* Responsive Adjustments */
+@media (min-width: 600px) {
+    header h1 {
+        font-size: 2rem;
+    }
+    nav button {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+    .auth-buttons {
+        flex-direction: row;
+    }
+    .set-row {
+        /* Grid setup for wider screens is fine as is, or adjust as needed */
+    }
+}
