@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#2c3e50"/>
+    <meta name="theme-color" content="#2c3e50" />
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <title>My Workout Tracker</title>
 </head>
+
 <body>
     <header>
         <h1>My Workout Tracker</h1>
@@ -42,19 +44,37 @@
         <section id="dashboard-view" class="hidden">
             <h2>Dashboard</h2>
             <div id="user-info" class="hidden" style="margin-bottom: 15px;">
-                 <p>Usuario: <span id="user-email"></span></p>
-                 <p>Fecha: <span id="current-date"></span></p>
+                <p>Usuario: <span id="user-email"></span></p>
+                <p>Fecha: <span id="current-date"></span></p>
             </div>
             <div id="resume-session-area" style="margin-bottom: 15px;">
                 <p id="resume-session-info" style="font-style: italic; color: #555;"></p>
-                <button id="resume-session-btn" class="ghost hidden" style="width:auto; margin-top:5px;">Continuar Sesión</button>
+                <button id="resume-session-btn" class="ghost hidden" style="width:auto; margin-top:5px;">Continuar
+                    Sesión</button>
             </div>
+
+            <div id="activity-calendar-container" style="margin-top: 30px; margin-bottom:20px;">
+                <h3>Actividad del Año</h3>
+                <div class="calendar-controls"
+                    style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                    <button id="prev-year-btn"><</button>
+                            <span id="current-year-display"></span>
+                            <button id="next-year-btn">></button>
+                </div>
+                <div id="activity-calendar"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(15px, 1fr)); gap: 2px; max-width: 100%; overflow-x: auto; padding-bottom: 10px;">
+                    <!-- Las celdas del calendario se generarán aquí -->
+                </div>
+                <div id="calendar-loading-spinner" class="spinner hidden" style="margin-top:10px;"></div>
+            </div>
+
             <label for="day-select">Elige una rutina para hoy:</label>
             <select id="day-select">
                 <option value="">-- Cargando rutinas... --</option>
             </select>
             <button id="start-session-btn" disabled>Iniciar Nueva Sesión</button>
-            <button id="manage-routines-link-btn" class="ghost" style="margin-top: 15px; width: 100%;">Gestionar Mis Rutinas</button>
+            <button id="manage-routines-link-btn" class="ghost" style="margin-top: 15px; width: 100%;">Gestionar Mis
+                Rutinas</button>
         </section>
 
         <!-- Session View -->
@@ -63,7 +83,8 @@
             <form id="session-form">
                 <div id="exercise-list"></div>
                 <button type="submit" id="save-session-btn">Guardar Sesión</button>
-                <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;">Cancelar Sesión</button>
+                <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;">Cancelar
+                    Sesión</button>
             </form>
         </section>
 
@@ -82,7 +103,8 @@
             <ul id="routine-list">
                 <!-- User routines will be listed here by JS -->
             </ul>
-             <button type="button" id="initialize-sample-routines-btn" class="ghost" style="margin-top: 20px;">Restaurar/Añadir Rutinas de Muestra</button>
+            <button type="button" id="initialize-sample-routines-btn" class="ghost"
+                style="margin-top: 20px;">Restaurar/Añadir Rutinas de Muestra</button>
         </section>
 
         <!-- Routine Editor View -->
@@ -90,7 +112,7 @@
             <h2 id="routine-editor-title">Editar Rutina</h2>
             <form id="routine-editor-form">
                 <input type="hidden" id="routine-id" name="routine-id">
-                
+
                 <label for="routine-name">Nombre de la Rutina:</label>
                 <input type="text" id="routine-name" name="routine-name" required>
 
@@ -99,14 +121,16 @@
                     <div id="routine-exercises-container">
                         <!-- Exercise editor blocks will be added here by JS -->
                     </div>
-                    <button type="button" id="add-exercise-to-routine-btn" class="ghost" style="width: auto;">+ Añadir Ejercicio</button>
+                    <button type="button" id="add-exercise-to-routine-btn" class="ghost" style="width: auto;">+ Añadir
+                        Ejercicio</button>
                 </fieldset>
-                
+
                 <div class="form-buttons-group">
                     <button type="submit" id="save-routine-btn">Guardar Rutina</button>
                     <button type="button" id="cancel-edit-routine-btn" class="ghost">Cancelar</button>
                 </div>
-                <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;">Eliminar Rutina</button>
+                <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;">Eliminar
+                    Rutina</button>
             </form>
         </section>
 
@@ -123,9 +147,10 @@
     </main>
 
     <footer>
-        <p>© 2024 My Workout Tracker. Hecho con 💪.</p>
+        <p>© 2025 My Workout Tracker. Hecho con 💪.</p>
     </footer>
 
     <script type="module" src="js/app.js"></script>
 </body>
+
 </html>

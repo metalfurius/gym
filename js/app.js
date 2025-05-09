@@ -1,16 +1,18 @@
 import { db } from './firebase-config.js'; // auth is handled in auth.js
-import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getCurrentUser, handleLogout } from './auth.js'; // Removed login/signup handlers, they are in auth.js
 import {
     showView, updateNav, formatDate, populateDaySelector, renderSessionView,
     renderHistoryList, showSessionDetail, hideSessionDetail, renderManageRoutinesView,
     renderRoutineEditor, addExerciseToEditorForm,
     views, navButtons, authElements, dashboardElements, sessionElements, historyElements, sessionDetailModal,
-    manageRoutinesElements, routineEditorElements, showLoading, hideLoading
+    manageRoutinesElements, routineEditorElements, showLoading, hideLoading,
+    calendarElements
 } from './ui.js';
 import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 
 // --- State ---
+let currentCalendarYear = new Date().getFullYear();
 let currentRoutineForSession = null; // Stores the full routine object for the active session
 let currentUserRoutines = []; // Cache for user's routines
 let allSessionsCache = []; 
@@ -21,6 +23,8 @@ export async function initializeAppAfterAuth(user) {
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user); // Fetch routines first
         checkAndOfferResumeSession(); // Then check for resume
+        currentCalendarYear = new Date().getFullYear(); 
+        updateCalendarView();
     } else {
         currentRoutineForSession = null;
         currentUserRoutines = [];
@@ -28,6 +32,7 @@ export async function initializeAppAfterAuth(user) {
         sessionElements.form.reset();
         historyElements.list.innerHTML = '<li id="history-loading">Cargando historial...</li>';
         manageRoutinesElements.list.innerHTML = '<li id="routines-loading">Cargando rutinas...</li>';
+        if (calendarElements.container) calendarElements.container.classList.add('hidden');
     }
 }
 
@@ -92,28 +97,36 @@ async function fetchUserRoutines(user) {
 function checkAndOfferResumeSession() {
     const inProgress = loadInProgressSession();
     const user = getCurrentUser();
+
+    // Referencia al div contenedor
+    const resumeArea = dashboardElements.resumeSessionArea; // Asumiendo que lo tienes en dashboardElements
+
     if (inProgress && user) {
         const routine = currentUserRoutines.find(r => r.id === inProgress.routineId);
         if (routine) {
             dashboardElements.resumeSessionInfo.textContent = `Tienes una sesión de "${routine.name}" sin guardar.`;
             dashboardElements.resumeSessionBtn.classList.remove('hidden');
+            resumeArea.classList.add('visible'); // <<< AÑADIR CLASE VISIBLE
+
             dashboardElements.resumeSessionBtn.onclick = () => {
                 currentRoutineForSession = routine;
                 renderSessionView(routine, inProgress.data);
                 dashboardElements.resumeSessionBtn.classList.add('hidden');
                 dashboardElements.resumeSessionInfo.textContent = '';
+                resumeArea.classList.remove('visible'); // <<< QUITAR CLASE VISIBLE
             };
         } else { // Routine might have been deleted
             clearInProgressSession();
             dashboardElements.resumeSessionBtn.classList.add('hidden');
             dashboardElements.resumeSessionInfo.textContent = '';
+            resumeArea.classList.remove('visible'); // <<< QUITAR CLASE VISIBLE
         }
     } else {
         dashboardElements.resumeSessionBtn.classList.add('hidden');
         dashboardElements.resumeSessionInfo.textContent = '';
+        resumeArea.classList.remove('visible'); // <<< QUITAR CLASE VISIBLE
     }
 }
-
 
 // --- Event Listeners ---
 
@@ -122,6 +135,7 @@ navButtons.dashboard.addEventListener('click', () => {
     showView('dashboard');
     fetchUserRoutines(getCurrentUser()); // Refresh routines in case they were edited
     checkAndOfferResumeSession();
+    updateCalendarView();
 });
 navButtons.manageRoutines.addEventListener('click', () => {
     showView('manageRoutines');
@@ -301,21 +315,50 @@ async function fetchAndRenderHistory() {
     }
 }
 historyElements.list.addEventListener('click', async (event) => {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const targetButton = event.target.closest('button[data-action="delete-session"]');
     const listItem = event.target.closest('li[data-session-id]');
-    if (listItem) {
+
+    if (targetButton) { // --- SE HA HECHO CLIC EN EL BOTÓN DE ELIMINAR ---
+        event.stopPropagation(); // Evita que se active el modal de detalles si el botón está dentro del li
+        const sessionIdToDelete = targetButton.dataset.sessionId;
+        const sessionName = listItem.querySelector('span:not(.date)').textContent; // Para el mensaje de confirmación
+
+        if (confirm(`¿Estás seguro de que quieres eliminar la sesión "${sessionName}"? Esta acción no se puede deshacer.`)) {
+            showLoading(targetButton, 'Eliminando...');
+            try {
+                const sessionDocRef = doc(db, "users", user.uid, "sesiones_entrenamiento", sessionIdToDelete);
+                await deleteDoc(sessionDocRef);
+                // alert("Sesión eliminada con éxito."); // Opcional, el refresco de la lista es suficiente
+                fetchAndRenderHistory(); // Refresca la lista para quitar el elemento eliminado
+                // También actualiza el cache local si lo usas activamente para otras cosas
+                allSessionsCache = allSessionsCache.filter(s => s.id !== sessionIdToDelete);
+            } catch (error) {
+                console.error("Error eliminando sesión del historial: ", error);
+                alert("Error al eliminar la sesión.");
+                hideLoading(targetButton);
+            }
+            // No necesitas hideLoading aquí si el botón desaparece con el refresh
+        }
+    } else if (listItem) { // --- SE HA HECHO CLIC EN EL LI (para ver detalles) ---
         const sessionId = listItem.dataset.sessionId;
-        const user = getCurrentUser();
-        if (!user) return;
         let sessionData = allSessionsCache.find(s => s.id === sessionId);
         if (!sessionData) {
-            historyElements.loadingSpinner.classList.remove('hidden');
+            historyElements.loadingSpinner.classList.remove('hidden'); // O un spinner más pequeño
             try {
                 const docRef = doc(db, "users", user.uid, "sesiones_entrenamiento", sessionId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) sessionData = { id: docSnap.id, ...docSnap.data() };
                 else { alert("No se encontraron los detalles."); return; }
-            } catch (err) { console.error("Error fetching session detail: ", err); alert("Error al cargar detalles."); return; }
-            finally { historyElements.loadingSpinner.classList.add('hidden');}
+            } catch (err) { 
+                console.error("Error fetching session detail: ", err); 
+                alert("Error al cargar detalles."); 
+                return; 
+            } finally { 
+                historyElements.loadingSpinner.classList.add('hidden'); 
+            }
         }
         if (sessionData) showSessionDetail(sessionData);
     }
@@ -497,5 +540,127 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
+
+
+// Función para obtener los datos de actividad (ya la sugerí antes, aquí la adaptamos)
+async function getYearlyActivity(userId, year) {
+    calendarElements.loadingSpinner.classList.remove('hidden');
+    const activityMap = new Map(); // 'YYYY-MM-DD' -> count
+    const startDate = new Date(year, 0, 1); // Enero 1
+    const endDate = new Date(year, 11, 31, 23, 59, 59); // Diciembre 31
+
+    try {
+        const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
+        const q = query(sessionsRef,
+            where("fecha", ">=", Timestamp.fromDate(startDate)),
+            where("fecha", "<=", Timestamp.fromDate(endDate))
+        );
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(docSnap => { // Cambiado 'doc' a 'docSnap' para evitar conflicto
+            const session = docSnap.data();
+            if (session.fecha && session.fecha.toDate) { // Asegurarse de que fecha existe y es Timestamp
+                const dateString = session.fecha.toDate().toISOString().split('T')[0]; // YYYY-MM-DD
+                activityMap.set(dateString, (activityMap.get(dateString) || 0) + 1);
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching yearly activity:", error);
+        // Podrías mostrar un mensaje de error en la UI del calendario
+    } finally {
+        calendarElements.loadingSpinner.classList.add('hidden');
+    }
+    return activityMap;
+}
+
+function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+function renderActivityCalendar(year, activityData) {
+    calendarElements.calendarView.innerHTML = ''; // Limpiar calendario anterior
+    calendarElements.currentYearDisplay.textContent = year;
+
+    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    
+    // Encabezados de los meses (opcional, pero útil)
+    // Esto es una simplificación, para una cuadrícula estilo GitHub es más complejo alinear meses y días
+    // Aquí haremos una lista continua de días del año.
+
+    let firstDayOfYear = new Date(year, 0, 1).getDay(); // 0 (Domingo) - 6 (Sábado)
+    // Para que Lunes sea el primer día (0) y Domingo el último (6)
+    firstDayOfYear = (firstDayOfYear === 0) ? 6 : firstDayOfYear - 1;
+
+
+    // Añadir celdas vacías para alinear el primer día de la semana (Lunes)
+    for (let i = 0; i < firstDayOfYear; i++) {
+        const placeholderCell = document.createElement('div');
+        placeholderCell.classList.add('day-cell', 'is-placeholder');
+        calendarElements.calendarView.appendChild(placeholderCell);
+    }
+
+    for (let month = 0; month < 12; month++) {
+        const daysInCurrentMonth = getDaysInMonth(year, month);
+        for (let day = 1; day <= daysInCurrentMonth; day++) {
+            const cell = document.createElement('div');
+            cell.classList.add('day-cell');
+            const currentDate = new Date(year, month, day);
+            const dateString = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
+
+            const activityCount = activityData.get(dateString) || 0;
+            let activityLevel = 0;
+            if (activityCount > 0) activityLevel = 1;
+            if (activityCount >= 2) activityLevel = 2; // Ajusta estos umbrales
+            if (activityCount >= 3) activityLevel = 3;
+            if (activityCount >= 4) activityLevel = 4;
+
+            cell.classList.add(`level-${activityLevel}`);
+            cell.title = `${dateString}: ${activityCount} sesión(es)`;
+            // cell.textContent = day; // Opcional: mostrar el número del día
+
+            // Opcional: Hacer clickeable para filtrar historial
+            cell.addEventListener('click', () => {
+                if (activityCount > 0) {
+                    // Aquí podrías implementar una función para filtrar el historial por esta fecha
+                    // Por ejemplo: filterHistoryByDate(currentDate);
+                    console.log(`Mostrar actividad para ${dateString}`);
+                    // Podrías abrir el modal de historial o filtrar la vista de historial
+                    // showView('history');
+                    // fetchAndRenderHistory({ filterDate: currentDate }); // Necesitarías modificar fetchAndRenderHistory
+                }
+            });
+
+            calendarElements.calendarView.appendChild(cell);
+        }
+    }
+}
+
+async function updateCalendarView() {
+    const user = getCurrentUser();
+    if (!user) {
+        calendarElements.container.classList.add('hidden'); // Ocultar si no hay usuario
+        return;
+    }
+    calendarElements.container.classList.remove('hidden');
+    const activity = await getYearlyActivity(user.uid, currentCalendarYear);
+    renderActivityCalendar(currentCalendarYear, activity);
+}
+
+// --- Event Listeners para el Calendario (dentro de initializeAppAfterAuth o al mostrar dashboard) ---
+// Es mejor añadirlos una vez el DOM esté listo.
+// Puedes ponerlos cerca de los otros listeners del dashboard.
+
+if (calendarElements.prevYearBtn) {
+    calendarElements.prevYearBtn.addEventListener('click', () => {
+        currentCalendarYear--;
+        updateCalendarView();
+    });
+}
+if (calendarElements.nextYearBtn) {
+    calendarElements.nextYearBtn.addEventListener('click', () => {
+        currentCalendarYear++;
+        updateCalendarView();
+    });
+}
+
 
 showView('auth');

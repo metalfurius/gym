@@ -29,6 +29,7 @@ export const dashboardElements = {
     currentDate: document.getElementById('current-date'),
     daySelect: document.getElementById('day-select'), // Now populates with user's routines
     startSessionBtn: document.getElementById('start-session-btn'),
+    resumeSessionArea: document.getElementById('resume-session-area'), 
     resumeSessionBtn: document.getElementById('resume-session-btn'),
     resumeSessionInfo: document.getElementById('resume-session-info'),
     manageRoutinesLinkBtn: document.getElementById('manage-routines-link-btn')
@@ -253,7 +254,7 @@ repsInput.type = 'number';
 
 export function renderHistoryList(sessions) {
     historyElements.loadingSpinner.classList.add('hidden');
-    historyElements.list.innerHTML = ''; 
+    historyElements.list.innerHTML = '';
 
     if (!sessions || sessions.length === 0) {
         const li = document.createElement('li');
@@ -264,17 +265,36 @@ export function renderHistoryList(sessions) {
 
     sessions.forEach(session => {
         const li = document.createElement('li');
-        li.dataset.sessionId = session.id; 
+        li.dataset.sessionId = session.id;
 
+        const contentDiv = document.createElement('div'); // Contenedor para nombre y fecha
+        contentDiv.style.flexGrow = "1"; // Para que ocupe el espacio y empuje el botón
+        
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento; // diaEntrenamiento is legacy
+        nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
+        nameSpan.style.display = "block"; // Para que esté en una línea separada si es largo
 
         const dateSpan = document.createElement('span');
         dateSpan.className = 'date';
         dateSpan.textContent = formatDateShort(session.fecha.toDate());
         
-        li.appendChild(nameSpan);
-        li.appendChild(dateSpan);
+        contentDiv.appendChild(nameSpan);
+        contentDiv.appendChild(dateSpan);
+        li.appendChild(contentDiv);
+
+        // --- NUEVO: Botón de eliminar ---
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.classList.add('secondary', 'small-btn'); // Puedes añadir una clase 'small-btn' en CSS
+        deleteButton.style.padding = '5px 8px'; // Estilo rápido
+        deleteButton.style.fontSize = '0.8rem';
+        deleteButton.style.width = 'auto';
+        deleteButton.style.marginLeft = '10px';
+        deleteButton.dataset.action = 'delete-session'; // Para identificar la acción en el listener
+        deleteButton.dataset.sessionId = session.id; // Pasamos el id aquí también para facilidad
+        li.appendChild(deleteButton);
+        // --- FIN NUEVO ---
+
         historyElements.list.appendChild(li);
     });
 }
@@ -441,7 +461,7 @@ export function showLoading(buttonElement, text = 'Cargando...') {
     if (buttonElement) {
         buttonElement.disabled = true;
         buttonElement.dataset.originalText = buttonElement.textContent;
-        buttonElement.innerHTML = `<span class="spinner" style="width:18px; height:18px; border-width:2px; display:inline-block; vertical-align:middle; margin-right:5px;"></span> ${text}`;
+        buttonElement.innerHTML = `<span class="spinner spinner-inline"></span> ${text}`;
     }
 }
 export function hideLoading(buttonElement) {
@@ -451,4 +471,13 @@ export function hideLoading(buttonElement) {
             buttonElement.textContent = buttonElement.dataset.originalText;
         }
     }
+}
+
+export const calendarElements = {
+    container: document.getElementById('activity-calendar-container'),
+    calendarView: document.getElementById('activity-calendar'),
+    prevYearBtn: document.getElementById('prev-year-btn'),
+    nextYearBtn: document.getElementById('next-year-btn'),
+    currentYearDisplay: document.getElementById('current-year-display'),
+    loadingSpinner: document.getElementById('calendar-loading-spinner')
 }

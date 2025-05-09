@@ -1,95 +1,159 @@
-/* Basic Reset & Mobile First Styles */
+/* style.css */
+
+/* --- Variables CSS Globales --- */
+:root {
+    --primary-color: #3498db; /* Azul principal */
+    --primary-hover-color: #2980b9;
+    --secondary-color: #e74c3c; /* Rojo para acciones secundarias/peligro */
+    --secondary-hover-color: #c0392b;
+    --success-color: #2ecc71; /* Verde para éxito */
+    --success-hover-color: #27ae60;
+    --light-green-color: #9be9a8; /* Para calendario */
+    --dark-green-color: #216e39;  /* Para calendario */
+
+    --header-bg: #2c3e50; /* Azul/gris oscuro para header */
+    --header-text: #ecf0f1; /* Texto claro para header */
+    --nav-button-bg: #34495e; /* Ligeramente más claro que header */
+    --nav-button-hover-bg: #4e6a85;
+
+    --body-bg: #f4f6f8; /* Fondo del cuerpo ligeramente más frío */
+    --card-bg: #ffffff; /* Fondo de las tarjetas/secciones */
+    --text-color: #333;
+    --text-secondary-color: #555;
+    --text-muted-color: #7f8c8d;
+    --border-color: #dfe4ea; /* Borde sutil */
+    --input-bg: #fdfdfd;
+    --input-focus-border: var(--primary-color);
+    --input-focus-shadow: rgba(52, 152, 219, 0.25);
+
+    --font-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --box-shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.08);
+    --box-shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.08);
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+/* --- Basic Reset & Mobile First Styles --- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: var(--font-sans-serif);
     line-height: 1.6;
-    background-color: #f0f2f5; /* Slightly lighter background */
-    color: #333;
-    padding-bottom: 70px; /* Space for potential fixed bottom nav */
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    padding-bottom: 80px; /* Espacio para footer o nav fija inferior */
+    font-size: 16px; /* Base font size */
 }
 
+/* --- Header --- */
 header {
-    background-color: #2c3e50; /* Darker, more modern blue/grey */
-    color: #ecf0f1; /* Lighter text color */
-    padding: 1rem;
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    padding: var(--spacing-md) var(--spacing-sm);
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: sticky; /* Make header sticky */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    position: sticky;
     top: 0;
     z-index: 1000;
 }
 
 header h1 {
-    margin-bottom: 0.5rem;
-    font-size: 1.8rem;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.75rem; /* Ligeramente ajustado */
+    font-weight: 600;
+    letter-spacing: -0.5px;
 }
 
 nav {
     display: flex;
+    flex-wrap: wrap; /* Permitir que los botones pasen a la siguiente línea si no caben */
     justify-content: center;
-    gap: 8px; /* Reduced gap slightly */
+    gap: var(--spacing-sm);
 }
 
 nav button {
-    padding: 10px 12px; /* Adjusted padding */
+    padding: var(--spacing-sm) 12px;
     cursor: pointer;
-    background-color: #34495e; /* Slightly lighter than header */
-    color: white;
+    background-color: var(--nav-button-bg);
+    color: var(--header-text);
     border: none;
-    border-radius: 5px;
-    font-size: 0.85rem; /* Adjusted font size */
-    transition: background-color 0.2s ease;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 nav button:hover, nav button.active {
-    background-color: #4e6a85;
+    background-color: var(--nav-button-hover-bg);
+    transform: translateY(-1px);
+}
+nav button.active {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
 nav button:disabled {
     background-color: #95a5a6;
     cursor: not-allowed;
+    transform: none;
 }
 
+/* --- Main Content & Sections --- */
 main {
-    padding: 15px;
-    max-width: 700px; /* Max width for content on larger screens */
-    margin: 20px auto; /* Add top margin and center */
+    padding: var(--spacing-md);
+    max-width: 768px; /* Un poco más de ancho para tablets/desktops pequeños */
+    margin: var(--spacing-lg) auto;
 }
 
 section {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    margin-bottom: 25px;
+    background-color: var(--card-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--box-shadow-sm);
+    margin-bottom: var(--spacing-xl);
+    transition: box-shadow 0.3s ease;
+}
+section:hover {
+    box-shadow: var(--box-shadow-md);
 }
 
 h2 {
-    color: #2c3e50;
-    margin-bottom: 18px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #ecf0f1;
-    font-size: 1.5rem;
+    color: var(--header-bg);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border-color);
+    font-size: 1.6rem;
+    font-weight: 600;
 }
 h3 {
-    color: #34495e;
-    margin-bottom: 15px;
-    font-size: 1.25rem;
+    color: var(--nav-button-bg);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.3rem;
+    font-weight: 500;
 }
 
-
+/* --- Forms: Labels, Inputs, Selects, Textareas --- */
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-sm);
     font-weight: 600;
-    color: #555;
-    font-size: 0.95rem;
+    color: var(--text-secondary-color);
+    font-size: 0.9rem;
 }
 
 select,
@@ -99,196 +163,285 @@ input[type="number"],
 input[type="text"],
 textarea {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 18px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 12px var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
     font-size: 1rem;
-    background-color: #fdfdfd;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+select {
+    appearance: none; /* Para un estilo más consistente, considera una librería o más CSS */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2334495e'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 1.2em;
+    padding-right: 36px; /* Espacio para el icono */
 }
 
+
 textarea {
-    min-height: 80px;
+    min-height: 100px;
     resize: vertical;
 }
 
 input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-shadow);
+}
+input::placeholder, textarea::placeholder {
+    color: var(--text-muted-color);
+    opacity: 0.7;
 }
 
-button, .button { /* Added .button class for a-tags styled as buttons */
-    background-color: #3498db; /* Primary blue */
+/* --- Buttons --- */
+button, .button {
+    background-color: var(--primary-color);
     color: white;
-    padding: 12px 20px;
-    font-size: 1.05rem;
+    padding: 12px var(--spacing-lg);
+    font-size: 1rem;
     font-weight: 500;
     width: 100%;
     border: none;
-    border-radius: 5px;
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+button:not(:disabled):hover, .button:not(:disabled):hover {
+    background-color: var(--primary-hover-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+button:not(:disabled):active, .button:not(:disabled):active {
+    transform: translateY(0px);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
-button:hover, .button:hover {
-    background-color: #2980b9;
-}
 
 button.secondary, .button.secondary {
-    background-color: #e74c3c; /* Red for cancel/danger */
+    background-color: var(--secondary-color);
 }
 button.secondary:hover, .button.secondary:hover {
-    background-color: #c0392b;
+    background-color: var(--secondary-hover-color);
 }
 
 button.ghost, .button.ghost {
     background-color: transparent;
-    color: #3498db;
-    border: 1px solid #3498db;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    box-shadow: none;
 }
 button.ghost:hover, .button.ghost:hover {
-    background-color: rgba(52, 152, 219, 0.1);
+    background-color: var(--input-focus-shadow); /* Un fondo muy sutil */
+    color: var(--primary-hover-color);
+    border-color: var(--primary-hover-color);
 }
 
-
 button:disabled, .button:disabled {
-    background-color: #bdc3c7 !important; /* Use !important to override specific button styles */
+    background-color: #bdc3c7 !important;
     color: #7f8c8d !important;
     border-color: #bdc3c7 !important;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
+/* Helper class for smaller buttons often used in lists/actions */
+.small-btn {
+    padding: var(--spacing-xs) var(--spacing-sm) !important;
+    font-size: 0.8rem !important;
+    width: auto !important; /* Importante para que no sea full-width */
+}
+
+
+/* --- Utility Classes --- */
 .hidden {
-    display: none !important; /* Use !important to ensure it overrides other display properties */
+    display: none !important;
 }
 
-/* Auth View */
+/* --- Auth View --- */
 #auth-form h3 {
     text-align: center;
-    margin-bottom: 20px;
-    color: #333;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-color);
+    font-weight: 500;
 }
 .auth-buttons {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    flex-direction: column; /* Stack buttons on mobile */
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
 }
 .auth-buttons button {
     flex: 1;
 }
-#login-email-btn { background-color: #3498db; }
-#signup-email-btn { background-color: #2ecc71; }
-#login-email-btn:hover { background-color: #2980b9; }
-#signup-email-btn:hover { background-color: #27ae60; }
+#login-email-btn { background-color: var(--primary-color); }
+#signup-email-btn { background-color: var(--success-color); }
+#login-email-btn:hover { background-color: var(--primary-hover-color); }
+#signup-email-btn:hover { background-color: var(--success-hover-color); }
 
-
-.error-message {
-    color: #e74c3c;
+/* --- Messages (Error/Success) --- */
+.error-message, .success-message {
     font-size: 0.9em;
-    margin-top: 10px;
+    margin-top: var(--spacing-md);
     text-align: center;
-    min-height: 1.2em;
+    min-height: 1.5em; /* Para evitar saltos de layout */
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+}
+.error-message {
+    color: var(--secondary-color);
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.2);
 }
 .success-message {
-    color: #2ecc71;
-    font-size: 0.9em;
-    margin-top: 10px;
-    text-align: center;
-    min-height: 1.2em;
+    color: var(--success-color);
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.2);
 }
 
-
-/* Dashboard View */
+/* --- Dashboard View --- */
+#user-info {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background-color: #e9ecef; /* Un fondo sutil para destacar info de usuario */
+    border-radius: var(--border-radius-sm);
+}
 #user-info p {
-    margin-bottom: 5px;
+    margin-bottom: var(--spacing-xs);
     font-size: 0.95rem;
 }
 #user-info #user-email {
     font-weight: bold;
-    color: #34495e;
+    color: var(--nav-button-bg);
+}
+#resume-session-area { /* Estilos base, sin fondo ni borde aquí */
+    margin-bottom: var(--spacing-lg);
+    /* Quitamos padding, background-color y border de aquí */
+    border-radius: var(--border-radius-sm); /* Mantenemos el radius */
+    /* Transición para cuando aparezca/desaparezca el fondo */
+    transition: background-color 0.3s ease, border-color 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+    opacity: 0; /* Inicialmente invisible */
+    max-height: 0; /* Para colapsar cuando está vacío */
+    overflow: hidden;
 }
 
-/* Session View Specific Styles */
+#resume-session-area.visible { /* NUEVA CLASE */
+    opacity: 1;
+    max-height: 200px; /* Altura suficiente para el contenido */
+    padding: var(--spacing-md);
+    background-color: rgba(253, 189, 56, 0.15); /* Amarillo suave para destacar */
+    border: 1px solid rgba(253, 189, 56, 0.3);
+    margin-top: var(--spacing-md); /* Añadir un poco de margen superior cuando es visible */
+}
+
+#resume-session-info {
+    font-style: italic;
+    color: #8a6d3b; /* Texto más oscuro para contraste en fondo amarillo */
+    margin-bottom: var(--spacing-sm);
+}
+#resume-session-btn {
+    width: auto; /* No full width */
+    margin-top: var(--spacing-sm);
+}
+
+/* --- Session View Specific Styles --- */
 .exercise-block {
-    border: 1px solid #eee;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    background-color: #f9f9f9;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    background-color: #fcfcfc; /* Un poco más claro que el fondo de la sección */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
 }
-
-.exercise-block h3.exercise-name-title { /* More specific selector for exercise name in session view */
-    margin-bottom: 5px;
-    font-size: 1.2em;
-    color: #34495e;
+.exercise-block h3.exercise-name-title {
+    margin-bottom: var(--spacing-xs);
+    font-size: 1.25em;
+    color: var(--nav-button-bg);
+    font-weight: 500;
 }
-
 .exercise-block .target-info {
-    font-size: 0.9em;
-    color: #777;
-    margin-bottom: 15px;
+    font-size: 0.85em;
+    color: var(--text-muted-color);
+    margin-bottom: var(--spacing-md);
 }
-
 .set-row {
-    display: grid; /* Using grid for better alignment */
-    grid-template-columns: auto 1fr 1fr; /* Label, Input1, Input2 (Weight/Reps or Duration) */
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr; /* Ajustar label width */
+    gap: var(--spacing-sm);
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: var(--spacing-sm);
 }
 .set-row.cardio-set-row {
-    grid-template-columns: auto 1fr; /* Label, Input (Duration/Notes) */
+    grid-template-columns: 60px 1fr;
 }
-
-
 .set-row label {
     margin-bottom: 0;
     font-weight: normal;
     text-align: right;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary-color);
+    padding-right: var(--spacing-sm); /* Espacio entre label y input */
 }
-
 .set-row input[type="number"], .set-row input[type="text"] {
     margin-bottom: 0;
-    padding: 8px; /* Smaller padding for set inputs */
+    padding: var(--spacing-sm);
+    font-size: 0.95rem;
+}
+.exercise-notes { /* Si tienes una clase específica para las notas de ejercicio */
+    margin-top: var(--spacing-sm);
 }
 
-/* History View Specific Styles */
+
+/* --- History View Specific Styles --- */
 #history-list {
     list-style: none;
     padding: 0;
 }
-
 #history-list li {
-    background-color: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 12px 18px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
 #history-list li:hover {
-    background-color: #f5f7fa;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    background-color: #f9fafb;
+    box-shadow: var(--box-shadow-sm);
+    transform: translateX(3px);
 }
-
 #history-list li .date {
-    font-size: 0.85em;
-    color: #777;
+    font-size: 0.8em;
+    color: var(--text-muted-color);
+    margin-left: var(--spacing-sm); /* Espacio si el nombre es largo */
+    white-space: nowrap; /* Evita que la fecha se parta */
+}
+#history-list li > div:first-child { /* Contenedor para nombre y fecha */
+    flex-grow: 1;
+    overflow: hidden; /* Evita que el texto largo rompa el layout */
+    text-overflow: ellipsis;
+}
+#history-list li button.small-btn { /* Botón eliminar en historial */
+    margin-left: var(--spacing-md);
+    flex-shrink: 0; /* Evita que el botón se encoja */
 }
 
-/* Session Detail Modal */
+
+/* --- Session Detail Modal --- */
 .modal {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
     z-index: 2000;
     left: 0;
@@ -296,187 +449,387 @@ button:disabled, .button:disabled {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.5); /* Dim background */
+    background-color: rgba(0,0,0,0.6); /* Fondo más oscuro */
+    backdrop-filter: blur(3px); /* Efecto blur si el navegador lo soporta */
 }
-
 .modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 25px;
-    border: 1px solid #888;
-    border-radius: 8px;
+    background-color: var(--card-bg);
+    margin: 5% auto; /* Reducido margen superior */
+    padding: var(--spacing-lg);
+    border: none; /* Quitar borde, confiar en sombra */
+    border-radius: var(--border-radius-md);
     width: 90%;
-    max-width: 600px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 650px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.1);
     position: relative;
+    animation: modalFadeIn 0.3s ease-out;
 }
-
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 .modal-close {
-    color: #aaa;
+    color: var(--text-muted-color);
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 28px;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    font-size: 2rem; /* Más grande */
     font-weight: bold;
+    line-height: 1;
+    transition: color 0.2s ease;
 }
-
 .modal-close:hover,
 .modal-close:focus {
-    color: black;
+    color: var(--text-color);
     text-decoration: none;
     cursor: pointer;
 }
-
 #session-detail-content h3 {
     margin-top: 0;
-    color: #2c3e50;
+    color: var(--header-bg);
 }
 #session-detail-exercises {
     list-style: none;
     padding-left: 0;
+    margin-top: var(--spacing-md);
 }
 #session-detail-exercises li {
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px dashed #eee;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px dashed #e0e0e0;
 }
 #session-detail-exercises li:last-child {
     border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 #session-detail-exercises strong {
-    color: #34495e;
+    color: var(--nav-button-bg);
+    font-weight: 500;
+}
+#session-detail-exercises ul {
+    list-style-type: disc;
+    padding-left: var(--spacing-lg);
+    margin-top: var(--spacing-xs);
+    font-size: 0.9em;
+}
+#session-detail-exercises p em { /* Notas */
+    font-size: 0.9em;
+    color: var(--text-secondary-color);
+    display: block;
+    margin-top: var(--spacing-xs);
 }
 
 
-/* Manage Routines View */
+/* --- Manage Routines View --- */
 #routine-list {
     list-style: none;
     padding: 0;
 }
 #routine-list li {
-    background-color: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 12px 18px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: background-color 0.2s ease;
+}
+#routine-list li:hover {
+    background-color: #f9fafb;
 }
 #routine-list li .routine-name {
     font-weight: 500;
+    color: var(--text-color);
+    flex-grow: 1;
 }
-#routine-list li .actions button {
+#routine-list li .actions button { /* Botones Edit/Delete en la lista de rutinas */
     width: auto;
-    padding: 6px 10px;
+    padding: var(--spacing-xs) var(--spacing-sm);
     font-size: 0.85rem;
-    margin-left: 8px;
+    margin-left: var(--spacing-sm);
 }
 #add-new-routine-btn {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-lg);
+    background-color: var(--success-color); /* Destacar botón de crear */
+}
+#add-new-routine-btn:hover {
+    background-color: var(--success-hover-color);
 }
 
-/* Routine Editor Form */
+
+/* --- Routine Editor Form --- */
 #routine-editor-form fieldset {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--border-radius-sm);
+    background-color: #fcfdff; /* Fondo muy sutil para el fieldset */
 }
 #routine-editor-form legend {
-    padding: 0 10px;
-    font-weight: bold;
-    color: #34495e;
+    padding: 0 var(--spacing-sm);
+    font-weight: 600;
+    color: var(--nav-button-bg);
+    font-size: 1.1rem;
 }
 .routine-exercise-editor {
-    border: 1px dashed #ccc;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    border: 1px dashed #cdd3d9;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--card-bg); /* Blanco para contraste */
+    position: relative; /* Para el botón de quitar */
 }
 .routine-exercise-editor .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    grid-template-columns: 1fr; /* Stack en mobile */
+    gap: var(--spacing-md);
 }
 .routine-exercise-editor label {
-    font-size: 0.9rem;
-    margin-bottom: 5px;
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-secondary-color);
 }
 .routine-exercise-editor input,
 .routine-exercise-editor select,
 .routine-exercise-editor textarea {
-    margin-bottom: 10px; /* Smaller margin within editor */
+    margin-bottom: var(--spacing-sm);
     padding: 10px;
+    font-size: 0.95rem;
 }
-.remove-exercise-btn {
-    background-color: #e74c3c;
-    color: white;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    width: auto; /* Don't make it full width */
-    display: block;
-    margin-top: 10px;
-    float: right;
+.remove-exercise-btn { /* Estilo para el botón "X Quitar" */
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    background-color: transparent;
+    color: var(--secondary-color);
+    border: none;
+    font-size: 1.5rem; /* Grande para que sea fácil de tocar */
+    line-height: 1;
+    padding: 0 var(--spacing-xs);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none; /* Quitar sombra por defecto de .button */
 }
 .remove-exercise-btn:hover {
-    background-color: #c0392b;
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--secondary-hover-color);
 }
+
 #add-exercise-to-routine-btn {
-    background-color: #2ecc71;
-    margin: 15px 0;
+    background-color: var(--success-color);
+    margin: var(--spacing-md) 0;
+    width: auto; /* No full width */
+    padding: var(--spacing-sm) var(--spacing-md);
 }
 #add-exercise-to-routine-btn:hover {
-    background-color: #27ae60;
+    background-color: var(--success-hover-color);
 }
 
 .form-buttons-group {
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
+    flex-direction: column; /* Stack en mobile */
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
 }
 .form-buttons-group button {
     flex: 1;
 }
 
-
+/* --- Footer --- */
 footer {
     text-align: center;
-    margin-top: 40px;
-    padding: 15px;
-    color: #7f8c8d;
-    font-size: 0.9em;
-    background-color: #ecf0f1;
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    color: var(--text-muted-color);
+    font-size: 0.85em;
+    background-color: #e9ecef; /* Fondo sutil para el footer */
+    border-top: 1px solid var(--border-color);
 }
 
-/* Loading Spinner */
+/* --- Loading Spinner --- */
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
-    width: 36px;
-    height: 36px;
+    width: 32px; /* Ligeramente más pequeño */
+    height: 32px;
     border-radius: 50%;
-    border-left-color: #3498db;
-    animation: spin 1s ease infinite;
-    margin: 20px auto;
+    border-left-color: var(--primary-color);
+    animation: spin 0.8s linear infinite; /* Más rápido */
+    margin: var(--spacing-lg) auto;
 }
+.spinner-inline { /* Para spinners dentro de botones */
+    width: 18px !important;
+    height: 18px !important;
+    border-width: 2px !important;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: var(--spacing-sm);
+    margin-top: -2px; /* Ajuste vertical */
+    margin-bottom: 0;
+    margin-left:0;
+}
+button .spinner-inline {
+    border-left-color: white; /* Para contraste en botones primarios */
+}
+button.ghost .spinner-inline {
+    border-left-color: var(--primary-color); /* Para contraste en botones ghost */
+}
+
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
+/* --- Activity Calendar (Nuevo y Mejorado) --- */
+#activity-calendar-container {
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+#activity-calendar-container h3 {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--header-bg);
+}
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Espacio entre botones y año */
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+}
+.calendar-controls button {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    width: auto;
+    background-color: var(--input-bg);
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+.calendar-controls button:hover {
+    background-color: #e9ecef;
+}
+.calendar-controls #current-year-display {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
 
-/* Responsive Adjustments */
-@media (min-width: 600px) {
-    header h1 {
-        font-size: 2rem;
-    }
-    nav button {
-        padding: 10px 15px; /* Adjusted padding */
-        font-size: 0.9rem; /* Adjusted font size */
-    }
+#activity-calendar {
+    display: grid;
+    /* Approx 53 semanas para cubrir un año, más una para etiquetas de día */
+    /* Se ajustará con JS, pero esto es una guía */
+    grid-template-columns: repeat(auto-fill, minmax(14px, 1fr)); /* Celdas pequeñas y responsivas */
+    gap: 3px; /* Espacio entre celdas */
+    padding: var(--spacing-sm);
+    background-color: #fdfdfd;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    overflow-x: auto; /* Permitir scroll horizontal si es muy ancho */
+    max-height: 200px; /* Evita que sea demasiado alto si hay muchos placeholders */
+}
+
+#activity-calendar .day-cell {
+    aspect-ratio: 1 / 1; /* Mantiene las celdas cuadradas */
+    min-width: 12px; /* Tamaño mínimo de celda */
+    background-color: #eef0f2; /* Color base (más neutro) */
+    border-radius: 2px;
+    cursor: default;
+    transition: transform 0.1s ease-out;
+    font-size: 7px; /* Para el número del día, si se usa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#activity-calendar .day-cell:hover:not(.is-placeholder):not(.level-0) {
+    transform: scale(1.2); /* Efecto hover sutil */
+    z-index: 10; /* Para que se vea por encima */
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+/* Niveles de actividad del calendario */
+#activity-calendar .day-cell.level-0 { background-color: #eef0f2; }
+#activity-calendar .day-cell.level-1 { background-color: var(--light-green-color); }
+#activity-calendar .day-cell.level-2 { background-color: #64d680; }
+#activity-calendar .day-cell.level-3 { background-color: #30a14e; }
+#activity-calendar .day-cell.level-4 { background-color: var(--dark-green-color); }
+
+#activity-calendar .day-cell.is-placeholder {
+    background-color: transparent !important; /* Placeholder transparente */
+    border: none !important;
+    cursor: default;
+}
+#activity-calendar .day-cell.is-today { /* Marcar el día actual */
+    outline: 1px solid var(--primary-color);
+    outline-offset: 1px;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (min-width: 480px) { /* Pequeños ajustes para móviles más anchos */
     .auth-buttons {
         flex-direction: row;
+    }
+    .form-buttons-group {
+        flex-direction: row;
+    }
+     .routine-exercise-editor .form-grid {
+        grid-template-columns: 1fr 1fr; /* Dos columnas para grid de ejercicios */
+    }
+}
+
+@media (min-width: 768px) { /* Tablets y Desktops pequeños */
+    body {
+        font-size: 17px; /* Ligeramente más grande en pantallas mayores */
+    }
+    header {
+        padding: var(--spacing-md) var(--spacing-lg); /* Ajustar padding si es necesario */
+        display: flex; /* <<<< AÑADIR ESTO */
+        justify-content: space-between; /* <<<< AÑADIR ESTO */
+        align-items: center; /* <<<< AÑADIR ESTO */
+        /* text-align: left; Ya no es necesario con flex */
+    }
+    header h1 {
+        font-size: 2rem;
+        margin-bottom: 0;
+        margin-right: var(--spacing-lg); /* Espacio entre título y nav */
+    }
+    header nav { /* Alinear nav a la derecha */
+        position: static; /* <<<< CAMBIAR ESTO */
+        transform: none; /* <<<< CAMBIAR ESTO */
+        margin-top: 0;
+        display: flex; /* Asegurar que los botones de nav estén en línea */
+        gap: var(--spacing-sm);
+    }
+    nav button {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    main {
+        padding: var(--spacing-lg);
+    }
+    section {
+        padding: var(--spacing-xl);
+    }
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.4rem; }
+
+    .set-row {
+        grid-template-columns: 80px 1fr 1fr;
+    }
+    .set-row.cardio-set-row {
+        grid-template-columns: 80px 1fr;
+    }
+    .modal-content {
+        margin: 10% auto; /* Restaurar margen original para modal en desktop */
+    }
+     #activity-calendar {
+        max-height: none; /* Permitir que el calendario se expanda más en desktop */
     }
 }
