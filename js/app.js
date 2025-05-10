@@ -662,5 +662,36 @@ if (calendarElements.nextYearBtn) {
     });
 }
 
+// --- Scroll To Top Button ---
+const scrollToTopBtn = document.createElement('button');
+scrollToTopBtn.id = 'scroll-to-top-btn';
+scrollToTopBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>';
+scrollToTopBtn.setAttribute('aria-label', 'Volver arriba');
+scrollToTopBtn.title = 'Volver arriba';
+document.body.appendChild(scrollToTopBtn);
+
+// Función para mostrar/ocultar el botón según la posición del scroll
+function toggleScrollToTopBtn() {
+    // Mostrar el botón cuando el usuario ha bajado suficiente (200px en lugar de 300)
+    if (window.scrollY > 200) {
+        scrollToTopBtn.classList.add('visible');
+    } else {
+        scrollToTopBtn.classList.remove('visible');
+    }
+}
+
+// Evento para volver arriba cuando se hace clic en el botón
+scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'  // Para un desplazamiento suave
+    });
+});
+
+// Añadir evento de scroll para mostrar/ocultar el botón
+window.addEventListener('scroll', toggleScrollToTopBtn, { passive: true });
+
+// Llamada inicial para asegurarse de que el botón tenga el estado correcto
+toggleScrollToTopBtn();
 
 showView('auth');

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#2c3e50" />
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="theme-color" content="#5222D0" />
+    <link rel="stylesheet" href="css/style-modern.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <title>My Workout Tracker</title>
@@ -13,13 +12,15 @@
 
 <body>
     <header>
-        <h1>My Workout Tracker</h1>
-        <nav>
-            <button id="nav-dashboard" class="hidden">Dashboard</button>
-            <button id="nav-manage-routines" class="hidden">Mis Rutinas</button> <!-- New Nav Item -->
-            <button id="nav-history" class="hidden">Historial</button>
-            <button id="logout-btn" class="hidden secondary">Cerrar Sesión</button>
-        </nav>
+        <div class="header-content">
+            <h1>My Workout Tracker</h1>
+            <nav>
+                <button id="nav-dashboard" class="hidden">Dashboard</button>
+                <button id="nav-manage-routines" class="hidden">Mis Rutinas</button> <!-- New Nav Item -->
+                <button id="nav-history" class="hidden">Historial</button>
+                <button id="logout-btn" class="hidden secondary">Cerrar Sesión</button>
+            </nav>
+        </div>
     </header>
 
     <main>
@@ -144,10 +145,8 @@
                 <ul id="session-detail-exercises"></ul>
             </div>
         </div>
-    </main>
-
-    <footer>
-        <p>© 2025 My Workout Tracker. Hecho con 💪.</p>
+    </main>    <footer>
+        <p>© 2025 My Workout Tracker. Hecho con 💪 para mantenerte en forma.</p>
     </footer>
 
     <script type="module" src="js/app.js"></script>
