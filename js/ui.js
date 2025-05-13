@@ -160,6 +160,30 @@ export function renderSessionView(routine, inProgressData = null) {
 
     sessionElements.title.textContent = routine.name;
     sessionElements.exerciseList.innerHTML = ''; // Clear previous exercises
+    
+    // Añadir campo para el peso del usuario
+    const userWeightDiv = document.createElement('div');
+    userWeightDiv.className = 'user-weight-input';
+    
+    const userWeightLabel = document.createElement('label');
+    userWeightLabel.textContent = 'Tu peso hoy (kg):';
+    userWeightLabel.htmlFor = 'user-weight';
+    userWeightDiv.appendChild(userWeightLabel);
+    
+    const userWeightInput = document.createElement('input');
+    userWeightInput.type = 'number';
+    userWeightInput.id = 'user-weight';
+    userWeightInput.name = 'user-weight';
+    userWeightInput.placeholder = 'Introduce tu peso (kg)';
+    userWeightInput.min = '20';
+    userWeightInput.max = '250';
+    userWeightInput.step = '0.1';
+    if (inProgressData?.pesoUsuario) {
+        userWeightInput.value = inProgressData.pesoUsuario;
+    }
+    userWeightDiv.appendChild(userWeightInput);
+    
+    sessionElements.exerciseList.appendChild(userWeightDiv);
 
     routine.exercises.forEach((exercise, exerciseIndex) => {
         const exerciseBlock = document.createElement('div');
@@ -272,11 +296,15 @@ export function renderHistoryList(sessions) {
         
         const nameSpan = document.createElement('span');
         nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
-        nameSpan.style.display = "block"; // Para que esté en una línea separada si es largo
-
-        const dateSpan = document.createElement('span');
+        nameSpan.style.display = "block"; // Para que esté en una línea separada si es largo        const dateSpan = document.createElement('span');
         dateSpan.className = 'date';
-        dateSpan.textContent = formatDateShort(session.fecha.toDate());
+        
+        let dateText = formatDateShort(session.fecha.toDate());
+        // Mostrar peso si está disponible
+        if (session.pesoUsuario) {
+            dateText += ` | ${session.pesoUsuario} kg`;
+        }
+        dateSpan.textContent = dateText;
         
         contentDiv.appendChild(nameSpan);
         contentDiv.appendChild(dateSpan);
@@ -303,7 +331,15 @@ export function showSessionDetail(sessionData) {
     if (!sessionData) return;
     sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || "Detalle de Sesión";
     sessionDetailModal.date.textContent = `Fecha: ${formatDate(sessionData.fecha.toDate())}`;
-    sessionDetailModal.exercises.innerHTML = ''; 
+    
+    // Añadir información del peso si está disponible
+    let dateInfo = `Fecha: ${formatDate(sessionData.fecha.toDate())}`;
+    if (sessionData.pesoUsuario) {
+        dateInfo += ` | Peso: ${sessionData.pesoUsuario} kg`;
+    }
+    sessionDetailModal.date.textContent = dateInfo;
+    
+    sessionDetailModal.exercises.innerHTML = '';
     
     sessionData.ejercicios.forEach(ex => {
         const exLi = document.createElement('li');

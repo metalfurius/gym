@@ -202,7 +202,8 @@ sessionElements.exerciseList.addEventListener('input', () => {
 function getSessionFormData() {
     if (!currentRoutineForSession) return {};
     const sessionData = {
-        ejercicios: []
+        ejercicios: [],
+        pesoUsuario: document.getElementById('user-weight').value || null
     };
     const exerciseBlocks = sessionElements.exerciseList.querySelectorAll('.exercise-block');
     exerciseBlocks.forEach(block => {
@@ -257,14 +258,13 @@ async function saveSessionData(event) {
     if (sessionDataFromForm.ejercicios.length === 0) {
         alert("No se registraron datos para ningún ejercicio. Introduce datos o notas para guardar la sesión.");
         return;
-    }
-
-    const finalSessionData = {
+    }    const finalSessionData = {
         fecha: Timestamp.now(),
         routineId: currentRoutineForSession.id, // Link to the routine used
         nombreEntrenamiento: currentRoutineForSession.name,
         userId: user.uid,
-        ejercicios: sessionDataFromForm.ejercicios
+        ejercicios: sessionDataFromForm.ejercicios,
+        pesoUsuario: sessionDataFromForm.pesoUsuario ? parseFloat(sessionDataFromForm.pesoUsuario) : null
     };
 
     showLoading(sessionElements.saveBtn, 'Guardando...');
