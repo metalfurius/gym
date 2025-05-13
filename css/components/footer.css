@@ -1,0 +1,18 @@
+/* --- Footer --- */
+footer {
+    background: var(--header-gradient);
+    color: var(--header-text);
+    text-align: center;
+    padding: var(--spacing-lg) 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.05);
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+}

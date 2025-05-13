@@ -1,14 +1,25 @@
+/* Estilos para el input de peso del usuario en la vista de sesión */
 .user-weight-input {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.5); /* Fondo semi-transparente */
     padding: var(--spacing-md);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-sm); /* Un radio más pequeño para inputs */
     margin-bottom: var(--spacing-lg);
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Sombra sutil */
     transition: all 0.3s ease;
 }
 
 .user-weight-input:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    transform: translateY(-2px); /* Ligero efecto al pasar el mouse */
+}
+
+.user-weight-input label {
+    font-size: 0.95rem; /* Un poco más pequeño que los labels principales */
+    color: var(--text-secondary-color);
+}
+
+.user-weight-input input[type="number"] {
+    margin-bottom: 0; /* Quitar margen inferior si es el único elemento */
+    background-color: var(--input-bg); /* Asegurar consistencia con otros inputs */
 }

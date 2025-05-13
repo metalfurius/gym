@@ -1,0 +1,100 @@
+/* --- Responsive Adjustments --- */
+@media (min-width: 480px) {
+    /* Auth View: Buttons side-by-side */
+    #auth-view .auth-buttons { /* Más específico para evitar afectar otros .auth-buttons si existieran */
+        display: flex;
+        flex-direction: row;
+        gap: var(--spacing-md);
+    }
+    #auth-view .auth-buttons button {
+        flex: 1; /* Para que ocupen el mismo espacio si son dos */
+    }
+    
+    /* Routine Editor: Buttons side-by-side */
+    #routine-editor-form .form-buttons-group {
+        display: flex;
+        flex-direction: row;
+        gap: var(--spacing-md);
+    }
+    #routine-editor-form .form-buttons-group button {
+        flex: 1;
+    }
+
+    /* Routine Editor: Exercise form grid */
+    .routine-exercise-editor .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+    }
+}
+
+@media (min-width: 768px) {
+    :root {
+        --max-width: 768px; /* Actualiza la variable para este breakpoint */
+    }
+
+    body {
+        font-size: 17px;
+    }
+
+    header {
+        padding: var(--spacing-md) var(--spacing-lg); /* Ajuste de padding en header */
+    }
+
+    .header-content {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-md) 0; /* Quita padding lateral, ya lo tiene el contenedor */
+    }
+
+    header h1 {
+        font-size: 2rem; /* Mismo tamaño, pero ajustamos márgenes */
+        margin-bottom: 0;
+        margin-right: var(--spacing-lg);
+    }
+
+    nav {
+        /* position: static; Ya no es necesario si el flex-direction del parent cambia */
+        /* transform: none; */
+        margin-top: 0; /* Reset margin-top si lo tuviera de mobile */
+        max-width: none; /* Permite que los botones se expandan si es necesario */
+        width: auto; /* Ajusta el ancho al contenido */
+    }
+
+    nav button {
+        padding: 10px 15px; /* Ajuste de padding en botones de nav */
+        font-size: 0.9rem; /* Mismo tamaño, pero puede parecer diferente con el layout */
+    }
+
+    main {
+        /* max-width se maneja con la variable --max-width */
+        padding: var(--spacing-lg); /* Ajuste de padding en main */
+    }
+
+    section {
+        padding: var(--spacing-xl); /* Ajuste de padding en section */
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+
+    h3 {
+        font-size: 1.4rem;
+    }
+
+    .modal-content {
+        margin: 10% auto; /* Margen superior mayor para el modal */
+    }
+
+    #activity-calendar {
+        max-height: none; /* Quita la altura máxima del calendario */
+    }
+}
+
+@media (min-width: 1200px) {
+    :root {
+        --max-width: 1100px; /* Actualiza la variable para este breakpoint */
+    }
+}

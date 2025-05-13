@@ -1,0 +1,61 @@
+/* --- Scroll To Top Button Component --- */
+#scroll-to-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background-color 0.2s ease;
+    padding: 0; /* Reset padding para mejor centrado */
+    -webkit-tap-highlight-color: transparent; /* Eliminar highlight en toque móvil */
+}
+
+#scroll-to-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#scroll-to-top-btn:hover {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-3px); /* Pequeño efecto hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#scroll-to-top-btn:active {
+    transform: translateY(0); /* Reset al hacer clic */
+}
+
+#scroll-to-top-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 767px) { /* Usar max-width para aplicar a pantallas más pequeñas que 768px */
+    #scroll-to-top-btn {
+        bottom: 20px; /* Puede ser necesario ajustar si el footer es muy alto */
+        right: 20px;
+        width: 45px;
+        height: 45px;
+    }
+    /* Si el footer es muy alto en móviles y solapa el botón, podrías añadir:
+    body:has(footer) #scroll-to-top-btn {
+        bottom: calc(80px + 20px);  Asumiendo que el footer tiene 80px de padding-bottom en body
+    }
+    Pero esto depende de la altura real del footer.
+    */
+}

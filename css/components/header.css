@@ -1,0 +1,88 @@
+/* --- Header --- */
+header {
+    background: var(--header-gradient);
+    color: var(--header-text);
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-lg) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto visual en el header */
+header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.header-content {
+    padding: var(--spacing-md) var(--spacing-lg);
+    max-width: var(--max-width); /* Usa la variable global */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+header h1 {
+    margin-bottom: var(--spacing-lg);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: 500px;
+}
+
+nav button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    background-color: var(--nav-button-bg);
+    color: var(--header-text);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav button:hover,
+nav button.active {
+    background-color: var(--nav-button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+nav button.active {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+nav button.secondary {
+    background-color: rgba(247, 37, 133, 0.2); /* Usando el color secundario con transparencia */
+}
+
+nav button:disabled {
+    background-color: rgba(149, 165, 166, 0.5);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}

@@ -1,0 +1,56 @@
+/* --- Variables CSS Globales --- */
+:root {
+    --primary-color: #4361ee;
+    /* Azul principal moderno */
+    --primary-hover-color: #3a56d4;
+    --secondary-color: #f72585;
+    /* Rosa/Fucsia para acciones secundarias/peligro */
+    --secondary-hover-color: #e91e63;
+    --success-color: #4cc9f0;
+    /* Cyan para éxito */
+    --success-hover-color: #38b6f0;
+    --light-green-color: #c8e7ff;
+    /* Azul claro para calendario */
+    --dark-green-color: #3a0ca3;
+    /* Violeta para calendario */
+
+    --header-bg: #7209b7;
+    /* Violeta para header (gradiente) */
+    --header-gradient: linear-gradient(135deg, #7209b7, #4361ee);
+    /* Gradiente moderno */
+    --header-text: #ffffff;
+    /* Texto blanco para mejor contraste */
+    --nav-button-bg: rgba(255, 255, 255, 0.12);
+    /* Botones semi-transparentes */
+    --nav-button-hover-bg: rgba(255, 255, 255, 0.2);
+
+    --body-bg: #f9fafc;
+    /* Fondo del cuerpo ligeramente más frío y brillante */
+    --card-bg: #ffffff;
+    /* Fondo de las tarjetas/secciones */
+    --text-color: #333;
+    --text-secondary-color: #555;
+    --text-muted-color: #7f8c8d;
+    --border-color: #dfe4ea;
+    /* Borde sutil */
+    --input-bg: #fdfdfd;
+    --input-focus-border: var(--primary-color);
+    --input-focus-shadow: rgba(67, 97, 238, 0.25);
+
+    --font-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+    --box-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* Variable para max-width base, se sobrescribe en responsive.css */
+    --max-width: 1100px; /* Default para desktop, ajustado en responsive */
+}
