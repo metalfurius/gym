@@ -45,7 +45,9 @@ export const sessionElements = {
 
 export const historyElements = {
     list: document.getElementById('history-list'),
-    loadingSpinner: document.getElementById('history-loading')
+    loadingSpinner: document.getElementById('history-loading'),
+    searchInput: document.getElementById('history-search'),
+    filterButtons: document.querySelectorAll('.history-filter')
 };
 
 export const sessionDetailModal = {
@@ -196,7 +198,7 @@ export function renderSessionView(routine, inProgressData = null) {
         exerciseBlock.appendChild(title);
 
         const target = document.createElement('p');
-        target.className = 'target-info';
+        target.classList.add('target-info');
 
         if (exercise.type === 'strength') {
             const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} series` : exercise.sets;
@@ -282,7 +284,7 @@ export function renderHistoryList(sessions) {
 
     if (!sessions || sessions.length === 0) {
         const li = document.createElement('li');
-        li.textContent = 'No hay sesiones guardadas todavía.';
+        li.textContent = 'No hay sesiones guardadas todavía. ¡Empieza a entrenar para registrar tu progreso!';
         historyElements.list.appendChild(li);
         return;
     }
@@ -290,74 +292,158 @@ export function renderHistoryList(sessions) {
     sessions.forEach(session => {
         const li = document.createElement('li');
         li.dataset.sessionId = session.id;
-
-        const contentDiv = document.createElement('div'); // Contenedor para nombre y fecha
-        contentDiv.style.flexGrow = "1"; // Para que ocupe el espacio y empuje el botón
-          const nameSpan = document.createElement('span');
-        nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
-        nameSpan.style.display = "block"; // Para que esté en una línea separada si es largo
+        li.classList.add('session-card');
         
-        const dateSpan = document.createElement('span');
-        dateSpan.className = 'date';
+        // Nombre de la sesión
+        const nameEl = document.createElement('div');
+        nameEl.classList.add('session-name');
+        nameEl.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
+        li.appendChild(nameEl);
         
-        let dateText = formatDateShort(session.fecha.toDate());
-        // Mostrar peso si está disponible
+        // Contenedor para información inline
+        const inlineInfoEl = document.createElement('div');
+        inlineInfoEl.classList.add('session-inline-info');
+        
+        // Fecha de la sesión
+        const dateEl = document.createElement('div');
+        dateEl.classList.add('session-date');
+        dateEl.textContent = formatDateShort(session.fecha.toDate());
+        inlineInfoEl.appendChild(dateEl);
+        
+        // Peso del usuario (si está disponible)
         if (session.pesoUsuario) {
-            dateText += ` | ${session.pesoUsuario} kg`;
+            const weightEl = document.createElement('div');
+            weightEl.classList.add('session-weight');
+            weightEl.textContent = `${session.pesoUsuario} kg`;
+            inlineInfoEl.appendChild(weightEl);
         }
-        dateSpan.textContent = dateText;
         
-        contentDiv.appendChild(nameSpan);
-        contentDiv.appendChild(dateSpan);
-        li.appendChild(contentDiv);
-
-        // --- NUEVO: Botón de eliminar ---
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Eliminar';
-        deleteButton.classList.add('secondary', 'small-btn'); // Puedes añadir una clase 'small-btn' en CSS
-        deleteButton.style.padding = '5px 8px'; // Estilo rápido
-        deleteButton.style.fontSize = '0.8rem';
-        deleteButton.style.width = 'auto';
-        deleteButton.style.marginLeft = '10px';
-        deleteButton.dataset.action = 'delete-session'; // Para identificar la acción en el listener
-        deleteButton.dataset.sessionId = session.id; // Pasamos el id aquí también para facilidad
-        li.appendChild(deleteButton);
-        // --- FIN NUEVO ---
-
+        li.appendChild(inlineInfoEl);
+        
+        // Resumen de ejercicios
+        if (session.ejercicios && session.ejercicios.length > 0) {
+            const summaryEl = document.createElement('div');
+            summaryEl.classList.add('session-summary');
+            summaryEl.textContent = `${session.ejercicios.length} ejercicios realizados`;
+            li.appendChild(summaryEl);
+        }
+          // Botones de acción (ahora en columna)
+        const actionsEl = document.createElement('div');
+        actionsEl.classList.add('session-actions');
+        
+        // Botón de ver detalles
+        const viewBtn = document.createElement('button');
+        viewBtn.textContent = 'Ver detalles';
+        viewBtn.classList.add('session-action-btn', 'view');
+        viewBtn.dataset.action = 'view-session';
+        actionsEl.appendChild(viewBtn);
+        
+        // Botón de eliminar
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Eliminar';
+        deleteBtn.classList.add('session-action-btn', 'delete');
+        deleteBtn.dataset.action = 'delete-session';
+        deleteBtn.dataset.sessionId = session.id;
+        actionsEl.appendChild(deleteBtn);
+        
+        li.appendChild(actionsEl);
+        
+        // Evento para mostrar detalles al hacer clic en la tarjeta
+        li.addEventListener('click', (e) => {
+            // Si se hizo clic en un botón de acción, no mostrar detalles
+            if (e.target.classList.contains('session-action-btn')) {
+                return;
+            }
+            // Simular clic en el botón de ver detalles
+            viewBtn.click();
+        });
+        
         historyElements.list.appendChild(li);
     });
+    
+    // Inicializar funcionalidad de filtrado
+    initHistoryFilters();
 }
 
 export function showSessionDetail(sessionData) {
     if (!sessionData) return;
-    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || "Detalle de Sesión";
-    sessionDetailModal.date.textContent = `Fecha: ${formatDate(sessionData.fecha.toDate())}`;
     
-    // Añadir información del peso si está disponible
-    let dateInfo = `Fecha: ${formatDate(sessionData.fecha.toDate())}`;
-    if (sessionData.pesoUsuario) {
-        dateInfo += ` | Peso: ${sessionData.pesoUsuario} kg`;
-    }
+    // Título del modal
+    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || "Detalle de Sesión";
+      // Información de fecha
+    let dateInfo = `${formatDate(sessionData.fecha.toDate())}`;
     sessionDetailModal.date.textContent = dateInfo;
     
+    // Añadir badge de peso si está disponible
+    if (sessionData.pesoUsuario) {
+        const weightBadge = document.createElement('span');
+        weightBadge.classList.add('user-weight-badge');
+        weightBadge.textContent = `⚖️ ${sessionData.pesoUsuario} kg`;
+        sessionDetailModal.date.appendChild(weightBadge);
+    }
+    
+    // Lista de ejercicios
     sessionDetailModal.exercises.innerHTML = '';
     
-    sessionData.ejercicios.forEach(ex => {
-        const exLi = document.createElement('li');
-        let exHtml = `<strong>${ex.nombreEjercicio}</strong> (${ex.tipoEjercicio || 'fuerza'})`; // Show type
-        if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
-            exHtml += '<ul>';
-            ex.sets.forEach((set, index) => {
-                exHtml += `<li>Serie ${index + 1}: ${set.peso} kg x ${set.reps} reps</li>`;
-            });
-            exHtml += '</ul>';
-        }
-        if (ex.notasEjercicio) {
-            exHtml += `<p><em>Notas: ${ex.notasEjercicio}</em></p>`;
-        }
-        exLi.innerHTML = exHtml;
-        sessionDetailModal.exercises.appendChild(exLi);
-    });
+    if (sessionData.ejercicios && sessionData.ejercicios.length > 0) {
+        sessionData.ejercicios.forEach(ex => {
+            const exLi = document.createElement('li');
+            exLi.classList.add('exercise-detail');
+            
+            // Nombre del ejercicio
+            const nameEl = document.createElement('strong');
+            nameEl.textContent = ex.nombreEjercicio;
+            exLi.appendChild(nameEl);
+            
+            // Badge para el tipo de ejercicio
+            const typeEl = document.createElement('span');
+            typeEl.classList.add('exercise-type-badge');
+            
+            // Asignar las clases apropiadas según el tipo
+            if (ex.tipoEjercicio === 'strength') {
+                typeEl.classList.add('strength');
+                typeEl.textContent = '💪 Fuerza';
+            } else if (ex.tipoEjercicio === 'cardio') {
+                typeEl.classList.add('cardio');
+                typeEl.textContent = '🏃 Cardio';
+            } else {
+                typeEl.classList.add('other');
+                typeEl.textContent = '🏋️ ' + (ex.tipoEjercicio || 'Otro');
+            }
+            
+            exLi.appendChild(typeEl);
+            
+            // Series (para ejercicios de fuerza)
+            if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
+                const setsUl = document.createElement('ul');
+                setsUl.classList.add('sets-list');
+                
+                ex.sets.forEach((set, index) => {
+                    const setLi = document.createElement('li');
+                    setLi.textContent = `Serie ${index + 1}: ${set.peso} kg × ${set.reps} repeticiones`;
+                    setsUl.appendChild(setLi);
+                });
+                
+                exLi.appendChild(setsUl);
+            }
+            
+            // Notas del ejercicio
+            if (ex.notasEjercicio) {
+                const notesEl = document.createElement('p');
+                notesEl.classList.add('exercise-notes');
+                notesEl.innerHTML = `<em>Notas: ${ex.notasEjercicio}</em>`;
+                exLi.appendChild(notesEl);
+            }
+            
+            sessionDetailModal.exercises.appendChild(exLi);
+        });
+    } else {
+        const noExercisesEl = document.createElement('p');
+        noExercisesEl.textContent = 'No hay ejercicios registrados en esta sesión.';
+        sessionDetailModal.exercises.appendChild(noExercisesEl);
+    }
+    
+    // Mostrar el modal
     sessionDetailModal.modal.style.display = 'block';
 }
 export function hideSessionDetail() {
@@ -517,4 +603,102 @@ export const calendarElements = {
     nextYearBtn: document.getElementById('next-year-btn'),
     currentYearDisplay: document.getElementById('current-year-display'),
     loadingSpinner: document.getElementById('calendar-loading-spinner')
+};
+
+function initHistoryFilters() {
+    // Exit if elements don't exist yet
+    if (!historyElements.filterButtons || !historyElements.searchInput) return;
+    
+    // Initialize filter buttons
+    historyElements.filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            historyElements.filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Apply the filter
+            applyHistoryFilters();
+        });
+    });
+    
+    // Initialize search input
+    historyElements.searchInput.addEventListener('input', () => {
+        applyHistoryFilters();
+    });
+}
+
+function applyHistoryFilters() {
+    const sessionItems = document.querySelectorAll('#history-list li[data-session-id]');
+    
+    if (!sessionItems.length) return;
+    
+    // Get active filter
+    const activeFilter = document.querySelector('.history-filter.active');
+    const filterType = activeFilter ? activeFilter.dataset.filter : 'all';
+    
+    // Get search query
+    const searchQuery = historyElements.searchInput.value.toLowerCase().trim();
+    
+    // Date filters
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Create date for first day of this month
+    const thisMonthStart = new Date(currentYear, currentMonth, 1);
+    
+    // Create date for first day of last month
+    const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
+    const lastMonthEnd = new Date(currentYear, currentMonth, 0);
+    
+    sessionItems.forEach(item => {
+        // Get the date text from the session-date element
+        const dateEl = item.querySelector('.session-date');
+        const dateText = dateEl.textContent;
+        
+        // Parse the date - assuming format like "DD/MM/YYYY"
+        const dateParts = dateText.split('/');
+        const sessionDate = new Date(
+            parseInt(dateParts[2]), // Year
+            parseInt(dateParts[1]) - 1, // Month (0-indexed)
+            parseInt(dateParts[0]) // Day
+        );
+        
+        // Check date filter
+        let passesDateFilter = true;
+        
+        switch(filterType) {
+            case 'this-month':
+                passesDateFilter = sessionDate >= thisMonthStart;
+                break;
+            case 'last-month':
+                passesDateFilter = sessionDate >= lastMonthStart && sessionDate <= lastMonthEnd;
+                break;
+            case 'all':
+            default:
+                passesDateFilter = true;
+        }
+        
+        // Check search query
+        let passesSearchFilter = true;
+        
+        if (searchQuery) {
+            // Get text content to search in
+            const nameEl = item.querySelector('.session-name');
+            const summaryEl = item.querySelector('.session-summary');
+            
+            const textToSearch = [
+                nameEl ? nameEl.textContent.toLowerCase() : '',
+                dateEl ? dateEl.textContent.toLowerCase() : '',
+                summaryEl ? summaryEl.textContent.toLowerCase() : ''
+            ].join(' ');
+            
+            passesSearchFilter = textToSearch.includes(searchQuery);
+        }
+        
+        // Show/hide based on combined filters
+        item.style.display = (passesDateFilter && passesSearchFilter) ? '' : 'none';
+    });
 }

@@ -14,11 +14,11 @@
     <link rel="stylesheet" href="css/components/buttons.css">
     <link rel="stylesheet" href="css/components/footer.css">
     <link rel="stylesheet" href="css/components/spinner.css">
-    <link rel="stylesheet" href="css/components/calendar.css">
-    <link rel="stylesheet" href="css/components/modal.css">
+    <link rel="stylesheet" href="css/components/calendar.css">    <link rel="stylesheet" href="css/components/modal.css">
     <link rel="stylesheet" href="css/user-weight.css">
     <link rel="stylesheet" href="css/components/scroll-to-top.css">
-    <link rel="stylesheet" href="css/components/responsive.css">    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/components/history.css">
+    <link rel="stylesheet" href="css/components/responsive.css"><link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
     <title>My Workout Tracker</title>
@@ -99,13 +99,26 @@
                 <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;">Cancelar
                     Sesión</button>
             </form>
-        </section>
-
-        <!-- History View -->
+        </section>        <!-- History View -->
         <section id="history-view" class="hidden">
             <h2>Historial de Sesiones</h2>
+            
+            <!-- Nuevos controles de filtrado mejorados -->
+            <div class="history-controls">
+                <div class="search-container">
+                    <input type="search" id="history-search" placeholder="Buscar sesiones...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="history-filter active" data-filter="all">Todas las sesiones</button>
+                    <button class="history-filter" data-filter="this-month">Este mes</button>
+                    <button class="history-filter" data-filter="last-month">Mes anterior</button>
+                </div>
+            </div>
+            
             <div id="history-loading" class="spinner"></div>
-            <ul id="history-list"></ul>
+            <ul id="history-list">
+                <!-- Las sesiones se generarán dinámicamente aquí -->
+            </ul>
         </section>
 
         <!-- Manage Routines View -->
@@ -145,16 +158,20 @@
                 <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;">Eliminar
                     Rutina</button>
             </form>
-        </section>
-
-
-        <!-- Session Detail Modal -->
+        </section>        <!-- Session Detail Modal -->
         <div id="session-detail-modal" class="modal">
             <div class="modal-content">
-                <span class="modal-close">×</span>
-                <h3 id="session-detail-title">Detalle de Sesión</h3>
-                <p id="session-detail-date"></p>
-                <ul id="session-detail-exercises"></ul>
+                <div class="modal-header">
+                    <span class="modal-close">×</span>
+                    <h3 id="session-detail-title">Detalle de Sesión</h3>
+                    <p id="session-detail-date"></p>
+                </div>
+                <div class="modal-body">
+                    <div class="session-detail-summary">
+                        <h4>Ejercicios Realizados</h4>
+                    </div>
+                    <ul id="session-detail-exercises"></ul>
+                </div>
             </div>
         </div>
     </main>    <footer>

@@ -1,0 +1,820 @@
+/* Estilos para la vista de historial - Rediseño moderno y elegante */
+:root {
+  --history-card-bg: #ffffff;
+  --history-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --history-card-radius: 16px;
+  --history-accent-color: #6366f1; /* Indigo moderno */
+  --history-gradient-start: #6366f1;
+  --history-gradient-end: #4f46e5;
+  --history-text-primary: #1e293b; /* Slate 800 */
+  --history-text-secondary: #64748b; /* Slate 500 */
+  --history-hover-bg: #f8fafc; /* Slate 50 */
+  --history-divider: #e2e8f0; /* Slate 200 */
+  --history-icon-color: #94a3b8; /* Slate 400 */
+  --history-action-hover: #ef4444; /* Red 500 */
+  --history-badge-bg: #f0f9ff; /* Sky 50 */
+  --history-badge-text: #0284c7; /* Sky 600 */
+  --history-empty-bg: #f1f5f9; /* Slate 100 */
+}
+
+/* Contenedor principal con mejor espaciado y diseño moderno */
+#history-view {
+  padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+#history-view h2 {
+  margin-bottom: 2rem;
+  color: var(--history-text-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+#history-view h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(to right, var(--history-gradient-start), var(--history-gradient-end));
+  border-radius: 4px;
+}
+
+/* Rediseño moderno de la lista de historial */
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Mensaje de lista vacía con diseño moderno y elegante */
+#history-list li:only-child:not([data-session-id]) {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3.5rem 2rem;
+  background-color: var(--history-empty-bg);
+  border-radius: var(--history-card-radius);
+  box-shadow: var(--history-card-shadow);
+  color: var(--history-text-secondary);
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+#history-list li:only-child:not([data-session-id])::before {
+  content: '📝';
+  font-size: 3.5rem;
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Tarjetas modernas y elegantes para cada sesión */
+/* Organizar el espacio interior de la tarjeta para que los botones queden en la parte inferior */
+#history-list li[data-session-id] {
+  background-color: var(--history-card-bg);
+  border-radius: var(--history-card-radius);
+  box-shadow: var(--history-card-shadow);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+  border-left: 4px solid var(--history-accent-color);
+  min-height: 300px; /* Altura mínima para las tarjetas */
+  justify-content: space-between; /* Asegura que los elementos se distribuyan correctamente */
+}
+
+#history-list li[data-session-id]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 25%;
+  height: 5px;
+  background: linear-gradient(to right, transparent, var(--history-gradient-end));
+  opacity: 0.5;
+}
+
+#history-list li[data-session-id]:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
+}
+
+#history-list li[data-session-id]:hover::after {
+  opacity: 1;
+  width: 50%;
+  transition: all 0.3s ease;
+}
+
+/* Eliminar icono decorativo anterior y añadir un diseño más elegante */
+#history-list li[data-session-id]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--history-gradient-start), var(--history-gradient-end));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#history-list li[data-session-id]:hover::before {
+  opacity: 1;
+}
+
+/* Nombre de la rutina con diseño moderno y elegante */
+#history-list li[data-session-id] .session-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--history-text-primary);
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  line-height: 1.3;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed rgba(226, 232, 240, 0.5);
+  position: relative;
+  height: 2.8em; /* Altura fija para 2 líneas */
+  min-height: 2.8em; /* Garantiza al menos esta altura */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limitar a 2 líneas */
+  line-clamp: 2; /* Propiedad estándar para compatibilidad */
+  -webkit-box-orient: vertical;
+}
+
+#history-list li[data-session-id] .session-name::before {
+  content: '💪';
+  font-size: 1.1rem;
+  background-color: rgba(99, 102, 241, 0.1);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Fecha de la sesión con diseño moderno y elegante */
+#history-list li[data-session-id] .session-date {
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, var(--history-badge-bg), #e0f2fe);
+  color: var(--history-badge-text);
+  padding: 0.4rem 0.9rem;
+  border-radius: 50px;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+#history-list li[data-session-id]:hover .session-date {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+#history-list li[data-session-id] .session-date::before {
+  content: '🗓️';
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Peso del usuario con diseño moderno y elegante */
+#history-list li[data-session-id] .session-weight {
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-left: 0.5rem;
+  background: linear-gradient(to right, #f0fdf4, #dcfce7);
+  color: #16a34a; /* Green 600 */
+  padding: 0.4rem 0.9rem;
+  border-radius: 50px;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+#history-list li[data-session-id]:hover .session-weight {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+#history-list li[data-session-id] .session-weight::before {
+  content: '⚖️';
+  margin-right: 0.5rem;
+}
+
+/* Resumen de ejercicios con diseño moderno y elegante */
+#history-list li[data-session-id] .session-summary {
+  font-size: 0.95rem;
+  color: var(--history-text-primary);
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--history-divider);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  position: relative;
+  padding-left: 30px;
+}
+
+#history-list li[data-session-id] .session-summary::before {
+  content: '🏋️';
+  position: absolute;
+  left: 0;
+  font-size: 1.1rem;
+}
+
+/* Acciones de la sesión con diseño elegante y moderno */
+.session-actions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.25rem;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.session-action-btn {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.1rem; /* Base padding */
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra el texto */
+  /* gap: 0.75rem; NO ES NECESARIO SI EL ICONO ES ABSOLUTO */
+  transition: all 0.2s, padding 0.3s ease-in-out; /* Añadido padding a la transición */
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  text-align: center; /* Asegura que el texto se centre */
+  width: 100%;
+}
+
+.session-action-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  z-index: -1;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+
+.session-action-btn:hover::after {
+  opacity: 1;
+}
+
+.session-action-btn.view {
+  color: var(--history-accent-color);
+  background-color: rgba(99, 102, 241, 0.1);
+  position: relative;
+  padding-left: 2.8rem; /* Espacio inicial para el icono a la izquierda (un poco más que 2.5) */
+}
+
+.session-action-btn.view:hover {
+  background-color: rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(99, 102, 241, 0.2);
+  padding-left: 1.1rem; /* Padding izquierdo normal al mover icono a la derecha */
+  padding-right: 2.8rem; /* Espacio para el icono a la derecha */
+}
+
+.session-action-btn.view::before {
+  content: '👁️';
+  font-size: 1rem;
+  position: absolute;
+  left: -5rem; /* Posición inicial a la izquierda */
+  top: 100%;
+  transform: translateY(-80%);
+  transition: left 0.3s ease-in-out, right 0.3s ease-in-out; /* Transición para el movimiento */
+}
+
+.session-action-btn.view:hover::before {
+  left: auto; /* Quita el anclaje izquierdo */
+  right: 5rem; /* Posiciona a la derecha */
+}
+
+.session-action-btn.delete {
+  color: var(--history-action-hover);
+  background-color: rgba(239, 68, 68, 0.1);
+  position: relative;
+  padding-left: 2.8rem; /* Espacio inicial para el icono a la izquierda */
+}
+
+.session-action-btn.delete:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(239, 68, 68, 0.2);
+  padding-left: 1.1rem; /* Padding izquierdo normal al mover icono a la derecha */
+  padding-right: 2.8rem; /* Espacio para el icono a la derecha */
+}
+
+.session-action-btn.delete::before {
+  content: '🗑️';
+  font-size: 1rem;
+  position: absolute;
+  left: -5rem; /* Posición inicial a la izquierda */
+  top: 100%;
+  transform: translateY(-80%);
+  transition: left 0.3s ease-in-out, right 0.3s ease-in-out; /* Transición para el movimiento */
+}
+
+.session-action-btn.delete:hover::before {
+  left: auto; /* Quita el anclaje izquierdo */
+  right: 5rem; /* Posiciona a la derecha */
+}
+
+
+/* Mejora del modal de detalles con estilo moderno y elegante */
+#session-detail-modal .modal-content {
+  border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+  max-width: 700px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: none;
+  position: relative;
+  background: white;
+}
+
+#session-detail-modal .modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, transparent 50%, rgba(99, 102, 241, 0.1) 50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+#session-detail-modal .modal-header {
+  background: linear-gradient(135deg, var(--history-gradient-start), var(--history-gradient-end));
+  color: white;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#session-detail-modal .modal-header::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+#session-detail-modal .modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  color: white;
+  opacity: 0.8;
+  transition: all 0.2s;
+  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 2;
+  cursor: pointer;
+}
+
+#session-detail-modal .modal-close:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+#session-detail-modal h3 {
+  color: #dcfce7;
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+#session-detail-modal h3::before {
+  content: '💪';
+  font-size: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+#session-detail-modal #session-detail-date {
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+#session-detail-modal #session-detail-date::before {
+  content: '🗓️';
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+#session-detail-modal .modal-body {
+  padding: 2rem;
+  background-color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+#session-detail-modal .session-detail-summary {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+#session-detail-modal .session-detail-summary h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--history-text-primary);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--history-divider);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#session-detail-modal .session-detail-summary h4::before {
+  content: '🏋️';
+}
+
+#session-detail-exercises {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#session-detail-exercises li {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--history-divider);
+  position: relative;
+  padding-left: 0.5rem;
+  transition: all 0.2s;
+  list-style-type: none;
+}
+
+#session-detail-exercises li:hover {
+  background-color: rgba(99, 102, 241, 0.03);
+  padding-left: 1rem;
+  border-radius: 8px;
+}
+
+#session-detail-exercises li:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+#session-detail-exercises li::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--history-gradient-start), var(--history-gradient-end));
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+#session-detail-exercises strong {
+  color: var(--history-text-primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+#session-detail-exercises ul {
+  padding-left: 1.75rem;
+  margin: 0.75rem 0;
+}
+
+#session-detail-exercises ul li {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed rgba(226, 232, 240, 0.7);
+}
+
+#session-detail-exercises ul li:last-child {
+  border-bottom: none;
+}
+
+#session-detail-exercises p {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  color: var(--history-text-secondary);
+  background-color: var(--history-badge-bg);
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Badges para tipo de ejercicio */
+.exercise-type-badge {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.exercise-type-badge.strength {
+  background-color: #f0fdf4; /* Green 50 */
+  color: #16a34a; /* Green 600 */
+}
+
+.exercise-type-badge.cardio {
+  background-color: #fff7ed; /* Orange 50 */
+  color: #ea580c; /* Orange 600 */
+}
+
+.exercise-type-badge.other {
+  background-color: #f5f3ff; /* Purple 50 */
+  color: #7c3aed; /* Purple 600 */
+}
+
+/* Peso del usuario en el modal */
+.user-weight-badge {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  background-color: #f0fdf4; /* Green 50 */
+  color: #16a34a; /* Green 600 */
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: 0.75rem;
+}
+
+/* Contenedor de badges para inline info */
+.session-inline-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* Animaciones modernas */
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#history-list li {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+#session-detail-modal .modal-content {
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+#history-list li:nth-child(2) { animation-delay: 0.05s; }
+#history-list li:nth-child(3) { animation-delay: 0.1s; }
+#history-list li:nth-child(4) { animation-delay: 0.15s; }
+#history-list li:nth-child(5) { animation-delay: 0.2s; }
+#history-list li:nth-child(6) { animation-delay: 0.25s; }
+#history-list li:nth-child(7) { animation-delay: 0.3s; }
+#history-list li:nth-child(8) { animation-delay: 0.35s; }
+#history-list li:nth-child(9) { animation-delay: 0.4s; }
+
+/* Filtros y controles para la vista de historial con mejor diseño */
+.history-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.history-controls::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1));
+  border-radius: 3px;
+}
+
+/* Contenedor de búsqueda */
+.search-container {
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 1rem;
+  position: relative;
+  margin: 0 auto 1rem;
+}
+
+.search-container::before {
+  content: '🔍';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  color: var(--history-text-secondary);
+  z-index: 1;
+  pointer-events: none;
+}
+
+#history-search {
+  width: 100%;
+  border: 1px solid var(--history-divider);
+  border-radius: 50px;
+  padding: 0.7rem 0.8rem 0.7rem 2.2rem;
+  font-size: 0.95rem;
+  color: var(--history-text-primary);
+  background-color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  outline: none;
+}
+
+#history-search:focus {
+  border-color: var(--history-accent-color);
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
+}
+
+/* Contenedor de botones de filtro */
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.history-filter {
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  background-color: white;
+  border: 1px solid var(--history-divider);
+  color: var(--history-text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.history-filter:hover {
+  border-color: var(--history-accent-color);
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.history-filter.active {
+  background: linear-gradient(135deg, var(--history-gradient-start), var(--history-gradient-end));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.25);
+}
+
+/* Estilos responsive mejorados */
+@media (max-width: 1024px) {
+  #history-list {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  #history-list {
+    grid-template-columns: 1fr;
+  }
+  
+  #history-view {
+    padding: 1rem;
+  }
+  
+  #history-view h2 {
+    font-size: 1.75rem;
+  }
+  
+  .history-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .history-filter {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  #session-detail-modal .modal-content {
+    width: 95%;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .session-inline-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  #history-list li[data-session-id] .session-date,
+  #history-list li[data-session-id] .session-weight {
+    margin-left: 0;
+  }
+  
+  .session-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .session-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
