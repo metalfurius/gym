@@ -293,10 +293,11 @@ export function renderHistoryList(sessions) {
 
         const contentDiv = document.createElement('div'); // Contenedor para nombre y fecha
         contentDiv.style.flexGrow = "1"; // Para que ocupe el espacio y empuje el botón
-        
-        const nameSpan = document.createElement('span');
+          const nameSpan = document.createElement('span');
         nameSpan.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
-        nameSpan.style.display = "block"; // Para que esté en una línea separada si es largo        const dateSpan = document.createElement('span');
+        nameSpan.style.display = "block"; // Para que esté en una línea separada si es largo
+        
+        const dateSpan = document.createElement('span');
         dateSpan.className = 'date';
         
         let dateText = formatDateShort(session.fecha.toDate());

@@ -537,7 +537,25 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
             .then(reg => console.log('ServiceWorker registered.', reg))
-            .catch(err => console.error('ServiceWorker registration failed:', err));
+            .catch(err => {
+                console.error('ServiceWorker registration failed:', err);
+                // Check if it's a network error that might be caused by an ad blocker
+                if (err.name === 'TypeError' && err.message.includes('Failed to register') && err.message.includes('404')) {
+                    console.warn('This may be due to a missing service worker file or an ad blocker.');
+                    // You could show a notification to the user here if needed
+                }
+            });
+    });
+    
+    // Add an error handler for Firestore connection errors
+    window.addEventListener('error', function(event) {
+        const errorText = event.message || '';
+        if (errorText.includes('ERR_BLOCKED_BY_CLIENT') || 
+            (event.filename && event.filename.includes('firestore.googleapis.com'))) {
+            console.warn('Detected possible content blocker interfering with Firebase connections. ' +
+                        'This may affect app functionality.');
+            // You could show a notification to the user here if needed
+        }
     });
 }
 
