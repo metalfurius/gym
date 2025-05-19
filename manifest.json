@@ -2,7 +2,7 @@
     "name": "My Workout Tracker",
     "short_name": "WorkoutApp",
     "description": "Tu compañero de entrenamiento personal para registrar y personalizar tus progresos.",
-    "start_url": "/index.html",
+    "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#f0f2f5",
     "theme_color": "#2c3e50",

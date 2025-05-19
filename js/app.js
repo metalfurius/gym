@@ -673,7 +673,9 @@ if (manageRoutinesElements.initializeSampleRoutinesBtn) {
 // PWA Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
+        // Use a relative path that works regardless of deployment location
+        const swPath = new URL('sw.js', window.location.href).pathname;
+        navigator.serviceWorker.register(swPath)
             .then(reg => console.log('ServiceWorker registered.', reg))
             .catch(err => {
                 console.error('ServiceWorker registration failed:', err);
