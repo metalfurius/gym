@@ -47,7 +47,10 @@ export const historyElements = {
     list: document.getElementById('history-list'),
     loadingSpinner: document.getElementById('history-loading'),
     searchInput: document.getElementById('history-search'),
-    filterButtons: document.querySelectorAll('.history-filter')
+    paginationControls: document.getElementById('history-pagination-controls'),
+    prevPageBtn: document.getElementById('history-prev-page-btn'),
+    nextPageBtn: document.getElementById('history-next-page-btn'),
+    pageInfo: document.getElementById('history-page-info')
 };
 
 export const sessionDetailModal = {
@@ -307,7 +310,7 @@ export function renderHistoryList(sessions) {
         // Fecha de la sesión
         const dateEl = document.createElement('div');
         dateEl.classList.add('session-date');
-        dateEl.textContent = formatDateShort(session.fecha.toDate());
+        dateEl.textContent = session.fecha && session.fecha.toDate ? formatDateShort(session.fecha.toDate()) : 'Fecha no disponible';
         inlineInfoEl.appendChild(dateEl);
         
         // Peso del usuario (si está disponible)
@@ -361,8 +364,7 @@ export function renderHistoryList(sessions) {
         historyElements.list.appendChild(li);
     });
     
-    // Inicializar funcionalidad de filtrado
-    initHistoryFilters();
+    applyHistoryFilters(); 
 }
 
 export function showSessionDetail(sessionData) {
@@ -629,76 +631,39 @@ function initHistoryFilters() {
     });
 }
 
-function applyHistoryFilters() {
-    const sessionItems = document.querySelectorAll('#history-list li[data-session-id]');
+export function applyHistoryFilters() {
+    if (!historyElements.list || !historyElements.searchInput) return;
+    const sessionItems = historyElements.list.querySelectorAll('li[data-session-id]');
     
     if (!sessionItems.length) return;
     
-    // Get active filter
-    const activeFilter = document.querySelector('.history-filter.active');
-    const filterType = activeFilter ? activeFilter.dataset.filter : 'all';
-    
-    // Get search query
     const searchQuery = historyElements.searchInput.value.toLowerCase().trim();
     
-    // Date filters
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    // Create date for first day of this month
-    const thisMonthStart = new Date(currentYear, currentMonth, 1);
-    
-    // Create date for first day of last month
-    const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
-    const lastMonthEnd = new Date(currentYear, currentMonth, 0);
-    
     sessionItems.forEach(item => {
-        // Get the date text from the session-date element
-        const dateEl = item.querySelector('.session-date');
-        const dateText = dateEl.textContent;
-        
-        // Parse the date - assuming format like "DD/MM/YYYY"
-        const dateParts = dateText.split('/');
-        const sessionDate = new Date(
-            parseInt(dateParts[2]), // Year
-            parseInt(dateParts[1]) - 1, // Month (0-indexed)
-            parseInt(dateParts[0]) // Day
-        );
-        
-        // Check date filter
-        let passesDateFilter = true;
-        
-        switch(filterType) {
-            case 'this-month':
-                passesDateFilter = sessionDate >= thisMonthStart;
-                break;
-            case 'last-month':
-                passesDateFilter = sessionDate >= lastMonthStart && sessionDate <= lastMonthEnd;
-                break;
-            case 'all':
-            default:
-                passesDateFilter = true;
-        }
-        
-        // Check search query
         let passesSearchFilter = true;
         
         if (searchQuery) {
-            // Get text content to search in
             const nameEl = item.querySelector('.session-name');
+            const dateEl = item.querySelector('.session-date');
             const summaryEl = item.querySelector('.session-summary');
             
             const textToSearch = [
                 nameEl ? nameEl.textContent.toLowerCase() : '',
-                dateEl ? dateEl.textContent.toLowerCase() : '',
+                dateEl ? dateEl.textContent.toLowerCase() : '', // Asegúrate que este selector es correcto
                 summaryEl ? summaryEl.textContent.toLowerCase() : ''
             ].join(' ');
             
             passesSearchFilter = textToSearch.includes(searchQuery);
         }
         
-        // Show/hide based on combined filters
-        item.style.display = (passesDateFilter && passesSearchFilter) ? '' : 'none';
+        item.style.display = passesSearchFilter ? '' : 'none';
     });
+
+    
+}
+
+if (historyElements.searchInput) {
+    historyElements.searchInput.addEventListener('input', applyHistoryFilters);
+} else {
+    console.warn("History search input not found for attaching event listener in ui.js");
 }

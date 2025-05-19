@@ -361,6 +361,93 @@
   right: 5rem; /* Posiciona a la derecha */
 }
 
+/* Controles de paginación con diseño moderno y elegante */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--history-divider);
+  position: relative;
+  border-radius: 0.75rem;
+}
+
+.pagination-controls.hidden {
+  display: none;
+}
+
+/* Botones de paginación con estilo coherente */
+.pagination-controls button {
+  padding: 0.75rem 1.25rem;
+  min-width: 110px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: linear-gradient(to right, var(--history-gradient-start), var(--history-gradient-end));
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-controls button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.pagination-controls button:hover::after {
+  opacity: 1;
+}
+
+.pagination-controls button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pagination-controls button:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+}
+
+/* Contador de página con estilo elegante */
+.pagination-controls span#history-page-info {
+  font-size: 1rem;
+  color: var(--history-text-secondary);
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  background-color: var(--history-badge-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.pagination-controls span#history-page-info::before {
+  content: '📄';
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
 
 /* Mejora del modal de detalles con estilo moderno y elegante */
 #session-detail-modal .modal-content {

@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js'; // auth is handled in auth.js
-import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch, where,
+    limit, startAfter } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getCurrentUser, handleLogout } from './auth.js'; // Removed login/signup handlers, they are in auth.js
 import {
     showView, updateNav, formatDate, populateDaySelector, renderSessionView,
@@ -7,30 +8,41 @@ import {
     renderRoutineEditor, addExerciseToEditorForm,
     views, navButtons, authElements, dashboardElements, sessionElements, historyElements, sessionDetailModal,
     manageRoutinesElements, routineEditorElements, showLoading, hideLoading,
-    calendarElements
+    calendarElements, applyHistoryFilters 
 } from './ui.js';
 import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 
 // --- State ---
+const MIN_CALENDAR_YEAR = 2025;
 let currentCalendarYear = new Date().getFullYear();
 let currentRoutineForSession = null; // Stores the full routine object for the active session
 let currentUserRoutines = []; // Cache for user's routines
 let allSessionsCache = []; 
 
+// Estado para paginación del historial
+let historyPageFirstDocSnapshot = null; // Snapshot del primer documento de la página actual (para "Anterior" si se implementa con endBefore)
+let historyPageLastDocSnapshot = null;  // Snapshot del último documento de la página actual (para "Siguiente")
+let historyPageDocSnapshotsStack = []; // Para una paginación "Anterior" más simple
+const HISTORY_PAGE_SIZE = 10; // Número de sesiones por página
+let currentHistoryPageNumber = 1;
+
 // --- App Initialization triggered by Auth ---
 export async function initializeAppAfterAuth(user) {
     if (user) {
         dashboardElements.currentDate.textContent = formatDate(new Date());
-        await fetchUserRoutines(user); // Fetch routines first
-        checkAndOfferResumeSession(); // Then check for resume
-        currentCalendarYear = new Date().getFullYear(); 
+        await fetchUserRoutines(user);
+        checkAndOfferResumeSession();
+        if (currentCalendarYear < MIN_CALENDAR_YEAR) {
+            currentCalendarYear = MIN_CALENDAR_YEAR;
+        }
         updateCalendarView();
     } else {
         currentRoutineForSession = null;
         currentUserRoutines = [];
-        populateDaySelector([]); // Clear day selector
+        populateDaySelector([]); 
         sessionElements.form.reset();
         historyElements.list.innerHTML = '<li id="history-loading">Cargando historial...</li>';
+        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
         manageRoutinesElements.list.innerHTML = '<li id="routines-loading">Cargando rutinas...</li>';
         if (calendarElements.container) calendarElements.container.classList.add('hidden');
     }
@@ -133,17 +145,13 @@ function checkAndOfferResumeSession() {
 // Navigation
 navButtons.dashboard.addEventListener('click', () => {
     showView('dashboard');
-    fetchUserRoutines(getCurrentUser()); // Refresh routines in case they were edited
+    fetchUserRoutines(getCurrentUser());
     checkAndOfferResumeSession();
     updateCalendarView();
 });
 navButtons.manageRoutines.addEventListener('click', () => {
     showView('manageRoutines');
-    manageRoutinesElements.loadingSpinner.classList.remove('hidden');
-    fetchUserRoutines(getCurrentUser()).then(() => {
-         renderManageRoutinesView(currentUserRoutines); // Render after fetching
-         manageRoutinesElements.loadingSpinner.classList.add('hidden');
-    });
+    renderManageRoutinesView(currentUserRoutines);
 });
 navButtons.history.addEventListener('click', () => {
     showView('history');
@@ -285,35 +293,115 @@ async function saveSessionData(event) {
     }
 }
 
-// History (fetchAndRenderHistory and list click listener largely same, but ensure session detail shows type)
-async function fetchAndRenderHistory() {
+// History
+async function fetchAndRenderHistory(direction = 'initial') { // direction: 'initial', 'next', 'prev'
     const user = getCurrentUser();
     if (!user) {
         historyElements.list.innerHTML = '<li>Debes iniciar sesión para ver tu historial.</li>';
         historyElements.loadingSpinner.classList.add('hidden');
+        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
         return;
     }
+
     historyElements.loadingSpinner.classList.remove('hidden');
     historyElements.list.innerHTML = ''; 
+    if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
+
+    const userSessionsCollectionRef = collection(db, "users", user.uid, "sesiones_entrenamiento");
+    let q;
+
     try {
-        const userSessionsCollectionRef = collection(db, "users", user.uid, "sesiones_entrenamiento");
-        const q = query(userSessionsCollectionRef, orderBy("fecha", "desc"));
+        if (direction === 'initial') {
+            historyPageDocSnapshotsStack = []; // Resetear el stack para la navegación "anterior"
+            currentHistoryPageNumber = 1;
+            q = query(userSessionsCollectionRef, orderBy("fecha", "desc"), limit(HISTORY_PAGE_SIZE));
+        } else if (direction === 'next' && historyPageLastDocSnapshot) {
+            q = query(userSessionsCollectionRef, orderBy("fecha", "desc"), startAfter(historyPageLastDocSnapshot), limit(HISTORY_PAGE_SIZE));
+            currentHistoryPageNumber++;
+        } else if (direction === 'prev') {
+            if (historyPageDocSnapshotsStack.length > 0) { // Hay páginas anteriores en el stack
+                // El stack guarda el *primer* documento de cada página cargada.
+                // Para ir a la página N-1, necesitamos el primer doc de la página N-1.
+                // Si estamos en la página P, el stack tiene [firstDocP0, firstDocP1, ..., firstDocP(P-1)]
+                // donde P0 es un null para la primera página.
+                // Quitamos el de la página actual (que se volverá a añadir si hay resultados)
+                historyPageDocSnapshotsStack.pop(); 
+                const prevPageStartAfterDoc = historyPageDocSnapshotsStack.pop(); // Este es el doc para startAfter de la página anterior
+                                                                            // o null si es la primera página.
+                
+                if (prevPageStartAfterDoc) {
+                    q = query(userSessionsCollectionRef, orderBy("fecha", "desc"), startAfter(prevPageStartAfterDoc), limit(HISTORY_PAGE_SIZE));
+                } else { // Volviendo a la primera página
+                    q = query(userSessionsCollectionRef, orderBy("fecha", "desc"), limit(HISTORY_PAGE_SIZE));
+                }
+                currentHistoryPageNumber--;
+            } else { // No hay más páginas anteriores o estado inválido
+                historyElements.loadingSpinner.classList.add('hidden');
+                if (historyElements.prevPageBtn) historyElements.prevPageBtn.disabled = true;
+                return; 
+            }
+        } else { // Caso inválido o final de la paginación "siguiente" sin lastDoc
+            historyElements.loadingSpinner.classList.add('hidden');
+            if (direction === 'next' && historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = true;
+            return;
+        }
+
         const querySnapshot = await getDocs(q);
-        allSessionsCache = []; 
         const sessionsForList = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            sessionsForList.push({ id: doc.id, nombreEntrenamiento: data.nombreEntrenamiento, fecha: data.fecha });
-            allSessionsCache.push({id: doc.id, ...data });
+        querySnapshot.forEach((docSnap) => {
+            sessionsForList.push({ id: docSnap.id, ...docSnap.data() });
         });
-        renderHistoryList(sessionsForList);
+
+        // Guardar referencias para paginación
+        if (querySnapshot.docs.length > 0) {
+            const firstDocOfCurrentPage = querySnapshot.docs[0];
+            
+            if (direction === 'initial') {
+                historyPageDocSnapshotsStack.push(null); // Marcador para "antes de la primera página"
+            }
+            // Añadir el primer doc de la página actual al stack (si no es 'prev' que ya lo manejó)
+            // O si es 'prev' pero trajo resultados (lo que significa que no estamos al principio del todo)
+            if (direction !== 'prev' || (direction === 'prev' && querySnapshot.docs.length > 0)) {
+                 historyPageDocSnapshotsStack.push(firstDocOfCurrentPage);
+            }
+
+
+            historyPageFirstDocSnapshot = firstDocOfCurrentPage;
+            historyPageLastDocSnapshot = querySnapshot.docs[querySnapshot.docs.length - 1];
+        } else {
+            // No hay más documentos en esta dirección
+            if (direction === 'next') historyPageLastDocSnapshot = null; 
+            // Si es 'prev' y no hay docs, significa que hemos retrocedido a "antes de la primera página"
+            // o un error lógico. El botón 'prev' debería estar deshabilitado.
+            if (direction === 'prev' && historyPageDocSnapshotsStack.length <=1) { // Solo queda el 'null' o está vacío
+                 historyPageDocSnapshotsStack = [null]; // Asegurar estado base
+            }
+        }
+        
+        allSessionsCache = [...sessionsForList]; // Cachear solo las sesiones de la página actual
+
+        renderHistoryList(sessionsForList); // Pasa las sesiones de la página actual
+        
+        // Actualizar estado de botones de paginación
+        if (historyElements.prevPageBtn) {
+            historyElements.prevPageBtn.disabled = currentHistoryPageNumber === 1 || historyPageDocSnapshotsStack.length <= 1;
+        }
+        if (historyElements.nextPageBtn) {
+            historyElements.nextPageBtn.disabled = querySnapshot.docs.length < HISTORY_PAGE_SIZE || sessionsForList.length === 0;
+        }
+        if (historyElements.pageInfo) {
+            historyElements.pageInfo.textContent = `Pág. ${currentHistoryPageNumber}`;
+        }
+
     } catch (error) {
         console.error("Error fetching history:", error);
         historyElements.list.innerHTML = '<li>Error al cargar el historial.</li>';
+        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
     } finally {
         historyElements.loadingSpinner.classList.add('hidden');
     }
 }
+// Listener para clics en la lista de historial (modificado para paginación y caché)
 historyElements.list.addEventListener('click', async (event) => {
     const user = getCurrentUser();
     if (!user) return;
@@ -321,31 +409,72 @@ historyElements.list.addEventListener('click', async (event) => {
     const targetButton = event.target.closest('button[data-action="delete-session"]');
     const listItem = event.target.closest('li[data-session-id]');
 
-    if (targetButton) { // --- SE HA HECHO CLIC EN EL BOTÓN DE ELIMINAR ---
-        event.stopPropagation(); // Evita que se active el modal de detalles si el botón está dentro del li
+    if (targetButton) {
+        event.stopPropagation();
         const sessionIdToDelete = targetButton.dataset.sessionId;
-        const sessionName = listItem.querySelector('span:not(.date)').textContent; // Para el mensaje de confirmación
+        const sessionFromCache = allSessionsCache.find(s => s.id === sessionIdToDelete);
+        const sessionName = sessionFromCache ? (sessionFromCache.nombreEntrenamiento || "esta sesión") : "esta sesión";
 
-        if (confirm(`¿Estás seguro de que quieres eliminar la sesión "${sessionName}"? Esta acción no se puede deshacer.`)) {
+        if (confirm(`¿Estás seguro de que quieres eliminar "${sessionName}"? Esta acción no se puede deshacer.`)) {
             showLoading(targetButton, 'Eliminando...');
             try {
                 const sessionDocRef = doc(db, "users", user.uid, "sesiones_entrenamiento", sessionIdToDelete);
                 await deleteDoc(sessionDocRef);
-                // alert("Sesión eliminada con éxito."); // Opcional, el refresco de la lista es suficiente
-                fetchAndRenderHistory(); // Refresca la lista para quitar el elemento eliminado
-                // También actualiza el cache local si lo usas activamente para otras cosas
-                allSessionsCache = allSessionsCache.filter(s => s.id !== sessionIdToDelete);
+                
+                // Recargar la página actual del historial.
+                // Si era el último ítem de la página y no es la primera página, intentar ir a la anterior.
+                if (allSessionsCache.length === 1 && currentHistoryPageNumber > 1) {
+                    // Al eliminar el último de la página, el stack ya se habrá ajustado en el 'prev'
+                    // así que simplemente llamamos a 'prev'.
+                    fetchAndRenderHistory('prev');
+                } else {
+                    // Recargar la página actual. Necesitamos el doc por el que empezó.
+                    // El stack tiene [null, firstDocP1, firstDocP2, ...]
+                    // El último elemento del stack es el firstDoc de la página actual.
+                    const startAfterDocForReload = historyPageDocSnapshotsStack.length > 1 ? historyPageDocSnapshotsStack[historyPageDocSnapshotsStack.length - 2] : null;
+
+                    let qReload;
+                    if (startAfterDocForReload) {
+                        qReload = query(collection(db, "users", user.uid, "sesiones_entrenamiento"), orderBy("fecha", "desc"), startAfter(startAfterDocForReload), limit(HISTORY_PAGE_SIZE));
+                    } else { // Recargando la primera página
+                        qReload = query(collection(db, "users", user.uid, "sesiones_entrenamiento"), orderBy("fecha", "desc"), limit(HISTORY_PAGE_SIZE));
+                    }
+                    
+                    const snapshot = await getDocs(qReload);
+                    const reloadedSessions = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                    
+                    allSessionsCache = [...reloadedSessions];
+                    renderHistoryList(reloadedSessions);
+
+                    if (snapshot.docs.length > 0) {
+                        historyPageFirstDocSnapshot = snapshot.docs[0];
+                        historyPageLastDocSnapshot = snapshot.docs[snapshot.docs.length - 1];
+                        // No modificamos el stack aquí, ya que estamos "refrescando" la misma posición lógica.
+                    } else { // La página quedó vacía
+                        historyPageLastDocSnapshot = null; // No hay más siguientes
+                    }
+                    
+                    // Re-evaluar estado de botones
+                     if (historyElements.prevPageBtn) {
+                        historyElements.prevPageBtn.disabled = currentHistoryPageNumber === 1 || historyPageDocSnapshotsStack.length <= 1;
+                    }
+                    if (historyElements.nextPageBtn) {
+                        historyElements.nextPageBtn.disabled = snapshot.docs.length < HISTORY_PAGE_SIZE || reloadedSessions.length === 0;
+                    }
+                }
+
             } catch (error) {
-                console.error("Error eliminando sesión del historial: ", error);
+                console.error("Error eliminando sesión: ", error);
                 alert("Error al eliminar la sesión.");
-                hideLoading(targetButton);
+                hideLoading(targetButton); // Asegurar que se oculta el loading en caso de error
             }
-            // No necesitas hideLoading aquí si el botón desaparece con el refresh
+            // No es necesario hideLoading si el botón desaparece con el refresh, pero por si acaso.
         }
-    } else if (listItem) { // --- SE HA HECHO CLIC EN EL LI (para ver detalles) ---
+    } else if (listItem) {
         const sessionId = listItem.dataset.sessionId;
         let sessionData = allSessionsCache.find(s => s.id === sessionId);
-        if (!sessionData) {
+        
+        if (!sessionData) { // Debería estar en el caché de la página actual, pero como fallback:
             historyElements.loadingSpinner.classList.remove('hidden'); // O un spinner más pequeño
             try {
                 const docRef = doc(db, "users", user.uid, "sesiones_entrenamiento", sessionId);
@@ -363,6 +492,15 @@ historyElements.list.addEventListener('click', async (event) => {
         if (sessionData) showSessionDetail(sessionData);
     }
 });
+
+// Listeners para botones de paginación del historial
+if (historyElements.prevPageBtn) {
+    historyElements.prevPageBtn.addEventListener('click', () => fetchAndRenderHistory('prev'));
+}
+if (historyElements.nextPageBtn) {
+    historyElements.nextPageBtn.addEventListener('click', () => fetchAndRenderHistory('next'));
+}
+
 sessionDetailModal.closeBtn.addEventListener('click', hideSessionDetail);
 window.addEventListener('click', (event) => { if (event.target === sessionDetailModal.modal) hideSessionDetail(); });
 
@@ -655,22 +793,31 @@ function renderActivityCalendar(year, activityData) {
 async function updateCalendarView() {
     const user = getCurrentUser();
     if (!user) {
-        calendarElements.container.classList.add('hidden'); // Ocultar si no hay usuario
+        if (calendarElements.container) calendarElements.container.classList.add('hidden');
         return;
     }
-    calendarElements.container.classList.remove('hidden');
+    // Asegurar que no se va por debajo del año mínimo
+    if (currentCalendarYear < MIN_CALENDAR_YEAR) {
+        currentCalendarYear = MIN_CALENDAR_YEAR;
+    }
+    if (calendarElements.container) calendarElements.container.classList.remove('hidden');
+    
     const activity = await getYearlyActivity(user.uid, currentCalendarYear);
-    renderActivityCalendar(currentCalendarYear, activity);
+    renderActivityCalendar(currentCalendarYear, activity); // renderActivityCalendar está en ui.js o aquí
+
+    // Deshabilitar botón "prev" si estamos en el año mínimo
+    if (calendarElements.prevYearBtn) {
+        calendarElements.prevYearBtn.disabled = currentCalendarYear <= MIN_CALENDAR_YEAR;
+    }
 }
 
-// --- Event Listeners para el Calendario (dentro de initializeAppAfterAuth o al mostrar dashboard) ---
-// Es mejor añadirlos una vez el DOM esté listo.
-// Puedes ponerlos cerca de los otros listeners del dashboard.
-
+// Listeners para el calendario
 if (calendarElements.prevYearBtn) {
     calendarElements.prevYearBtn.addEventListener('click', () => {
-        currentCalendarYear--;
-        updateCalendarView();
+        if (currentCalendarYear > MIN_CALENDAR_YEAR) { // Solo permitir si es mayor que el mínimo
+            currentCalendarYear--;
+            updateCalendarView();
+        }
     });
 }
 if (calendarElements.nextYearBtn) {

@@ -106,12 +106,7 @@
             <!-- Nuevos controles de filtrado mejorados -->
             <div class="history-controls">
                 <div class="search-container">
-                    <input type="search" id="history-search" placeholder="Buscar sesiones...">
-                </div>
-                <div class="filter-buttons">
-                    <button class="history-filter active" data-filter="all">Todas las sesiones</button>
-                    <button class="history-filter" data-filter="this-month">Este mes</button>
-                    <button class="history-filter" data-filter="last-month">Mes anterior</button>
+                    <input type="search" id="history-search" placeholder="Buscar en sesiones cargadas...">
                 </div>
             </div>
             
@@ -119,6 +114,12 @@
             <ul id="history-list">
                 <!-- Las sesiones se generarán dinámicamente aquí -->
             </ul>
+
+            <div id="history-pagination-controls" class="pagination-controls hidden">
+                 <button id="history-prev-page-btn" class="ghost" disabled>Anterior</button>
+                 <span id="history-page-info"></span>
+                 <button id="history-next-page-btn" class="ghost" disabled>Siguiente</button>
+            </div>
         </section>
 
         <!-- Manage Routines View -->
