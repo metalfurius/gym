@@ -65,7 +65,8 @@ export const manageRoutinesElements = {
     list: document.getElementById('routine-list'),
     loadingSpinner: document.getElementById('routines-loading'),
     addNewBtn: document.getElementById('add-new-routine-btn'),
-    initializeSampleRoutinesBtn: document.getElementById('initialize-sample-routines-btn') // <<< AÑADIR ESTA LÍNEA
+    initializeSampleRoutinesBtn: document.getElementById('initialize-sample-routines-btn'),
+    updateMySampleRoutinesBtn: document.getElementById('update-my-sample-routines-btn')
 };
 
 export const routineEditorElements = {

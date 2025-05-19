@@ -634,36 +634,141 @@ manageRoutinesElements.addNewBtn.addEventListener('click', () => {
 });
 
 // Listener para el botón de inicializar/restaurar rutinas de muestra
+// Listener para el NUEVO botón de actualizar rutinas de muestra específicas del usuario
+if (manageRoutinesElements.updateMySampleRoutinesBtn) {
+    manageRoutinesElements.updateMySampleRoutinesBtn.addEventListener('click', async () => {
+        const user = getCurrentUser();
+        if (!user) {
+            alert("Debes iniciar sesión para realizar esta acción.");
+            return;
+        }
+
+        if (!confirm("Esto intentará actualizar TUS versiones de las rutinas de muestra (identificadas por '..._sample' o marcadas como muestra) a las últimas definiciones. Si las personalizaste mucho, esos cambios se perderán en esas rutinas específicas. ¿Continuar?")) {
+            return;
+        }
+
+        showLoading(manageRoutinesElements.updateMySampleRoutinesBtn, 'Actualizando...');
+        try {
+            const userRoutinesRef = collection(db, "users", user.uid, "routines");
+            const batch = writeBatch(db);
+            let routinesUpdatedCount = 0;
+
+            // Obtener todas las rutinas de muestra actuales del usuario
+            // Idealmente, buscarías por un flag como `isSample: true` Y que el ID termine en `_sample`
+            // O solo por IDs que coincidan con las claves de sampleWorkoutRoutines
+            const qUserSamples = query(userRoutinesRef, where("isSample", "==", true)); // O una consulta más específica por ID
+            const userSamplesSnapshot = await getDocs(qUserSamples);
+
+            const newSampleRoutines = sampleWorkoutRoutines; // Tus nuevas definiciones de store.js
+
+            for (const sampleId in newSampleRoutines) { // Iterar sobre las claves de tus nuevas muestras (ej. "A1_sample")
+                if (newSampleRoutines.hasOwnProperty(sampleId)) {
+                    const newSampleData = newSampleRoutines[sampleId];
+
+                    // Buscar si el usuario tiene una rutina con este ID de muestra
+                    const userDocToUpdate = userSamplesSnapshot.docs.find(d => d.id === sampleId);
+
+                    if (userDocToUpdate) {
+                        // El usuario tiene una versión de esta rutina de muestra. La actualizamos.
+                        const routineDocRef = doc(db, "users", user.uid, "routines", sampleId);
+                        batch.set(routineDocRef, {
+                            name: newSampleData.name,
+                            exercises: newSampleData.exercises,
+                            isSample: true, // Asegurar que sigue marcada como muestra
+                            // Mantener el createdAt original si es posible, o resetearlo si prefieres
+                            // createdAt: userDocToUpdate.data().createdAt || Timestamp.now(), // Opción para mantener
+                            createdAt: userDocToUpdate.data().createdAt, // Mantener el original
+                            updatedAt: Timestamp.now() // Marcar como actualizada ahora
+                        });
+                        routinesUpdatedCount++;
+                        console.log(`Rutina de muestra '${sampleId}' marcada para actualización.`);
+                    } else {
+                        // El usuario no tiene esta rutina de muestra específica (quizás la borró o es una nueva muestra)
+                        // Podrías añadirla aquí si quieres que "actualizar" también signifique "añadir las que falten"
+                        // O manejarlo con el botón "Añadir Rutinas de Muestra"
+                        console.log(`Rutina de muestra '${sampleId}' no encontrada en las del usuario. No se actualiza ni añade con este botón.`);
+                    }
+                }
+            }
+
+            if (routinesUpdatedCount > 0) {
+                await batch.commit();
+                alert(`${routinesUpdatedCount} rutina(s) de muestra han sido actualizadas a la última versión.`);
+            } else {
+                alert("No se encontraron rutinas de muestra para actualizar o ya estaban al día (según ID). Puedes usar 'Añadir Rutinas' si te faltan.");
+            }
+
+            await fetchUserRoutines(user); // Refrescar la lista en la UI
+            if (!views.manageRoutines.classList.contains('hidden')) {
+                renderManageRoutinesView(currentUserRoutines);
+            }
+
+        } catch (error) {
+            console.error("Error actualizando rutinas de muestra del usuario:", error);
+            alert("Error al actualizar las rutinas de muestra.");
+        } finally {
+            hideLoading(manageRoutinesElements.updateMySampleRoutinesBtn);
+        }
+    });
+}
+
+// Modificar el botón existente para que solo AÑADA si NO existen
+// y no reemplace si ya existen con el mismo ID.
 if (manageRoutinesElements.initializeSampleRoutinesBtn) {
     manageRoutinesElements.initializeSampleRoutinesBtn.addEventListener('click', async () => {
         const user = getCurrentUser();
-        if (user) {
-            if (!confirm("Esto añadirá (o reemplazará si ya existen con el mismo ID) las rutinas de muestra a tu lista. ¿Continuar?")) {
-                return;
-            }
-            showLoading(manageRoutinesElements.initializeSampleRoutinesBtn, 'Añadiendo...');
-            try {
-                // Llamamos a initializeUserRoutines con 'isNewUser' = true
-                // para forzar la adición de las rutinas de muestra.
-                // La función existente maneja esto bien: si (snapshot.empty || isNewUser)
-                await initializeUserRoutines(user, true); 
-                alert("Rutinas de muestra añadidas/restauradas con éxito.");
-                // fetchUserRoutines es llamado dentro de initializeUserRoutines,
-                // y si la vista de gestión de rutinas está activa, se actualizará.
-                // Sin embargo, una llamada explícita para refrescar la vista actual no hace daño.
-                if (!views.manageRoutines.classList.contains('hidden')) {
-                     // currentUserRoutines ya debería estar actualizado por fetchUserRoutines
-                    renderManageRoutinesView(currentUserRoutines);
-                }
-            } catch (error) {
-                console.error("Error initializing sample routines from button:", error);
-                alert("Error al añadir/restaurar las rutinas de muestra.");
-            } finally {
-                hideLoading(manageRoutinesElements.initializeSampleRoutinesBtn);
-            }
-        } else {
+        if (!user) {
             alert("Debes iniciar sesión para realizar esta acción.");
-            showView('auth'); // Opcional: redirigir a login si no está logueado
+            return;
+        }
+
+        if (!confirm("Esto añadirá las rutinas de muestra a tu lista SI AÚN NO LAS TIENES con el mismo ID. No reemplazará las existentes. ¿Continuar?")) {
+            return;
+        }
+        showLoading(manageRoutinesElements.initializeSampleRoutinesBtn, 'Añadiendo...');
+        try {
+            const userRoutinesRef = collection(db, "users", user.uid, "routines");
+            const batch = writeBatch(db);
+            let routinesAddedCount = 0;
+
+            // Obtener IDs de las rutinas existentes del usuario para no duplicar
+            const existingUserRoutinesSnapshot = await getDocs(userRoutinesRef);
+            const existingUserRoutineIds = new Set(existingUserRoutinesSnapshot.docs.map(d => d.id));
+
+            for (const routineKey in sampleWorkoutRoutines) {
+                if (sampleWorkoutRoutines.hasOwnProperty(routineKey)) {
+                    // Solo añadir si el usuario NO tiene ya una rutina con este ID de muestra
+                    if (!existingUserRoutineIds.has(routineKey)) {
+                        const sampleRoutine = sampleWorkoutRoutines[routineKey];
+                        const routineDocRef = doc(db, "users", user.uid, "routines", routineKey);
+                        batch.set(routineDocRef, {
+                            name: sampleRoutine.name,
+                            exercises: sampleRoutine.exercises,
+                            isSample: true,
+                            createdAt: Timestamp.now(),
+                            updatedAt: Timestamp.now()
+                        });
+                        routinesAddedCount++;
+                    }
+                }
+            }
+
+            if (routinesAddedCount > 0) {
+                await batch.commit();
+                alert(`${routinesAddedCount} rutina(s) de muestra han sido añadidas.`);
+            } else {
+                alert("No se añadieron nuevas rutinas de muestra (probablemente ya las tenías todas o no hay muestras definidas).");
+            }
+
+            await fetchUserRoutines(user);
+            if (!views.manageRoutines.classList.contains('hidden')) {
+                renderManageRoutinesView(currentUserRoutines);
+            }
+        } catch (error) {
+            console.error("Error añadiendo rutinas de muestra:", error);
+            alert("Error al añadir las rutinas de muestra.");
+        } finally {
+            hideLoading(manageRoutinesElements.initializeSampleRoutinesBtn);
         }
     });
 } else {
