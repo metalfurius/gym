@@ -11,7 +11,6 @@ A modern, responsive workout tracking web application with session management, r
 - **Routine Customization**: Create and modify workout routines with custom exercises
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
 - **User Authentication**: Secure email and password login
-- **Offline Support**: Progressive Web App (PWA) functionality for offline use
 - **Responsive Interface**: Adapts to different screen sizes and orientations
 - **Session Continuity**: Resume interrupted workout sessions
 
@@ -24,19 +23,9 @@ A modern, responsive workout tracking web application with session management, r
 5. Create and customize your own workout routines
 6. View your workout activity on the yearly calendar
 7. Review detailed history of past workout sessions
-8. Install as a PWA for offline access
-
-## Installation
-
-My Workout Tracker is a Progressive Web App (PWA) that can be installed on your device:
-
-1. Open the application in your web browser
-2. For mobile devices, tap "Add to Home Screen" when prompted
-3. For desktop browsers, look for the install icon in the address bar
 
 ## Technical Features
 
-- Progressive Web App (PWA) architecture
 - Firebase Authentication and Firestore database
 - Service Worker for offline functionality
 - Modular CSS architecture
