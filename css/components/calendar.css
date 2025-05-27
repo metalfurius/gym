@@ -8,6 +8,7 @@
     font-size: 1.2rem;
     margin-bottom: var(--spacing-md);
     color: var(--primary-color);
+    text-align: center; /* Centrar el título para mejor presentación mensual */
 }
 
 .calendar-controls {
@@ -39,37 +40,41 @@
     transform: translateY(-2px);
 }
 
-.calendar-controls #current-year-display {
+.calendar-controls #current-month-display {
     font-weight: 600;
     font-size: 1.1rem;
     color: var(--primary-color);
-    min-width: 80px;
+    min-width: 140px; /* Aumentado para acomodar "Enero 2025" */
     text-align: center;
 }
 
 #activity-calendar {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14px, 1fr));
+    grid-template-columns: repeat(7, 1fr); /* Exactamente 7 columnas para los días de la semana */
     gap: 3px;
     padding: var(--spacing-md);
     background-color: rgba(255, 255, 255, 0.5);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    overflow-x: auto;
-    max-height: 200px; /* Mantenido de style-modern.css, responsive.css lo quita para >768px */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    max-height: none; /* Removido el límite de altura para vista mensual */
 }
 
 #activity-calendar .day-cell {
     aspect-ratio: 1 / 1;
-    min-width: 12px;
+    min-width: 32px; /* Aumentado para mejor legibilidad del número del día */
+    min-height: 32px;
     background-color: #eef0f2; /* Color base para celdas vacías */
-    border-radius: 2px;
+    border-radius: 4px; /* Ligeramente más redondeado */
     cursor: default;
     transition: transform 0.2s ease-out;
-    font-size: 7px; /* Para debug, si pones números en las celdas */
+    font-size: 12px; /* Aumentado para mostrar los números de días */
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #333; /* Color del texto para los números */
 }
 
 #activity-calendar .day-cell:hover:not(.is-placeholder):not(.level-0) {
@@ -108,4 +113,20 @@
 #activity-calendar .day-cell.is-today { /* Para resaltar el día actual */
     outline: 2px solid var(--secondary-color);
     outline-offset: 1px;
+}
+
+/* Encabezados de días de la semana */
+#activity-calendar .day-header {
+    aspect-ratio: 1 / 1;
+    min-width: 32px;
+    min-height: 32px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
 }

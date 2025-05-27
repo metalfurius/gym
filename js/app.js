@@ -12,9 +12,24 @@ import {
 } from './ui.js';
 import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 
+// --- Utility Functions ---
+/**
+ * Convierte un Firebase Timestamp a una fecha string en formato YYYY-MM-DD 
+ * usando la zona horaria local (evita problemas con toISOString que usa UTC)
+ */
+function timestampToLocalDateString(timestamp) {
+    if (!timestamp || !timestamp.toDate) return null;
+    const localDate = timestamp.toDate();
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // --- State ---
 const MIN_CALENDAR_YEAR = 2025;
 let currentCalendarYear = new Date().getFullYear();
+let currentCalendarMonth = new Date().getMonth(); // 0-11 (enero-diciembre)
 let currentRoutineForSession = null; // Stores the full routine object for the active session
 let currentUserRoutines = []; // Cache for user's routines
 let allSessionsCache = []; 
@@ -32,9 +47,18 @@ export async function initializeAppAfterAuth(user) {
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user);
         checkAndOfferResumeSession();
+        
+        // Inicializar calendario con el mes actual
+        const today = new Date();
+        currentCalendarYear = today.getFullYear();
+        currentCalendarMonth = today.getMonth();
+        
+        // Asegurar que no se va por debajo del año mínimo
         if (currentCalendarYear < MIN_CALENDAR_YEAR) {
             currentCalendarYear = MIN_CALENDAR_YEAR;
+            currentCalendarMonth = 0; // Enero del año mínimo
         }
+        
         updateCalendarView();
     } else {
         currentRoutineForSession = null;
@@ -805,12 +829,12 @@ if ('serviceWorker' in navigator) {
 }
 
 
-// Función para obtener los datos de actividad (ya la sugerí antes, aquí la adaptamos)
-async function getYearlyActivity(userId, year) {
+// Función para obtener los datos de actividad del mes (optimizada para cargar solo el mes necesario)
+async function getMonthlyActivity(userId, year, month) {
     calendarElements.loadingSpinner.classList.remove('hidden');
     const activityMap = new Map(); // 'YYYY-MM-DD' -> count
-    const startDate = new Date(year, 0, 1); // Enero 1
-    const endDate = new Date(year, 11, 31, 23, 59, 59); // Diciembre 31
+    const startDate = new Date(year, month, 1); // Primer día del mes
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Último día del mes
 
     try {
         const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
@@ -818,17 +842,21 @@ async function getYearlyActivity(userId, year) {
             where("fecha", ">=", Timestamp.fromDate(startDate)),
             where("fecha", "<=", Timestamp.fromDate(endDate))
         );
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(docSnap => { // Cambiado 'doc' a 'docSnap' para evitar conflicto
+        const querySnapshot = await getDocs(q);        querySnapshot.forEach(docSnap => { // Cambiado 'doc' a 'docSnap' para evitar conflicto
             const session = docSnap.data();
             if (session.fecha && session.fecha.toDate) { // Asegurarse de que fecha existe y es Timestamp
-                const dateString = session.fecha.toDate().toISOString().split('T')[0]; // YYYY-MM-DD
-                activityMap.set(dateString, (activityMap.get(dateString) || 0) + 1);
+                const dateString = timestampToLocalDateString(session.fecha);
+                if (dateString) {
+                    activityMap.set(dateString, (activityMap.get(dateString) || 0) + 1);
+                }
             }
         });
     } catch (error) {
-        console.error("Error fetching yearly activity:", error);
-        // Podrías mostrar un mensaje de error en la UI del calendario
+        console.error("Error fetching monthly activity:", error);
+        // Mostrar mensaje de error más amigable para el usuario
+        if (calendarElements.calendarView) {
+            calendarElements.calendarView.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">Error al cargar la actividad del mes</div>';
+        }
     } finally {
         calendarElements.loadingSpinner.classList.add('hidden');
     }
@@ -839,61 +867,98 @@ function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
 }
 
-function renderActivityCalendar(year, activityData) {
+function renderActivityCalendar(year, month, activityData) {
     calendarElements.calendarView.innerHTML = ''; // Limpiar calendario anterior
-    calendarElements.currentYearDisplay.textContent = year;
-
-    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     
-    // Encabezados de los meses (opcional, pero útil)
-    // Esto es una simplificación, para una cuadrícula estilo GitHub es más complejo alinear meses y días
-    // Aquí haremos una lista continua de días del año.
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                       "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    
+    calendarElements.currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
 
-    let firstDayOfYear = new Date(year, 0, 1).getDay(); // 0 (Domingo) - 6 (Sábado)
+    // Agregar encabezados de días de la semana
+    const dayHeaders = ["L", "M", "X", "J", "V", "S", "D"];
+    dayHeaders.forEach(dayHeader => {
+        const headerCell = document.createElement('div');
+        headerCell.classList.add('day-header');
+        headerCell.textContent = dayHeader;
+        calendarElements.calendarView.appendChild(headerCell);
+    });
+
+    const daysInCurrentMonth = getDaysInMonth(year, month);
+    let firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 (Domingo) - 6 (Sábado)
     // Para que Lunes sea el primer día (0) y Domingo el último (6)
-    firstDayOfYear = (firstDayOfYear === 0) ? 6 : firstDayOfYear - 1;
-
+    firstDayOfMonth = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
 
     // Añadir celdas vacías para alinear el primer día de la semana (Lunes)
-    for (let i = 0; i < firstDayOfYear; i++) {
+    for (let i = 0; i < firstDayOfMonth; i++) {
         const placeholderCell = document.createElement('div');
         placeholderCell.classList.add('day-cell', 'is-placeholder');
         calendarElements.calendarView.appendChild(placeholderCell);
     }
 
-    for (let month = 0; month < 12; month++) {
-        const daysInCurrentMonth = getDaysInMonth(year, month);
-        for (let day = 1; day <= daysInCurrentMonth; day++) {
-            const cell = document.createElement('div');
-            cell.classList.add('day-cell');
-            const currentDate = new Date(year, month, day);
-            const dateString = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    // Verificar si hay actividad en el mes
+    const hasActivity = Array.from(activityData.values()).some(count => count > 0);    // Agregar días del mes
+    for (let day = 1; day <= daysInCurrentMonth; day++) {
+        const cell = document.createElement('div');
+        cell.classList.add('day-cell');
+        const currentDate = new Date(year, month, day);
+        // Usar la misma lógica de conversión que en getMonthlyActivity para consistencia
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-            const activityCount = activityData.get(dateString) || 0;
-            let activityLevel = 0;
-            if (activityCount > 0) activityLevel = 1;
-            if (activityCount >= 2) activityLevel = 2; // Ajusta estos umbrales
-            if (activityCount >= 3) activityLevel = 3;
-            if (activityCount >= 4) activityLevel = 4;
+        const activityCount = activityData.get(dateString) || 0;
+        let activityLevel = 0;
+        if (activityCount > 0) activityLevel = 1;
+        if (activityCount >= 2) activityLevel = 2;
+        if (activityCount >= 3) activityLevel = 3;
+        if (activityCount >= 4) activityLevel = 4;
 
-            cell.classList.add(`level-${activityLevel}`);
-            cell.title = `${dateString}: ${activityCount} sesión(es)`;
-            // cell.textContent = day; // Opcional: mostrar el número del día
+        cell.classList.add(`level-${activityLevel}`);
+        
+        // Crear tooltip más informativo
+        const tooltipText = activityCount > 0 
+            ? `${dateString}: ${activityCount} sesión${activityCount !== 1 ? 'es' : ''}`
+            : `${dateString}: Sin actividad`;
+        cell.title = tooltipText;
+        
+        // Mostrar el número del día en cada celda
+        cell.textContent = day;
 
-            // Opcional: Hacer clickeable para filtrar historial
-            cell.addEventListener('click', () => {
-                if (activityCount > 0) {
-                    // Aquí podrías implementar una función para filtrar el historial por esta fecha
-                    // Por ejemplo: filterHistoryByDate(currentDate);
-                    console.log(`Mostrar actividad para ${dateString}`);
-                    // Podrías abrir el modal de historial o filtrar la vista de historial
-                    // showView('history');
-                    // fetchAndRenderHistory({ filterDate: currentDate }); // Necesitarías modificar fetchAndRenderHistory
-                }
-            });
-
-            calendarElements.calendarView.appendChild(cell);
+        // Resaltar el día actual
+        const today = new Date();
+        if (year === today.getFullYear() && 
+            month === today.getMonth() && 
+            day === today.getDate()) {
+            cell.classList.add('is-today');
         }
+
+        // Hacer clickeable para filtrar historial
+        cell.addEventListener('click', () => {
+            if (activityCount > 0) {
+                console.log(`Mostrar actividad para ${dateString}`);
+                // Aquí podrías implementar navegación al historial filtrado por fecha
+                // showView('history');
+                // fetchAndRenderHistory({ filterDate: currentDate });
+            }
+        });
+
+        calendarElements.calendarView.appendChild(cell);
+    }
+
+    // Mostrar mensaje motivacional si no hay actividad en el mes actual
+    if (!hasActivity && year === new Date().getFullYear() && month === new Date().getMonth()) {
+        const motivationalMessage = document.createElement('div');
+        motivationalMessage.style.cssText = `
+            grid-column: 1 / -1; 
+            text-align: center; 
+            padding: 15px; 
+            color: #666; 
+            font-style: italic; 
+            background-color: rgba(67, 97, 238, 0.05); 
+            border-radius: 6px; 
+            margin-top: 10px;
+        `;
+        motivationalMessage.textContent = '¡Comienza tu primer entrenamiento este mes! 💪';
+        calendarElements.calendarView.appendChild(motivationalMessage);
     }
 }
 
@@ -903,34 +968,90 @@ async function updateCalendarView() {
         if (calendarElements.container) calendarElements.container.classList.add('hidden');
         return;
     }
+    
     // Asegurar que no se va por debajo del año mínimo
     if (currentCalendarYear < MIN_CALENDAR_YEAR) {
         currentCalendarYear = MIN_CALENDAR_YEAR;
+        currentCalendarMonth = 0; // Enero del año mínimo
     }
+    
+    // Validar que no se vaya a un mes futuro
+    const today = new Date();
+    if (currentCalendarYear === today.getFullYear() && currentCalendarMonth > today.getMonth()) {
+        currentCalendarMonth = today.getMonth();
+    }
+    
     if (calendarElements.container) calendarElements.container.classList.remove('hidden');
     
-    const activity = await getYearlyActivity(user.uid, currentCalendarYear);
-    renderActivityCalendar(currentCalendarYear, activity); // renderActivityCalendar está en ui.js o aquí
+    // Mostrar estado de carga mientras se obtienen los datos del mes
+    if (calendarElements.loadingSpinner) {
+        calendarElements.loadingSpinner.classList.remove('hidden');
+    }
+    
+    const activity = await getMonthlyActivity(user.uid, currentCalendarYear, currentCalendarMonth);
+    renderActivityCalendar(currentCalendarYear, currentCalendarMonth, activity);
 
-    // Deshabilitar botón "prev" si estamos en el año mínimo
-    if (calendarElements.prevYearBtn) {
-        calendarElements.prevYearBtn.disabled = currentCalendarYear <= MIN_CALENDAR_YEAR;
+    // Deshabilitar botones según los límites
+    updateCalendarNavigation();
+}
+
+function updateCalendarNavigation() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    
+    // Deshabilitar botón "prev" si estamos en el mes/año mínimo
+    const isAtMinimum = (currentCalendarYear === MIN_CALENDAR_YEAR && currentCalendarMonth === 0) ||
+                       currentCalendarYear < MIN_CALENDAR_YEAR;
+    
+    // Deshabilitar botón "next" si estamos en el mes/año actual
+    const isAtMaximum = (currentCalendarYear === currentYear && currentCalendarMonth >= currentMonth) ||
+                       currentCalendarYear > currentYear;
+    
+    if (calendarElements.prevMonthBtn) {
+        calendarElements.prevMonthBtn.disabled = isAtMinimum;
+    }
+    if (calendarElements.nextMonthBtn) {
+        calendarElements.nextMonthBtn.disabled = isAtMaximum;
     }
 }
 
 // Listeners para el calendario
-if (calendarElements.prevYearBtn) {
-    calendarElements.prevYearBtn.addEventListener('click', () => {
-        if (currentCalendarYear > MIN_CALENDAR_YEAR) { // Solo permitir si es mayor que el mínimo
+if (calendarElements.prevMonthBtn) {
+    calendarElements.prevMonthBtn.addEventListener('click', () => {
+        // Navegar al mes anterior
+        currentCalendarMonth--;
+        if (currentCalendarMonth < 0) {
+            currentCalendarMonth = 11;
             currentCalendarYear--;
-            updateCalendarView();
         }
+        
+        // Verificar límites
+        if (currentCalendarYear < MIN_CALENDAR_YEAR) {
+            currentCalendarYear = MIN_CALENDAR_YEAR;
+            currentCalendarMonth = 0;
+        }
+        
+        updateCalendarView();
     });
 }
-if (calendarElements.nextYearBtn) {
-    calendarElements.nextYearBtn.addEventListener('click', () => {
-        currentCalendarYear++;
-        updateCalendarView();
+if (calendarElements.nextMonthBtn) {
+    calendarElements.nextMonthBtn.addEventListener('click', () => {
+        // Navegar al mes siguiente
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        
+        // No permitir ir más allá del mes actual
+        if (currentCalendarYear < currentYear || 
+            (currentCalendarYear === currentYear && currentCalendarMonth < currentMonth)) {
+            currentCalendarMonth++;
+            if (currentCalendarMonth > 11) {
+                currentCalendarMonth = 0;
+                currentCalendarYear++;
+            }
+            updateCalendarView();
+        }
     });
 }
 

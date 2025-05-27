@@ -602,9 +602,9 @@ export function hideLoading(buttonElement) {
 export const calendarElements = {
     container: document.getElementById('activity-calendar-container'),
     calendarView: document.getElementById('activity-calendar'),
-    prevYearBtn: document.getElementById('prev-year-btn'),
-    nextYearBtn: document.getElementById('next-year-btn'),
-    currentYearDisplay: document.getElementById('current-year-display'),
+    prevMonthBtn: document.getElementById('prev-month-btn'),
+    nextMonthBtn: document.getElementById('next-month-btn'),
+    currentMonthDisplay: document.getElementById('current-month-display'),
     loadingSpinner: document.getElementById('calendar-loading-spinner')
 };
 
