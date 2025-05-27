@@ -11,6 +11,7 @@ import {
     calendarElements, applyHistoryFilters 
 } from './ui.js';
 import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
+import { storageManager } from './storage-manager.js';
 
 // --- Utility Functions ---
 /**
@@ -802,9 +803,16 @@ if (manageRoutinesElements.initializeSampleRoutinesBtn) {
     console.error("Initialize sample routines button not found for attaching event listener.");
 }
 
-// PWA Service Worker
+// PWA Service Worker and Storage Manager Initialization
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
+        // Initialize modern storage management
+        try {
+            await storageManager.initialize();
+        } catch (error) {
+            console.error('Storage manager initialization failed:', error);
+        }
+
         // Use a relative path that works regardless of deployment location
         const swPath = new URL('sw.js', window.location.href).pathname;
         navigator.serviceWorker.register(swPath)
