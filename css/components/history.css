@@ -91,21 +91,21 @@
 }
 
 /* Tarjetas modernas y elegantes para cada sesión */
-/* Organizar el espacio interior de la tarjeta para que los botones queden en la parte inferior */
 #history-list li[data-session-id] {
-  background-color: var(--history-card-bg);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: var(--history-card-radius);
-  box-shadow: var(--history-card-shadow);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   display: flex;
   flex-direction: column;
   cursor: pointer;
   overflow: hidden;
   border-left: 4px solid var(--history-accent-color);
-  min-height: 300px; /* Altura mínima para las tarjetas */
-  justify-content: space-between; /* Asegura que los elementos se distribuyan correctamente */
+  min-height: 280px;
+  justify-content: space-between;
+  border: 1px solid #e2e8f0;
 }
 
 #history-list li[data-session-id]::after {
@@ -113,21 +113,20 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 25%;
-  height: 5px;
-  background: linear-gradient(to right, transparent, var(--history-gradient-end));
-  opacity: 0.5;
+  width: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--history-gradient-start), var(--history-gradient-end));
+  transition: width 0.3s ease;
 }
 
 #history-list li[data-session-id]:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: var(--history-accent-color);
 }
 
 #history-list li[data-session-id]:hover::after {
-  opacity: 1;
-  width: 50%;
-  transition: all 0.3s ease;
+  width: 100%;
 }
 
 /* Eliminar icono decorativo anterior y añadir un diseño más elegante */
@@ -149,7 +148,7 @@
 
 /* Nombre de la rutina con diseño moderno y elegante */
 #history-list li[data-session-id] .session-name {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--history-text-primary);
   margin-bottom: 0.85rem;
@@ -160,26 +159,27 @@
   padding-bottom: 0.5rem;
   border-bottom: 1px dashed rgba(226, 232, 240, 0.5);
   position: relative;
-  height: 2.8em; /* Altura fija para 2 líneas */
-  min-height: 2.8em; /* Garantiza al menos esta altura */
+  min-height: 2.4em;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Limitar a 2 líneas */
-  line-clamp: 2; /* Propiedad estándar para compatibilidad */
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
 #history-list li[data-session-id] .session-name::before {
   content: '💪';
-  font-size: 1.1rem;
-  background-color: rgba(99, 102, 241, 0.1);
-  width: 32px;
-  height: 32px;
+  font-size: 1rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.1));
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 /* Fecha de la sesión con diseño moderno y elegante */
@@ -240,137 +240,120 @@
   color: var(--history-text-primary);
   margin-top: auto;
   padding-top: 1rem;
-  border-top: 1px solid var(--history-divider);
+  border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   font-weight: 500;
   position: relative;
   padding-left: 30px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 8px;
+  padding: 0.75rem 0.75rem 0.75rem 2.25rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #bae6fd;
 }
 
 #history-list li[data-session-id] .session-summary::before {
   content: '🏋️';
   position: absolute;
-  left: 0;
+  left: 0.75rem;
   font-size: 1.1rem;
 }
 
 /* Acciones de la sesión con diseño elegante y moderno */
 .session-actions {
   display: flex;
-  flex-direction: column;
+  gap: 0.5rem;
   margin-top: 1.25rem;
-  gap: 0.75rem;
   align-items: stretch;
 }
 
 .session-action-btn {
   background: none;
   border: none;
-  padding: 0.75rem 1.1rem; /* Base padding */
-  border-radius: 8px;
-  font-size: 0.9rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centra el texto */
-  /* gap: 0.75rem; NO ES NECESARIO SI EL ICONO ES ABSOLUTO */
-  transition: all 0.2s, padding 0.3s ease-in-out; /* Añadido padding a la transición */
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  z-index: 1;
-  text-align: center; /* Asegura que el texto se centre */
-  width: 100%;
+  text-align: center;
+  flex: 1;
+  border: 1px solid transparent;
 }
 
 .session-action-btn::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  left: -100%;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-  z-index: -1;
-  transition: opacity 0.3s;
-  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+  z-index: 1;
 }
 
 .session-action-btn:hover::after {
-  opacity: 1;
+  left: 100%;
 }
 
 .session-action-btn.view {
-  color: var(--history-accent-color);
-  background-color: rgba(99, 102, 241, 0.1);
-  position: relative;
-  padding-left: 2.8rem; /* Espacio inicial para el icono a la izquierda (un poco más que 2.5) */
+  color: #4338ca;
+  background-color: #eef2ff;
+  border-color: #c7d2fe;
 }
 
 .session-action-btn.view:hover {
-  background-color: rgba(99, 102, 241, 0.15);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 6px rgba(99, 102, 241, 0.2);
-  padding-left: 1.1rem; /* Padding izquierdo normal al mover icono a la derecha */
-  padding-right: 2.8rem; /* Espacio para el icono a la derecha */
+  background-color: #4338ca;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(67, 56, 202, 0.3);
+  border-color: #4338ca;
 }
 
 .session-action-btn.view::before {
   content: '👁️';
-  font-size: 1rem;
-  position: absolute;
-  left: -5rem; /* Posición inicial a la izquierda */
-  top: 100%;
-  transform: translateY(-80%);
-  transition: left 0.3s ease-in-out, right 0.3s ease-in-out; /* Transición para el movimiento */
-}
-
-.session-action-btn.view:hover::before {
-  left: auto; /* Quita el anclaje izquierdo */
-  right: 5rem; /* Posiciona a la derecha */
+  font-size: 0.9rem;
 }
 
 .session-action-btn.delete {
-  color: var(--history-action-hover);
-  background-color: rgba(239, 68, 68, 0.1);
-  position: relative;
-  padding-left: 2.8rem; /* Espacio inicial para el icono a la izquierda */
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-color: #fecaca;
 }
 
 .session-action-btn.delete:hover {
-  background-color: rgba(239, 68, 68, 0.15);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 6px rgba(239, 68, 68, 0.2);
-  padding-left: 1.1rem; /* Padding izquierdo normal al mover icono a la derecha */
-  padding-right: 2.8rem; /* Espacio para el icono a la derecha */
+  background-color: #dc2626;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  border-color: #dc2626;
 }
 
 .session-action-btn.delete::before {
   content: '🗑️';
-  font-size: 1rem;
-  position: absolute;
-  left: -5rem; /* Posición inicial a la izquierda */
-  top: 100%;
-  transform: translateY(-80%);
-  transition: left 0.3s ease-in-out, right 0.3s ease-in-out; /* Transición para el movimiento */
-}
-
-.session-action-btn.delete:hover::before {
-  left: auto; /* Quita el anclaje izquierdo */
-  right: 5rem; /* Posiciona a la derecha */
+  font-size: 0.9rem;
 }
 
 /* Controles de paginación con diseño moderno y elegante */
 .pagination-controls {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--history-divider);
-  position: relative;
-  border-radius: 0.75rem;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .pagination-controls.hidden {
@@ -379,73 +362,95 @@
 
 /* Botones de paginación con estilo coherente */
 .pagination-controls button {
-  padding: 0.75rem 1.25rem;
-  min-width: 110px;
-  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  min-width: 120px;
+  border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
-  background: linear-gradient(to right, var(--history-gradient-start), var(--history-gradient-end));
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: white;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+}
+
+.pagination-controls button::before {
+  font-size: 0.9rem;
+}
+
+.pagination-controls button[data-direction="prev"]::before {
+  content: '←';
+}
+
+.pagination-controls button[data-direction="next"]::before {
+  content: '→';
+  order: 2;
 }
 
 .pagination-controls button::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  left: -100%;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
 }
 
 .pagination-controls button:hover::after {
-  opacity: 1;
+  left: 100%;
 }
 
 .pagination-controls button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.35);
+}
+
+.pagination-controls button:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .pagination-controls button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  background: #94a3b8;
   box-shadow: none;
 }
 
 .pagination-controls button:disabled:hover {
   transform: none;
-  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+  box-shadow: none;
 }
 
 /* Contador de página con estilo elegante */
 .pagination-controls span#history-page-info {
   font-size: 1rem;
-  color: var(--history-text-secondary);
-  font-weight: 500;
-  padding: 0.5rem 1.25rem;
-  border-radius: 50px;
-  background-color: var(--history-badge-bg);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: #475569;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
 }
 
 .pagination-controls span#history-page-info::before {
   content: '📄';
-  margin-right: 0.5rem;
   font-size: 0.9rem;
 }
 
@@ -896,12 +901,29 @@
   }
   
   .session-actions {
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.5rem;
   }
   
   .session-action-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .pagination-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .pagination-controls button {
+    min-width: 100px;
     width: 100%;
-    justify-content: center;
+    max-width: 200px;
+  }
+  
+  .pagination-controls span#history-page-info {
+    order: -1;
+    margin-bottom: 0.5rem;
   }
 }
