@@ -48,18 +48,20 @@ export async function initializeAppAfterAuth(user) {
         await fetchUserRoutines(user);
         checkAndOfferResumeSession();
         
-        // Inicializar calendario con el mes actual
-        const today = new Date();
-        currentCalendarYear = today.getFullYear();
-        currentCalendarMonth = today.getMonth();
-        
-        // Asegurar que no se va por debajo del año mínimo
-        if (currentCalendarYear < MIN_CALENDAR_YEAR) {
-            currentCalendarYear = MIN_CALENDAR_YEAR;
-            currentCalendarMonth = 0; // Enero del año mínimo
-        }
-        
-        updateCalendarView();
+        // Inicializar calendario con el mes actual - con un pequeño delay para asegurar DOM ready
+        setTimeout(() => {
+            const today = new Date();
+            currentCalendarYear = today.getFullYear();
+            currentCalendarMonth = today.getMonth();
+            
+            // Asegurar que no se va por debajo del año mínimo
+            if (currentCalendarYear < MIN_CALENDAR_YEAR) {
+                currentCalendarYear = MIN_CALENDAR_YEAR;
+                currentCalendarMonth = 0; // Enero del año mínimo
+            }
+            
+            updateCalendarView();
+        }, 100); // Pequeño delay para asegurar que el DOM esté completamente cargado
     } else {
         currentRoutineForSession = null;
         currentUserRoutines = [];
@@ -68,7 +70,8 @@ export async function initializeAppAfterAuth(user) {
         historyElements.list.innerHTML = '<li id="history-loading">Cargando historial...</li>';
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
         manageRoutinesElements.list.innerHTML = '<li id="routines-loading">Cargando rutinas...</li>';
-        if (calendarElements.container) calendarElements.container.classList.add('hidden');
+        const container = document.getElementById('activity-calendar-container');
+        if (container) container.classList.add('hidden');
     }
 }
 
@@ -831,7 +834,9 @@ if ('serviceWorker' in navigator) {
 
 // Función para obtener los datos de actividad del mes (optimizada para cargar solo el mes necesario)
 async function getMonthlyActivity(userId, year, month) {
-    calendarElements.loadingSpinner.classList.remove('hidden');
+    const loadingSpinner = document.getElementById('calendar-loading-spinner');
+    if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+    
     const activityMap = new Map(); // 'YYYY-MM-DD' -> count
     const startDate = new Date(year, month, 1); // Primer día del mes
     const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Último día del mes
@@ -850,15 +855,16 @@ async function getMonthlyActivity(userId, year, month) {
                     activityMap.set(dateString, (activityMap.get(dateString) || 0) + 1);
                 }
             }
-        });
-    } catch (error) {
+        });    } catch (error) {
         console.error("Error fetching monthly activity:", error);
         // Mostrar mensaje de error más amigable para el usuario
-        if (calendarElements.calendarView) {
-            calendarElements.calendarView.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">Error al cargar la actividad del mes</div>';
+        const calendarView = document.getElementById('activity-calendar');
+        if (calendarView) {
+            calendarView.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">Error al cargar la actividad del mes</div>';
         }
     } finally {
-        calendarElements.loadingSpinner.classList.add('hidden');
+        const loadingSpinner = document.getElementById('calendar-loading-spinner');
+        if (loadingSpinner) loadingSpinner.classList.add('hidden');
     }
     return activityMap;
 }
@@ -868,20 +874,31 @@ function getDaysInMonth(year, month) {
 }
 
 function renderActivityCalendar(year, month, activityData) {
-    calendarElements.calendarView.innerHTML = ''; // Limpiar calendario anterior
+    // Re-query calendar elements in case they weren't loaded initially
+    const calendarView = document.getElementById('activity-calendar');
+    const currentMonthDisplay = document.getElementById('current-month-display');
+    
+    // Check if calendar elements exist before proceeding
+    if (!calendarView || !currentMonthDisplay) {
+        console.error('Calendar elements not found. DOM might not be fully loaded.', {
+            calendarView: !!calendarView,
+            currentMonthDisplay: !!currentMonthDisplay
+        });
+        return;
+    }
+    
+    calendarView.innerHTML = ''; // Limpiar calendario anterior
     
     const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
                        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     
-    calendarElements.currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
-
-    // Agregar encabezados de días de la semana
+    currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;    // Agregar encabezados de días de la semana
     const dayHeaders = ["L", "M", "X", "J", "V", "S", "D"];
     dayHeaders.forEach(dayHeader => {
         const headerCell = document.createElement('div');
         headerCell.classList.add('day-header');
         headerCell.textContent = dayHeader;
-        calendarElements.calendarView.appendChild(headerCell);
+        calendarView.appendChild(headerCell);
     });
 
     const daysInCurrentMonth = getDaysInMonth(year, month);
@@ -893,7 +910,7 @@ function renderActivityCalendar(year, month, activityData) {
     for (let i = 0; i < firstDayOfMonth; i++) {
         const placeholderCell = document.createElement('div');
         placeholderCell.classList.add('day-cell', 'is-placeholder');
-        calendarElements.calendarView.appendChild(placeholderCell);
+        calendarView.appendChild(placeholderCell);
     }
 
     // Verificar si hay actividad en el mes
@@ -938,10 +955,9 @@ function renderActivityCalendar(year, month, activityData) {
                 // Aquí podrías implementar navegación al historial filtrado por fecha
                 // showView('history');
                 // fetchAndRenderHistory({ filterDate: currentDate });
-            }
-        });
+            }        });
 
-        calendarElements.calendarView.appendChild(cell);
+        calendarView.appendChild(cell);
     }
 
     // Mostrar mensaje motivacional si no hay actividad en el mes actual
@@ -958,14 +974,31 @@ function renderActivityCalendar(year, month, activityData) {
             margin-top: 10px;
         `;
         motivationalMessage.textContent = '¡Comienza tu primer entrenamiento este mes! 💪';
-        calendarElements.calendarView.appendChild(motivationalMessage);
+        calendarView.appendChild(motivationalMessage);
     }
 }
 
 async function updateCalendarView() {
     const user = getCurrentUser();
     if (!user) {
-        if (calendarElements.container) calendarElements.container.classList.add('hidden');
+        const container = document.getElementById('activity-calendar-container');
+        if (container) container.classList.add('hidden');
+        return;
+    }
+    
+    // Re-query calendar elements in case they weren't loaded initially
+    const container = document.getElementById('activity-calendar-container');
+    const calendarView = document.getElementById('activity-calendar');
+    const currentMonthDisplay = document.getElementById('current-month-display');
+    const loadingSpinner = document.getElementById('calendar-loading-spinner');
+    
+    // Check if calendar elements exist before proceeding
+    if (!container || !calendarView || !currentMonthDisplay) {
+        console.error('Calendar elements not found. DOM might not be fully loaded.', {
+            container: !!container,
+            calendarView: !!calendarView,
+            currentMonthDisplay: !!currentMonthDisplay
+        });
         return;
     }
     
@@ -973,19 +1006,18 @@ async function updateCalendarView() {
     if (currentCalendarYear < MIN_CALENDAR_YEAR) {
         currentCalendarYear = MIN_CALENDAR_YEAR;
         currentCalendarMonth = 0; // Enero del año mínimo
-    }
-    
+    }    
     // Validar que no se vaya a un mes futuro
     const today = new Date();
     if (currentCalendarYear === today.getFullYear() && currentCalendarMonth > today.getMonth()) {
         currentCalendarMonth = today.getMonth();
     }
     
-    if (calendarElements.container) calendarElements.container.classList.remove('hidden');
+    container.classList.remove('hidden');
     
     // Mostrar estado de carga mientras se obtienen los datos del mes
-    if (calendarElements.loadingSpinner) {
-        calendarElements.loadingSpinner.classList.remove('hidden');
+    if (loadingSpinner) {
+        loadingSpinner.classList.remove('hidden');
     }
     
     const activity = await getMonthlyActivity(user.uid, currentCalendarYear, currentCalendarMonth);
@@ -996,6 +1028,16 @@ async function updateCalendarView() {
 }
 
 function updateCalendarNavigation() {
+    // Re-query calendar elements in case they weren't loaded initially
+    const prevMonthBtn = document.getElementById('prev-month-btn');
+    const nextMonthBtn = document.getElementById('next-month-btn');
+    
+    // Check if calendar elements exist
+    if (!prevMonthBtn || !nextMonthBtn) {
+        console.warn('Calendar navigation buttons not found.');
+        return;
+    }
+    
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
@@ -1008,17 +1050,13 @@ function updateCalendarNavigation() {
     const isAtMaximum = (currentCalendarYear === currentYear && currentCalendarMonth >= currentMonth) ||
                        currentCalendarYear > currentYear;
     
-    if (calendarElements.prevMonthBtn) {
-        calendarElements.prevMonthBtn.disabled = isAtMinimum;
-    }
-    if (calendarElements.nextMonthBtn) {
-        calendarElements.nextMonthBtn.disabled = isAtMaximum;
-    }
+    prevMonthBtn.disabled = isAtMinimum;
+    nextMonthBtn.disabled = isAtMaximum;
 }
 
-// Listeners para el calendario
-if (calendarElements.prevMonthBtn) {
-    calendarElements.prevMonthBtn.addEventListener('click', () => {
+// Listeners para el calendario - using document event delegation for robustness
+document.addEventListener('click', function(event) {
+    if (event.target.id === 'prev-month-btn') {
         // Navegar al mes anterior
         currentCalendarMonth--;
         if (currentCalendarMonth < 0) {
@@ -1033,10 +1071,7 @@ if (calendarElements.prevMonthBtn) {
         }
         
         updateCalendarView();
-    });
-}
-if (calendarElements.nextMonthBtn) {
-    calendarElements.nextMonthBtn.addEventListener('click', () => {
+    } else if (event.target.id === 'next-month-btn') {
         // Navegar al mes siguiente
         const today = new Date();
         const currentYear = today.getFullYear();
@@ -1052,8 +1087,8 @@ if (calendarElements.nextMonthBtn) {
             }
             updateCalendarView();
         }
-    });
-}
+    }
+});
 
 // --- Scroll To Top Button ---
 const scrollToTopBtn = document.createElement('button');

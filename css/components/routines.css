@@ -430,11 +430,13 @@
 #initialize-sample-routines-btn::before {
   content: '➕';
   font-size: 1rem;
+  transition: none;
 }
 
 #update-my-sample-routines-btn::before {
   content: '🔄';
   font-size: 1rem;
+  transition: none;
 }
 
 /* Animaciones modernas */

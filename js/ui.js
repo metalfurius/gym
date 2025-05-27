@@ -655,6 +655,16 @@ export const calendarElements = {
     loadingSpinner: document.getElementById('calendar-loading-spinner')
 };
 
+// Debug calendar elements at module load time
+console.log('Calendar elements loaded:', {
+    container: !!calendarElements.container,
+    calendarView: !!calendarElements.calendarView,
+    prevMonthBtn: !!calendarElements.prevMonthBtn,
+    nextMonthBtn: !!calendarElements.nextMonthBtn,
+    currentMonthDisplay: !!calendarElements.currentMonthDisplay,
+    loadingSpinner: !!calendarElements.loadingSpinner
+});
+
 function initHistoryFilters() {
     // Exit if elements don't exist yet
     if (!historyElements.filterButtons || !historyElements.searchInput) return;
