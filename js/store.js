@@ -1,102 +1,66 @@
 // --- Sample Workout Routine Data ---
 // This will be used to populate a new user's routines if they don't have any.
 export const sampleWorkoutRoutines = {
-    "A1_sample": {
-        name: "A1: Pull (Muestra)",
-        exercises: [
-            { name: "Dominadas", type: "strength", sets: 4, reps: "6-10", duration: "", notes: "" },
-            { name: "Remo Máquina", type: "strength", sets: 3, reps: "8-12", duration: "", notes: "" }, // Actualizado desde "Remo con Barra"
-            { name: "Remo Cables (Polea baja)", type: "strength", sets: 3, reps: "10-15", duration: "", notes: "" }, // Actualizado y especificado
-            { name: "Face Pull", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Ajustado sets a 3 como en tus datos
-            { name: "Curl con Barra (Polea)", type: "strength", sets: 3, reps: "8-12", duration: "", notes: "" }, // Actualizado desde "Barra Z"
-            { name: "Curl Martillo", type: "strength", sets: 3, reps: "10-12", duration: "", notes: "" },
-            { name: "Cardio Ligero", type: "cardio", sets: "", reps: "", duration: "15-25 min LISS", notes: "" }
+    "PPL_DAY1_PUSH": {
+        "name": "Día 1: Push (Pecho, Hombro, Tríceps)",
+        "exercises": [
+            { "name": "Press de Banca Plano (Barra)", "type": "strength", "sets": 4, "reps": "6-10", "duration": "", "notes": "Principal de pecho" },
+            { "name": "Press Inclinado (Mancuernas)", "type": "strength", "sets": 3, "reps": "8-12", "duration": "", "notes": "Pecho superior" },
+            { "name": "Press Militar (Barra/Mancuernas)", "type": "strength", "sets": 3, "reps": "8-12", "duration": "", "notes": "Hombro frontal/medio" },
+            { "name": "Elevaciones Laterales (Mancuernas/Polea)", "type": "strength", "sets": 4, "reps": "10-15", "duration": "", "notes": "Hombro lateral" },
+            { "name": "Fondos en Paralelas (o Máquina)", "type": "strength", "sets": 3, "reps": "Fallo / 8-12", "duration": "", "notes": "Pecho inferior y tríceps" },
+            { "name": "Extensiones Tríceps (Polea Alta, Barra/Cuerda)", "type": "strength", "sets": 3, "reps": "10-15", "duration": "", "notes": "Tríceps" },
+            { "name": "Cardio Push", "type": "cardio", "sets": "", "reps": "", "duration": "10-15 min HIIT / 20-25 min LISS", "notes": "Priorizar según recuperación" }
         ]
     },
-    "A2_sample": {
-        name: "A2: Push (Muestra)",
-        exercises: [
-            { name: "Press de Banca Plano (Barra)", type: "strength", sets: 3, reps: "6-10", duration: "", notes: "" },
-            { name: "Press Inclinado (Mancuernas)", type: "strength", sets: 3, reps: "8-12", duration: "", notes: "" }, // Especificado
-            { name: "Fondos (Paralelas)", type: "strength", sets: 3, reps: "Fallo", duration: "", notes: "" }, // Especificado
-            { name: "Elevaciones Laterales (Mancuernas)", type: "strength", sets: 3, reps: "10-15", duration: "", notes: "" }, // Ajustado sets a 3, especificado
-            { name: "Press Francés (Barra Z)", type: "strength", sets: 3, reps: "10-12", duration: "", notes: "" }, // Actualizado
-            { name: "Extensiones Tríceps (Polea Alta, Barra)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Actualizado desde "Cuerda"
-            { name: "HIIT Cardio", type: "cardio", sets: "", reps: "", duration: "10-15 min HIIT", notes: "" }
+    "PPL_DAY2_PULL": {
+        "name": "Día 2: Pull (Espalda, Bíceps, Hombro Posterior)",
+        "exercises": [
+            { "name": "Dominadas (o Jalón al Pecho)", "type": "strength", "sets": 4, "reps": "6-10 / Fallo", "duration": "", "notes": "Principal de espalda (amplitud)" },
+            { "name": "Remo con Barra (Pendlay/Yates)", "type": "strength", "sets": 3, "reps": "8-12", "duration": "", "notes": "Espalda (grosor)" },
+            { "name": "Remo Sentado (Máquina/Cable, Agarre Estrecho)", "type": "strength", "sets": 3, "reps": "10-15", "duration": "", "notes": "Espalda media/baja" },
+            { "name": "Face Pulls", "type": "strength", "sets": 3, "reps": "12-18", "duration": "", "notes": "Hombro posterior y manguito rotador" },
+            { "name": "Curl con Barra (Recta/Z)", "type": "strength", "sets": 3, "reps": "8-12", "duration": "", "notes": "Bíceps (masa)" },
+            { "name": "Curl Martillo (Mancuernas)", "type": "strength", "sets": 3, "reps": "10-12", "duration": "", "notes": "Bíceps (braquial)" },
+            { "name": "Cardio Pull", "type": "cardio", "sets": "", "reps": "", "duration": "15-25 min LISS", "notes": "" }
         ]
     },
-    "A3_sample": {
-        name: "A3: Piernas + Abs (Muestra)",
-        exercises: [
-            { name: "Sentadilla Hack", type: "strength", sets: 4, reps: "8-12", duration: "", notes: "" },
-            { name: "Peso Muerto Rumano (Mancuernas)", type: "strength", sets: 4, reps: "10-12", duration: "", notes: "" }, // Actualizado
-            { name: "Extensiones Cuádriceps (Máquina)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Especificado
-            { name: "Curl Femoral Sentado (Máquina)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Actualizado y especificado
-            { name: "Elevación Talones (Sentado)", type: "strength", sets: 3, reps: "15-20", duration: "", notes: "" }, // Actualizado
-            { name: "Elevaciones Piernas (Abs)", type: "strength", sets: 3, reps: "Fallo", duration: "", notes: "" }, // Unificado
-            { name: "Crunches", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Unificado
-            { name: "Cardio Opcional", type: "cardio", sets: "", reps: "", duration: "15-20 min", notes: "" }
+    "PPL_DAY3_LEGS": {
+        "name": "Día 3: Legs (Piernas + Abdominales)",
+        "exercises": [
+            { "name": "Sentadilla Hack (o Libre)", "type": "strength", "sets": 4, "reps": "8-12", "duration": "", "notes": "Principal de cuádriceps y glúteo" },
+            { "name": "Peso Muerto Rumano (Mancuernas/Barra)", "type": "strength", "sets": 4, "reps": "10-12", "duration": "", "notes": "Isquiotibiales y glúteo" },
+            { "name": "Extensiones Cuádriceps (Máquina)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Aislamiento cuádriceps" },
+            { "name": "Curl Femoral Sentado (Máquina)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Aislamiento isquiotibiales" },
+            { "name": "Elevación Talones (De pie/Sentado)", "type": "strength", "sets": 4, "reps": "15-25", "duration": "", "notes": "Gemelos" },
+            { "name": "Elevaciones de Piernas Colgado (o Suelo)", "type": "strength", "sets": 3, "reps": "Fallo", "duration": "", "notes": "Abdominales inferiores" },
+            { "name": "Crunches en Polea Alta (o con peso)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Abdominales superiores" },
+            { "name": "Cardio Legs", "type": "cardio", "sets": "", "reps": "", "duration": "15-20 min LISS (Opcional)", "notes": "Escuchar al cuerpo" }
         ]
     },
-    "A4_sample": {
-        name: "A4: V-Taper Focus (Muestra)",
-        exercises: [
-            { name: "Jalón al Pecho (Máquina)", type: "strength", sets: 4, reps: "10-12", duration: "", notes: "" }, // Unificado
-            { name: "Remo Sentado (Cable)", type: "strength", sets: 3, reps: "10-15", duration: "", notes: "" }, // Unificado
-            { name: "Pull-over (Polea Alta)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Especificado
-            { name: "Elevaciones Laterales (Polea Baja, Unilateral)", type: "strength", sets: 4, reps: "12-15 / brazo", duration: "", notes: "" },
-            { name: "Pájaros (Mancuernas)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Especificado
-            { name: "Encogimientos Trapecio (Mancuernas/Barra)", type: "strength", sets: 3, reps: "10-15", duration: "", notes: "" }, // Especificado
-            { name: "Cardio Post-Entreno", type: "cardio", sets: "", reps: "", duration: "15-25 min LISS / 10-15 min HIIT", notes: "" }
+    "PPL_DAY4_ARM_CHEST": {
+        "name": "Día 4: Brazo + Pecho (Énfasis Brazos)",
+        "exercises": [
+            { "name": "Aperturas Inclinadas (Mancuernas/Cruces Polea)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Pecho (estiramiento y bombeo)" },
+            { "name": "Press Plano (Mancuernas, ligero-moderado)", "type": "strength", "sets": 3, "reps": "10-15", "duration": "", "notes": "Pecho (bombeo)" },
+            { "name": "Curl Inclinado (Mancuernas)", "type": "strength", "sets": 3, "reps": "10-12", "duration": "", "notes": "Bíceps (cabeza larga)" },
+            { "name": "Curl Concentrado (Mancuerna/Polea Unilateral)", "type": "strength", "sets": 3, "reps": "12-15 / brazo", "duration": "", "notes": "Bíceps (pico)" },
+            { "name": "Press Francés (Barra Z/Mancuernas)", "type": "strength", "sets": 3, "reps": "10-12", "duration": "", "notes": "Tríceps (cabeza larga)" },
+            { "name": "Extensiones Tríceps sobre Cabeza (Mancuerna 2 manos/Unilateral)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Tríceps (cabeza larga, estiramiento)" },
+            { "name": "Cardio Brazo+Pecho", "type": "cardio", "sets": "", "reps": "", "duration": "10-15 min HIIT / 20-25 min LISS", "notes": "" }
         ]
     },
-    "B1_sample": {
-        name: "B1: Pull (Muestra)",
-        exercises: [
-            { name: "Remo T Barra", type: "strength", sets: 4, reps: "6-10", duration: "", notes: "" },
-            { name: "Jalón al Pecho (Máquina)", type: "strength", sets: 3, reps: "8-12", duration: "", notes: "" }, // Unificado
-            { name: "Remo Cables", type: "strength", sets: 3, reps: "8-12 / brazo", duration: "", notes: "" }, // Unificado desde "Remo Mancuerna"
-            { name: "Reverse Pec Deck", type: "strength", sets: 4, reps: "12-15", duration: "", notes: "" },
-            { name: "Curl Inclinado (Mancuernas)", type: "strength", sets: 3, reps: "10-12", duration: "", notes: "" }, // Especificado
-            { name: "Curl Concentrado / Polea Baja", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" },
-            { name: "Cardio Post-Entreno", type: "cardio", sets: "", reps: "", duration: "15-25 min LISS / 10-15 min HIIT", notes: "" }
-        ]
-    },
-    "B2_sample": {
-        name: "B2: Push (Muestra)",
-        exercises: [
-            { name: "Press Militar (Barra)", type: "strength", sets: 3, reps: "6-10", duration: "", notes: "" }, // Especificado
-            { name: "Press Plano (Mancuernas)", type: "strength", sets: 3, reps: "8-12", duration: "", notes: "" }, // Especificado
-            { name: "Aperturas Inclinadas / Cruces Polea Baja", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" },
-            { name: "Elevaciones Laterales (Mancuernas)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Ajustado sets a 3
-            { name: "Press Cerrado (Banca)", type: "strength", sets: 3, reps: "8-12", duration: "", notes: "" }, // Especificado
-            { name: "Extensiones Tríceps (Máquina)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Actualizado desde "Sobre Cabeza"
-            { name: "Cardio Post-Entreno", type: "cardio", sets: "", reps: "", duration: "15-25 min LISS / 10-15 min HIIT", notes: "" }
-        ]
-    },
-    "B3_sample": {
-        name: "B3: Piernas + Abdominales (Muestra)",
-        exercises: [
-            { name: "Sentadilla Hack", type: "strength", sets: 4, reps: "10-15", duration: "", notes: "" }, // Unificado desde "Hack Squat", original era "Prensa Piernas"
-            { name: "Curl Femoral Sentado (Máquina)", type: "strength", sets: 4, reps: "12-15", duration: "", notes: "" }, // Unificado
-            { name: "Extensiones Cuádriceps (Máquina)", type: "strength", sets: 3, reps: "10-12 / pierna", duration: "", notes: "" }, // Unificado, original era "Sentadilla Búlgara / Zancadas"
-            { name: "Hip Thrust (Máquina)", type: "strength", sets: 3, reps: "10-12", duration: "", notes: "" }, // Especificado
-            { name: "Elevación Talones (De pie)", type: "strength", sets: 4, reps: "15-25", duration: "", notes: "" }, // Unificado, original era "Sentado/Prensa"
-            { name: "Crunches", type: "strength", sets: 3, reps: "Fallo", duration: "", notes: "" }, // Unificado, reps ajustado a tus datos (original era plancha)
-            { name: "Levantamiento Piernas (Abs)", type: "strength", sets: 3, reps: "15-20", duration: "", notes: "" }, // Unificado, original era "Russian Twist / Leñador"
-            { name: "Cardio Post-Entreno", type: "cardio", sets: "", reps: "", duration: "(Opcional) 15-25 min LISS / 10-15 min HIIT", notes: "" }
-        ]
-    },
-    "B4_sample": {
-        name: "B4: V-Taper Focus (Muestra)",
-        exercises: [
-            { name: "Dominadas Asistidas / Jalón Pecho", type: "strength", sets: 4, reps: "10-12", duration: "", notes: "" },
-            { name: "Face Pull", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Unificado
-            { name: "Elevaciones Laterales (Máquina)", type: "strength", sets: 4, reps: "12-15", duration: "", notes: "" }, // Unificado
-            { name: "Reverse Pec Deck", type: "strength", sets: 3, reps: "10-12", duration: "", notes: "" }, // Unificado, original era "Elevaciones Frontales"
-            { name: "Curl Bíceps (Polea Baja, Barra)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Unificado, sets ajustado
-            { name: "Extensiones Tríceps (Polea, Barra)", type: "strength", sets: 3, reps: "12-15", duration: "", notes: "" }, // Unificado, sets ajustado
-            { name: "Cardio Post-Entreno", type: "cardio", sets: "", reps: "", duration: "15-25 min LISS / 10-15 min HIIT", notes: "" }
+    "PPL_DAY5_ARM_BACK": {
+        "name": "Día 5: Brazo + Espalda (Énfasis Brazos)",
+        "exercises": [
+            { "name": "Pull-over (Polea Alta/Mancuerna)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Dorsal y serrato (estiramiento)" },
+            { "name": "Remo Unilateral (Mancuerna/Máquina)", "type": "strength", "sets": 3, "reps": "10-12 / brazo", "duration": "", "notes": "Espalda (detalle y conexión)" },
+            { "name": "Curl Araña (Spider Curl, banco inclinado/predicador)", "type": "strength", "sets": 3, "reps": "10-15", "duration": "", "notes": "Bíceps (cabeza corta)" },
+            { "name": "Curl Inverso (Barra/Mancuernas)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Braquial y antebrazo" },
+            { "name": "Press Cerrado en Banca (Smith/Barra)", "type": "strength", "sets": 3, "reps": "8-12", "duration": "", "notes": "Tríceps (general) y pecho interno" },
+            { "name": "Patada de Tríceps (Mancuerna/Polea)", "type": "strength", "sets": 3, "reps": "12-15 / brazo", "duration": "", "notes": "Tríceps (cabeza lateral, contracción)" },
+            { "name": "Pájaros (Mancuernas/Reverse Pec Deck)", "type": "strength", "sets": 3, "reps": "12-15", "duration": "", "notes": "Hombro posterior (Opcional, si se requiere)" },
+            { "name": "Cardio Brazo+Espalda", "type": "cardio", "sets": "", "reps": "", "duration": "15-25 min LISS", "notes": "" }
         ]
     }
 };
