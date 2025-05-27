@@ -15,9 +15,9 @@
     <link rel="stylesheet" href="css/components/footer.css">
     <link rel="stylesheet" href="css/components/spinner.css">
     <link rel="stylesheet" href="css/components/calendar.css">    <link rel="stylesheet" href="css/components/modal.css">
-    <link rel="stylesheet" href="css/user-weight.css">
-    <link rel="stylesheet" href="css/components/scroll-to-top.css">
+    <link rel="stylesheet" href="css/user-weight.css">    <link rel="stylesheet" href="css/components/scroll-to-top.css">
     <link rel="stylesheet" href="css/components/history.css">
+    <link rel="stylesheet" href="css/components/routines.css">
     <link rel="stylesheet" href="css/components/responsive.css"><link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
@@ -116,19 +116,21 @@
                  <span id="history-page-info"></span>
                  <button id="history-next-page-btn" class="ghost" data-direction="next" disabled>Siguiente</button>
             </div>
-        </section>
-
-        <!-- Manage Routines View -->
+        </section>        <!-- Manage Routines View -->
         <section id="manage-routines-view" class="hidden">
             <h2>Gestionar Mis Rutinas</h2>
             <button id="add-new-routine-btn">Crear Nueva Rutina</button>
             <div id="routines-loading" class="spinner"></div>
             <ul id="routine-list">            <!-- User routines will be listed here by JS -->
             </ul>
-            <button type="button" id="initialize-sample-routines-btn" class="ghost"
-                style="margin-top: 20px;">Añadir Rutinas de Muestra (si no existen)</button>
-            <button type="button" id="update-my-sample-routines-btn" class="ghost"
-                style="margin-top: 10px;">Actualizar Mis Rutinas de Muestra a la Última Versión</button>
+            <div class="sample-routines-actions">
+                <button type="button" id="initialize-sample-routines-btn" class="sample-action-btn primary">
+                    Añadir Rutinas de Muestra
+                </button>
+                <button type="button" id="update-my-sample-routines-btn" class="sample-action-btn secondary">
+                    Actualizar Rutinas de Muestra
+                </button>
+            </div>
         </section>
 
         <!-- Routine Editor View -->

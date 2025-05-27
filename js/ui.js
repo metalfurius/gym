@@ -459,40 +459,87 @@ export function renderManageRoutinesView(routines) {
 
     if (!routines || routines.length === 0) {
         const li = document.createElement('li');
-        li.textContent = 'No tienes rutinas personalizadas. ¡Crea una o usa las de muestra!';
-        // Optionally add a button here to "Copiar rutinas de muestra"
+        li.className = 'routine-card empty-state';
+        li.innerHTML = `
+            <div class="routine-info">
+                <div class="routine-name">Sin rutinas personalizadas</div>
+                <div class="routine-description">¡Crea una rutina nueva o prueba nuestras rutinas de muestra!</div>
+            </div>
+        `;
         manageRoutinesElements.list.appendChild(li);
         return;
     }
 
     routines.forEach(routine => {
         const li = document.createElement('li');
+        li.className = 'routine-card';
         
-        const nameSpan = document.createElement('span');
+        // Verificar si es una rutina de muestra
+        const isSampleRoutine = routine.sampleRoutineId !== undefined;
+        if (isSampleRoutine) {
+            li.classList.add('sample-routine');
+            li.dataset.sampleRoutineId = routine.sampleRoutineId;
+        }
+
+        // Contenedor de información de la rutina
+        const routineInfo = document.createElement('div');
+        routineInfo.className = 'routine-info';
+
+        // Nombre de la rutina con badge si es de muestra
+        const nameContainer = document.createElement('div');
+        nameContainer.className = 'routine-name-container';
+        
+        const nameSpan = document.createElement('div');
         nameSpan.className = 'routine-name';
         nameSpan.textContent = routine.name;
-        li.appendChild(nameSpan);
+        nameContainer.appendChild(nameSpan);
 
+        if (isSampleRoutine) {
+            const sampleBadge = document.createElement('span');
+            sampleBadge.className = 'sample-badge';
+            sampleBadge.textContent = 'Muestra';
+            nameContainer.appendChild(sampleBadge);
+        }
+
+        routineInfo.appendChild(nameContainer);
+
+        // Descripción de la rutina (número de ejercicios)
+        const description = document.createElement('div');
+        description.className = 'routine-description';
+        const exerciseCount = routine.exercises ? routine.exercises.length : 0;
+        description.textContent = `${exerciseCount} ejercicio${exerciseCount !== 1 ? 's' : ''}`;
+        routineInfo.appendChild(description);
+
+        li.appendChild(routineInfo);
+
+        // Contenedor de acciones
         const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'actions';
+        actionsDiv.className = 'routine-actions';
 
+        // Botón de editar
         const editBtn = document.createElement('button');
         editBtn.textContent = 'Editar';
-        editBtn.classList.add('ghost');
+        editBtn.className = 'routine-action-btn edit';
         editBtn.dataset.routineId = routine.id;
         editBtn.addEventListener('click', (e) => {
-            // Callback to app.js to handle edit
+            e.stopPropagation();
             const event = new CustomEvent('editRoutineClicked', { detail: { routineId: e.target.dataset.routineId }});
             document.dispatchEvent(event);
         });
         actionsDiv.appendChild(editBtn);
-        
-        // Delete button can be added here later if needed
-        // const deleteBtn = document.createElement('button'); /* ... */
 
         li.appendChild(actionsDiv);
+
+        // Event listener para hacer clic en toda la tarjeta (abre edición)
+        li.addEventListener('click', (e) => {
+            if (!e.target.closest('.routine-actions')) {
+                editBtn.click();
+            }
+        });
+
         manageRoutinesElements.list.appendChild(li);
     });
+    
     showView('manageRoutines');
 }
 
