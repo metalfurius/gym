@@ -221,7 +221,7 @@ dashboardElements.startSessionBtn.addEventListener('click', () => {
 });
 
 // Session
-sessionElements.form.addEventListener('submit', saveSessionData);
+sessionElements.saveBtn.addEventListener('click', saveSessionData);
 sessionElements.cancelBtn.addEventListener('click', () => {
     if (confirm("¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.")) {
         sessionElements.form.reset();
@@ -285,7 +285,6 @@ function getSessionFormData() {
 }
 
 async function saveSessionData(event) {
-    event.preventDefault();
     const user = getCurrentUser();
     if (!currentRoutineForSession || !user) {
         alert("Error: No hay rutina activa o no has iniciado sesión.");
