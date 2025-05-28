@@ -33,6 +33,26 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-top: var(--spacing-lg);
+    /* Fallback para tema oscuro donde el gradient text puede no verse bien */
+    position: relative;
+}
+
+/* Fallback para tema oscuro */
+@media (prefers-color-scheme: dark) {
+    #auth-view h2 {
+        -webkit-text-fill-color: var(--text-color) !important;
+        background: none !important;
+        color: var(--text-color) !important;
+    }
+}
+
+/* También para temas oscuros personalizados */
+[data-theme="dark"] #auth-view h2,
+[data-theme="cyberpunk"] #auth-view h2,
+[data-theme="terminal"] #auth-view h2 {
+    -webkit-text-fill-color: var(--text-color) !important;
+    background: none !important;
+    color: var(--text-color) !important;
 }
 
 /* Auth form container */

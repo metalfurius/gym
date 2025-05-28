@@ -56,7 +56,6 @@
 }
 
 #add-new-routine-btn::before {
-  content: '➕';
   font-size: 1.1rem;
 }
 
@@ -72,16 +71,11 @@
 }
 
 #add-new-routine-btn:hover {
-  transform: translateY(-3px) scale(1.02);
   box-shadow: var(--shadow-lg);
 }
 
 #add-new-routine-btn:hover::after {
   left: 100%;
-}
-
-#add-new-routine-btn:active {
-  transform: translateY(-1px) scale(0.98);
 }
 
 /* Rediseño moderno de la lista de rutinas */

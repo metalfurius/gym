@@ -70,6 +70,25 @@ footer p {
     line-height: 1.5;
 }
 
+.footer-contact {
+    margin-top: var(--spacing-md);
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.footer-contact a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.footer-contact a:hover {
+    opacity: 1;
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+}
+
 .footer-version-info {
     margin-top: var(--spacing-lg);
     padding-top: var(--spacing-lg);
