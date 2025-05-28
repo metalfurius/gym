@@ -1195,12 +1195,15 @@ const forceUpdateBtn = document.getElementById('force-update-btn');
 
 if (versionInfoElement) {
     // Obtener la versión de forma asíncrona
-    getCurrentVersion().then(version => {
-        versionInfoElement.textContent = `v${version}`;
-    }).catch(error => {
-        console.error('Error getting version for UI:', error);
-        versionInfoElement.textContent = 'v1.1.0'; // Fallback
-    });
+    (async () => {
+        try {
+            const version = await getCurrentVersion();
+            versionInfoElement.textContent = `v${version}`;
+        } catch (error) {
+            console.error('Error getting version for UI:', error);
+            versionInfoElement.textContent = 'v1.1.0'; // Fallback
+        }
+    })();
 }
 
 if (forceUpdateBtn) {
