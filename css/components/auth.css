@@ -1,0 +1,248 @@
+/* --- Auth/Login Specific Styles --- */
+
+/* Auth view container styling */
+#auth-view {
+    max-width: 420px;
+    margin: 60px auto !important;
+    background: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Beautiful gradient header for auth */
+#auth-view::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--header-gradient);
+}
+
+#auth-view h2 {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    color: var(--text-color);
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: var(--header-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-top: var(--spacing-lg);
+}
+
+/* Auth form container */
+#auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+#auth-form h3 {
+    text-align: center;
+    color: var(--text-secondary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: var(--spacing-md) 0;
+    position: relative;
+}
+
+#auth-form h3::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background: var(--primary-color);
+    border-radius: 2px;
+}
+
+/* Enhanced input styling for auth */
+#auth-view input[type="email"],
+#auth-view input[type="password"] {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 16px var(--spacing-md);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--input-bg);
+    position: relative;
+}
+
+#auth-view input[type="email"]:focus,
+#auth-view input[type="password"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--input-focus-shadow);
+    transform: translateY(-1px);
+    background: white;
+}
+
+/* Auth labels */
+#auth-view label {
+    font-weight: 600;
+    color: var(--text-secondary-color);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+}
+
+/* Auth buttons container */
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+/* Primary auth button (Login) */
+#login-email-btn {
+    background: var(--header-gradient);
+    border: none;
+    color: white;
+    padding: 16px var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#login-email-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+    transition: all 0.5s ease;
+}
+
+#login-email-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+}
+
+#login-email-btn:hover::before {
+    left: 100%;
+}
+
+#login-email-btn:active {
+    transform: translateY(0);
+}
+
+/* Secondary auth button (Register) */
+#signup-email-btn {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 14px var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#signup-email-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: var(--primary-color);
+    transition: all 0.3s ease;
+    z-index: -1;
+}
+
+#signup-email-btn:hover {
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+}
+
+#signup-email-btn:hover::before {
+    width: 100%;
+}
+
+/* Error message styling */
+#auth-error {
+    background: rgba(247, 37, 133, 0.1);
+    color: var(--secondary-color);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    border-left: 4px solid var(--secondary-color);
+    font-size: 0.9rem;
+    margin-top: var(--spacing-md);
+    display: none;
+}
+
+#auth-error:not(:empty) {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced hover effects for the entire auth section */
+#auth-view:hover {
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.12), 0 6px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+}
+
+/* Responsive design for auth view */
+@media (max-width: 480px) {
+    #auth-view {
+        margin: 20px var(--spacing-md) !important;
+        max-width: none;
+    }
+    
+    #auth-view h2 {
+        font-size: 1.5rem;
+    }
+    
+    .auth-buttons {
+        gap: var(--spacing-sm);
+    }
+    
+    #login-email-btn,
+    #signup-email-btn {
+        padding: 14px var(--spacing-md);
+        font-size: 0.95rem;
+    }
+}
+
+/* Loading state for auth buttons */
+#login-email-btn:disabled,
+#signup-email-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Focus visible for accessibility */
+#login-email-btn:focus-visible,
+#signup-email-btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}

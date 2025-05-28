@@ -190,12 +190,34 @@ function showUpdateNotification(oldVersion, newVersion) {
 export async function forceAppUpdate() {
     console.log('Version Manager: Forcing app update...');
     
+    const forceUpdateBtn = document.getElementById('force-update-btn');
+    
     try {
+        // Cambiar el botón a estado de actualización
+        if (forceUpdateBtn) {
+            forceUpdateBtn.classList.add('updating');
+            forceUpdateBtn.innerHTML = '⏳ Actualizando...';
+            forceUpdateBtn.disabled = true;
+        }
+        
         // Backup de sesión en progreso
         const inProgressSession = loadInProgressSession();
         if (inProgressSession) {
             localStorage.setItem(BACKUP_SESSION_KEY, JSON.stringify(inProgressSession));
         }
+        
+        // Simular un pequeño delay para que el usuario vea el estado
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Mostrar estado de éxito brevemente
+        if (forceUpdateBtn) {
+            forceUpdateBtn.classList.remove('updating');
+            forceUpdateBtn.classList.add('success');
+            forceUpdateBtn.innerHTML = '✅ ¡Listo!';
+        }
+        
+        // Esperar un momento antes de limpiar cachés y recargar
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         // Limpiar todos los cachés
         await clearBrowserCaches();
@@ -205,8 +227,25 @@ export async function forceAppUpdate() {
         
     } catch (error) {
         console.error('Version Manager: Error during forced update:', error);
-        // Fallback: recargar página simple
-        window.location.reload();
+        
+        // Mostrar estado de error
+        if (forceUpdateBtn) {
+            forceUpdateBtn.classList.remove('updating', 'success');
+            forceUpdateBtn.classList.add('error');
+            forceUpdateBtn.innerHTML = '❌ Error';
+            forceUpdateBtn.disabled = false;
+            
+            // Resetear el botón después de 3 segundos
+            setTimeout(() => {
+                forceUpdateBtn.classList.remove('error');
+                forceUpdateBtn.innerHTML = '🔄 Actualizar';
+            }, 3000);
+        }
+        
+        // Fallback: recargar página simple después de mostrar error
+        setTimeout(() => {
+            window.location.reload();
+        }, 4000);
     }
 }
 

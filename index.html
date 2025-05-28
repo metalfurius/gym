@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="css/components/variables.css">
     <link rel="stylesheet" href="css/components/base.css">
     <link rel="stylesheet" href="css/components/header.css">
-    <link rel="stylesheet" href="css/components/layout.css">
-    <link rel="stylesheet" href="css/components/forms.css">
+    <link rel="stylesheet" href="css/components/layout.css">    <link rel="stylesheet" href="css/components/forms.css">
     <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/auth.css">
     <link rel="stylesheet" href="css/components/footer.css">
     <link rel="stylesheet" href="css/components/spinner.css">
     <link rel="stylesheet" href="css/components/calendar.css">    <link rel="stylesheet" href="css/components/modal.css">
@@ -40,19 +40,18 @@
         </div>
     </header>
 
-    <main>
-        <!-- Auth View -->
+    <main>        <!-- Auth View -->
         <section id="auth-view">
-            <h2>Acceso / Registro</h2>
+            <h2>¡Bienvenido!</h2>
             <form id="auth-form">
-                <h3>Con Email y Contraseña</h3>
-                <label for="auth-email">Email:</label>
-                <input type="email" id="auth-email" required autocomplete="email">
-                <label for="auth-password">Contraseña:</label>
-                <input type="password" id="auth-password" required minlength="6" autocomplete="current-password">
+                <h3>Accede con tu cuenta</h3>
+                <label for="auth-email">Correo electrónico</label>
+                <input type="email" id="auth-email" required autocomplete="email" placeholder="tu@email.com">
+                <label for="auth-password">Contraseña</label>
+                <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="••••••••">
                 <div class="auth-buttons">
                     <button type="submit" id="login-email-btn">Iniciar Sesión</button>
-                    <button type="submit" id="signup-email-btn">Registrarse</button>
+                    <button type="submit" id="signup-email-btn">Crear Cuenta Nueva</button>
                 </div>
                 <p id="auth-error" class="error-message"></p>
             </form>
@@ -176,10 +175,11 @@
             </div>
         </div>    </main>    <footer>
         <p>© 2025 My Workout Tracker. Hecho con 💪 para mantenerte en forma.</p>
-        <p>¿Sugerencias? Escríbenos a <a href="mailto:contact@codeoverdose.es">contact@codeoverdose.es</a></p>
         <div class="footer-version-info">
             <span id="app-version-info">v1.0.3</span>
-            <button id="force-update-btn" class="ghost" style="font-size: 0.8em; padding: 4px 8px; margin-left: 10px;" title="Forzar actualización de la aplicación">🔄 Actualizar</button>
+            <button id="force-update-btn" title="Forzar actualización de la aplicación">
+                🔄 Actualizar
+            </button>
         </div>
     </footer>
 

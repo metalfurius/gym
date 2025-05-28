@@ -1153,7 +1153,7 @@ if (versionInfoElement) {
 if (forceUpdateBtn) {
     forceUpdateBtn.addEventListener('click', async () => {
         if (confirm('¿Estás seguro de que quieres forzar la actualización de la aplicación? Esto limpiará el caché y recargará la página.')) {
-            showLoading(forceUpdateBtn, 'Actualizando...');
+            // No usar showLoading aquí ya que forceAppUpdate maneja sus propios estados visuales
             await forceAppUpdate();
         }
     });

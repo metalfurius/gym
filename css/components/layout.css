@@ -3,8 +3,8 @@ main {
     padding: var(--spacing-md);
     max-width: var(--max-width, 768px); /* Usa --max-width de variables.css o un fallback */
     margin: var(--spacing-xl) auto;
-    padding-bottom: 100px; /* Mayor espacio en la parte inferior para el footer */
-    flex: 1 0 auto;
+    flex: 1 0 auto; /* Esto hace que main ocupe todo el espacio disponible */
+    width: 100%;
 }
 
 section {
