@@ -16,3 +16,28 @@ footer p {
     opacity: 0.9;
     letter-spacing: 0.5px;
 }
+
+.footer-version-info {
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+#app-version-info {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-family: 'Courier New', monospace;
+}
+
+#force-update-btn {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+#force-update-btn:hover {
+    opacity: 1;
+}

@@ -1,4 +1,5 @@
-const CACHE_NAME = 'gym-tracker-v1';
+const APP_VERSION = '1.0.3';
+const CACHE_NAME = `gym-tracker-v${APP_VERSION}`;
 const urlsToCache = [
   './',
   './index.html',
@@ -14,11 +15,12 @@ const urlsToCache = [
   './css/components/modal.css',
   './css/user-weight.css',
   './css/components/scroll-to-top.css',
-  './css/components/responsive.css',
-  './js/app.js',
+  './css/components/responsive.css',  './js/app.js',
   './js/auth.js',
   './js/ui.js',
   './js/store.js',
+  './js/storage-manager.js',
+  './js/version-manager.js',
   './js/firebase-config.js',
   './manifest.json',
   './assets/icons/icon-192x192.png',

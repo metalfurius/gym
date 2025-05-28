@@ -12,6 +12,7 @@ import {
 } from './ui.js';
 import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 import { storageManager } from './storage-manager.js';
+import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 
 // --- Utility Functions ---
 /**
@@ -806,6 +807,17 @@ if (manageRoutinesElements.initializeSampleRoutinesBtn) {
 // PWA Service Worker and Storage Manager Initialization
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
+        // Initialize version control first - this handles app updates and cache management
+        try {
+            const versionResult = await initVersionControl();
+            console.log('Version control initialized:', versionResult);
+            
+            // Check for backup session that might need restoration after update
+            checkForBackupSession();
+        } catch (error) {
+            console.error('Version control initialization failed:', error);
+        }
+
         // Initialize modern storage management
         try {
             await storageManager.initialize();
@@ -1129,5 +1141,23 @@ window.addEventListener('scroll', toggleScrollToTopBtn, { passive: true });
 
 // Llamada inicial para asegurarse de que el botón tenga el estado correcto
 toggleScrollToTopBtn();
+
+// --- Version Management UI ---
+// Initialize version info in footer
+const versionInfoElement = document.getElementById('app-version-info');
+const forceUpdateBtn = document.getElementById('force-update-btn');
+
+if (versionInfoElement) {
+    versionInfoElement.textContent = `v${getCurrentVersion()}`;
+}
+
+if (forceUpdateBtn) {
+    forceUpdateBtn.addEventListener('click', async () => {
+        if (confirm('¿Estás seguro de que quieres forzar la actualización de la aplicación? Esto limpiará el caché y recargará la página.')) {
+            showLoading(forceUpdateBtn, 'Actualizando...');
+            await forceAppUpdate();
+        }
+    });
+}
 
 showView('auth');
