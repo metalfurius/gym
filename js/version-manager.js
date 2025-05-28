@@ -1,14 +1,29 @@
 
 import { saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 
-const CURRENT_VERSION = '1.0.3';
 const VERSION_KEY = 'gym-tracker-version';
 const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
+
+/**
+ * Obtiene la versión actual del manifest.json
+ */
+async function getCurrentVersionFromManifest() {
+    try {
+        const response = await fetch('./manifest.json');
+        const manifest = await response.json();
+        return manifest.version;
+    } catch (error) {
+        console.error('Version Manager: Error fetching version from manifest:', error);
+        // Fallback a versión por defecto si no se puede obtener del manifest
+        return '1.1.0';
+    }
+}
 
 /**
  * Inicializa el control de versiones y maneja actualizaciones
  */
 export async function initVersionControl() {
+    const CURRENT_VERSION = await getCurrentVersionFromManifest();
     const storedVersion = localStorage.getItem(VERSION_KEY);
     
     console.log(`Version Manager: Current=${CURRENT_VERSION}, Stored=${storedVersion || 'none'}`);
@@ -252,8 +267,8 @@ export async function forceAppUpdate() {
 /**
  * Obtiene la versión actual de la aplicación
  */
-export function getCurrentVersion() {
-    return CURRENT_VERSION;
+export async function getCurrentVersion() {
+    return await getCurrentVersionFromManifest();
 }
 
 /**

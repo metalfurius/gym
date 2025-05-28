@@ -13,26 +13,13 @@ const fs = require('fs');
 const path = require('path');
 
 // Archivos que contienen información de versión
+// Ahora solo necesitamos actualizar el manifest.json ya que todos los demás archivos
+// obtienen la versión dinámicamente del manifest
 const VERSION_FILES = [
     {
         file: 'manifest.json',
         pattern: /"version":\s*"[^"]+"/,
         replacement: (version) => `"version": "${version}"`
-    },
-    {
-        file: 'sw.js',
-        pattern: /const APP_VERSION = '[^']+'/,
-        replacement: (version) => `const APP_VERSION = '${version}'`
-    },
-    {
-        file: 'js/version-manager.js',
-        pattern: /const CURRENT_VERSION = '[^']+'/,
-        replacement: (version) => `const CURRENT_VERSION = '${version}'`
-    },
-    {
-        file: 'index.html',
-        pattern: /<span id="app-version-info">v[^<]+<\/span>/,
-        replacement: (version) => `<span id="app-version-info">v${version}</span>`
     }
 ];
 

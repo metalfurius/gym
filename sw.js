@@ -1,5 +1,18 @@
-const APP_VERSION = '1.0.3';
+// Versión dinámica obtenida del manifest al instalar el service worker
+let APP_VERSION = '1.1.0'; // Fallback version
 const CACHE_NAME = `gym-tracker-v${APP_VERSION}`;
+
+// Función para obtener la versión del manifest
+async function getVersionFromManifest() {
+  try {
+    const response = await fetch('./manifest.json');
+    const manifest = await response.json();
+    return manifest.version;
+  } catch (error) {
+    console.error('SW: Error fetching version from manifest:', error);
+    return APP_VERSION; // Usar fallback
+  }
+}
 const urlsToCache = [
   './',
   './index.html',
@@ -31,13 +44,31 @@ const urlsToCache = [
   'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'
 ];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', async event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('SW: Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    (async () => {
+      try {
+        // Obtener la versión actual del manifest
+        const manifestVersion = await getVersionFromManifest();
+        APP_VERSION = manifestVersion;
+        
+        // Crear el nombre del caché con la versión actualizada
+        const dynamicCacheName = `gym-tracker-v${APP_VERSION}`;
+        
+        const cache = await caches.open(dynamicCacheName);
+        console.log(`SW: Opened cache with version ${APP_VERSION}`);
+        await cache.addAll(urlsToCache);
+        
+        // Auto-activar el nuevo service worker
+        self.skipWaiting();
+      } catch (error) {
+        console.error('SW: Error during install:', error);
+        // Fallback al comportamiento anterior
+        const cache = await caches.open(CACHE_NAME);
+        console.log('SW: Opened fallback cache');
+        await cache.addAll(urlsToCache);
+      }
+    })()
   );
 });
 
@@ -64,13 +95,17 @@ self.addEventListener('fetch', event => {
               !event.request.url.includes('firestore.googleapis.com') && // Don't cache Firestore API calls
               !event.request.url.includes('firebaseapp.com') // Generally, don't cache auth domain interactions unless specific static assets
                                                              // This also helps avoid caching other potential Firebase service calls.
-            ) {
-              // Clone the response to use it in the cache and to return to the browser.
+            ) {              // Clone the response to use it in the cache and to return to the browser.
               const responseToCache = networkResponse.clone();
-              caches.open(CACHE_NAME)
-                .then(cache => {
-                  cache.put(event.request, responseToCache);
-                });
+              
+              // Obtener el nombre del caché actual dinámicamente
+              getVersionFromManifest().then(manifestVersion => {
+                const currentCacheName = `gym-tracker-v${manifestVersion}`;
+                caches.open(currentCacheName)
+                  .then(cache => {
+                    cache.put(event.request, responseToCache);
+                  });
+              });
             }
             return networkResponse; // Return the original network response
           }
@@ -87,20 +122,45 @@ self.addEventListener('fetch', event => {
   );
 });
 
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
+self.addEventListener('activate', async event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('SW: Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    (async () => {
+      try {
+        // Obtener la versión actual del manifest
+        const manifestVersion = await getVersionFromManifest();
+        const currentCacheName = `gym-tracker-v${manifestVersion}`;
+        
+        const cacheWhitelist = [currentCacheName];
+        const cacheNames = await caches.keys();
+        
+        await Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheWhitelist.indexOf(cacheName) === -1) {
+              console.log('SW: Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+        
+        console.log(`SW: Activated with version ${manifestVersion}`);
+      } catch (error) {
+        console.error('SW: Error during activate:', error);
+        // Fallback al comportamiento anterior
+        const cacheWhitelist = [CACHE_NAME];
+        const cacheNames = await caches.keys();
+        
+        await Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheWhitelist.indexOf(cacheName) === -1) {
+              console.log('SW: Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }
+      
+      // Force the SW to become active immediately
+      return self.clients.claim();
+    })()
   );
-  // Force the SW to become active immediately
-  return self.clients.claim();
 });

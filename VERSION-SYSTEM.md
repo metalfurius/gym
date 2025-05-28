@@ -51,11 +51,10 @@ node update-version.js 1.2.3
 ```
 
 #### Actualización Manual
-Si prefieres actualizar manualmente, edita estos archivos:
+Ahora solo necesitas actualizar un archivo:
 - `manifest.json` → campo `version`
-- `sw.js` → constante `APP_VERSION`
-- `js/version-manager.js` → constante `CURRENT_VERSION`
-- `index.html` → elemento `#app-version-info`
+
+**Nota:** Todos los demás archivos (service worker, version manager, footer) obtienen automáticamente la versión del manifest.json, eliminando la duplicación y errores de sincronización.
 
 ### Para Usuarios
 

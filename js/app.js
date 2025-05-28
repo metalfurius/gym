@@ -1194,7 +1194,13 @@ const versionInfoElement = document.getElementById('app-version-info');
 const forceUpdateBtn = document.getElementById('force-update-btn');
 
 if (versionInfoElement) {
-    versionInfoElement.textContent = `v${getCurrentVersion()}`;
+    // Obtener la versión de forma asíncrona
+    getCurrentVersion().then(version => {
+        versionInfoElement.textContent = `v${version}`;
+    }).catch(error => {
+        console.error('Error getting version for UI:', error);
+        versionInfoElement.textContent = 'v1.1.0'; // Fallback
+    });
 }
 
 if (forceUpdateBtn) {
