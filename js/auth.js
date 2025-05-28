@@ -46,10 +46,18 @@ export async function handleEmailSignup(event) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         // onAuthStateChanged will handle the rest, including initializing sample routines
-        displayAuthSuccess("¡Registro exitoso! Serás redirigido.");
-        await initializeUserRoutines(userCredential.user, true); // true indicates new user
+        displayAuthSuccess("¡Registro exitoso! Serás redirigido.");        await initializeUserRoutines(userCredential.user, true); // true indicates new user
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
+        // Load diagnostics on auth errors that might be network-related
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            // Dynamically import the diagnostics function
+            import('./app.js').then(module => {
+                if (module.loadFirebaseDiagnostics) {
+                    module.loadFirebaseDiagnostics();
+                }
+            });
+        }
     } finally {
         authElements.signupBtn.disabled = false;
         authElements.loginBtn.disabled = false;
@@ -69,12 +77,20 @@ export async function handleEmailLogin(event) {
     authElements.loginBtn.disabled = true;
     authElements.signupBtn.disabled = true;
 
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
+    try {        await signInWithEmailAndPassword(auth, email, password);
         displayAuthSuccess("¡Inicio de sesión exitoso! Serás redirigido.");
         // onAuthStateChanged will handle fetching routines for existing user
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
+        // Load diagnostics on auth errors that might be network-related
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            // Dynamically import the diagnostics function
+            import('./app.js').then(module => {
+                if (module.loadFirebaseDiagnostics) {
+                    module.loadFirebaseDiagnostics();
+                }
+            });
+        }
     } finally {
         authElements.loginBtn.disabled = false;
         authElements.signupBtn.disabled = false;

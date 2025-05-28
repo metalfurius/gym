@@ -15,6 +15,19 @@ import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
 
+// Conditional loading of firebase diagnostics
+let diagnosticsLoaded = false;
+export async function loadFirebaseDiagnostics() {
+    if (diagnosticsLoaded) return;
+    try {
+        await import('./firebase-diagnostics.js');
+        diagnosticsLoaded = true;
+        console.log('Firebase diagnostics loaded due to connection issues');
+    } catch (error) {
+        console.warn('Could not load firebase diagnostics:', error);
+    }
+}
+
 // Inicializar el gestor de temas
 let themeManager = null;
 
@@ -108,13 +121,16 @@ export async function initializeUserRoutines(user, isNewUser = false) {
                 isSample: true, // Mark as a sample
                 createdAt: Timestamp.now()
             });
-        }
-        try {
+        }        try {
             await batch.commit();
             console.log("Sample routines added.");
             await fetchUserRoutines(user); // Re-fetch to update UI
         } catch (error) {
             console.error("Error adding sample routines: ", error);
+            // Load diagnostics on Firestore errors
+            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                loadFirebaseDiagnostics();
+            }
         }
     }
 }
@@ -136,11 +152,14 @@ async function fetchUserRoutines(user) {
         // If manage routines view is active, refresh it too
         if (!views.manageRoutines.classList.contains('hidden')) {
             renderManageRoutinesView(currentUserRoutines);
-        }
-    } catch (error) {
+        }    } catch (error) {
         console.error("Error fetching user routines: ", error);
         currentUserRoutines = [];
         populateDaySelector([]);
+        // Load diagnostics on Firestore errors
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            loadFirebaseDiagnostics();
+        }
     }
 }
 
@@ -342,10 +361,13 @@ async function saveSessionData(event) {
         clearInProgressSession();
         currentRoutineForSession = null;
         showView('dashboard');
-        fetchAndRenderHistory();
-    } catch (e) {
+        fetchAndRenderHistory();    } catch (e) {
         console.error("Error adding document: ", e);
         alert("Error al guardar la sesión.");
+        // Load diagnostics on Firestore errors
+        if (e.message && (e.message.includes('Failed to fetch') || e.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            loadFirebaseDiagnostics();
+        }
     } finally {
         hideLoading(sessionElements.saveBtn);
     }
@@ -449,12 +471,14 @@ async function fetchAndRenderHistory(direction = 'initial') { // direction: 'ini
         }
         if (historyElements.pageInfo) {
             historyElements.pageInfo.textContent = `Pág. ${currentHistoryPageNumber}`;
-        }
-
-    } catch (error) {
+        }    } catch (error) {
         console.error("Error fetching history:", error);
         historyElements.list.innerHTML = '<li>Error al cargar el historial.</li>';
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
+        // Load diagnostics on Firestore errors
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            loadFirebaseDiagnostics();
+        }
     } finally {
         historyElements.loadingSpinner.classList.add('hidden');
     }
@@ -519,12 +543,14 @@ historyElements.list.addEventListener('click', async (event) => {
                     if (historyElements.nextPageBtn) {
                         historyElements.nextPageBtn.disabled = snapshot.docs.length < HISTORY_PAGE_SIZE || reloadedSessions.length === 0;
                     }
-                }
-
-            } catch (error) {
+                }            } catch (error) {
                 console.error("Error eliminando sesión: ", error);
                 alert("Error al eliminar la sesión.");
                 hideLoading(targetButton); // Asegurar que se oculta el loading en caso de error
+                // Load diagnostics on Firestore errors
+                if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                    loadFirebaseDiagnostics();
+                }
             }
             // No es necesario hideLoading si el botón desaparece con el refresh, pero por si acaso.
         }
@@ -643,10 +669,13 @@ routineEditorElements.form.addEventListener('submit', async (event) => {
         alert("Rutina guardada con éxito!");
         await fetchUserRoutines(user); // Refresh the list
         showView('manageRoutines'); // Go back to manage routines view
-        renderManageRoutinesView(currentUserRoutines);
-    } catch (error) {
+        renderManageRoutinesView(currentUserRoutines);    } catch (error) {
         console.error("Error guardando rutina: ", error);
         alert("Error al guardar la rutina.");
+        // Load diagnostics on Firestore errors
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            loadFirebaseDiagnostics();
+        }
     } finally {
         hideLoading(routineEditorElements.saveRoutineBtn);
     }
@@ -676,10 +705,13 @@ routineEditorElements.deleteRoutineBtn.addEventListener('click', async () => {
             alert("Rutina eliminada con éxito.");
             await fetchUserRoutines(user);
             showView('manageRoutines');
-            renderManageRoutinesView(currentUserRoutines);
-        } catch (error) {
+            renderManageRoutinesView(currentUserRoutines);        } catch (error) {
             console.error("Error eliminando rutina: ", error);
             alert("Error al eliminar la rutina.");
+            // Load diagnostics on Firestore errors
+            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                loadFirebaseDiagnostics();
+            }
         } finally {
             hideLoading(routineEditorElements.deleteRoutineBtn);
         }
@@ -759,11 +791,13 @@ if (manageRoutinesElements.updateMySampleRoutinesBtn) {
             await fetchUserRoutines(user); // Refrescar la lista en la UI
             if (!views.manageRoutines.classList.contains('hidden')) {
                 renderManageRoutinesView(currentUserRoutines);
-            }
-
-        } catch (error) {
+            }        } catch (error) {
             console.error("Error actualizando rutinas de muestra del usuario:", error);
             alert("Error al actualizar las rutinas de muestra.");
+            // Load diagnostics on Firestore errors
+            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                loadFirebaseDiagnostics();
+            }
         } finally {
             hideLoading(manageRoutinesElements.updateMySampleRoutinesBtn);
         }
@@ -821,10 +855,13 @@ if (manageRoutinesElements.initializeSampleRoutinesBtn) {
             await fetchUserRoutines(user);
             if (!views.manageRoutines.classList.contains('hidden')) {
                 renderManageRoutinesView(currentUserRoutines);
-            }
-        } catch (error) {
+            }        } catch (error) {
             console.error("Error añadiendo rutinas de muestra:", error);
             alert("Error al añadir las rutinas de muestra.");
+            // Load diagnostics on Firestore errors
+            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                loadFirebaseDiagnostics();
+            }
         } finally {
             hideLoading(manageRoutinesElements.initializeSampleRoutinesBtn);
         }
@@ -872,17 +909,18 @@ if ('serviceWorker' in navigator) {
                 if (err.name === 'TypeError' && err.message.includes('Failed to register') && err.message.includes('404')) {
                     console.warn('This may be due to a missing service worker file or an ad blocker.');
                     // You could show a notification to the user here if needed
-                }
-            });
+                }            });
     });
-      // Add an error handler for Firestore connection errors
+    
+    // Add an error handler for Firestore connection errors
     window.addEventListener('error', function(event) {
         const errorText = event.message || '';
         if (errorText.includes('ERR_BLOCKED_BY_CLIENT') || 
             (event.filename && event.filename.includes('firestore.googleapis.com'))) {
             console.warn('Detected possible content blocker interfering with Firebase connections. ' +
                         'This may affect app functionality.');
-            // You could show a notification to the user here if needed
+            // Load diagnostics when we detect blocking
+            loadFirebaseDiagnostics();
         }
     });
 } else {
