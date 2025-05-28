@@ -238,9 +238,21 @@ sessionElements.exerciseList.addEventListener('input', () => {
 
 function getSessionFormData() {
     if (!currentRoutineForSession) return {};
+    
+    // Obtener y normalizar el peso del usuario
+    const userWeightValue = document.getElementById('user-weight').value;
+    let pesoUsuario = null;
+    if (userWeightValue) {
+        const normalizedWeight = userWeightValue.replace(',', '.');
+        const parsedWeight = parseFloat(normalizedWeight);
+        if (!isNaN(parsedWeight)) {
+            pesoUsuario = Math.round(parsedWeight * 10) / 10; // Redondear a 1 decimal
+        }
+    }
+    
     const sessionData = {
         ejercicios: [],
-        pesoUsuario: document.getElementById('user-weight').value || null
+        pesoUsuario: pesoUsuario
     };
     const exerciseBlocks = sessionElements.exerciseList.querySelectorAll('.exercise-block');
     exerciseBlocks.forEach(block => {
@@ -259,13 +271,22 @@ function getSessionFormData() {
         };
 
         if (exerciseFromRoutine.type === 'strength') {
-            const setRows = block.querySelectorAll('.set-row');
-            setRows.forEach((row, setIndex) => {
+            const setRows = block.querySelectorAll('.set-row');            setRows.forEach((row, setIndex) => {
                 const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
                 const repsInput = row.querySelector(`input[name="reps-${exerciseIndex}-${setIndex}"]`);
                 if (weightInput.value || repsInput.value) {
+                    // Normalizar peso: reemplazar coma por punto y redondear a 1 decimal
+                    let peso = 0;
+                    if (weightInput.value) {
+                        const normalizedWeight = weightInput.value.replace(',', '.');
+                        const parsedWeight = parseFloat(normalizedWeight);
+                        if (!isNaN(parsedWeight)) {
+                            peso = Math.round(parsedWeight * 10) / 10;
+                        }
+                    }
+                    
                     exerciseEntry.sets.push({
-                        peso: parseFloat(weightInput.value) || 0,
+                        peso: peso,
                         reps: parseInt(repsInput.value, 10) || 0
                     });
                 }

@@ -174,16 +174,49 @@ export function renderSessionView(routine, inProgressData = null) {
     const userWeightLabel = document.createElement('label');
     userWeightLabel.textContent = 'Tu peso hoy (kg):';
     userWeightLabel.htmlFor = 'user-weight';
-    userWeightDiv.appendChild(userWeightLabel);
-    
-    const userWeightInput = document.createElement('input');
-    userWeightInput.type = 'number';
+    userWeightDiv.appendChild(userWeightLabel);    const userWeightInput = document.createElement('input');
+    userWeightInput.type = 'text';
     userWeightInput.id = 'user-weight';
     userWeightInput.name = 'user-weight';
     userWeightInput.placeholder = 'Introduce tu peso (kg)';
-    userWeightInput.min = '20';
-    userWeightInput.max = '250';
-    userWeightInput.step = '0.1';
+    userWeightInput.inputMode = 'decimal';
+    userWeightInput.pattern = '[0-9]*[.,]?[0-9]*';
+    
+    // Reemplazar coma por punto inmediatamente y validar formato
+    userWeightInput.addEventListener('input', function(e) {
+        let value = e.target.value;
+        // Reemplazar coma por punto
+        value = value.replace(',', '.');
+        // Permitir solo números, un punto decimal y máximo 2 decimales
+        value = value.replace(/[^0-9.]/g, '');
+        // Evitar múltiples puntos
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts.slice(1).join('');
+        }
+        // Limitar a 2 decimales
+        if (parts[1] && parts[1].length > 2) {
+            value = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        e.target.value = value;
+    });
+    
+    // Validar rango y redondear a 1 decimal al terminar de editar
+    userWeightInput.addEventListener('blur', function(e) {
+        let value = e.target.value.replace(',', '.');
+        if (value && !isNaN(value)) {
+            const numValue = parseFloat(value);
+            if (numValue < 20) {
+                e.target.value = '20.0';
+            } else if (numValue > 250) {
+                e.target.value = '250.0';
+            } else {
+                const rounded = Math.round(numValue * 10) / 10;
+                e.target.value = rounded;
+            }
+        }
+    });
+    
     if (inProgressData?.pesoUsuario) {
         userWeightInput.value = inProgressData.pesoUsuario;
     }
@@ -225,15 +258,42 @@ export function renderSessionView(routine, inProgressData = null) {
                 const setLabel = document.createElement('label');
                 setLabel.textContent = `Serie ${i + 1}:`;
                 setLabel.htmlFor = `weight-${exerciseIndex}-${i}`;
-                setRow.appendChild(setLabel);
-
-                const weightInput = document.createElement('input');
-                weightInput.type = 'number';
+                setRow.appendChild(setLabel);                const weightInput = document.createElement('input');
+                weightInput.type = 'text';
                 weightInput.id = `weight-${exerciseIndex}-${i}`;
                 weightInput.name = `weight-${exerciseIndex}-${i}`;
                 weightInput.placeholder = 'Peso (kg)';
-                weightInput.min = "0";
-                weightInput.step = "0.25";
+                weightInput.inputMode = 'decimal';
+                weightInput.pattern = '[0-9]*[.,]?[0-9]*';
+                
+                // Reemplazar coma por punto inmediatamente y validar formato
+                weightInput.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    // Reemplazar coma por punto
+                    value = value.replace(',', '.');
+                    // Permitir solo números, un punto decimal y máximo 2 decimales
+                    value = value.replace(/[^0-9.]/g, '');
+                    // Evitar múltiples puntos
+                    const parts = value.split('.');
+                    if (parts.length > 2) {
+                        value = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    // Limitar a 2 decimales
+                    if (parts[1] && parts[1].length > 2) {
+                        value = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    e.target.value = value;
+                });
+                
+                // Redondear a 1 decimal al terminar de editar
+                weightInput.addEventListener('blur', function(e) {
+                    let value = e.target.value.replace(',', '.');
+                    if (value && !isNaN(value)) {
+                        const rounded = Math.round(parseFloat(value) * 10) / 10;
+                        e.target.value = rounded;
+                    }
+                });
+                
                 if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]) {
                     weightInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].peso || '';
                 }
