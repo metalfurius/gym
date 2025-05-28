@@ -1,23 +1,23 @@
 /* --- Main Content & Sections --- */
 main {
     padding: var(--spacing-md);
-    max-width: var(--max-width, 768px); /* Usa --max-width de variables.css o un fallback */
+    max-width: var(--max-width);
     margin: var(--spacing-xl) auto;
-    flex: 1 0 auto; /* Esto hace que main ocupe todo el espacio disponible */
+    flex: 1 0 auto;
     width: 100%;
 }
 
 section {
     background-color: var(--card-bg);
     padding: var(--spacing-xl);
-    border-radius: var(--border-radius-md);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
     margin-bottom: var(--spacing-xl);
-    transition: all 0.3s ease;
-    /* border: 1px solid var(--border-color); No estaba en style-modern.css para section, lo quito */
+    transition: var(--transition-base);
+    border: 1px solid var(--border-color);
 }
 
 section:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--box-shadow-lg);
     transform: translateY(-2px);
 }

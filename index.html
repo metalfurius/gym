@@ -4,6 +4,11 @@
 <head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2c3e50" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- CSS Desglosado -->
     <link rel="stylesheet" href="css/components/variables.css">
@@ -27,13 +32,25 @@
     <title>My Workout Tracker</title>
 </head>
 
-<body>
-    <header>
+<body>    <header>
         <div class="header-content">
-            <h1>My Workout Tracker</h1>
+            <div class="header-brand">
+                <div class="header-logo">💪</div>
+                <h1>My Workout Tracker</h1>
+            </div>
+            
+            <div class="header-controls">
+                <div class="theme-selector">
+                    <button id="theme-toggle" class="theme-toggle" title="Cambiar tema">
+                        <span class="theme-icon">🎨</span>
+                        <span id="theme-name">Moderno</span>
+                    </button>
+                </div>
+            </div>
+            
             <nav>
                 <button id="nav-dashboard" class="hidden">Dashboard</button>
-                <button id="nav-manage-routines" class="hidden">Mis Rutinas</button> <!-- New Nav Item -->
+                <button id="nav-manage-routines" class="hidden">Mis Rutinas</button>
                 <button id="nav-history" class="hidden">Historial</button>
                 <button id="logout-btn" class="hidden secondary">Cerrar Sesión</button>
             </nav>

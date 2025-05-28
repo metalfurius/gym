@@ -13,7 +13,7 @@
 }
 
 .modal-content {
-    background-color: var(--card-bg);
+    background-color: var(--modal-bg);
     margin: 5% auto; /* Reducido para pantallas pequeñas, responsive.css lo ajusta */
     padding: var(--spacing-xl);
     border: none;
@@ -23,6 +23,7 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.1);
     position: relative;
     animation: modalFadeIn 0.3s ease-out;
+    color: var(--modal-text);
 }
 
 @keyframes modalFadeIn {

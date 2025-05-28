@@ -1,6 +1,6 @@
-/* --- Buttons --- */
+/* --- Buttons Modernos --- */
 button,
-.button { /* .button es una clase genérica por si usas <a> como botones */
+.button {
     background-color: var(--primary-color);
     color: white;
     padding: 12px var(--spacing-lg);
@@ -10,13 +10,14 @@ button,
     border: none;
     border-radius: var(--border-radius-md);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-base);
     text-decoration: none;
     display: inline-block;
     text-align: center;
-    box-shadow: 0 3px 8px rgba(67, 97, 238, 0.2);
+    box-shadow: var(--box-shadow-sm);
     position: relative;
     overflow: hidden;
+    font-family: var(--font-sans-serif);
 }
 
 button::before,
@@ -34,7 +35,7 @@ button::before,
 button:not(:disabled):hover,
 .button:not(:disabled):hover {
     background-color: var(--primary-hover-color);
-    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    box-shadow: var(--box-shadow-md);
     transform: translateY(-2px);
 }
 
@@ -46,19 +47,44 @@ button:not(:disabled):hover::before,
 button:not(:disabled):active,
 .button:not(:disabled):active {
     transform: translateY(0px);
-    box-shadow: 0 2px 5px rgba(67, 97, 238, 0.2);
+    box-shadow: var(--box-shadow-sm);
 }
 
 button.secondary,
 .button.secondary {
-    background-color: var(--secondary-color);
-    box-shadow: 0 3px 8px rgba(247, 37, 133, 0.2);
+    background-color: var(--danger-color);
+    box-shadow: var(--box-shadow-sm);
 }
 
 button.secondary:hover,
 .button.secondary:hover {
-    background-color: var(--secondary-hover-color);
-    box-shadow: 0 5px 15px rgba(247, 37, 133, 0.3);
+    background-color: var(--danger-hover-color);
+    box-shadow: var(--box-shadow-md);
+}
+
+button.success,
+.button.success {
+    background-color: var(--success-color);
+    box-shadow: var(--box-shadow-sm);
+}
+
+button.success:hover,
+.button.success:hover {
+    background-color: var(--success-hover-color);
+    box-shadow: var(--box-shadow-md);
+}
+
+button.warning,
+.button.warning {
+    background-color: var(--warning-color);
+    color: var(--text-color);
+    box-shadow: var(--box-shadow-sm);
+}
+
+button.warning:hover,
+.button.warning:hover {
+    background-color: var(--warning-hover-color);
+    box-shadow: var(--box-shadow-md);
 }
 
 button.ghost,
@@ -71,20 +97,21 @@ button.ghost,
 
 button.ghost:hover,
 .button.ghost:hover {
-    background-color: rgba(67, 97, 238, 0.05);
+    background-color: var(--primary-light);
     color: var(--primary-hover-color);
     border-color: var(--primary-hover-color);
-    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+    box-shadow: var(--box-shadow-sm);
 }
 
 button:disabled,
 .button:disabled {
-    background-color: #d1d8e0 !important;
-    color: #8395a7 !important;
-    border-color: #d1d8e0 !important;
+    background-color: var(--border-color) !important;
+    color: var(--text-muted-color) !important;
+    border-color: var(--border-color) !important;
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
+    opacity: 0.6;
 }
 
 /* Helper class for smaller buttons often used in lists/actions */
@@ -92,4 +119,19 @@ button:disabled,
     padding: var(--spacing-xs) var(--spacing-sm) !important;
     font-size: 0.8rem !important;
     width: auto !important;
+}
+
+/* Icon buttons */
+.icon-btn {
+    width: auto !important;
+    padding: var(--spacing-sm) !important;
+    aspect-ratio: 1;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-lg);
+}
+
+.icon-btn.round {
+    border-radius: 50%;
 }

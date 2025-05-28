@@ -13,6 +13,10 @@ import {
 import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
+import ThemeManager from './theme-manager.js';
+
+// Inicializar el gestor de temas
+let themeManager = null;
 
 // --- Utility Functions ---
 /**
@@ -46,6 +50,11 @@ let currentHistoryPageNumber = 1;
 // --- App Initialization triggered by Auth ---
 export async function initializeAppAfterAuth(user) {
     if (user) {
+        // Inicializar el theme manager solo una vez
+        if (!themeManager) {
+            themeManager = new ThemeManager();
+        }
+        
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user);
         checkAndOfferResumeSession();
@@ -827,6 +836,14 @@ if (manageRoutinesElements.initializeSampleRoutinesBtn) {
 // PWA Service Worker and Storage Manager Initialization
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
+        // Initialize theme manager first for immediate UI theming
+        try {
+            themeManager = new ThemeManager();
+            console.log('Theme manager initialized');
+        } catch (error) {
+            console.error('Theme manager initialization failed:', error);
+        }
+
         // Initialize version control first - this handles app updates and cache management
         try {
             const versionResult = await initVersionControl();
@@ -858,8 +875,7 @@ if ('serviceWorker' in navigator) {
                 }
             });
     });
-    
-    // Add an error handler for Firestore connection errors
+      // Add an error handler for Firestore connection errors
     window.addEventListener('error', function(event) {
         const errorText = event.message || '';
         if (errorText.includes('ERR_BLOCKED_BY_CLIENT') || 
@@ -867,6 +883,16 @@ if ('serviceWorker' in navigator) {
             console.warn('Detected possible content blocker interfering with Firebase connections. ' +
                         'This may affect app functionality.');
             // You could show a notification to the user here if needed
+        }
+    });
+} else {
+    // Si no hay service worker disponible, inicializar el theme manager inmediatamente
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            themeManager = new ThemeManager();
+            console.log('Theme manager initialized (fallback)');
+        } catch (error) {
+            console.error('Theme manager initialization failed:', error);
         }
     });
 }
@@ -1179,5 +1205,12 @@ if (forceUpdateBtn) {
         }
     });
 }
+
+// Inicializar el theme manager inmediatamente cuando se carga el script
+document.addEventListener('DOMContentLoaded', () => {
+    if (!themeManager) {
+        themeManager = new ThemeManager();
+    }
+});
 
 showView('auth');

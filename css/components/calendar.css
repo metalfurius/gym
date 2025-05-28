@@ -7,8 +7,9 @@
 #activity-calendar-container h3 {
     font-size: 1.2rem;
     margin-bottom: var(--spacing-md);
-    color: var(--primary-color);
-    text-align: center; /* Centrar el título para mejor presentación mensual */
+    color: var(--text-color);
+    text-align: center;
+    font-weight: 600;
 }
 
 .calendar-controls {
@@ -28,80 +29,83 @@
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    background-color: var(--nav-button-bg); /* Reutiliza variable de nav para consistencia */
-    color: var(--primary-color);
-    border: none;
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--border-color);
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
 }
 
 .calendar-controls button:hover {
-    background-color: rgba(67, 97, 238, 0.1); /* Color primario con opacidad */
+    background-color: var(--button-secondary-hover-bg);
+    color: var(--button-secondary-hover-text);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .calendar-controls #current-month-display {
     font-weight: 600;
     font-size: 1.1rem;
-    color: var(--primary-color);
-    min-width: 140px; /* Aumentado para acomodar "Enero 2025" */
+    color: var(--text-color);
+    min-width: 140px;
     text-align: center;
 }
 
 #activity-calendar {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* Exactamente 7 columnas para los días de la semana */
+    grid-template-columns: repeat(7, 1fr);
     gap: 3px;
     padding: var(--spacing-md);
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     max-width: 100%;
-    max-height: none; /* Removido el límite de altura para vista mensual */
+    max-height: none;
 }
 
 #activity-calendar .day-cell {
     aspect-ratio: 1 / 1;
-    min-width: 32px; /* Aumentado para mejor legibilidad del número del día */
+    min-width: 32px;
     min-height: 32px;
-    background-color: #eef0f2; /* Color base para celdas vacías */
-    border-radius: 4px; /* Ligeramente más redondeado */
+    background-color: var(--calendar-inactive-bg, #eef0f2);
+    border-radius: 4px;
     cursor: default;
     transition: transform 0.2s ease-out;
-    font-size: 12px; /* Aumentado para mostrar los números de días */
+    font-size: 12px;
     font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #333; /* Color del texto para los números */
+    color: var(--text-color);
 }
 
 #activity-calendar .day-cell:hover:not(.is-placeholder):not(.level-0) {
     transform: scale(1.3);
     z-index: 10;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-md);
 }
 
 /* Niveles de actividad del calendario */
 #activity-calendar .day-cell.level-0 {
-    background-color: #eef0f2;
+    background-color: var(--calendar-inactive-bg, #eef0f2);
 }
 
 #activity-calendar .day-cell.level-1 {
-    background-color: var(--light-green-color);
+    background-color: var(--calendar-level-1, #c6f6d5);
 }
 
 #activity-calendar .day-cell.level-2 {
-    background-color: #7b92ff; /* Un azul intermedio */
+    background-color: var(--calendar-level-2, #9ae6b4);
 }
 
 #activity-calendar .day-cell.level-3 {
-    background-color: #5465ff; /* Un azul más oscuro */
+    background-color: var(--calendar-level-3, #68d391);
 }
 
 #activity-calendar .day-cell.level-4 {
-    background-color: var(--dark-green-color); /* El color más oscuro para mayor actividad */
+    background-color: var(--calendar-level-4, #38a169);
 }
 
 #activity-calendar .day-cell.is-placeholder {
@@ -110,8 +114,8 @@
     cursor: default;
 }
 
-#activity-calendar .day-cell.is-today { /* Para resaltar el día actual */
-    outline: 2px solid var(--secondary-color);
+#activity-calendar .day-cell.is-today {
+    outline: 2px solid var(--accent-color);
     outline-offset: 1px;
 }
 
@@ -121,7 +125,7 @@
     min-width: 32px;
     min-height: 32px;
     background-color: var(--primary-color);
-    color: white;
+    color: var(--button-text);
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
