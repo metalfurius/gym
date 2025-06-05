@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<head>    <meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2c3e50" />
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS Desglosado -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">    <!-- CSS Desglosado -->
     <link rel="stylesheet" href="css/components/variables.css">
     <link rel="stylesheet" href="css/components/base.css">
     <link rel="stylesheet" href="css/components/header.css">
-    <link rel="stylesheet" href="css/components/layout.css">    <link rel="stylesheet" href="css/components/forms.css">
+    <link rel="stylesheet" href="css/components/layout.css">
+    <link rel="stylesheet" href="css/components/forms.css">
     <link rel="stylesheet" href="css/components/buttons.css">
     <link rel="stylesheet" href="css/components/auth.css">
     <link rel="stylesheet" href="css/components/footer.css">
     <link rel="stylesheet" href="css/components/spinner.css">
-    <link rel="stylesheet" href="css/components/calendar.css">    <link rel="stylesheet" href="css/components/modal.css">
-    <link rel="stylesheet" href="css/user-weight.css">    <link rel="stylesheet" href="css/components/scroll-to-top.css">
+    <link rel="stylesheet" href="css/components/calendar.css">
+    <link rel="stylesheet" href="css/components/modal.css">
+    <link rel="stylesheet" href="css/user-weight.css">
+    <link rel="stylesheet" href="css/components/scroll-to-top.css">
     <link rel="stylesheet" href="css/components/history.css">
     <link rel="stylesheet" href="css/components/routines.css">
-    <link rel="stylesheet" href="css/components/responsive.css"><link rel="manifest" href="manifest.json">    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="stylesheet" href="css/components/exercise-cache.css">
+    <link rel="stylesheet" href="css/components/responsive.css">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
     
     <!-- Preload critical JavaScript -->
     <link rel="preload" href="js/app.js" as="script">
@@ -31,7 +38,8 @@
     <title>My Workout Tracker</title>
 </head>
 
-<body>    <header>
+<body>
+    <header>
         <div class="header-content">
             <div class="header-brand">
                 <div class="header-logo">💪</div>
@@ -95,25 +103,25 @@
                     <!-- Las celdas del calendario se generarán aquí -->
                 </div>
                 <div id="calendar-loading-spinner" class="spinner hidden" style="margin-top:10px;"></div>
-            </div>
-
-            <label for="day-select">Elige una rutina para hoy:</label>
+            </div>            <label for="day-select">Elige una rutina para hoy:</label>
             <select id="day-select">
                 <option value="">-- Cargando rutinas... --</option>
             </select>
-            <button id="start-session-btn" disabled>Iniciar Nueva Sesión</button>
-            <button id="manage-routines-link-btn" class="ghost" style="margin-top: 15px; width: 100%;">Gestionar Mis
+            
+            <button id="start-session-btn" disabled>Iniciar Nueva Sesión</button>            <button id="manage-routines-link-btn" class="ghost" style="margin-top: 15px; width: 100%;">Gestionar Mis
                 Rutinas</button>
-        </section>        <!-- Session View -->
+            <button id="exercise-stats-btn" class="ghost" style="margin-top: 10px; width: 100%;">📊 Ver Estadísticas de Ejercicios</button>
+        </section><!-- Session View -->
         <section id="session-view" class="hidden">
             <h2 id="session-title"></h2>
             <form id="session-form">
                 <div id="exercise-list"></div>
                 <button type="button" id="save-session-btn">Guardar Sesión</button>
                 <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;">Cancelar
-                    Sesión</button>
-            </form>
-        </section>        <!-- History View -->
+                    Sesión</button>            </form>
+        </section>
+        
+        <!-- History View -->
         <section id="history-view" class="hidden">
             <h2>Historial de Sesiones</h2>
             

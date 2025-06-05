@@ -70,6 +70,10 @@ export async function initializeAppAfterAuth(user) {
         
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user);
+        
+        // Inicializar cache de ejercicios
+        await initializeExerciseCache(user);
+        
         checkAndOfferResumeSession();
         
         // Inicializar calendario con el mes actual - con un pequeño delay para asegurar DOM ready
@@ -135,6 +139,40 @@ export async function initializeUserRoutines(user, isNewUser = false) {
     }
 }
 
+// Initializes exercise cache for the user
+async function initializeExerciseCache(user) {
+    if (!user) return;
+      try {
+        const { exerciseCache } = await import('./exercise-cache.js');
+          // Limpiar entradas antiguas
+        exerciseCache.cleanOldEntries();
+        
+        // Verificar y reconstruir automáticamente el cache si es necesario
+        const wasRebuilt = await exerciseCache.validateAndRebuildCache(user.uid, db);
+        
+        if (!wasRebuilt) {
+            // Si no se reconstruyó, intentar restaurar desde Firebase backup si el cache local está vacío
+            const stats = exerciseCache.getCacheStats();
+            
+            if (stats.exerciseCount === 0) {
+                const restored = await exerciseCache.restoreFromFirebase(user.uid, db);
+                
+                if (!restored) {
+                    // Si no hay backup en Firebase, construir cache desde historial existente
+                    await exerciseCache.buildCacheFromHistory(user.uid, db);
+                }
+            }
+        }
+          // Sincronizar con Firebase en segundo plano (sin bloquear)
+        exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
+            console.warn('Error en sincronización inicial del cache:', error);
+        });
+        
+    } catch (error) {
+        console.error('❌ Error inicializando cache de ejercicios:', error);
+    }
+}
+
 
 async function fetchUserRoutines(user) {
     if (!user) {
@@ -171,15 +209,14 @@ function checkAndOfferResumeSession() {
     const resumeArea = dashboardElements.resumeSessionArea; // Asumiendo que lo tienes en dashboardElements
 
     if (inProgress && user) {
-        const routine = currentUserRoutines.find(r => r.id === inProgress.routineId);
-        if (routine) {
+        const routine = currentUserRoutines.find(r => r.id === inProgress.routineId);        if (routine) {
             dashboardElements.resumeSessionInfo.textContent = `Tienes una sesión de "${routine.name}" sin guardar.`;
             dashboardElements.resumeSessionBtn.classList.remove('hidden');
             resumeArea.classList.add('visible'); // <<< AÑADIR CLASE VISIBLE
-
-            dashboardElements.resumeSessionBtn.onclick = () => {
+            
+            dashboardElements.resumeSessionBtn.onclick = async () => {
                 currentRoutineForSession = routine;
-                renderSessionView(routine, inProgress.data);
+                await renderSessionView(routine, inProgress.data);
                 dashboardElements.resumeSessionBtn.classList.add('hidden');
                 dashboardElements.resumeSessionInfo.textContent = '';
                 resumeArea.classList.remove('visible'); // <<< QUITAR CLASE VISIBLE
@@ -218,21 +255,41 @@ navButtons.logout.addEventListener('click', handleLogout);
 
 
 // Dashboard
-dashboardElements.daySelect.addEventListener('change', () => {
-    dashboardElements.startSessionBtn.disabled = !dashboardElements.daySelect.value;
-});
-dashboardElements.manageRoutinesLinkBtn.addEventListener('click', () => {
-    navButtons.manageRoutines.click(); // Simulate click on nav button
-});
-
-dashboardElements.startSessionBtn.addEventListener('click', () => {
-    const selectedRoutineId = dashboardElements.daySelect.value;
-    if (selectedRoutineId) {
-        const selectedRoutine = currentUserRoutines.find(r => r.id === selectedRoutineId);
-        if (!selectedRoutine) {
-            alert("Rutina no encontrada. Por favor, selecciona otra.");
-            return;
+if (dashboardElements.daySelect) {
+    dashboardElements.daySelect.addEventListener('change', () => {
+        if (dashboardElements.startSessionBtn) {
+            dashboardElements.startSessionBtn.disabled = !dashboardElements.daySelect.value;
         }
+    });
+} else {
+    console.error('Dashboard day select element not found');
+}
+
+if (dashboardElements.manageRoutinesLinkBtn) {
+    dashboardElements.manageRoutinesLinkBtn.addEventListener('click', () => {
+        navButtons.manageRoutines.click(); // Simulate click on nav button
+    });
+} else {
+    console.error('Manage routines link button not found');
+}
+
+if (dashboardElements.exerciseStatsBtn) {
+    dashboardElements.exerciseStatsBtn.addEventListener('click', async () => {
+        await showExerciseStats();
+    });
+} else {
+    console.error('Exercise stats button not found');
+}
+
+if (dashboardElements.startSessionBtn) {
+    dashboardElements.startSessionBtn.addEventListener('click', () => {
+        const selectedRoutineId = dashboardElements.daySelect.value;
+        if (selectedRoutineId) {
+            const selectedRoutine = currentUserRoutines.find(r => r.id === selectedRoutineId);
+            if (!selectedRoutine) {
+                alert("Rutina no encontrada. Por favor, selecciona otra.");
+                return;
+            }
 
         const inProgress = loadInProgressSession();
         if (inProgress && inProgress.routineId !== selectedRoutineId) {
@@ -240,29 +297,45 @@ dashboardElements.startSessionBtn.addEventListener('click', () => {
                 return;
             }
             clearInProgressSession();
-        }
-        currentRoutineForSession = selectedRoutine;
+        }        currentRoutineForSession = selectedRoutine;
         renderSessionView(selectedRoutine, inProgress && inProgress.routineId === selectedRoutineId ? inProgress.data : null);
         dashboardElements.resumeSessionBtn.classList.add('hidden');
         dashboardElements.resumeSessionInfo.textContent = '';
     }
 });
+} else {
+    console.error('Start session button not found');
+}
 
 // Session
-sessionElements.saveBtn.addEventListener('click', saveSessionData);
-sessionElements.cancelBtn.addEventListener('click', () => {
-    if (confirm("¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.")) {
-        sessionElements.form.reset();
-        clearInProgressSession();
-        currentRoutineForSession = null;
-        showView('dashboard');
-    }
-});
-sessionElements.exerciseList.addEventListener('input', () => {
-    if (!currentRoutineForSession) return;
-    const formData = getSessionFormData();
-    saveInProgressSession(currentRoutineForSession.id, formData);
-});
+if (sessionElements.saveBtn) {
+    sessionElements.saveBtn.addEventListener('click', saveSessionData);
+} else {
+    console.error('Session save button not found');
+}
+
+if (sessionElements.cancelBtn) {
+    sessionElements.cancelBtn.addEventListener('click', () => {
+        if (confirm("¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.")) {
+            sessionElements.form.reset();
+            clearInProgressSession();
+            currentRoutineForSession = null;
+            showView('dashboard');
+        }
+    });
+} else {
+    console.error('Session cancel button not found');
+}
+
+if (sessionElements.exerciseList) {
+    sessionElements.exerciseList.addEventListener('input', () => {
+        if (!currentRoutineForSession) return;
+        const formData = getSessionFormData();
+        saveInProgressSession(currentRoutineForSession.id, formData);
+    });
+} else {
+    console.error('Session exercise list not found');
+}
 
 function getSessionFormData() {
     if (!currentRoutineForSession) return {};
@@ -350,18 +423,23 @@ async function saveSessionData(event) {
         userId: user.uid,
         ejercicios: sessionDataFromForm.ejercicios,
         pesoUsuario: sessionDataFromForm.pesoUsuario ? parseFloat(sessionDataFromForm.pesoUsuario) : null
-    };
-
-    showLoading(sessionElements.saveBtn, 'Guardando...');
+    };    showLoading(sessionElements.saveBtn, 'Guardando...');
     try {
         const userSessionsCollectionRef = collection(db, "users", user.uid, "sesiones_entrenamiento");
-        await addDoc(userSessionsCollectionRef, finalSessionData);
+        await addDoc(userSessionsCollectionRef, finalSessionData);        // Actualizar cache de ejercicios con los datos de la nueva sesión
+        const { exerciseCache } = await import('./exercise-cache.js');        exerciseCache.processCompletedSession(finalSessionData);
+        
+        // Sincronizar cache con Firebase para backup (sin bloquear el flujo)
+        exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
+            console.warn('Error sincronizando cache de ejercicios:', error);
+        });
+        
         alert("¡Sesión guardada con éxito!");
         sessionElements.form.reset();
         clearInProgressSession();
         currentRoutineForSession = null;
         showView('dashboard');
-        fetchAndRenderHistory();    } catch (e) {
+        fetchAndRenderHistory();} catch (e) {
         console.error("Error adding document: ", e);
         alert("Error al guardar la sesión.");
         // Load diagnostics on Firestore errors
@@ -585,14 +663,29 @@ if (historyElements.nextPageBtn) {
     historyElements.nextPageBtn.addEventListener('click', () => fetchAndRenderHistory('next'));
 }
 
-sessionDetailModal.closeBtn.addEventListener('click', hideSessionDetail);
-window.addEventListener('click', (event) => { if (event.target === sessionDetailModal.modal) hideSessionDetail(); });
+if (sessionDetailModal.closeBtn) {
+    sessionDetailModal.closeBtn.addEventListener('click', hideSessionDetail);
+} else {
+    console.error('Session detail modal close button not found');
+}
+
+if (sessionDetailModal.modal) {
+    window.addEventListener('click', (event) => { 
+        if (event.target === sessionDetailModal.modal) hideSessionDetail(); 
+    });
+} else {
+    console.error('Session detail modal not found');
+}
 
 
 // Manage Routines View Listeners
-manageRoutinesElements.addNewBtn.addEventListener('click', () => {
-    renderRoutineEditor(null); // null for new routine
-});
+if (manageRoutinesElements.addNewBtn) {
+    manageRoutinesElements.addNewBtn.addEventListener('click', () => {
+        renderRoutineEditor(null); // null for new routine
+    });
+} else {
+    console.error('Add new routine button not found');
+}
 
 // Event listener for edit clicks bubbled up from ui.js
 document.addEventListener('editRoutineClicked', (event) => {
@@ -935,7 +1028,6 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-
 // Función para obtener los datos de actividad del mes (optimizada para cargar solo el mes necesario)
 async function getMonthlyActivity(userId, year, month) {
     const loadingSpinner = document.getElementById('calendar-loading-spinner');
@@ -1261,3 +1353,181 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 showView('auth');
+
+// Show exercise statistics modal
+async function showExerciseStats() {
+    try {
+        const { exerciseCache } = await import('./exercise-cache.js');
+        const cacheStats = exerciseCache.getCacheStats();
+        const fullCache = exerciseCache.exportCache();
+        
+        let statsHTML = `
+            <div class="stats-modal">
+                <div class="stats-header">
+                    <h3>📊 Estadísticas de Ejercicios</h3>
+                    <p>Resumen de tu progreso y historial de entrenamientos</p>
+                </div>
+                
+                <div class="stats-summary">
+                    <div class="stat-card">
+                        <div class="stat-number">${cacheStats.exerciseCount}</div>
+                        <div class="stat-label">Ejercicios registrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${cacheStats.totalEntries}</div>
+                        <div class="stat-label">Registros totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${cacheStats.oldestEntry ? Math.floor((Date.now() - cacheStats.oldestEntry.getTime()) / (1000 * 60 * 60 * 24)) : 0}</div>
+                        <div class="stat-label">Días de historial</div>
+                    </div>
+                </div>
+                
+                <div class="exercises-breakdown">
+                    <h4>Progreso por Ejercicio</h4>
+                    <div class="exercise-list">
+        `;
+          // Add individual exercise stats
+        const exercises = Object.keys(fullCache);
+        if (exercises.length > 0) {
+            exercises.forEach(exerciseKey => {
+                const exercise = fullCache[exerciseKey];
+                if (exercise.history && exercise.history.length > 0) {
+                    statsHTML += `
+                        <div class="exercise-stat-row">
+                            <div class="exercise-name">${exercise.originalName}</div>
+                            <div class="exercise-sessions">${exercise.history.length} sesiones</div>
+                        </div>
+                    `;
+                }
+            });
+        } else {
+            statsHTML += '<p class="no-data">No hay datos de ejercicios todavía. ¡Empieza a entrenar para ver tus estadísticas!</p>';
+        }
+        
+        statsHTML += `
+                    </div>
+                </div>
+                
+                <div class="cache-info">
+                    <h4>Información del Cache</h4>
+                    <p><strong>Tamaño del cache:</strong> ${Math.round(cacheStats.cacheSize / 1024)} KB</p>
+                    ${cacheStats.newestEntry ? `<p><strong>Última actualización:</strong> ${formatDate(cacheStats.newestEntry)}</p>` : ''}
+                </div>
+                
+                <div class="stats-actions">
+                    <button onclick="this.closest('.stats-modal').remove()" class="btn btn-primary">Cerrar</button>
+                </div>
+            </div>
+        `;
+          // Create and show modal
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay stats-modal-overlay';
+        overlay.tabIndex = -1; // Make it focusable
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        overlay.innerHTML = statsHTML;
+        
+        // Prevent scrolling on background
+        document.body.style.overflow = 'hidden';
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+        });
+        
+        // Close on Escape key
+        overlay.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                overlay.remove();
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+        });
+        
+        // Also add close functionality to the close button to restore scrolling
+        const closeBtn = overlay.querySelector('button');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            });
+        }
+        
+        document.body.appendChild(overlay);
+        
+        // Focus the overlay to capture keyboard events and prevent background scrolling
+        overlay.focus();
+        
+    } catch (error) {
+        console.error('Error showing exercise stats:', error);
+        alert('Error al cargar las estadísticas de ejercicios.');
+    }
+}
+
+// Test function to add sample exercise data to cache (for debugging)
+async function addTestExerciseData() {
+    try {
+        const { exerciseCache } = await import('./exercise-cache.js');
+        
+        // Sample exercise data
+        const testData = [
+            {
+                exerciseName: 'Press Banca',
+                sets: [
+                    { peso: 60, reps: 10 },
+                    { peso: 65, reps: 8 },
+                    { peso: 70, reps: 6 }
+                ],
+                date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+            },
+            {
+                exerciseName: 'Sentadillas',
+                sets: [
+                    { peso: 80, reps: 12 },
+                    { peso: 85, reps: 10 },
+                    { peso: 90, reps: 8 }
+                ],
+                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
+            },
+            {
+                exerciseName: 'Peso Muerto',
+                sets: [
+                    { peso: 100, reps: 5 },
+                    { peso: 105, reps: 5 },
+                    { peso: 110, reps: 3 }
+                ],
+                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+            }
+        ];
+        
+        testData.forEach(data => {
+            exerciseCache.addExerciseData(data.exerciseName, data.sets, data.date);
+        });
+        
+        console.log('✅ Test data added to exercise cache');
+        const stats = exerciseCache.getCacheStats();
+        console.log('📊 Updated cache stats:', stats);
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Error adding test data:', error);
+        return false;
+    }
+}
+
+// Make function available globally for testing
+window.addTestExerciseData = addTestExerciseData;

@@ -1,0 +1,388 @@
+/* Exercise Cache Components */
+
+/* Last workout information display */
+.last-workout-info {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 0.9em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.last-workout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.last-workout-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95em;
+}
+
+.workout-time-ago {
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+.last-workout-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.last-set {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Exercise suggestions in input placeholders */
+.exercise-suggestion {
+    background: rgba(67, 97, 238, 0.05);
+    border: 1px dashed var(--accent-color);
+    border-radius: 4px;
+    padding: 8px;
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.suggestion-label {
+    font-weight: 500;
+    color: var(--accent-color);
+    margin-right: 5px;
+}
+
+/* Enhanced input fields with suggestions */
+.set-row input[data-suggestion]::placeholder {
+    color: var(--accent-color);
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* Cache status indicator */
+.cache-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--success-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.cache-status.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.cache-status.error {
+    background: var(--error-color);
+}
+
+/* No history state */
+.no-exercise-history {
+    background: rgba(108, 117, 125, 0.1);
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    margin: 8px 0;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+/* Progress indicator for exercises */
+.exercise-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+}
+
+.progress-badge {
+    background: var(--success-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 500;
+}
+
+.progress-badge.improvement {
+    background: var(--success-color);
+}
+
+.progress-badge.maintained {
+    background: var(--warning-color);
+}
+
+.progress-badge.declined {
+    background: var(--error-color);
+}
+
+/* Exercise Statistics Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.stats-modal {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+}
+
+.stats-header {
+    text-align: center;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+}
+
+.stats-header h3 {
+    margin: 0 0 8px 0;
+    color: var(--accent-color);
+    font-size: 1.5em;
+}
+
+.stats-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--accent-color);
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.exercises-breakdown {
+    margin-bottom: 24px;
+}
+
+.exercises-breakdown h4 {
+    margin: 0 0 16px 0;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.exercise-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.exercise-stat-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.exercise-stat-row:last-child {
+    border-bottom: none;
+}
+
+.exercise-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.exercise-sessions {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.exercise-progress {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.85em;
+}
+
+.exercise-progress.positive {
+    background: var(--success-color);
+    color: white;
+}
+
+.exercise-progress.negative {
+    background: var(--error-color);
+    color: white;
+}
+
+.exercise-progress.neutral {
+    background: var(--warning-color);
+    color: white;
+}
+
+.cache-info {
+    background: rgba(108, 117, 125, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.cache-info h4 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+}
+
+.cache-info p {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.cache-info p:last-child {
+    margin-bottom: 0;
+}
+
+.stats-actions {
+    text-align: center;
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 24px;
+}
+
+/* Modal overlay styles for exercise stats */
+.stats-modal-overlay {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(3px);
+    outline: none; /* Remove focus outline */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .last-workout-info {
+        padding: 10px;
+        margin: 8px 0;
+    }
+    
+    .last-workout-details {
+        gap: 6px;
+    }
+    
+    .last-set {
+        font-size: 0.8em;
+        padding: 3px 6px;
+    }
+    
+    .cache-status {
+        bottom: 15px;
+        right: 15px;
+        font-size: 0.75em;
+        padding: 6px 10px;
+    }
+
+    .stats-modal {
+        width: 95%;
+        padding: 16px;
+        max-height: 85vh;
+    }
+    
+    .stats-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .exercise-stat-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.5em;
+    }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .last-workout-info {
+    background: var(--card-bg-dark);
+    border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .exercise-suggestion {
+    background: rgba(67, 97, 238, 0.1);
+    border-color: rgba(67, 97, 238, 0.3);
+}
+
+[data-theme="dark"] .no-exercise-history {
+    background: rgba(108, 117, 125, 0.05);
+    border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .stats-modal {
+    background: var(--card-bg-dark);
+}
+
+[data-theme="dark"] .cache-info {
+    background: rgba(108, 117, 125, 0.05);
+}
+
+[data-theme="dark"] .stats-modal-overlay {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
