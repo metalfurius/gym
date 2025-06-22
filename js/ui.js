@@ -407,7 +407,7 @@ export async function renderSessionView(routine, inProgressData = null) {
 
 
         const notesLabel = document.createElement('label');
-        notesLabel.textContent = "Notas:";
+        notesLabel.textContent = "Notas de la sesión:";
         notesLabel.htmlFor = `notes-${exerciseIndex}`;
         notesLabel.style.marginTop = '10px';
         exerciseBlock.appendChild(notesLabel);
@@ -417,9 +417,15 @@ export async function renderSessionView(routine, inProgressData = null) {
         notesTextarea.name = `notes-${exerciseIndex}`;
         notesTextarea.placeholder = exercise.type === 'cardio' ? 'Ej: 20 min a 140bpm, o 5km en 25 min...' : 'Añade notas sobre este ejercicio...';
         notesTextarea.className = 'exercise-notes';
-        if (inProgressData?.ejercicios[exerciseIndex]) {
-            notesTextarea.value = inProgressData.ejercicios[exerciseIndex].notasEjercicio || '';
-        }        exerciseBlock.appendChild(notesTextarea);
+        
+        // Pre-rellenar con notas de una sesión en progreso, o usar las notas de la rutina como base.
+        if (inProgressData?.ejercicios[exerciseIndex]?.notasEjercicio) {
+            notesTextarea.value = inProgressData.ejercicios[exerciseIndex].notasEjercicio;
+        } else if (exercise.notes) {
+            notesTextarea.value = exercise.notes;
+        }
+        
+        exerciseBlock.appendChild(notesTextarea);
         sessionElements.exerciseList.appendChild(exerciseBlock);
     }
     showView('session');
