@@ -14,6 +14,7 @@ import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, cl
 import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
+import { initSetTimers, clearTimerData } from './timer.js';
 
 // Conditional loading of firebase diagnostics
 let diagnosticsLoaded = false;
@@ -319,6 +320,8 @@ if (sessionElements.cancelBtn) {
         if (confirm("¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.")) {
             sessionElements.form.reset();
             clearInProgressSession();
+            // Limpiar los datos del temporizador
+            clearTimerData();
             currentRoutineForSession = null;
             showView('dashboard');
         }
@@ -328,10 +331,22 @@ if (sessionElements.cancelBtn) {
 }
 
 if (sessionElements.exerciseList) {
+    // Listen for input events to save form data
     sessionElements.exerciseList.addEventListener('input', () => {
         if (!currentRoutineForSession) return;
         const formData = getSessionFormData();
         saveInProgressSession(currentRoutineForSession.id, formData);
+    });
+    
+    // Listen for timer events to save timer data
+    sessionElements.exerciseList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('timer-button') && currentRoutineForSession) {
+            // Add a small delay to let the timer update
+            setTimeout(() => {
+                const formData = getSessionFormData();
+                saveInProgressSession(currentRoutineForSession.id, formData);
+            }, 100);
+        }
     });
 } else {
     console.error('Session exercise list not found');
@@ -388,7 +403,9 @@ function getSessionFormData() {
                     
                     exerciseEntry.sets.push({
                         peso: peso,
-                        reps: parseInt(repsInput.value, 10) || 0
+                        reps: parseInt(repsInput.value, 10) || 0,
+                        // Add the timer data if it exists
+                        tiempoDescanso: document.getElementById(`timer-display-${exerciseIndex}-${setIndex}`)?.textContent || '00:00'
                     });
                 }
             });
@@ -437,6 +454,8 @@ async function saveSessionData(event) {
         alert("¡Sesión guardada con éxito!");
         sessionElements.form.reset();
         clearInProgressSession();
+        // Limpiar los datos del temporizador
+        clearTimerData();
         currentRoutineForSession = null;
         showView('dashboard');
         fetchAndRenderHistory();} catch (e) {

@@ -393,6 +393,35 @@ export async function renderSessionView(routine, inProgressData = null) {
                     repsInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].reps || '';
                 }
                 setRow.appendChild(repsInput);
+                
+                // If we have saved rest time data, restore it
+                if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]?.tiempoDescanso) {
+                    const timerDisplay = setRow.querySelector(`#timer-display-${exerciseIndex}-${i}`);
+                    if (timerDisplay) {
+                        timerDisplay.textContent = inProgressData.ejercicios[exerciseIndex].sets[i].tiempoDescanso;
+                    }
+                }
+                
+                // Add the set timer
+                const timerContainer = document.createElement('div');
+                timerContainer.className = 'set-timer';
+                timerContainer.dataset.timerId = `${exerciseIndex}-${i}`;
+                
+                const timerDisplay = document.createElement('div');
+                timerDisplay.id = `timer-display-${exerciseIndex}-${i}`;
+                timerDisplay.className = 'timer-display';
+                timerDisplay.textContent = '00:00';
+                timerContainer.appendChild(timerDisplay);
+                
+                const timerButton = document.createElement('button');
+                timerButton.id = `timer-button-${exerciseIndex}-${i}`;
+                timerButton.className = 'timer-button';
+                timerButton.type = 'button';
+                timerButton.dataset.timerId = `${exerciseIndex}-${i}`;
+                timerButton.textContent = 'Iniciar';
+                timerContainer.appendChild(timerButton);
+                
+                setRow.appendChild(timerContainer);
                 exerciseBlock.appendChild(setRow);
             }
         } else if (exercise.type === 'cardio') {
@@ -429,6 +458,11 @@ export async function renderSessionView(routine, inProgressData = null) {
         sessionElements.exerciseList.appendChild(exerciseBlock);
     }
     showView('session');
+    
+    // Initialize timers after the view is rendered
+    import('./timer.js').then(module => {
+        module.initSetTimers();
+    });
 }
 
 export function renderHistoryList(sessions) {
@@ -572,7 +606,14 @@ export function showSessionDetail(sessionData) {
                 
                 ex.sets.forEach((set, index) => {
                     const setLi = document.createElement('li');
-                    setLi.textContent = `Serie ${index + 1}: ${set.peso} kg × ${set.reps} repeticiones`;
+                    let setContent = `Serie ${index + 1}: ${set.peso} kg × ${set.reps} repeticiones`;
+                    
+                    // Add rest time if available
+                    if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
+                        setContent += ` <span class="rest-time-badge">⏱️ ${set.tiempoDescanso}</span>`;
+                    }
+                    
+                    setLi.innerHTML = setContent;
                     setsUl.appendChild(setLi);
                 });
                 

@@ -1,0 +1,52 @@
+.set-timer {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    font-size: 0.85rem;
+}
+
+.timer-display {
+    background-color: var(--bg-secondary);
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-right: 5px;
+    min-width: 60px;
+    text-align: center;
+    font-family: monospace;
+}
+
+.timer-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 5px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    transition: background-color 0.2s;
+}
+
+.timer-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.timer-button.running {
+    background-color: #e74c3c;
+}
+
+.timer-button.running:hover {
+    background-color: #c0392b;
+}
+
+/* Rest time badge in history view */
+.rest-time-badge {
+    display: inline-block;
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+    font-family: monospace;
+    vertical-align: middle;
+}
