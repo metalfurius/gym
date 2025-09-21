@@ -420,10 +420,558 @@
 #routine-list li:nth-child(8) { animation-delay: 0.35s; }
 #routine-list li:nth-child(9) { animation-delay: 0.4s; }
 
+/* ======================================
+   ESTILOS PARA EL EDITOR DE RUTINAS
+   ====================================== */
+
+/* Contenedor principal del editor de rutinas */
+#routine-editor-view {
+  padding: 1.5rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  position: relative;
+  background: var(--body-bg);
+  min-height: 100vh;
+}
+
+#routine-editor-view h2 {
+  margin-bottom: 2rem;
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+#routine-editor-view h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: var(--accent-gradient);
+  border-radius: 4px;
+}
+
+/* Formulario del editor con diseño moderno */
+#routine-editor-form {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+#routine-editor-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-gradient);
+}
+
+/* Campo de nombre de la rutina mejorado */
+#routine-editor-form > label:first-of-type {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1rem;
+  position: relative;
+}
+
+#routine-editor-form > label:first-of-type::before {
+  content: '📝';
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+#routine-name {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 1.1rem;
+  font-weight: 500;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+#routine-name:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--input-focus-shadow);
+  transform: translateY(-1px);
+}
+
+/* Fieldset moderno para ejercicios */
+#routine-editor-form fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: linear-gradient(135deg, var(--primary-light) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+#routine-editor-form legend {
+  background: var(--accent-gradient);
+  color: var(--primary-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  margin-bottom: 1.5rem;
+  border: none;
+}
+
+#routine-editor-form legend::before {
+  content: '🏋️';
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Contenedor de ejercicios con mejor espaciado */
+#routine-exercises-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Cada editor de ejercicio individual */
+.routine-exercise-editor {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  position: relative;
+  transition: var(--transition-base);
+  border-left: 4px solid var(--primary-color);
+}
+
+.routine-exercise-editor:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Header del ejercicio */
+.exercise-header {
+  margin-bottom: 1rem;
+}
+
+.exercise-header label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.exercise-header label::before {
+  content: '🎯';
+  font-size: 1.1rem;
+}
+
+.exercise-header input {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.875rem;
+  border: 2px solid var(--border-color);
+}
+
+.exercise-header input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--input-focus-shadow);
+}
+
+/* Selector de tipo de ejercicio */
+.exercise-type-selector {
+  margin-bottom: 1.5rem;
+}
+
+.exercise-type-selector label {
+  color: var(--text-secondary-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.exercise-type-selector select {
+  padding: 0.875rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 2px solid var(--border-color);
+  background-color: var(--input-bg);
+}
+
+.exercise-type-selector select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--input-focus-shadow);
+}
+
+/* Campos de ejercicio con headers */
+.exercise-fields {
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(var(--primary-rgb), 0.08) 100%);
+  border-radius: var(--border-radius-md);
+  padding: 1.25rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(var(--primary-rgb), 0.15);
+  position: relative;
+}
+
+.field-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+}
+
+.field-group-icon {
+  font-size: 1.2rem;
+}
+
+.field-group-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 0.95rem;
+}
+
+/* Form fields individuales */
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  margin-top: 0 !important;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-field input {
+  margin-bottom: 0;
+}
+
+/* Sección de notas */
+.exercise-notes {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.exercise-notes label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary-color);
+  font-weight: 600;
+}
+
+.exercise-notes label::before {
+  content: '📝';
+  font-size: 1rem;
+}
+
+.exercise-notes textarea {
+  margin-bottom: 0;
+  background: rgba(var(--primary-rgb), 0.02);
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
+}
+
+/* Botón de eliminar ejercicio mejorado */
+.remove-exercise-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+}
+
+.remove-exercise-btn:hover {
+  background: var(--danger-hover-color);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+/* Labels mejorados para campos de ejercicio */
+.routine-exercise-editor label {
+  display: block;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  font-size: 0.9rem;
+}
+
+.routine-exercise-editor label:first-of-type {
+  margin-top: 0;
+}
+
+/* Inputs y selects dentro del editor de ejercicios */
+.routine-exercise-editor input,
+.routine-exercise-editor select,
+.routine-exercise-editor textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 0.95rem;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-xs);
+}
+
+.routine-exercise-editor input:focus,
+.routine-exercise-editor select:focus,
+.routine-exercise-editor textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--input-focus-shadow);
+}
+
+/* Grid para campos de fuerza */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Campos específicos para fuerza y cardio */
+.strength-fields,
+.cardio-fields {
+  background: rgba(var(--primary-rgb), 0.05);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
+}
+
+.strength-fields label,
+.cardio-fields label {
+  margin-top: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Textarea para notas */
+.routine-exercise-editor textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: var(--font-sans-serif);
+}
+
+/* Botón de añadir ejercicio mejorado */
+#add-exercise-to-routine-btn {
+  background: var(--accent-gradient);
+  color: var(--primary-text);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  width: auto;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#add-exercise-to-routine-btn::before {
+  content: '➕';
+  font-size: 1.1rem;
+}
+
+#add-exercise-to-routine-btn:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Grupo de botones del formulario mejorado */
+.form-buttons-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-buttons-group button {
+  flex: 1;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+
+/* Botón guardar */
+#save-routine-btn {
+  background: var(--button-gradient);
+  color: var(--button-text);
+  border: none;
+}
+
+#save-routine-btn:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Botón cancelar */
+#cancel-edit-routine-btn {
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 2px solid var(--border-color);
+}
+
+#cancel-edit-routine-btn:hover {
+  background: var(--button-secondary-hover-bg);
+  color: var(--button-secondary-hover-text);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* Botón eliminar rutina */
+#delete-routine-btn {
+  background: var(--delete-button-bg);
+  color: var(--delete-button-color);
+  border: 2px solid var(--delete-button-border);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  transition: var(--transition-base);
+  cursor: pointer;
+  margin-top: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+#delete-routine-btn:hover {
+  background: var(--delete-button-hover-bg);
+  color: var(--delete-button-hover-color);
+  border-color: var(--delete-button-hover-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Estados de carga para botones */
+.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animaciones de entrada y salida */
+.routine-exercise-editor {
+  animation: slideInUp 0.3s ease forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 500px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+
 /* Estilos responsive mejorados */
 @media (max-width: 1024px) {
   #routine-list {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  /* Editor de rutinas en tablets */
+  #routine-editor-view {
+    padding: 1rem;
+  }
+  
+  #routine-editor-form {
+    padding: 1.5rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 }
 
@@ -447,6 +995,46 @@
   
   .routine-actions {
     padding: 1.5rem;
+  }
+  
+  /* Editor de rutinas en móviles */
+  #routine-editor-view {
+    padding: 0.75rem;
+  }
+  
+  #routine-editor-form {
+    padding: 1rem;
+  }
+  
+  #routine-editor-view h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .routine-exercise-editor {
+    padding: 1rem;
+  }
+  
+  .remove-exercise-btn {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+  
+  .form-buttons-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .form-buttons-group button {
+    width: 100%;
+  }
+  
+  #add-exercise-to-routine-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
   }
 }
 
@@ -477,5 +1065,61 @@
   .routine-actions button {
     font-size: 0.85rem;
     padding: 0.75rem 1rem;
+  }
+  
+  /* Editor de rutinas en pantallas muy pequeñas */
+  #routine-editor-view {
+    padding: 0.5rem;
+  }
+  
+  #routine-editor-form {
+    padding: 0.75rem;
+    margin: 0;
+  }
+  
+  #routine-editor-view h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  #routine-editor-form legend {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .routine-exercise-editor {
+    padding: 0.75rem;
+  }
+  
+  .routine-exercise-editor label {
+    font-size: 0.85rem;
+  }
+  
+  .routine-exercise-editor input,
+  .routine-exercise-editor select,
+  .routine-exercise-editor textarea {
+    padding: 0.625rem;
+    font-size: 0.9rem;
+  }
+  
+  .strength-fields,
+  .cardio-fields {
+    padding: 0.75rem;
+    margin: 0.75rem 0;
+  }
+  
+  #add-exercise-to-routine-btn {
+    font-size: 0.9rem;
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .form-buttons-group button {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  #delete-routine-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
   }
 }

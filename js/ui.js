@@ -754,55 +754,86 @@ export function addExerciseToEditorForm(exerciseData = null) {
     let exerciseType = exerciseData?.type || 'strength';
 
     exerciseDiv.innerHTML = `
-        <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}">× Quitar</button>
-        <label for="ex-name-${exerciseEditorCounter}">Nombre del Ejercicio:</label>
-        <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${exerciseData?.name || ''}" required>
+        <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="Eliminar ejercicio">×</button>
+        
+        <div class="exercise-header">
+            <label for="ex-name-${exerciseEditorCounter}">Nombre del Ejercicio:</label>
+            <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${exerciseData?.name || ''}" required placeholder="Ej: Press de banca, Sentadillas...">
+        </div>
 
-        <label for="ex-type-${exerciseEditorCounter}">Tipo de Ejercicio:</label>
-        <select id="ex-type-${exerciseEditorCounter}" name="ex-type">
-            <option value="strength" ${exerciseType === 'strength' ? 'selected' : ''}>Fuerza (Series/Reps)</option>
-            <option value="cardio" ${exerciseType === 'cardio' ? 'selected' : ''}>Cardio (Duración)</option>
-        </select>
+        <div class="exercise-type-selector">
+            <label for="ex-type-${exerciseEditorCounter}">Tipo de Ejercicio:</label>
+            <select id="ex-type-${exerciseEditorCounter}" name="ex-type">
+                <option value="strength" ${exerciseType === 'strength' ? 'selected' : ''}>💪 Fuerza (Series/Reps)</option>
+                <option value="cardio" ${exerciseType === 'cardio' ? 'selected' : ''}>🏃 Cardio (Duración)</option>
+            </select>
+        </div>
 
-        <div class="strength-fields" style="display: ${exerciseType === 'strength' ? 'block' : 'none'};">
+        <div class="strength-fields exercise-fields" style="display: ${exerciseType === 'strength' ? 'block' : 'none'};">
+            <div class="field-group-header">
+                <span class="field-group-icon">🏋️</span>
+                <span class="field-group-title">Configuración de Fuerza</span>
+            </div>
             <div class="form-grid">
-                <div>
+                <div class="form-field">
                     <label for="ex-sets-${exerciseEditorCounter}">Series:</label>
-                    <input type="number" id="ex-sets-${exerciseEditorCounter}" name="ex-sets" min="0" value="${exerciseData?.sets || ''}">
+                    <input type="number" id="ex-sets-${exerciseEditorCounter}" name="ex-sets" min="0" value="${exerciseData?.sets || ''}" placeholder="3">
                 </div>
-                <div>
+                <div class="form-field">
                     <label for="ex-reps-${exerciseEditorCounter}">Reps/Objetivo:</label>
-                    <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${exerciseData?.reps || ''}">
+                    <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${exerciseData?.reps || ''}" placeholder="8-12">
                 </div>
             </div>
         </div>
-        <div class="cardio-fields" style="display: ${exerciseType === 'cardio' ? 'block' : 'none'};">
-            <label for="ex-duration-${exerciseEditorCounter}">Duración/Objetivo:</label>
-            <input type="text" id="ex-duration-${exerciseEditorCounter}" name="ex-duration" value="${exerciseData?.duration || ''}">
+        
+        <div class="cardio-fields exercise-fields" style="display: ${exerciseType === 'cardio' ? 'block' : 'none'};">
+            <div class="field-group-header">
+                <span class="field-group-icon">⏱️</span>
+                <span class="field-group-title">Configuración de Cardio</span>
+            </div>
+            <div class="form-field">
+                <label for="ex-duration-${exerciseEditorCounter}">Duración/Objetivo:</label>
+                <input type="text" id="ex-duration-${exerciseEditorCounter}" name="ex-duration" value="${exerciseData?.duration || ''}" placeholder="30 min, 5km, etc.">
+            </div>
         </div>
-        <label for="ex-notes-${exerciseEditorCounter}">Notas Adicionales (opcional):</label>
-        <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="Ej: usar agarre supino, aumentar peso la próxima vez...">${exerciseData?.notes || ''}</textarea>
+        
+        <div class="exercise-notes">
+            <label for="ex-notes-${exerciseEditorCounter}">Notas Adicionales (opcional):</label>
+            <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="${exerciseType === 'strength' ? 'Ej: usar agarre supino, aumentar peso la próxima vez, tempo 3-1-2...' : 'Ej: mantener ritmo constante, controlar frecuencia cardíaca...'}">${exerciseData?.notes || ''}</textarea>
+        </div>
     `;
+    
     routineEditorElements.exercisesContainer.appendChild(exerciseDiv);
 
+    // Event listeners
     const typeSelect = exerciseDiv.querySelector('select[name="ex-type"]');
     const strengthFields = exerciseDiv.querySelector('.strength-fields');
     const cardioFields = exerciseDiv.querySelector('.cardio-fields');
 
     typeSelect.addEventListener('change', (e) => {
+        const notesTextarea = exerciseDiv.querySelector('textarea[name="ex-notes"]');
+        
         if (e.target.value === 'strength') {
             strengthFields.style.display = 'block';
             cardioFields.style.display = 'none';
+            notesTextarea.placeholder = 'Ej: usar agarre supino, aumentar peso la próxima vez, tempo 3-1-2...';
         } else {
             strengthFields.style.display = 'none';
             cardioFields.style.display = 'block';
+            notesTextarea.placeholder = 'Ej: mantener ritmo constante, controlar frecuencia cardíaca...';
         }
     });
 
     const removeBtn = exerciseDiv.querySelector('.remove-exercise-btn');
     removeBtn.addEventListener('click', () => {
-        exerciseDiv.remove();
+        exerciseDiv.style.animation = 'slideOutUp 0.3s ease forwards';
+        setTimeout(() => {
+            exerciseDiv.remove();
+        }, 300);
     });
+    
+    // Animate the new exercise in
+    exerciseDiv.style.animation = 'slideInUp 0.3s ease forwards';
 }
 
 
