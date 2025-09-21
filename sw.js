@@ -31,7 +31,6 @@ const urlsToCache = [
   './css/components/responsive.css',  './js/app.js',
   './js/auth.js',
   './js/ui.js',
-  './js/store.js',
   './js/storage-manager.js',
   './js/version-manager.js',
   './js/firebase-config.js',

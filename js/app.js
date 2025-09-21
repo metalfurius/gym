@@ -10,7 +10,6 @@ import {
     manageRoutinesElements, routineEditorElements, showLoading, hideLoading,
     calendarElements, applyHistoryFilters 
 } from './ui.js';
-import { sampleWorkoutRoutines, saveInProgressSession, loadInProgressSession, clearInProgressSession } from './store.js';
 import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
@@ -31,6 +30,31 @@ export async function loadFirebaseDiagnostics() {
 
 // Inicializar el gestor de temas
 let themeManager = null;
+
+// --- Session Storage Functions (moved from store.js) ---
+const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
+
+export function saveInProgressSession(routineId, data) {
+    const sessionToStore = {
+        routineId: routineId,
+        data: data,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(sessionToStore));
+}
+
+export function loadInProgressSession() {
+    const storedSession = localStorage.getItem(IN_PROGRESS_SESSION_KEY);
+    if (storedSession) {
+        const parsed = JSON.parse(storedSession);
+        return parsed;
+    }
+    return null;
+}
+
+export function clearInProgressSession() {
+    localStorage.removeItem(IN_PROGRESS_SESSION_KEY);
+}
 
 // --- Utility Functions ---
 /**
@@ -101,42 +125,6 @@ export async function initializeAppAfterAuth(user) {
         manageRoutinesElements.list.innerHTML = '<li id="routines-loading">Cargando rutinas...</li>';
         const container = document.getElementById('activity-calendar-container');
         if (container) container.classList.add('hidden');
-    }
-}
-
-// Initializes sample routines for a new user or if none exist
-export async function initializeUserRoutines(user, isNewUser = false) {
-    if (!user) return;
-    const routinesCollectionRef = collection(db, "users", user.uid, "routines");
-    
-    // Check if user has any routines
-    const q = query(routinesCollectionRef);
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty || isNewUser) { // Add samples if no routines or new user
-        console.log("Initializing sample routines for user:", user.uid);
-        const batch = writeBatch(db);
-        for (const routineKey in sampleWorkoutRoutines) {
-            const sampleRoutine = sampleWorkoutRoutines[routineKey];
-            // Use routineKey (e.g., "A1_sample") as document ID for samples to avoid clashes if user creates "A1"
-            const routineDocRef = doc(db, "users", user.uid, "routines", routineKey);
-            batch.set(routineDocRef, {
-                name: sampleRoutine.name,
-                exercises: sampleRoutine.exercises,
-                isSample: true, // Mark as a sample
-                createdAt: Timestamp.now()
-            });
-        }        try {
-            await batch.commit();
-            console.log("Sample routines added.");
-            await fetchUserRoutines(user); // Re-fetch to update UI
-        } catch (error) {
-            console.error("Error adding sample routines: ", error);
-            // Load diagnostics on Firestore errors
-            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
-                loadFirebaseDiagnostics();
-            }
-        }
     }
 }
 
@@ -863,7 +851,6 @@ if (manageRoutinesElements.exportRoutinesBtn) {
                     id: routine.id,
                     name: routine.name,
                     exercises: routine.exercises,
-                    isSample: routine.isSample || false,
                     createdAt: routine.createdAt?.toDate?.()?.toISOString() || null,
                     updatedAt: routine.updatedAt?.toDate?.()?.toISOString() || null
                 }))

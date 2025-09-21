@@ -1,8 +1,8 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { auth } from './firebase-config.js';
 import { showView, updateNav, displayAuthError, displayAuthSuccess, clearAuthMessages, authElements, dashboardElements } from './ui.js';
-import { clearInProgressSession } from './store.js';
-import { initializeAppAfterAuth, initializeUserRoutines } from './app.js'; // Added initializeUserRoutines
+import { clearInProgressSession } from './app.js';
+import { initializeAppAfterAuth } from './app.js';
 
 let currentUser = null;
 
@@ -45,8 +45,8 @@ export async function handleEmailSignup(event) {
 
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will handle the rest, including initializing sample routines
-        displayAuthSuccess("¡Registro exitoso! Serás redirigido.");        await initializeUserRoutines(userCredential.user, true); // true indicates new user
+        // onAuthStateChanged will handle the rest
+        displayAuthSuccess("¡Registro exitoso! Serás redirigido.");
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
         // Load diagnostics on auth errors that might be network-related
