@@ -835,151 +835,124 @@ manageRoutinesElements.addNewBtn.addEventListener('click', () => {
     renderRoutineEditor(null); // null for new routine
 });
 
-// Listener para el botón de inicializar/restaurar rutinas de muestra
-// Listener para el NUEVO botón de actualizar rutinas de muestra específicas del usuario
-if (manageRoutinesElements.updateMySampleRoutinesBtn) {
-    manageRoutinesElements.updateMySampleRoutinesBtn.addEventListener('click', async () => {
+// Export all routines to clipboard
+if (manageRoutinesElements.exportRoutinesBtn) {
+    manageRoutinesElements.exportRoutinesBtn.addEventListener('click', async () => {
         const user = getCurrentUser();
         if (!user) {
             alert("Debes iniciar sesión para realizar esta acción.");
             return;
         }
 
-        if (!confirm("Esto intentará actualizar TUS versiones de las rutinas de muestra (identificadas por '..._sample' o marcadas como muestra) a las últimas definiciones. Si las personalizaste mucho, esos cambios se perderán en esas rutinas específicas. ¿Continuar?")) {
+        if (!confirm("¿Deseas exportar todas tus rutinas al portapapeles? Se copiará un JSON con todas tus rutinas.")) {
             return;
         }
 
-        showLoading(manageRoutinesElements.updateMySampleRoutinesBtn, 'Actualizando...');
+        showLoading(manageRoutinesElements.exportRoutinesBtn, 'Exportando...');
         try {
-            const userRoutinesRef = collection(db, "users", user.uid, "routines");
-            const batch = writeBatch(db);
-            let routinesUpdatedCount = 0;
-
-            // Obtener todas las rutinas de muestra actuales del usuario
-            // Idealmente, buscarías por un flag como `isSample: true` Y que el ID termine en `_sample`
-            // O solo por IDs que coincidan con las claves de sampleWorkoutRoutines
-            const qUserSamples = query(userRoutinesRef, where("isSample", "==", true)); // O una consulta más específica por ID
-            const userSamplesSnapshot = await getDocs(qUserSamples);
-
-            const newSampleRoutines = sampleWorkoutRoutines; // Tus nuevas definiciones de store.js
-
-            for (const sampleId in newSampleRoutines) { // Iterar sobre las claves de tus nuevas muestras (ej. "A1_sample")
-                if (newSampleRoutines.hasOwnProperty(sampleId)) {
-                    const newSampleData = newSampleRoutines[sampleId];
-
-                    // Buscar si el usuario tiene una rutina con este ID de muestra
-                    const userDocToUpdate = userSamplesSnapshot.docs.find(d => d.id === sampleId);
-
-                    if (userDocToUpdate) {
-                        // El usuario tiene una versión de esta rutina de muestra. La actualizamos.
-                        const routineDocRef = doc(db, "users", user.uid, "routines", sampleId);
-                        batch.set(routineDocRef, {
-                            name: newSampleData.name,
-                            exercises: newSampleData.exercises,
-                            isSample: true, // Asegurar que sigue marcada como muestra
-                            // Mantener el createdAt original si es posible, o resetearlo si prefieres
-                            // createdAt: userDocToUpdate.data().createdAt || Timestamp.now(), // Opción para mantener
-                            createdAt: userDocToUpdate.data().createdAt, // Mantener el original
-                            updatedAt: Timestamp.now() // Marcar como actualizada ahora
-                        });
-                        routinesUpdatedCount++;
-                        console.log(`Rutina de muestra '${sampleId}' marcada para actualización.`);
-                    } else {
-                        // El usuario no tiene esta rutina de muestra específica (quizás la borró o es una nueva muestra)
-                        // Podrías añadirla aquí si quieres que "actualizar" también signifique "añadir las que falten"
-                        // O manejarlo con el botón "Añadir Rutinas de Muestra"
-                        console.log(`Rutina de muestra '${sampleId}' no encontrada en las del usuario. No se actualiza ni añade con este botón.`);
-                    }
-                }
+            if (currentUserRoutines.length === 0) {
+                alert("No tienes rutinas para exportar.");
+                return;
             }
 
-            if (routinesUpdatedCount > 0) {
-                await batch.commit();
-                alert(`${routinesUpdatedCount} rutina(s) de muestra han sido actualizadas a la última versión.`);
+            // Prepare data for export
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                totalRoutines: currentUserRoutines.length,
+                routines: currentUserRoutines.map(routine => ({
+                    id: routine.id,
+                    name: routine.name,
+                    exercises: routine.exercises,
+                    isSample: routine.isSample || false,
+                    createdAt: routine.createdAt?.toDate?.()?.toISOString() || null,
+                    updatedAt: routine.updatedAt?.toDate?.()?.toISOString() || null
+                }))
+            };
+
+            const jsonString = JSON.stringify(exportData, null, 2);
+            
+            // Copy to clipboard
+            await navigator.clipboard.writeText(jsonString);
+            alert(`✅ ${currentUserRoutines.length} rutina(s) exportadas al portapapeles exitosamente!`);
+            
+        } catch (error) {
+            console.error("Error exportando rutinas:", error);
+            if (error.name === 'NotAllowedError') {
+                alert("Error: No se pudo acceder al portapapeles. Verifica los permisos del navegador.");
             } else {
-                alert("No se encontraron rutinas de muestra para actualizar o ya estaban al día (según ID). Puedes usar 'Añadir Rutinas' si te faltan.");
-            }
-
-            await fetchUserRoutines(user); // Refrescar la lista en la UI
-            if (!views.manageRoutines.classList.contains('hidden')) {
-                renderManageRoutinesView(currentUserRoutines);
-            }        } catch (error) {
-            console.error("Error actualizando rutinas de muestra del usuario:", error);
-            alert("Error al actualizar las rutinas de muestra.");
-            // Load diagnostics on Firestore errors
-            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
-                loadFirebaseDiagnostics();
+                alert("Error al exportar las rutinas.");
             }
         } finally {
-            hideLoading(manageRoutinesElements.updateMySampleRoutinesBtn);
-        }
-    });
-}
-
-// Modificar el botón existente para que solo AÑADA si NO existen
-// y no reemplace si ya existen con el mismo ID.
-if (manageRoutinesElements.initializeSampleRoutinesBtn) {
-    manageRoutinesElements.initializeSampleRoutinesBtn.addEventListener('click', async () => {
-        const user = getCurrentUser();
-        if (!user) {
-            alert("Debes iniciar sesión para realizar esta acción.");
-            return;
-        }
-
-        if (!confirm("Esto añadirá las rutinas de muestra a tu lista SI AÚN NO LAS TIENES con el mismo ID. No reemplazará las existentes. ¿Continuar?")) {
-            return;
-        }
-        showLoading(manageRoutinesElements.initializeSampleRoutinesBtn, 'Añadiendo...');
-        try {
-            const userRoutinesRef = collection(db, "users", user.uid, "routines");
-            const batch = writeBatch(db);
-            let routinesAddedCount = 0;
-
-            // Obtener IDs de las rutinas existentes del usuario para no duplicar
-            const existingUserRoutinesSnapshot = await getDocs(userRoutinesRef);
-            const existingUserRoutineIds = new Set(existingUserRoutinesSnapshot.docs.map(d => d.id));
-
-            for (const routineKey in sampleWorkoutRoutines) {
-                if (sampleWorkoutRoutines.hasOwnProperty(routineKey)) {
-                    // Solo añadir si el usuario NO tiene ya una rutina con este ID de muestra
-                    if (!existingUserRoutineIds.has(routineKey)) {
-                        const sampleRoutine = sampleWorkoutRoutines[routineKey];
-                        const routineDocRef = doc(db, "users", user.uid, "routines", routineKey);
-                        batch.set(routineDocRef, {
-                            name: sampleRoutine.name,
-                            exercises: sampleRoutine.exercises,
-                            isSample: true,
-                            createdAt: Timestamp.now(),
-                            updatedAt: Timestamp.now()
-                        });
-                        routinesAddedCount++;
-                    }
-                }
-            }
-
-            if (routinesAddedCount > 0) {
-                await batch.commit();
-                alert(`${routinesAddedCount} rutina(s) de muestra han sido añadidas.`);
-            } else {
-                alert("No se añadieron nuevas rutinas de muestra (probablemente ya las tenías todas o no hay muestras definidas).");
-            }
-
-            await fetchUserRoutines(user);
-            if (!views.manageRoutines.classList.contains('hidden')) {
-                renderManageRoutinesView(currentUserRoutines);
-            }        } catch (error) {
-            console.error("Error añadiendo rutinas de muestra:", error);
-            alert("Error al añadir las rutinas de muestra.");
-            // Load diagnostics on Firestore errors
-            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
-                loadFirebaseDiagnostics();
-            }
-        } finally {
-            hideLoading(manageRoutinesElements.initializeSampleRoutinesBtn);
+            hideLoading(manageRoutinesElements.exportRoutinesBtn);
         }
     });
 } else {
-    console.error("Initialize sample routines button not found for attaching event listener.");
+    console.error("Export routines button not found for attaching event listener.");
+}
+
+// Delete all routines
+if (manageRoutinesElements.deleteAllRoutinesBtn) {
+    manageRoutinesElements.deleteAllRoutinesBtn.addEventListener('click', async () => {
+        const user = getCurrentUser();
+        if (!user) {
+            alert("Debes iniciar sesión para realizar esta acción.");
+            return;
+        }
+
+        if (currentUserRoutines.length === 0) {
+            alert("No tienes rutinas para borrar.");
+            return;
+        }
+
+        const confirmMessage = `⚠️ ATENCIÓN: Vas a borrar TODAS tus ${currentUserRoutines.length} rutina(s) permanentemente.\n\n¿Estás completamente seguro? Esta acción NO se puede deshacer.`;
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        // Double confirmation for safety
+        const finalConfirm = prompt(`Para confirmar, escribe "BORRAR TODO" (en mayúsculas):`);
+        if (finalConfirm !== "BORRAR TODO") {
+            alert("Cancelado. No se borraron las rutinas.");
+            return;
+        }
+
+        showLoading(manageRoutinesElements.deleteAllRoutinesBtn, 'Borrando...');
+        try {
+            const userRoutinesRef = collection(db, "users", user.uid, "routines");
+            const batch = writeBatch(db);
+            let routinesDeletedCount = 0;
+
+            // Get all user routines and delete them
+            for (const routine of currentUserRoutines) {
+                const routineDocRef = doc(db, "users", user.uid, "routines", routine.id);
+                batch.delete(routineDocRef);
+                routinesDeletedCount++;
+            }
+
+            if (routinesDeletedCount > 0) {
+                await batch.commit();
+                alert(`✅ ${routinesDeletedCount} rutina(s) borradas exitosamente.`);
+                
+                // Refresh the list
+                await fetchUserRoutines(user);
+                if (!views.manageRoutines.classList.contains('hidden')) {
+                    renderManageRoutinesView(currentUserRoutines);
+                }
+            }
+        } catch (error) {
+            console.error("Error borrando todas las rutinas:", error);
+            alert("Error al borrar las rutinas.");
+            // Load diagnostics on Firestore errors
+            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                loadFirebaseDiagnostics();
+            }
+        } finally {
+            hideLoading(manageRoutinesElements.deleteAllRoutinesBtn);
+        }
+    });
+} else {
+    console.error("Delete all routines button not found for attaching event listener.");
 }
 
 // PWA Service Worker and Storage Manager Initialization

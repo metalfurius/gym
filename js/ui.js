@@ -67,8 +67,8 @@ export const manageRoutinesElements = {
     list: document.getElementById('routine-list'),
     loadingSpinner: document.getElementById('routines-loading'),
     addNewBtn: document.getElementById('add-new-routine-btn'),
-    initializeSampleRoutinesBtn: document.getElementById('initialize-sample-routines-btn'),
-    updateMySampleRoutinesBtn: document.getElementById('update-my-sample-routines-btn')
+    exportRoutinesBtn: document.getElementById('export-routines-btn'),
+    deleteAllRoutinesBtn: document.getElementById('delete-all-routines-btn')
 };
 
 export const routineEditorElements = {
@@ -663,19 +663,12 @@ export function renderManageRoutinesView(routines) {
     routines.forEach(routine => {
         const li = document.createElement('li');
         li.className = 'routine-card';
-        
-        // Verificar si es una rutina de muestra
-        const isSampleRoutine = routine.sampleRoutineId !== undefined;
-        if (isSampleRoutine) {
-            li.classList.add('sample-routine');
-            li.dataset.sampleRoutineId = routine.sampleRoutineId;
-        }
 
         // Contenedor de información de la rutina
         const routineInfo = document.createElement('div');
         routineInfo.className = 'routine-info';
 
-        // Nombre de la rutina con badge si es de muestra
+        // Nombre de la rutina
         const nameContainer = document.createElement('div');
         nameContainer.className = 'routine-name-container';
         
@@ -683,13 +676,6 @@ export function renderManageRoutinesView(routines) {
         nameSpan.className = 'routine-name';
         nameSpan.textContent = routine.name;
         nameContainer.appendChild(nameSpan);
-
-        if (isSampleRoutine) {
-            const sampleBadge = document.createElement('span');
-            sampleBadge.className = 'sample-badge';
-            sampleBadge.textContent = 'Muestra';
-            nameContainer.appendChild(sampleBadge);
-        }
 
         routineInfo.appendChild(nameContainer);
 
