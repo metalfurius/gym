@@ -93,7 +93,26 @@
                 <p id="resume-session-info" style="font-style: italic; color: #555;"></p>
                 <button id="resume-session-btn" class="ghost hidden" style="width:auto; margin-top:5px;">Continuar
                     Sesión</button>
-            </div>            <div id="activity-calendar-container"> <!-- Eliminado style margin, ya lo maneja el CSS -->
+            </div>
+
+            <!-- Sección principal de entrenamiento -->
+            <div class="workout-section">
+                <h3 class="workout-section-title">🚀 Empezar Entrenamiento</h3>
+                <div class="workout-controls">
+                    <div class="routine-selector-container">
+                        <label for="day-select" class="routine-label">Elige una rutina para hoy:</label>
+                        <select id="day-select" class="routine-select">
+                            <option value="">-- Cargando rutinas... --</option>
+                        </select>
+                    </div>
+                    <button id="start-session-btn" class="primary-action-btn" disabled>
+                        <span class="btn-icon">💪</span>
+                        <span class="btn-text">Iniciar Nueva Sesión</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="activity-calendar-container"> <!-- Eliminado style margin, ya lo maneja el CSS -->
                 <h3>Actividad del Mes</h3>
                 <div class="calendar-controls"> <!-- Eliminado style margin, display, etc. ya lo maneja el CSS -->
                     <button id="prev-month-btn" title="Mes anterior"><</button>
@@ -125,14 +144,19 @@
                     </div>
                 </div>
                 <div id="calendar-loading-spinner" class="spinner hidden" style="margin-top:10px;"></div>
-            </div>            <label for="day-select">Elige una rutina para hoy:</label>
-            <select id="day-select">
-                <option value="">-- Cargando rutinas... --</option>
-            </select>
+            </div>
             
-            <button id="start-session-btn" disabled>Iniciar Nueva Sesión</button>            <button id="manage-routines-link-btn" class="ghost" style="margin-top: 15px; width: 100%;">Gestionar Mis
-                Rutinas</button>
-            <button id="exercise-stats-btn" class="ghost" style="margin-top: 10px; width: 100%;">📊 Ver Estadísticas de Ejercicios</button>
+            <!-- Sección de acciones secundarias -->
+            <div class="secondary-actions">
+                <button id="manage-routines-link-btn" class="secondary-action-btn">
+                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-text">Gestionar Mis Rutinas</span>
+                </button>
+                <button id="exercise-stats-btn" class="secondary-action-btn">
+                    <span class="btn-icon">📊</span>
+                    <span class="btn-text">Ver Estadísticas de Ejercicios</span>
+                </button>
+            </div>
         </section><!-- Session View -->
         <section id="session-view" class="hidden">
             <h2 id="session-title"></h2>

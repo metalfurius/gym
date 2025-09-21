@@ -1403,6 +1403,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 showView('auth');
 
+// Helper function to properly close the stats modal
+function closeStatsModal(overlay) {
+    if (overlay && overlay.parentNode) {
+        // Add closing animation
+        overlay.style.opacity = '0';
+        overlay.style.transform = 'scale(0.95)';
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.remove();
+            }
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }, 200);
+    }
+}
+
 // Show exercise statistics modal
 async function showExerciseStats() {
     try {
@@ -1465,7 +1482,7 @@ async function showExerciseStats() {
                 </div>
                 
                 <div class="stats-actions">
-                    <button onclick="this.closest('.stats-modal').remove()" class="btn btn-primary">Cerrar</button>
+                    <button id="close-stats-modal" class="btn btn-primary">Cerrar</button>
                 </div>
             </div>
         `;
@@ -1485,6 +1502,9 @@ async function showExerciseStats() {
             justify-content: center;
             align-items: center;
             z-index: 10000;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         `;
         
         overlay.innerHTML = statsHTML;
@@ -1495,28 +1515,32 @@ async function showExerciseStats() {
         // Close on overlay click
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
-                overlay.remove();
-                document.body.style.overflow = 'auto'; // Restore scrolling
+                closeStatsModal(overlay);
             }
         });
         
         // Close on Escape key
         overlay.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                overlay.remove();
-                document.body.style.overflow = 'auto'; // Restore scrolling
+                closeStatsModal(overlay);
             }
         });
         
-        // Also add close functionality to the close button to restore scrolling
-        const closeBtn = overlay.querySelector('button');
+        // Add close functionality to the close button
+        const closeBtn = overlay.querySelector('#close-stats-modal');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
-                document.body.style.overflow = 'auto'; // Restore scrolling
+                closeStatsModal(overlay);
             });
         }
         
         document.body.appendChild(overlay);
+        
+        // Trigger opening animation
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            overlay.style.transform = 'scale(1)';
+        }, 10);
         
         // Focus the overlay to capture keyboard events and prevent background scrolling
         overlay.focus();
