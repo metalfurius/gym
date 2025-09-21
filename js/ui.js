@@ -5,13 +5,15 @@ export const views = {
     session: document.getElementById('session-view'),
     history: document.getElementById('history-view'),
     manageRoutines: document.getElementById('manage-routines-view'),
-    routineEditor: document.getElementById('routine-editor-view')
+    routineEditor: document.getElementById('routine-editor-view'),
+    progress: document.getElementById('progress-view')
 };
 
 export const navButtons = {
     dashboard: document.getElementById('nav-dashboard'),
     manageRoutines: document.getElementById('nav-manage-routines'), // New nav button
     history: document.getElementById('nav-history'),
+    progress: document.getElementById('nav-progress'),
     logout: document.getElementById('logout-btn')
 };
 
@@ -83,6 +85,21 @@ export const routineEditorElements = {
     deleteRoutineBtn: document.getElementById('delete-routine-btn')
 };
 
+export const progressElements = {
+    exerciseSelect: document.getElementById('exercise-select'),
+    metricSelect: document.getElementById('metric-select'),
+    periodSelect: document.getElementById('period-select'),
+    loadingSpinner: document.getElementById('progress-loading'),
+    chartContainer: document.getElementById('progress-chart-container'),
+    chart: document.getElementById('progress-chart'),
+    statsContainer: document.getElementById('progress-stats'),
+    bestRecord: document.getElementById('best-record'),
+    totalProgress: document.getElementById('total-progress'),
+    sessionCount: document.getElementById('session-count'),
+    trendIndicator: document.getElementById('trend-indicator'),
+    noDataMessage: document.getElementById('progress-no-data')
+};
+
 
 // --- UI Functions ---
 
@@ -98,11 +115,12 @@ export function showView(viewToShowId) {
     if (viewToShowId === 'dashboard' && navButtons.dashboard) navButtons.dashboard.classList.add('active');
     if (viewToShowId === 'manageRoutines' && navButtons.manageRoutines) navButtons.manageRoutines.classList.add('active');
     if (viewToShowId === 'history' && navButtons.history) navButtons.history.classList.add('active');
+    if (viewToShowId === 'progress' && navButtons.progress) navButtons.progress.classList.add('active');
     // routineEditor is a sub-view, doesn't need nav highlighting
 }
 
 export function updateNav(isLoggedIn) {
-    const commonButtons = [navButtons.dashboard, navButtons.manageRoutines, navButtons.history, navButtons.logout];
+    const commonButtons = [navButtons.dashboard, navButtons.manageRoutines, navButtons.history, navButtons.progress, navButtons.logout];
     if (isLoggedIn) {
         commonButtons.forEach(btn => btn.classList.remove('hidden'));
         dashboardElements.userEmail.parentElement.classList.remove('hidden');

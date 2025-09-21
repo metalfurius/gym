@@ -7,13 +7,14 @@ import {
     renderHistoryList, showSessionDetail, hideSessionDetail, renderManageRoutinesView,
     renderRoutineEditor, addExerciseToEditorForm,
     views, navButtons, authElements, dashboardElements, sessionElements, historyElements, sessionDetailModal,
-    manageRoutinesElements, routineEditorElements, showLoading, hideLoading,
+    manageRoutinesElements, routineEditorElements, progressElements, showLoading, hideLoading,
     calendarElements, applyHistoryFilters 
 } from './ui.js';
 import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
 import { initSetTimers, clearTimerData } from './timer.js';
+import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, invalidateProgressCache } from './progress.js';
 
 // Conditional loading of firebase diagnostics
 let diagnosticsLoaded = false;
@@ -98,6 +99,9 @@ export async function initializeAppAfterAuth(user) {
         
         // Inicializar cache de ejercicios
         await initializeExerciseCache(user);
+        
+        // Inicializar vista de progreso
+        initializeProgressView();
         
         checkAndOfferResumeSession();
         
@@ -239,6 +243,10 @@ navButtons.manageRoutines.addEventListener('click', () => {
 navButtons.history.addEventListener('click', () => {
     showView('history');
     fetchAndRenderHistory();
+});
+navButtons.progress.addEventListener('click', () => {
+    showView('progress');
+    loadProgressData();
 });
 navButtons.logout.addEventListener('click', handleLogout);
 
@@ -431,8 +439,14 @@ async function saveSessionData(event) {
     };    showLoading(sessionElements.saveBtn, 'Guardando...');
     try {
         const userSessionsCollectionRef = collection(db, "users", user.uid, "sesiones_entrenamiento");
-        await addDoc(userSessionsCollectionRef, finalSessionData);        // Actualizar cache de ejercicios con los datos de la nueva sesión
-        const { exerciseCache } = await import('./exercise-cache.js');        exerciseCache.processCompletedSession(finalSessionData);
+        await addDoc(userSessionsCollectionRef, finalSessionData);        
+        
+        // Actualizar cache de ejercicios con los datos de la nueva sesión
+        const { exerciseCache } = await import('./exercise-cache.js');        
+        exerciseCache.processCompletedSession(finalSessionData);
+        
+        // Invalidar caché de progreso para forzar recarga con nuevos datos
+        invalidateProgressCache();
         
         // Sincronizar cache con Firebase para backup (sin bloquear el flujo)
         exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
@@ -1599,6 +1613,48 @@ async function addTestExerciseData() {
     } catch (error) {
         console.error('❌ Error adding test data:', error);
         return false;
+    }
+}
+
+// --- Progress Functions ---
+
+/**
+ * Obtiene todas las sesiones del usuario para análisis de progreso
+ */
+async function fetchAllSessions() {
+    const user = getCurrentUser();
+    if (!user) {
+        allSessionsCache = [];
+        return;
+    }
+
+    try {
+        const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
+        const q = query(sessionsRef, orderBy('fecha', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        allSessionsCache = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        
+        console.log(`✅ Loaded ${allSessionsCache.length} sessions for progress analysis`);
+    } catch (error) {
+        console.error('❌ Error fetching all sessions:', error);
+        allSessionsCache = [];
+    }
+}
+
+/**
+ * Carga los datos para la vista de progreso
+ */
+async function loadProgressData() {
+    try {
+        // Cargar lista de ejercicios (usa caché automáticamente)
+        await loadExerciseList();
+    } catch (error) {
+        console.error('Error loading progress data:', error);
+        resetProgressView();
     }
 }
 
