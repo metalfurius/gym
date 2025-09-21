@@ -1012,7 +1012,7 @@ async function getMonthlyActivity(userId, year, month) {
     const loadingSpinner = document.getElementById('calendar-loading-spinner');
     if (loadingSpinner) loadingSpinner.classList.remove('hidden');
     
-    const activityMap = new Map(); // 'YYYY-MM-DD' -> count
+    const activityMap = new Map(); // 'YYYY-MM-DD' -> { count, type }
     const startDate = new Date(year, month, 1); // Primer día del mes
     const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Último día del mes
 
@@ -1022,12 +1022,27 @@ async function getMonthlyActivity(userId, year, month) {
             where("fecha", ">=", Timestamp.fromDate(startDate)),
             where("fecha", "<=", Timestamp.fromDate(endDate))
         );
-        const querySnapshot = await getDocs(q);        querySnapshot.forEach(docSnap => { // Cambiado 'doc' a 'docSnap' para evitar conflicto
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach(docSnap => { // Cambiado 'doc' a 'docSnap' para evitar conflicto
             const session = docSnap.data();
             if (session.fecha && session.fecha.toDate) { // Asegurarse de que fecha existe y es Timestamp
                 const dateString = timestampToLocalDateString(session.fecha);
                 if (dateString) {
-                    activityMap.set(dateString, (activityMap.get(dateString) || 0) + 1);
+                    // Analizar el tipo de entrenamiento de esta sesión
+                    const sessionType = analyzeSessionType(session);
+                    
+                    const currentData = activityMap.get(dateString) || { count: 0, type: 'none' };
+                    const newCount = currentData.count + 1;
+                    
+                    // Determinar el tipo combinado para el día
+                    let combinedType = sessionType;
+                    if (currentData.count > 0) {
+                        // Si ya hay actividad en este día, combinar tipos
+                        combinedType = combineWorkoutTypes(currentData.type, sessionType);
+                    }
+                    
+                    activityMap.set(dateString, { count: newCount, type: combinedType });
                 }
             }
         });    } catch (error) {
@@ -1042,6 +1057,44 @@ async function getMonthlyActivity(userId, year, month) {
         if (loadingSpinner) loadingSpinner.classList.add('hidden');
     }
     return activityMap;
+}
+
+// Función para analizar el tipo de entrenamiento de una sesión
+function analyzeSessionType(session) {
+    if (!session.ejercicios || session.ejercicios.length === 0) {
+        return 'none';
+    }
+    
+    let hasStrength = false;
+    let hasCardio = false;
+    
+    session.ejercicios.forEach(ejercicio => {
+        if (ejercicio.tipoEjercicio === 'strength') {
+            hasStrength = true;
+        } else if (ejercicio.tipoEjercicio === 'cardio') {
+            hasCardio = true;
+        }
+    });
+    
+    if (hasStrength && hasCardio) {
+        return 'mixed';
+    } else if (hasCardio) {
+        return 'cardio';
+    } else if (hasStrength) {
+        return 'strength';
+    } else {
+        return 'none';
+    }
+}
+
+// Función para combinar tipos de entrenamiento cuando hay múltiples sesiones en un día
+function combineWorkoutTypes(type1, type2) {
+    if (type1 === 'none') return type2;
+    if (type2 === 'none') return type1;
+    if (type1 === type2) return type1;
+    
+    // Si hay combinación de tipos diferentes, es mixto
+    return 'mixed';
 }
 
 function getDaysInMonth(year, month) {
@@ -1089,7 +1142,7 @@ function renderActivityCalendar(year, month, activityData) {
     }
 
     // Verificar si hay actividad en el mes
-    const hasActivity = Array.from(activityData.values()).some(count => count > 0);    // Agregar días del mes
+    const hasActivity = Array.from(activityData.values()).some(info => info.count > 0);    // Agregar días del mes
     for (let day = 1; day <= daysInCurrentMonth; day++) {
         const cell = document.createElement('div');
         cell.classList.add('day-cell');
@@ -1097,19 +1150,36 @@ function renderActivityCalendar(year, month, activityData) {
         // Usar la misma lógica de conversión que en getMonthlyActivity para consistencia
         const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-        const activityCount = activityData.get(dateString) || 0;
+        const activityInfo = activityData.get(dateString) || { count: 0, type: 'none' };
         let activityLevel = 0;
-        if (activityCount > 0) activityLevel = 1;
-        if (activityCount >= 2) activityLevel = 2;
-        if (activityCount >= 3) activityLevel = 3;
-        if (activityCount >= 4) activityLevel = 4;
+        let activityTypeText = 'Sin actividad';
+        
+        if (activityInfo.count > 0) {
+            switch (activityInfo.type) {
+                case 'strength':
+                    activityLevel = 1;
+                    activityTypeText = 'Entrenamiento de fuerza';
+                    break;
+                case 'cardio':
+                    activityLevel = 3;
+                    activityTypeText = 'Entrenamiento de cardio';
+                    break;
+                case 'mixed':
+                    activityLevel = 2;
+                    activityTypeText = 'Entrenamiento mixto (fuerza + cardio)';
+                    break;
+                default:
+                    activityLevel = 1;
+                    activityTypeText = 'Entrenamiento';
+            }
+        }
 
         cell.classList.add(`level-${activityLevel}`);
         
         // Crear tooltip más informativo
-        const tooltipText = activityCount > 0 
-            ? `${dateString}: ${activityCount} sesión${activityCount !== 1 ? 'es' : ''}`
-            : `${dateString}: Sin actividad`;
+        const tooltipText = activityInfo.count > 0 
+            ? `${dateString}: ${activityTypeText}${activityInfo.count > 1 ? ` (${activityInfo.count} sesiones)` : ''}`
+            : `${dateString}: ${activityTypeText}`;
         cell.title = tooltipText;
         
         // Mostrar el número del día en cada celda
@@ -1125,8 +1195,8 @@ function renderActivityCalendar(year, month, activityData) {
 
         // Hacer clickeable para filtrar historial
         cell.addEventListener('click', () => {
-            if (activityCount > 0) {
-                console.log(`Mostrar actividad para ${dateString}`);
+            if (activityInfo.count > 0) {
+                console.log(`Mostrar actividad para ${dateString} - Tipo: ${activityInfo.type}`);
                 // Aquí podrías implementar navegación al historial filtrado por fecha
                 // showView('history');
                 // fetchAndRenderHistory({ filterDate: currentDate });

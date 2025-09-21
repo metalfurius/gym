@@ -87,25 +87,28 @@
     box-shadow: var(--shadow-md);
 }
 
-/* Niveles de actividad del calendario */
+/* Niveles de actividad del calendario basados en tipo de entrenamiento */
 #activity-calendar .day-cell.level-0 {
     background-color: var(--calendar-inactive-bg, #eef0f2);
+    color: var(--text-muted-color, #718096);
 }
 
 #activity-calendar .day-cell.level-1 {
-    background-color: var(--calendar-level-1, #c6f6d5);
+    background-color: var(--calendar-level-1, #dbeafe);
+    color: var(--text-color);
+    border: 2px solid var(--primary-color, #667eea);
 }
 
 #activity-calendar .day-cell.level-2 {
-    background-color: var(--calendar-level-2, #9ae6b4);
+    background-color: var(--calendar-level-2, #fed7d7);
+    color: var(--text-color);
+    border: 2px solid var(--accent-color, #f56565);
 }
 
 #activity-calendar .day-cell.level-3 {
-    background-color: var(--calendar-level-3, #68d391);
-}
-
-#activity-calendar .day-cell.level-4 {
-    background-color: var(--calendar-level-4, #38a169);
+    background-color: var(--calendar-level-3, #c6f6d5);
+    color: var(--text-color);
+    border: 2px solid var(--success-color, #48bb78);
 }
 
 #activity-calendar .day-cell.is-placeholder {
@@ -117,6 +120,76 @@
 #activity-calendar .day-cell.is-today {
     outline: 2px solid var(--accent-color);
     outline-offset: 1px;
+}
+
+/* Leyenda del calendario */
+.calendar-legend {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.calendar-legend h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+}
+
+.legend-color.level-0 {
+    background-color: var(--calendar-inactive-bg);
+}
+
+.legend-color.level-1 {
+    background-color: var(--calendar-level-1);
+    border-color: var(--primary-color);
+}
+
+.legend-color.level-2 {
+    background-color: var(--calendar-level-2);
+    border-color: var(--accent-color);
+}
+
+.legend-color.level-3 {
+    background-color: var(--calendar-level-3);
+    border-color: var(--success-color);
+}
+
+/* Responsive para la leyenda */
+@media (max-width: 480px) {
+    .legend-items {
+        grid-template-columns: 1fr;
+    }
+    
+    .legend-item {
+        font-size: 0.8rem;
+    }
 }
 
 /* Encabezados de días de la semana */
