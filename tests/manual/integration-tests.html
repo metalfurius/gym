@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Tests - Gym Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .workflow {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .step {
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+        }
+        
+        .step.completed {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.success {
+            background: #28a745;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .checklist li {
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        
+        .checklist li:hover {
+            background: #f0f0f0;
+        }
+        
+        .checklist li input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔗 Integration Tests</h1>
+        <p>End-to-end workflow testing</p>
+    </header>
+
+    <div class="instructions">
+        <h3>📋 Instructions</h3>
+        <p>These tests verify complete workflows in the application. Follow each workflow step-by-step and check off items as you complete them.</p>
+    </div>
+
+    <div class="workflow">
+        <h2>🔐 Authentication Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Navigate to the main app (index.html)</li>
+            <li><input type="checkbox"> Create a new account with email and password</li>
+            <li><input type="checkbox"> Verify successful registration message</li>
+            <li><input type="checkbox"> Log out of the account</li>
+            <li><input type="checkbox"> Log back in with same credentials</li>
+            <li><input type="checkbox"> Verify dashboard loads correctly</li>
+            <li><input type="checkbox"> Test invalid login credentials (should show error)</li>
+            <li><input type="checkbox"> Refresh page and verify session persists</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>🏋️ Complete Workout Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Create a new routine from "Mis Rutinas"</li>
+            <li><input type="checkbox"> Add at least 3 exercises to the routine</li>
+            <li><input type="checkbox"> Save the routine</li>
+            <li><input type="checkbox"> Go to Dashboard and select the new routine</li>
+            <li><input type="checkbox"> Click "Iniciar Nueva Sesión"</li>
+            <li><input type="checkbox"> Enter weight and reps for each set</li>
+            <li><input type="checkbox"> Test the rest timer for at least one set</li>
+            <li><input type="checkbox"> Complete all exercises</li>
+            <li><input type="checkbox"> Save the session</li>
+            <li><input type="checkbox"> Verify session appears in history</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>💾 Session Resume Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Start a new workout session</li>
+            <li><input type="checkbox"> Complete at least one set</li>
+            <li><input type="checkbox"> Refresh the page without saving</li>
+            <li><input type="checkbox"> Verify "Continuar Sesión" button appears</li>
+            <li><input type="checkbox"> Click to resume the session</li>
+            <li><input type="checkbox"> Verify previous data is restored</li>
+            <li><input type="checkbox"> Complete and save the session</li>
+            <li><input type="checkbox"> Verify resume button disappears</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>📊 Progress Tracking Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Complete at least 3 workout sessions with same exercise</li>
+            <li><input type="checkbox"> Navigate to "Progreso" view</li>
+            <li><input type="checkbox"> Select the exercise from dropdown</li>
+            <li><input type="checkbox"> Verify chart displays correctly</li>
+            <li><input type="checkbox"> Check different metrics (weight, volume, reps)</li>
+            <li><input type="checkbox"> Try different time periods</li>
+            <li><input type="checkbox"> Verify statistics show correct values</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>📅 Calendar & History Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Complete sessions on different days</li>
+            <li><input type="checkbox"> Navigate to Dashboard</li>
+            <li><input type="checkbox"> Verify calendar shows activity</li>
+            <li><input type="checkbox"> Navigate through different months</li>
+            <li><input type="checkbox"> Go to "Historial" view</li>
+            <li><input type="checkbox"> Click on a session to view details</li>
+            <li><input type="checkbox"> Test search functionality</li>
+            <li><input type="checkbox"> Verify pagination works correctly</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>🎨 Theme & UI Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Click the theme toggle button</li>
+            <li><input type="checkbox"> Verify theme changes apply</li>
+            <li><input type="checkbox"> Navigate through different views</li>
+            <li><input type="checkbox"> Verify theme persists across views</li>
+            <li><input type="checkbox"> Refresh page and verify theme is remembered</li>
+            <li><input type="checkbox"> Test on mobile view (resize browser)</li>
+            <li><input type="checkbox"> Verify responsive design works correctly</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>📥 Export/Import Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Create multiple routines</li>
+            <li><input type="checkbox"> Go to "Mis Rutinas"</li>
+            <li><input type="checkbox"> Click "Exportar Todas las Rutinas"</li>
+            <li><input type="checkbox"> Verify JSON file downloads</li>
+            <li><input type="checkbox"> Delete a routine (or create new account)</li>
+            <li><input type="checkbox"> Import the exported file</li>
+            <li><input type="checkbox"> Verify all routines are restored</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>🔄 Data Persistence Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Create routine and start session</li>
+            <li><input type="checkbox"> Close browser tab completely</li>
+            <li><input type="checkbox"> Reopen application</li>
+            <li><input type="checkbox"> Verify user is still logged in</li>
+            <li><input type="checkbox"> Verify session resume is offered</li>
+            <li><input type="checkbox"> Complete the session</li>
+            <li><input type="checkbox"> Clear browser cache</li>
+            <li><input type="checkbox"> Verify data syncs from Firebase</li>
+        </ul>
+    </div>
+
+    <div class="workflow">
+        <h2>⚠️ Error Handling Workflow</h2>
+        <ul class="checklist">
+            <li><input type="checkbox"> Try to start session without selecting routine</li>
+            <li><input type="checkbox"> Try to save incomplete session data</li>
+            <li><input type="checkbox"> Test with invalid form inputs</li>
+            <li><input type="checkbox"> Disconnect from internet and test offline</li>
+            <li><input type="checkbox"> Reconnect and verify data syncs</li>
+            <li><input type="checkbox"> Test concurrent edits in multiple tabs</li>
+            <li><input type="checkbox"> Verify appropriate error messages display</li>
+        </ul>
+    </div>
+
+    <div class="instructions" style="margin-top: 30px;">
+        <h3>✅ Completion</h3>
+        <p>Once all workflows are tested, document any issues found and verify:</p>
+        <ul>
+            <li>All data persists correctly</li>
+            <li>No console errors appear</li>
+            <li>UI is responsive and user-friendly</li>
+            <li>Error handling is appropriate</li>
+            <li>Performance is acceptable</li>
+        </ul>
+    </div>
+
+    <script>
+        // Add interactivity to checkboxes
+        document.querySelectorAll('.checklist input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const step = this.closest('.step') || this.closest('li');
+                if (this.checked && step) {
+                    step.style.textDecoration = 'line-through';
+                    step.style.opacity = '0.7';
+                } else if (step) {
+                    step.style.textDecoration = 'none';
+                    step.style.opacity = '1';
+                }
+                
+                // Save progress to localStorage
+                saveProgress();
+            });
+        });
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('integration-test-progress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                document.querySelectorAll('.checklist input[type="checkbox"]').forEach((checkbox, index) => {
+                    if (progress[index]) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+            const progress = Array.from(checkboxes).map(cb => cb.checked);
+            localStorage.setItem('integration-test-progress', JSON.stringify(progress));
+        }
+
+        // Load progress on page load
+        loadProgress();
+    </script>
+</body>
+</html>
