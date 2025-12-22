@@ -104,6 +104,16 @@ export const progressElements = {
 // --- UI Functions ---
 
 export function showView(viewToShowId) {
+    // Reset timer initialization when navigating away from session view
+    if (!views.session.classList.contains('hidden') && viewToShowId !== 'session') {
+        // Dynamically import and reset timer initialization to avoid circular dependency
+        import('./timer.js').then(module => {
+            module.resetTimerInitialization();
+        }).catch(err => {
+            console.error('Error resetting timer initialization:', err);
+        });
+    }
+    
     Object.values(views).forEach(view => view.classList.add('hidden'));
     if (views[viewToShowId]) {
         views[viewToShowId].classList.remove('hidden');
