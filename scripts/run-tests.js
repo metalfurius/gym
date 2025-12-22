@@ -13,7 +13,6 @@ console.log('🧪 My Workout Tracker - Test Suite Runner\n');
 console.log('='.repeat(50));
 
 // Configuration
-const TESTS_DIR = path.join(__dirname, '../tests');
 const COVERAGE_DIR = path.join(__dirname, '../coverage');
 
 // Colors for terminal output
@@ -33,7 +32,7 @@ function log(message, color = 'reset') {
 function runCommand(command, description) {
   log(`\n${description}...`, 'cyan');
   try {
-    const output = execSync(command, { 
+    execSync(command, { 
       stdio: 'inherit',
       cwd: path.join(__dirname, '..')
     });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
 import { createMockRoutine, createMockSession, createMockTimestamp } from '../utils/test-helpers.js';
 
 describe('Data Models', () => {

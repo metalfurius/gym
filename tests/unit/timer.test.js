@@ -1,9 +1,7 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock the timer module functions
 describe('Timer Module', () => {
-  let timerModule;
-
   beforeEach(async () => {
     // Setup DOM for testing
     document.body.innerHTML = `

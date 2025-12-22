@@ -467,8 +467,11 @@
             window.open('../../index.html', 'GymTrackerTest', features);
             
             // Highlight active button
+            const clickedButton = document.activeElement;
             document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (clickedButton && clickedButton.classList.contains('device-btn')) {
+                clickedButton.classList.add('active');
+            }
         }
 
         // Save checkbox state
