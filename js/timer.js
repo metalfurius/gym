@@ -9,23 +9,40 @@ const restTimesData = {};
 // Storage key for timer data in localStorage
 const TIMERS_STORAGE_KEY = 'gym-tracker-timer-data';
 
+// Flag to track if timer event listener has been initialized
+let isTimerInitialized = false;
+
+// The event handler function (stored so we can reference it)
+function handleTimerClick(event) {
+    // Check if the clicked element is a timer button
+    if (event.target.classList.contains('timer-button')) {
+        const timerId = event.target.dataset.timerId;
+        
+        if (event.target.classList.contains('running')) {
+            pauseTimer(timerId);
+        } else {
+            // Pause all other timers before starting this one
+            pauseAllTimers();
+            startTimer(timerId);
+        }
+    }
+}
+
 // Initialize the timer functionality
 export function initSetTimers() {
-    // Listen for timer events on the exercise list container (delegation)
-    document.getElementById('exercise-list').addEventListener('click', (event) => {
-        // Check if the clicked element is a timer button
-        if (event.target.classList.contains('timer-button')) {
-            const timerId = event.target.dataset.timerId;
-            
-            if (event.target.classList.contains('running')) {
-                pauseTimer(timerId);
-            } else {
-                // Pause all other timers before starting this one
-                pauseAllTimers();
-                startTimer(timerId);
-            }
-        }
-    });
+    const exerciseList = document.getElementById('exercise-list');
+    
+    if (!exerciseList) {
+        console.warn('Exercise list not found, cannot initialize timers');
+        return;
+    }
+    
+    // Only add the event listener once
+    if (!isTimerInitialized) {
+        // Listen for timer events on the exercise list container (delegation)
+        exerciseList.addEventListener('click', handleTimerClick);
+        isTimerInitialized = true;
+    }
     
     // Restore timer values from localStorage if available
     restoreTimerValues();
@@ -188,6 +205,24 @@ function restoreTimerValues() {
 // Clear all timer data from localStorage
 export function clearTimerData() {
     localStorage.removeItem(TIMERS_STORAGE_KEY);
+    // Clear any active timer intervals and clean up the object in one pass
+    Object.keys(activeTimers).forEach(timerId => {
+        if (activeTimers[timerId]?.interval) {
+            clearInterval(activeTimers[timerId].interval);
+        }
+        delete activeTimers[timerId];
+    });
+}
+
+// Reset timer initialization (useful for cleanup/testing)
+export function resetTimerInitialization() {
+    if (isTimerInitialized) {
+        const exerciseList = document.getElementById('exercise-list');
+        if (exerciseList) {
+            exerciseList.removeEventListener('click', handleTimerClick);
+        }
+        isTimerInitialized = false;
+    }
 }
 
 // Create HTML for a timer to add to each set

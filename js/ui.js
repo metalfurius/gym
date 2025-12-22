@@ -1,4 +1,6 @@
 // --- DOM Elements ---
+import { resetTimerInitialization } from './timer.js';
+
 export const views = {
     auth: document.getElementById('auth-view'),
     dashboard: document.getElementById('dashboard-view'),
@@ -104,6 +106,11 @@ export const progressElements = {
 // --- UI Functions ---
 
 export function showView(viewToShowId) {
+    // Reset timer initialization when navigating away from session view
+    if (!views.session.classList.contains('hidden') && viewToShowId !== 'session') {
+        resetTimerInitialization();
+    }
+    
     Object.values(views).forEach(view => view.classList.add('hidden'));
     if (views[viewToShowId]) {
         views[viewToShowId].classList.remove('hidden');
