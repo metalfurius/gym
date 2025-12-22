@@ -205,21 +205,22 @@ function restoreTimerValues() {
 // Clear all timer data from localStorage
 export function clearTimerData() {
     localStorage.removeItem(TIMERS_STORAGE_KEY);
-    // Also clear any active timer intervals
+    // Clear any active timer intervals and clean up the object in one pass
     Object.keys(activeTimers).forEach(timerId => {
         if (activeTimers[timerId]?.interval) {
             clearInterval(activeTimers[timerId].interval);
         }
+        delete activeTimers[timerId];
     });
-    // Clear the activeTimers object
-    Object.keys(activeTimers).forEach(key => delete activeTimers[key]);
 }
 
 // Reset timer initialization (useful for cleanup/testing)
 export function resetTimerInitialization() {
-    const exerciseList = document.getElementById('exercise-list');
-    if (exerciseList && isTimerInitialized) {
-        exerciseList.removeEventListener('click', handleTimerClick);
+    if (isTimerInitialized) {
+        const exerciseList = document.getElementById('exercise-list');
+        if (exerciseList) {
+            exerciseList.removeEventListener('click', handleTimerClick);
+        }
         isTimerInitialized = false;
     }
 }
