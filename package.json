@@ -1,0 +1,29 @@
+{
+  "name": "my-workout-tracker",
+  "version": "1.0.2",
+  "description": "A modern, responsive workout tracking web application",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:all": "node scripts/run-tests.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
+    "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
+    "serve": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "workout",
+    "fitness",
+    "tracker",
+    "gym"
+  ],
+  "author": "metalfurius",
+  "license": "SEE LICENSE IN README.md",
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

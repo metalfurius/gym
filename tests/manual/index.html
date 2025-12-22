@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Tracker - Manual Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .test-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .test-link {
+            display: block;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .test-section {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .test-category {
+            margin: 20px 0;
+        }
+
+        .category-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .category-title::before {
+            content: '▶';
+            margin-right: 10px;
+            font-size: 0.8em;
+        }
+
+        .test-list {
+            list-style: none;
+            margin-left: 30px;
+        }
+
+        .test-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .test-item:hover {
+            background: #e9ecef;
+        }
+
+        .test-item strong {
+            color: #667eea;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .instructions-title {
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 8px;
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            margin-top: 40px;
+        }
+
+        code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>💪 My Workout Tracker</h1>
+        <p class="subtitle">Comprehensive Manual Test Suite</p>
+    </header>
+
+    <div class="container">
+        <div class="nav">
+            <h2 class="nav-title">🧪 Test Pages</h2>
+            <div class="test-links">
+                <a href="../../index.html" class="test-link">🏠 Main Application</a>
+                <a href="./unit-tests.html" class="test-link">⚡ Unit Tests</a>
+                <a href="./integration-tests.html" class="test-link">🔗 Integration Tests</a>
+                <a href="./ui-tests.html" class="test-link">🎨 UI Tests</a>
+                <a href="../../test-versioning.html" class="test-link">📦 Version Tests</a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">📋 Test Overview</h2>
+            
+            <div class="status-badges">
+                <span class="badge badge-success">✅ 4 Test Pages</span>
+                <span class="badge badge-info">📊 50+ Test Cases</span>
+                <span class="badge badge-warning">⚠️ Manual Testing Required</span>
+            </div>
+
+            <div class="instructions">
+                <div class="instructions-title">🎯 How to Use This Test Suite</div>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Click on any test page link above to begin testing</li>
+                    <li>Follow the instructions on each test page</li>
+                    <li>Report any issues or unexpected behavior</li>
+                    <li>Complete all test categories for thorough coverage</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🧩 Test Categories</h2>
+
+            <div class="test-category">
+                <h3 class="category-title">Authentication & User Management</h3>
+                <ul class="test-list">
+                    <li class="test-item"><strong>Registration:</strong> Test user account creation with email/password</li>
+                    <li class="test-item"><strong>Login:</strong> Verify login functionality with valid/invalid credentials</li>
+                    <li class="test-item"><strong>Logout:</strong> Confirm session cleanup on logout</li>
+                    <li class="test-item"><strong>Session Persistence:</strong> Verify user remains logged in after page refresh</li>
+                </ul>
+            </div>
+
+            <div class="test-category">
+                <h3 class="category-title">Routine Management</h3>
+                <ul class="test-list">
+                    <li class="test-item"><strong>Create Routine:</strong> Add new workout routines with exercises</li>
+                    <li class="test-item"><strong>Edit Routine:</strong> Modify existing routine details</li>
+                    <li class="test-item"><strong>Delete Routine:</strong> Remove routines from the system</li>
+                    <li class="test-item"><strong>Exercise Management:</strong> Add/remove exercises from routines</li>
+                    <li class="test-item"><strong>Export/Import:</strong> Test routine export and import functionality</li>
+                </ul>
+            </div>
+
+            <div class="test-category">
+                <h3 class="category-title">Workout Sessions</h3>
+                <ul class="test-list">
+                    <li class="test-item"><strong>Start Session:</strong> Begin a new workout session</li>
+                    <li class="test-item"><strong>Track Sets:</strong> Record weight and reps for each set</li>
+                    <li class="test-item"><strong>Rest Timer:</strong> Use and pause set rest timers</li>
+                    <li class="test-item"><strong>Save Session:</strong> Complete and save workout data</li>
+                    <li class="test-item"><strong>Resume Session:</strong> Continue interrupted workout sessions</li>
+                    <li class="test-item"><strong>Cancel Session:</strong> Discard session without saving</li>
+                </ul>
+            </div>
+
+            <div class="test-category">
+                <h3 class="category-title">History & Progress</h3>
+                <ul class="test-list">
+                    <li class="test-item"><strong>View History:</strong> Display list of completed sessions</li>
+                    <li class="test-item"><strong>Session Details:</strong> View detailed information for each session</li>
+                    <li class="test-item"><strong>Search/Filter:</strong> Find specific sessions using filters</li>
+                    <li class="test-item"><strong>Progress Charts:</strong> View exercise progress over time</li>
+                    <li class="test-item"><strong>Calendar View:</strong> See workout activity in calendar format</li>
+                </ul>
+            </div>
+
+            <div class="test-category">
+                <h3 class="category-title">UI & Theme</h3>
+                <ul class="test-list">
+                    <li class="test-item"><strong>Theme Switching:</strong> Change between different color themes</li>
+                    <li class="test-item"><strong>Responsive Design:</strong> Test on mobile, tablet, and desktop</li>
+                    <li class="test-item"><strong>Navigation:</strong> Verify smooth transitions between views</li>
+                    <li class="test-item"><strong>Form Validation:</strong> Test input validation and error messages</li>
+                    <li class="test-item"><strong>Loading States:</strong> Verify loading indicators during async operations</li>
+                </ul>
+            </div>
+
+            <div class="test-category">
+                <h3 class="category-title">Data Persistence & Offline</h3>
+                <ul class="test-list">
+                    <li class="test-item"><strong>LocalStorage:</strong> Verify data persists in browser storage</li>
+                    <li class="test-item"><strong>Service Worker:</strong> Test offline functionality</li>
+                    <li class="test-item"><strong>Cache Management:</strong> Verify cache updates on app version change</li>
+                    <li class="test-item"><strong>Data Sync:</strong> Test Firebase synchronization</li>
+                    <li class="test-item"><strong>Backup/Restore:</strong> Verify session backup during updates</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">🚀 Running Automated Tests</h2>
+            
+            <div class="instructions">
+                <div class="instructions-title">💻 Command Line Tests</div>
+                <p>To run automated unit and integration tests:</p>
+                <pre style="background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 10px 0; overflow-x: auto;"><code>npm install          # Install dependencies
+npm test             # Run all tests
+npm run test:unit    # Run unit tests only
+npm run test:integration  # Run integration tests only
+npm run test:coverage     # Run tests with coverage report</code></pre>
+            </div>
+
+            <div class="instructions">
+                <div class="instructions-title">🌐 Manual Browser Tests</div>
+                <p>For manual testing in the browser:</p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Start a local server: <code>npm run serve</code></li>
+                    <li>Open <code>http://localhost:8080</code> in your browser</li>
+                    <li>Navigate to test pages and follow on-screen instructions</li>
+                    <li>Check browser console for any errors or warnings</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2 class="section-title">📝 Test Checklist</h2>
+            
+            <div class="instructions">
+                <p>Use this checklist to track your testing progress:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>☐ Authentication flows (register, login, logout)</li>
+                    <li>☐ Routine CRUD operations</li>
+                    <li>☐ Workout session lifecycle</li>
+                    <li>☐ History and progress tracking</li>
+                    <li>☐ Theme switching and UI responsiveness</li>
+                    <li>☐ Offline functionality</li>
+                    <li>☐ Data persistence across sessions</li>
+                    <li>☐ Error handling and validation</li>
+                    <li>☐ Cross-browser compatibility</li>
+                    <li>☐ Performance and load times</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 My Workout Tracker - Test Suite</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            For issues or suggestions: <a href="mailto:contact@codeoverdose.es" style="color: #667eea;">contact@codeoverdose.es</a>
+        </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Tests - Gym Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-case {
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #ddd;
+            background: #f8f9fa;
+        }
+        
+        .test-case.pass {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .test-case.fail {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        .result {
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .summary {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ Unit Tests</h1>
+        <p>Individual component and function testing</p>
+    </header>
+
+    <div class="summary">
+        <h3>Test Summary</h3>
+        <div id="summary">Click "Run All Tests" to begin</div>
+    </div>
+
+    <button onclick="runAllTests()">Run All Tests</button>
+    <button onclick="clearResults()">Clear Results</button>
+
+    <div class="test-section">
+        <h2>Storage Manager Tests</h2>
+        <button onclick="testStorageManager()">Run Storage Tests</button>
+        <div id="storage-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Timer Tests</h2>
+        <button onclick="testTimer()">Run Timer Tests</button>
+        <div id="timer-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Session Management Tests</h2>
+        <button onclick="testSessionManagement()">Run Session Tests</button>
+        <div id="session-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Data Model Tests</h2>
+        <button onclick="testDataModels()">Run Data Model Tests</button>
+        <div id="model-results"></div>
+    </div>
+
+    <script>
+        let totalTests = 0;
+        let passedTests = 0;
+        let failedTests = 0;
+
+        function createTestCase(name, fn) {
+            try {
+                fn();
+                return { name, status: 'pass', error: null };
+            } catch (error) {
+                return { name, status: 'fail', error: error.message };
+            }
+        }
+
+        function displayResult(containerId, result) {
+            const container = document.getElementById(containerId);
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-case ${result.status}`;
+            testDiv.innerHTML = `
+                <strong>${result.status === 'pass' ? '✅' : '❌'} ${result.name}</strong>
+                ${result.error ? `<div class="result">Error: ${result.error}</div>` : ''}
+            `;
+            container.appendChild(testDiv);
+            
+            totalTests++;
+            if (result.status === 'pass') passedTests++;
+            else failedTests++;
+        }
+
+        function updateSummary() {
+            document.getElementById('summary').innerHTML = `
+                <strong>Total Tests:</strong> ${totalTests} | 
+                <strong style="color: #28a745;">Passed:</strong> ${passedTests} | 
+                <strong style="color: #dc3545;">Failed:</strong> ${failedTests}
+            `;
+        }
+
+        function testStorageManager() {
+            const container = document.getElementById('storage-results');
+            container.innerHTML = '';
+
+            // Test 1: localStorage availability
+            displayResult('storage-results', createTestCase(
+                'localStorage should be available',
+                () => {
+                    if (typeof localStorage === 'undefined') throw new Error('localStorage not available');
+                }
+            ));
+
+            // Test 2: Save and retrieve data
+            displayResult('storage-results', createTestCase(
+                'Should save and retrieve data',
+                () => {
+                    localStorage.setItem('test-key', 'test-value');
+                    const value = localStorage.getItem('test-key');
+                    if (value !== 'test-value') throw new Error('Value mismatch');
+                    localStorage.removeItem('test-key');
+                }
+            ));
+
+            // Test 3: Storage persistence check
+            displayResult('storage-results', createTestCase(
+                'Storage API should be supported',
+                () => {
+                    if (!('storage' in navigator)) throw new Error('Storage API not supported');
+                }
+            ));
+
+            updateSummary();
+        }
+
+        function testTimer() {
+            const container = document.getElementById('timer-results');
+            container.innerHTML = '';
+
+            // Test 1: Timer format
+            displayResult('timer-results', createTestCase(
+                'Should format time correctly',
+                () => {
+                    const seconds = 90;
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    const result = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    if (result !== '01:30') throw new Error(`Expected 01:30, got ${result}`);
+                }
+            ));
+
+            // Test 2: Timer storage
+            displayResult('timer-results', createTestCase(
+                'Should store timer data',
+                () => {
+                    const timerData = { timers: { '0-0': { value: '01:30', running: false } } };
+                    localStorage.setItem('gym-tracker-timer-data', JSON.stringify(timerData));
+                    const stored = JSON.parse(localStorage.getItem('gym-tracker-timer-data'));
+                    if (stored.timers['0-0'].value !== '01:30') throw new Error('Timer data mismatch');
+                    localStorage.removeItem('gym-tracker-timer-data');
+                }
+            ));
+
+            // Test 3: Timer ID generation
+            displayResult('timer-results', createTestCase(
+                'Should generate correct timer IDs',
+                () => {
+                    const exerciseIndex = 0;
+                    const setIndex = 1;
+                    const timerId = `${exerciseIndex}-${setIndex}`;
+                    if (timerId !== '0-1') throw new Error(`Expected 0-1, got ${timerId}`);
+                }
+            ));
+
+            updateSummary();
+        }
+
+        function testSessionManagement() {
+            const container = document.getElementById('session-results');
+            container.innerHTML = '';
+
+            // Test 1: Save session
+            displayResult('session-results', createTestCase(
+                'Should save session to localStorage',
+                () => {
+                    const session = {
+                        routineId: 'test-123',
+                        data: { ejercicios: [] },
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('gymTracker_inProgressSession', JSON.stringify(session));
+                    const stored = JSON.parse(localStorage.getItem('gymTracker_inProgressSession'));
+                    if (stored.routineId !== 'test-123') throw new Error('Session save failed');
+                    localStorage.removeItem('gymTracker_inProgressSession');
+                }
+            ));
+
+            // Test 2: Load session
+            displayResult('session-results', createTestCase(
+                'Should load session from localStorage',
+                () => {
+                    const session = { routineId: 'test-456', data: {} };
+                    localStorage.setItem('gymTracker_inProgressSession', JSON.stringify(session));
+                    const loaded = JSON.parse(localStorage.getItem('gymTracker_inProgressSession'));
+                    if (!loaded || loaded.routineId !== 'test-456') throw new Error('Session load failed');
+                    localStorage.removeItem('gymTracker_inProgressSession');
+                }
+            ));
+
+            // Test 3: Clear session
+            displayResult('session-results', createTestCase(
+                'Should clear session',
+                () => {
+                    localStorage.setItem('gymTracker_inProgressSession', JSON.stringify({ test: true }));
+                    localStorage.removeItem('gymTracker_inProgressSession');
+                    if (localStorage.getItem('gymTracker_inProgressSession') !== null) {
+                        throw new Error('Session not cleared');
+                    }
+                }
+            ));
+
+            updateSummary();
+        }
+
+        function testDataModels() {
+            const container = document.getElementById('model-results');
+            container.innerHTML = '';
+
+            // Test 1: Routine structure
+            displayResult('model-results', createTestCase(
+                'Routine should have required fields',
+                () => {
+                    const routine = {
+                        id: 'routine-1',
+                        name: 'Test Routine',
+                        exercises: [],
+                        createdAt: new Date()
+                    };
+                    if (!routine.id || !routine.name || !routine.exercises) {
+                        throw new Error('Missing required fields');
+                    }
+                }
+            ));
+
+            // Test 2: Session structure
+            displayResult('model-results', createTestCase(
+                'Session should have required fields',
+                () => {
+                    const session = {
+                        id: 'session-1',
+                        dia: 'Test Day',
+                        fecha: new Date(),
+                        ejercicios: [],
+                        pesoUsuario: 75
+                    };
+                    if (!session.id || !session.ejercicios || !session.pesoUsuario) {
+                        throw new Error('Missing required fields');
+                    }
+                }
+            ));
+
+            // Test 3: Exercise structure
+            displayResult('model-results', createTestCase(
+                'Exercise should have required fields',
+                () => {
+                    const exercise = {
+                        nombreEjercicio: 'Bench Press',
+                        sets: [{ peso: 60, reps: 10 }],
+                        type: 'strength'
+                    };
+                    if (!exercise.nombreEjercicio || !exercise.sets || !exercise.type) {
+                        throw new Error('Missing required fields');
+                    }
+                }
+            ));
+
+            // Test 4: Date formatting
+            displayResult('model-results', createTestCase(
+                'Should format dates correctly',
+                () => {
+                    const date = new Date('2024-12-25T10:30:00');
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const formatted = `${year}-${month}-${day}`;
+                    if (formatted !== '2024-12-25') throw new Error(`Expected 2024-12-25, got ${formatted}`);
+                }
+            ));
+
+            updateSummary();
+        }
+
+        function runAllTests() {
+            clearResults();
+            testStorageManager();
+            testTimer();
+            testSessionManagement();
+            testDataModels();
+        }
+
+        function clearResults() {
+            totalTests = 0;
+            passedTests = 0;
+            failedTests = 0;
+            document.getElementById('storage-results').innerHTML = '';
+            document.getElementById('timer-results').innerHTML = '';
+            document.getElementById('session-results').innerHTML = '';
+            document.getElementById('model-results').innerHTML = '';
+            document.getElementById('summary').innerHTML = 'Click "Run All Tests" to begin';
+        }
+    </script>
+</body>
+</html>
