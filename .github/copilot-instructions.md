@@ -40,6 +40,7 @@ This is a Progressive Web App (PWA) for tracking workout sessions built with van
 - Each module should have a single responsibility
 - Keep DOM manipulation in `ui.js`
 - Keep Firebase operations in relevant functional modules
+- Exercise cache management in `exercise-cache.js`
 
 ## Key Architectural Patterns
 
@@ -50,10 +51,11 @@ This is a Progressive Web App (PWA) for tracking workout sessions built with van
 - `auth.js`: Firebase authentication logic
 - `firebase-config.js`: Firebase initialization
 - `storage-manager.js`: LocalStorage operations
-- `version-manager.js`: Version control and cache management
+- `version-manager.js`: Version detection, session backup/restore, cache clearing, and update notifications
 - `theme-manager.js`: Theme switching and persistence
 - `timer.js`: Workout timer functionality
 - `progress.js`: Exercise progress tracking and charts
+- `exercise-cache.js`: Exercise history caching and workout suggestions
 
 ### State Management
 
@@ -76,7 +78,7 @@ The app uses a custom versioning system documented in `VERSION-SYSTEM.md`:
 
 - Version is defined in `manifest.json` as the single source of truth
 - Use `update-version.js` script to update versions: `node update-version.js [major|minor|patch|version]`
-- Version updates trigger cache clearing and session backup/restore
+- Version updates trigger cache clearing, session backup/restore, and exercise cache validation/rebuilding
 - Service worker cache is named `gym-tracker-v{VERSION}`
 
 ## Testing & Development
@@ -97,6 +99,8 @@ The app uses a custom versioning system documented in `VERSION-SYSTEM.md`:
 5. Theme switching
 6. Offline functionality (PWA)
 7. Version updates and cache clearing
+8. Exercise cache functionality and suggestions
+9. Version update scenarios with session preservation
 
 ### Development Workflow
 
