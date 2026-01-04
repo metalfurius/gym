@@ -12,8 +12,8 @@
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
     "serve": "python3 -m http.server 8080",
-    "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --ext .js --fix"
+    "lint": "eslint . --ext .js,.cjs",
+    "lint:fix": "eslint . --ext .js,.cjs --fix"
   },
   "keywords": [
     "workout",

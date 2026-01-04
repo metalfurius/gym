@@ -3,9 +3,6 @@ name: Version Bump
 on:
   push:
     branches: [main]
-  pull_request:
-    types: [closed]
-    branches: [main]
 
 permissions:
   contents: write
@@ -13,8 +10,6 @@ permissions:
 jobs:
   version-bump:
     name: Bump Version
-    # Only run on push to main or when a PR is merged (not just closed)
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
 
     steps:
@@ -40,18 +35,9 @@ jobs:
           # Default to patch (most minor version jump)
           BUMP_TYPE="patch"
           
-          # Check for PR labels if this was a PR merge
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
-            
-            if echo "$LABELS" | grep -q '"version:major"'; then
-              BUMP_TYPE="major"
-            elif echo "$LABELS" | grep -q '"version:minor"'; then
-              BUMP_TYPE="minor"
-            elif echo "$LABELS" | grep -q '"version:patch"'; then
-              BUMP_TYPE="patch"
-            fi
-          fi
+          # Note: PR labels are not used here because this workflow runs on push events.
+          # When a PR is merged, GitHub generates a push event to main.
+          # Use commit message keywords ([major], [minor], [patch]) for version control.
           
           # Check commit message for version bump keywords
           COMMIT_MSG="${{ github.event.head_commit.message || github.event.pull_request.title }}"

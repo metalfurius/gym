@@ -42,6 +42,14 @@ module.exports = {
     'dist/',
     '*.min.js',
   ],
+  overrides: [
+    {
+      files: ['*.cjs'],
+      parserOptions: {
+        sourceType: 'script',
+      },
+    },
+  ],
   globals: {
     // Firebase globals loaded via CDN
     'firebase': 'readonly',
