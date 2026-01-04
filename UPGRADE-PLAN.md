@@ -58,12 +58,12 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [x] Ensure Firebase works correctly on both platforms
 - [x] Test offline functionality on native apps
 
-### GitHub Actions for Mobile Builds (Debug APK/IPA)
-- [ ] Create `.github/workflows/build-android.yml` - build debug APK (no signing required)
-- [ ] Create `.github/workflows/build-ios.yml` - build debug IPA (macOS runner, no signing)
-- [ ] Upload debug builds as GitHub Actions artifacts for download
-- [ ] Keep GitHub Pages deployment for web version
-- [ ] Add build status badges for mobile builds to README.md
+### GitHub Actions for Mobile Builds (Debug APK/iOS Simulator App)
+- [x] Create `.github/workflows/build-android.yml` - build debug APK (no signing required)
+- [x] Create `.github/workflows/build-ios.yml` - build debug iOS simulator app bundle (macOS runner, no signing)
+- [x] Upload debug builds as GitHub Actions artifacts for download
+- [x] Keep GitHub Pages deployment for web version
+- [x] Add build status badges for mobile builds to README.md
 
 ### Native Features Integration
 - [ ] Add push notifications support (Firebase Cloud Messaging)
