@@ -6,35 +6,37 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ## Phase 1: GitHub Actions & CI/CD Automation
 
-**Goal:** Automate testing, version management, and repository maintenance using GitHub Actions.
+**Goal:** Automate testing, version management, and repository maintenance using GitHub Actions and AI agents. **All tasks in this phase should be fully automated—no manual intervention required.**
 
-### Testing Automation
-- [ ] Create GitHub Actions workflow for running tests on pull requests
-- [ ] Configure test workflow to run on `push` to main branch
-- [ ] Add test status badge to README.md
-- [ ] Configure test coverage reporting (upload to Codecov or similar)
-- [ ] Set up test result annotations in pull request reviews
+> **Note:** All items below are GitHub Actions workflows or repository settings that run automatically. When new testable code is added, an AI agent can be prompted to generate or update tests accordingly.
 
-### Version Management Automation
-- [ ] Create workflow to auto-increment version on merge to main
-- [ ] Add option to specify version bump type (patch/minor/major) via commit message or PR label
-- [ ] Auto-generate release notes from commit history
-- [ ] Create GitHub releases automatically with version tags
-- [ ] Update service worker cache version automatically
+### Testing Automation (GitHub Actions)
+- [ ] Create `.github/workflows/test.yml` - runs tests on pull requests automatically
+- [ ] Configure test workflow to trigger on `push` to main branch
+- [ ] Add test status badge to README.md (auto-generated from workflow)
+- [ ] Configure test coverage reporting workflow (upload to Codecov or similar)
+- [ ] Set up test result annotations in PR reviews (GitHub Actions feature)
+- [ ] AI agent task: When new code is added, prompt AI to generate/update tests
 
-### Branch & PR Management
-- [ ] Enable automatic branch deletion after PR merge
-- [ ] Add PR template with checklist for contributors
-- [ ] Configure branch protection rules for main branch
-- [ ] Require passing tests before merge
-- [ ] Add labeling automation for PRs (e.g., by file changes)
+### Version Management Automation (GitHub Actions)
+- [ ] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
+- [ ] Add support for version bump type via PR labels (patch/minor/major)
+- [ ] Create `.github/workflows/release.yml` - auto-generate release notes from commits
+- [ ] Auto-create GitHub releases with version tags on merge
+- [ ] Auto-update service worker cache version in the release workflow
 
-### Code Quality Automation
-- [ ] Add ESLint configuration and workflow
-- [ ] Configure Prettier for code formatting
-- [ ] Add pre-commit hooks with Husky (optional, for local development)
-- [ ] Set up dependency vulnerability scanning (Dependabot)
-- [ ] Add CodeQL security scanning workflow
+### Branch & PR Management (Repository Settings + Actions)
+- [ ] Enable "Automatically delete head branches" in repository settings
+- [ ] Create `.github/PULL_REQUEST_TEMPLATE.md` for contributor checklist
+- [ ] Configure branch protection rules for main (require PR, passing tests)
+- [ ] Create `.github/workflows/labeler.yml` - auto-label PRs by file changes
+
+### Code Quality Automation (GitHub Actions + Dependabot)
+- [ ] Create `.github/workflows/lint.yml` - ESLint checks on PRs
+- [ ] Add `.eslintrc.js` configuration for the project
+- [ ] Create `.github/workflows/format-check.yml` - Prettier formatting checks
+- [ ] Create `.github/dependabot.yml` - automated dependency updates
+- [ ] Create `.github/workflows/codeql.yml` - security scanning on PRs
 
 ---
 
@@ -56,12 +58,12 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [ ] Ensure Firebase works correctly on both platforms
 - [ ] Test offline functionality on native apps
 
-### GitHub Actions for Mobile Builds
-- [ ] Create workflow for building iOS app (requires macOS runner)
-- [ ] Create workflow for building Android app (APK generation)
-- [ ] Set up automated deployment to TestFlight (iOS)
-- [ ] Set up automated deployment to Google Play Internal Testing
+### GitHub Actions for Mobile Builds (Debug APK/IPA)
+- [ ] Create `.github/workflows/build-android.yml` - build debug APK (no signing required)
+- [ ] Create `.github/workflows/build-ios.yml` - build debug IPA (macOS runner, no signing)
+- [ ] Upload debug builds as GitHub Actions artifacts for download
 - [ ] Keep GitHub Pages deployment for web version
+- [ ] Add build status badges for mobile builds to README.md
 
 ### Native Features Integration
 - [ ] Add push notifications support (Firebase Cloud Messaging)
@@ -70,12 +72,14 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [ ] Integrate device health APIs (HealthKit for iOS, Health Connect for Android)
 - [ ] Add biometric authentication option
 
-### App Store Preparation
+### App Store Preparation (Future - When Ready for Release)
 - [ ] Create App Store Connect account and app listing
 - [ ] Create Google Play Console account and app listing
 - [ ] Design app store screenshots and promotional graphics
 - [ ] Write app store descriptions and metadata
 - [ ] Set up app signing certificates and keystores
+
+> **Note:** App store accounts and signing are deferred until the app is ready for public release. Debug builds can be tested without these.
 
 ---
 
@@ -84,10 +88,10 @@ This document outlines the planned improvements and upgrades for the My Workout 
 **Goal:** Transform the app into an AI-powered fitness assistant that provides personalized recommendations, form guidance, and intelligent workout planning.
 
 ### AI Backend Infrastructure
-- [ ] Choose AI service provider (OpenAI, Claude, or self-hosted models)
-- [ ] Set up secure API integration for AI services
-- [ ] Create backend service for AI requests (Firebase Functions or separate backend)
-- [ ] Implement rate limiting and cost management for AI API calls
+- [ ] Use **Gemini Flash 3** as the AI provider (cheap, fast, reliable, integrates with Firebase)
+- [ ] Set up Vertex AI or Gemini API integration through Firebase
+- [ ] Create Firebase Functions for AI request handling
+- [ ] Implement rate limiting and cost management for API calls
 - [ ] Design conversation context management system
 
 ### AI-Powered Workout Assistant
