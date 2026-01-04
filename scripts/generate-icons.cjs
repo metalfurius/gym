@@ -3,6 +3,12 @@
 /**
  * Generate app icons and splash screens for iOS and Android
  * Uses ImageMagick to resize the source icon
+ *
+ * Prerequisites:
+ * - ImageMagick must be installed on the system
+ *   - macOS: brew install imagemagick
+ *   - Ubuntu/Debian: sudo apt-get install imagemagick
+ *   - Windows: Download from https://imagemagick.org/script/download.php
  */
 
 const { execSync } = require('child_process');
@@ -12,6 +18,18 @@ const fs = require('fs');
 const projectRoot = path.resolve(__dirname, '..');
 const sourceIcon = path.join(projectRoot, 'assets/icons/icon-512x512.png');
 
+// Check if ImageMagick is installed
+try {
+  execSync('convert --version', { stdio: 'pipe' });
+} catch {
+  console.error('❌ ImageMagick is not installed.');
+  console.error('   Please install ImageMagick to use this script:');
+  console.error('   - macOS: brew install imagemagick');
+  console.error('   - Ubuntu/Debian: sudo apt-get install imagemagick');
+  console.error('   - Windows: https://imagemagick.org/script/download.php');
+  process.exit(1);
+}
+
 // Verify source icon exists
 if (!fs.existsSync(sourceIcon)) {
   console.error('❌ Source icon not found:', sourceIcon);
@@ -19,30 +37,98 @@ if (!fs.existsSync(sourceIcon)) {
 }
 
 /**
+ * Validate that a value is a positive integer (for size/dimension validation)
+ * @param {number} value - The value to validate
+ * @returns {boolean} - Whether the value is a positive integer
+ */
+function isPositiveInteger(value) {
+  return Number.isInteger(value) && value > 0;
+}
+
+/**
+ * Validate that a color is a valid hex color
+ * @param {string} color - The color to validate
+ * @returns {boolean} - Whether the color is a valid hex color
+ */
+function isValidHexColor(color) {
+  return /^#[0-9A-Fa-f]{6}$/.test(color);
+}
+
+/**
  * Resize an image using ImageMagick
+ * @param {string} source - Source image path (must exist on filesystem)
+ * @param {string} dest - Destination image path
+ * @param {number} size - Target size in pixels (positive integer)
  */
 function resizeImage(source, dest, size) {
+  // Validate size is a positive integer
+  if (!isPositiveInteger(size)) {
+    throw new Error(`Invalid size: ${size}. Must be a positive integer.`);
+  }
+
   const dir = path.dirname(dest);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
-  execSync(`convert "${source}" -resize ${size}x${size} "${dest}"`, {
-    stdio: 'inherit',
-  });
+
+  // Use execFileSync to avoid shell injection (passes args as array)
+  const { execFileSync } = require('child_process');
+  execFileSync(
+    'convert',
+    [source, '-resize', `${size}x${size}`, dest],
+    { stdio: 'inherit' }
+  );
 }
 
 /**
  * Create a splash screen image with the icon centered on a colored background
+ * @param {string} source - Source image path (must exist on filesystem)
+ * @param {string} dest - Destination image path
+ * @param {number} width - Target width in pixels (positive integer)
+ * @param {number} height - Target height in pixels (positive integer)
+ * @param {string} bgColor - Background color in hex format (#RRGGBB)
  */
 function createSplash(source, dest, width, height, bgColor = '#2c3e50') {
+  // Validate dimensions are positive integers
+  if (!isPositiveInteger(width) || !isPositiveInteger(height)) {
+    throw new Error(
+      `Invalid dimensions: ${width}x${height}. Must be positive integers.`
+    );
+  }
+
+  // Validate color format
+  if (!isValidHexColor(bgColor)) {
+    throw new Error(
+      `Invalid color: ${bgColor}. Must be a valid hex color (#RRGGBB).`
+    );
+  }
+
   const dir = path.dirname(dest);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
+
   // Create background with centered icon (icon size = 25% of smallest dimension)
-  const iconSize = Math.min(width, height) * 0.25;
-  execSync(
-    `convert -size ${width}x${height} xc:"${bgColor}" \\( "${source}" -resize ${iconSize}x${iconSize} \\) -gravity center -composite "${dest}"`,
+  const iconSize = Math.floor(Math.min(width, height) * 0.25);
+
+  // Use execFileSync to avoid shell injection (passes args as array)
+  const { execFileSync } = require('child_process');
+  execFileSync(
+    'convert',
+    [
+      '-size',
+      `${width}x${height}`,
+      `xc:${bgColor}`,
+      '(',
+      source,
+      '-resize',
+      `${iconSize}x${iconSize}`,
+      ')',
+      '-gravity',
+      'center',
+      '-composite',
+      dest,
+    ],
     { stdio: 'inherit' }
   );
 }
