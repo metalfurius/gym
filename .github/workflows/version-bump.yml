@@ -1,0 +1,89 @@
+name: Version Bump
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  version-bump:
+    name: Bump Version
+    # Only run on push to main or when a PR is merged (not just closed)
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine version bump type
+        id: bump-type
+        run: |
+          # Default to patch (most minor version jump)
+          BUMP_TYPE="patch"
+          
+          # Check for PR labels if this was a PR merge
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
+            
+            if echo "$LABELS" | grep -q '"version:major"'; then
+              BUMP_TYPE="major"
+            elif echo "$LABELS" | grep -q '"version:minor"'; then
+              BUMP_TYPE="minor"
+            elif echo "$LABELS" | grep -q '"version:patch"'; then
+              BUMP_TYPE="patch"
+            fi
+          fi
+          
+          # Check commit message for version bump keywords
+          COMMIT_MSG="${{ github.event.head_commit.message || github.event.pull_request.title }}"
+          
+          if echo "$COMMIT_MSG" | grep -iq '\[major\]'; then
+            BUMP_TYPE="major"
+          elif echo "$COMMIT_MSG" | grep -iq '\[minor\]'; then
+            BUMP_TYPE="minor"
+          elif echo "$COMMIT_MSG" | grep -iq '\[patch\]'; then
+            BUMP_TYPE="patch"
+          fi
+          
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "Version bump type: $BUMP_TYPE"
+
+      - name: Bump version
+        id: version
+        run: |
+          # Run the version update script with the determined bump type
+          node update-version.cjs ${{ steps.bump-type.outputs.bump_type }}
+          
+          # Get the new version from manifest.json
+          NEW_VERSION=$(node -p "require('./manifest.json').version")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Commit version bump
+        run: |
+          git add manifest.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }} [skip ci]" || echo "No changes to commit"
+          git push
+
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+      bump_type: ${{ steps.bump-type.outputs.bump_type }}

@@ -19,24 +19,24 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [ ] AI agent task: When new code is added, prompt AI to generate/update tests
 
 ### Version Management Automation (GitHub Actions)
-- [ ] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
-- [ ] Add support for version bump type via PR labels (patch/minor/major)
-- [ ] Create `.github/workflows/release.yml` - auto-generate release notes from commits
-- [ ] Auto-create GitHub releases with version tags on merge
-- [ ] Auto-update service worker cache version in the release workflow
+- [x] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
+- [x] Add support for version bump type via PR labels (patch/minor/major)
+- [x] Create `.github/workflows/release.yml` - auto-generate release notes from commits
+- [x] Auto-create GitHub releases with version tags on merge
+- [x] Auto-update service worker cache version in the release workflow
 
 ### Branch & PR Management (Repository Settings + Actions)
 - [ ] Enable "Automatically delete head branches" in repository settings
-- [ ] Create `.github/PULL_REQUEST_TEMPLATE.md` for contributor checklist
+- [x] Create `.github/PULL_REQUEST_TEMPLATE.md` for contributor checklist
 - [ ] Configure branch protection rules for main (require PR, passing tests)
-- [ ] Create `.github/workflows/labeler.yml` - auto-label PRs by file changes
+- [x] Create `.github/workflows/labeler.yml` - auto-label PRs by file changes
 
 ### Code Quality Automation (GitHub Actions + Dependabot)
-- [ ] Create `.github/workflows/lint.yml` - ESLint checks on PRs
-- [ ] Add `.eslintrc.js` configuration for the project
+- [x] Create `.github/workflows/lint.yml` - ESLint checks on PRs
+- [x] Add `.eslintrc.cjs` configuration for the project
 - [ ] Create `.github/workflows/format-check.yml` - Prettier formatting checks
-- [ ] Create `.github/dependabot.yml` - automated dependency updates
-- [ ] Create `.github/workflows/codeql.yml` - security scanning on PRs
+- [x] Create `.github/dependabot.yml` - automated dependency updates
+- [x] Create `.github/workflows/codeql.yml` - security scanning on PRs
 
 ---
 

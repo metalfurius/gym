@@ -38,16 +38,16 @@ Este sistema de versioning está diseñado para solucionar el problema de caché
 #### Actualizar Versión Automáticamente
 ```bash
 # Incrementar patch (1.0.1 → 1.0.2)
-node update-version.js
+node update-version.cjs
 
 # Incrementar minor (1.0.1 → 1.1.0)
-node update-version.js minor
+node update-version.cjs minor
 
 # Incrementar major (1.0.1 → 2.0.0)
-node update-version.js major
+node update-version.cjs major
 
 # Establecer versión específica
-node update-version.js 1.2.3
+node update-version.cjs 1.2.3
 ```
 
 #### Actualización Manual
@@ -72,7 +72,7 @@ Ahora solo necesitas actualizar un archivo:
 
 ```
 js/version-manager.js     # Lógica principal del sistema
-update-version.js         # Script para actualizar versiones
+update-version.cjs        # Script para actualizar versiones
 sw.js                     # Service Worker con control de caché
 manifest.json             # Metadatos de la PWA
 ```

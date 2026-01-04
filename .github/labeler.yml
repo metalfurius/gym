@@ -1,0 +1,63 @@
+# Configuration for the labeler action
+# Labels PRs based on the files changed
+
+# JavaScript changes
+javascript:
+  - changed-files:
+      - any-glob-to-any-file: 'js/**/*.js'
+      - any-glob-to-any-file: '*.js'
+
+# CSS/Styling changes
+css:
+  - changed-files:
+      - any-glob-to-any-file: 'css/**/*.css'
+      - any-glob-to-any-file: '*.css'
+
+# HTML changes
+html:
+  - changed-files:
+      - any-glob-to-any-file: '*.html'
+
+# Test changes
+tests:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**/*'
+      - any-glob-to-any-file: '*.test.js'
+      - any-glob-to-any-file: 'jest.config.js'
+
+# Documentation changes
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: '*.md'
+      - any-glob-to-any-file: 'docs/**/*'
+
+# GitHub Actions / CI changes
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**/*'
+
+# Configuration changes
+config:
+  - changed-files:
+      - any-glob-to-any-file: 'package.json'
+      - any-glob-to-any-file: 'manifest.json'
+      - any-glob-to-any-file: '.eslintrc.*'
+      - any-glob-to-any-file: '.prettierrc*'
+      - any-glob-to-any-file: 'jest.config.js'
+
+# PWA / Service Worker changes
+pwa:
+  - changed-files:
+      - any-glob-to-any-file: 'sw.js'
+      - any-glob-to-any-file: 'manifest.json'
+
+# Assets changes
+assets:
+  - changed-files:
+      - any-glob-to-any-file: 'assets/**/*'
+
+# Version bump labels (manually applied)
+# These are used by the version-bump workflow to determine bump type
+# version:major - for major version bumps (breaking changes)
+# version:minor - for minor version bumps (new features)
+# version:patch - for patch version bumps (bug fixes)
