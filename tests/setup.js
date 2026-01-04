@@ -1,4 +1,6 @@
 // Test setup file - runs before all tests
+import { jest, beforeEach } from '@jest/globals';
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store = {};
@@ -60,10 +62,6 @@ global.navigator.storage = {
   persisted: async () => true,
   persist: async () => true,
 };
-
-// Mock Firebase modules
-jest.mock('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js', () => ({}), { virtual: true });
-jest.mock('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js', () => ({}), { virtual: true });
 
 // Setup console spies to reduce noise without replacing the global console object
 const silenceConsole = !process.env.JEST_VERBOSE_CONSOLE;
