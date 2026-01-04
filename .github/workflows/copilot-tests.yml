@@ -33,9 +33,11 @@ jobs:
 
       - name: Get changed JS files
         id: changed-files
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           # Get list of changed JS files (excluding test files)
-          CHANGED_JS=$(git diff --name-only origin/main...HEAD -- 'js/**/*.js' ':!js/**/*.test.js' ':!tests/**' 2>/dev/null || echo "")
+          CHANGED_JS=$(git diff --name-only origin/${BASE_REF}...HEAD -- 'js/**/*.js' ':!js/**/*.test.js' ':!tests/**' 2>/dev/null || echo "")
           echo "Changed JS files: $CHANGED_JS"
           
           if [ -z "$CHANGED_JS" ]; then
@@ -74,8 +76,14 @@ jobs:
               BASENAME=$(basename "$file" .js)
               DIRNAME=$(dirname "$file")
               
-              # Check for unit test file
-              if [ ! -f "tests/unit/${BASENAME}.test.js" ] && [ ! -f "tests/unit/${BASENAME}.test.mjs" ]; then
+              # Check for test files in multiple locations:
+              # 1. Adjacent test file (e.g., js/app.test.js)
+              # 2. Unit test directory (e.g., tests/unit/app.test.js)
+              ADJACENT_TEST="${DIRNAME}/${BASENAME}.test.js"
+              UNIT_TEST="tests/unit/${BASENAME}.test.js"
+              UNIT_TEST_MJS="tests/unit/${BASENAME}.test.mjs"
+              
+              if [ ! -f "$ADJACENT_TEST" ] && [ ! -f "$UNIT_TEST" ] && [ ! -f "$UNIT_TEST_MJS" ]; then
                 MISSING_TESTS="${MISSING_TESTS}${file}\n"
               fi
             fi
