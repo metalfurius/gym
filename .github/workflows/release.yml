@@ -23,6 +23,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Ensure latest main
+        run: |
+          git pull origin main
+
       - name: Get current version
         id: version
         run: |
