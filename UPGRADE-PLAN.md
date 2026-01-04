@@ -45,16 +45,16 @@ This document outlines the planned improvements and upgrades for the My Workout 
 **Goal:** Convert the PWA into native iOS and Android apps using Capacitor while maintaining the current web deployment.
 
 ### Capacitor Setup
-- [ ] Install and configure Capacitor in the project
-- [ ] Create `capacitor.config.ts` configuration file
-- [ ] Add iOS platform support
-- [ ] Add Android platform support
-- [ ] Configure app icons and splash screens for both platforms
+- [x] Install and configure Capacitor in the project
+- [x] Create `capacitor.config.ts` configuration file
+- [x] Add iOS platform support
+- [x] Add Android platform support
+- [x] Configure app icons and splash screens for both platforms
 
 ### Build Configuration
-- [ ] Create separate build scripts for web, iOS, and Android
+- [x] Create separate build scripts for web, iOS, and Android
 - [ ] Set up environment-specific configurations (development, staging, production)
-- [ ] Configure Capacitor to use the existing web assets
+- [x] Configure Capacitor to use the existing web assets
 - [ ] Ensure Firebase works correctly on both platforms
 - [ ] Test offline functionality on native apps
 

@@ -15,7 +15,14 @@
     "lint": "eslint . --ext .js,.cjs",
     "lint:fix": "eslint . --ext .js,.cjs --fix",
     "format": "prettier --write \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",
-    "format:check": "prettier --check \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore"
+    "format:check": "prettier --check \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",
+    "build:web": "node scripts/build-web.cjs",
+    "cap:sync": "npm run build:web && npx cap sync",
+    "cap:build:ios": "npm run build:web && npx cap sync ios",
+    "cap:build:android": "npm run build:web && npx cap sync android",
+    "cap:open:ios": "npx cap open ios",
+    "cap:open:android": "npx cap open android",
+    "cap:icons": "node scripts/generate-icons.cjs"
   },
   "keywords": [
     "workout",
@@ -31,6 +38,14 @@
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "jest-junit": "^16.0.0",
-    "prettier": "^3.7.4"
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0"
   }
 }
