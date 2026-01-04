@@ -86,15 +86,19 @@ self.addEventListener('fetch', event => {
           networkResponse => {
             // IMPORTANT: Check if we received a valid response AND if it's something we WANT to cache.
             // This is the crucial part that fixes the errors.
+            // Parse the request URL once for reliable host-based checks
+            const requestUrl = new URL(event.request.url);
+            const requestHost = requestUrl.hostname;
+
             if (
               networkResponse &&                          // We got a response
               networkResponse.status === 200 &&           // It's a successful response
               event.request.method === 'GET' &&           // <<< ONLY cache GET requests
-              (event.request.url.startsWith('http:') ||   // <<< ONLY cache http or https schemes
-               event.request.url.startsWith('https:')) &&
-              !event.request.url.includes('firestore.googleapis.com') && // Don't cache Firestore API calls
-              !event.request.url.includes('firebaseapp.com') // Generally, don't cache auth domain interactions unless specific static assets
-                                                             // This also helps avoid caching other potential Firebase service calls.
+              (requestUrl.protocol === 'http:' ||         // <<< ONLY cache http or https schemes
+               requestUrl.protocol === 'https:') &&
+              requestHost !== 'firestore.googleapis.com' && // Don't cache Firestore API calls
+              requestHost !== 'firebaseapp.com' &&          // Generally, don't cache auth domain interactions unless specific static assets
+              !requestHost.endsWith('.firebaseapp.com')     // Also avoid subdomains of firebaseapp.com for auth/service calls
             ) {              // Clone the response to use it in the cache and to return to the browser.
               const responseToCache = networkResponse.clone();
               
