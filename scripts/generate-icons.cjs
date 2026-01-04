@@ -11,7 +11,7 @@
  *   - Windows: Download from https://imagemagick.org/script/download.php
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -72,7 +72,6 @@ function resizeImage(source, dest, size) {
   }
 
   // Use execFileSync to avoid shell injection (passes args as array)
-  const { execFileSync } = require('child_process');
   execFileSync(
     'convert',
     [source, '-resize', `${size}x${size}`, dest],
@@ -112,7 +111,6 @@ function createSplash(source, dest, width, height, bgColor = '#2c3e50') {
   const iconSize = Math.floor(Math.min(width, height) * 0.25);
 
   // Use execFileSync to avoid shell injection (passes args as array)
-  const { execFileSync } = require('child_process');
   execFileSync(
     'convert',
     [
