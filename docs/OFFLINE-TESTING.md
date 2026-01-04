@@ -94,7 +94,11 @@ npm run cap:open:ios
 1. Open emulator
 2. Go to Settings > Network & Internet > WiFi
 3. Toggle WiFi off to simulate offline
-4. Or use Android Studio's Network Inspector
+4. Or use Android Studio's Network Inspector:
+   - Run the app from Android Studio on the emulator
+   - In Android Studio, go to **View > Tool Windows > App Inspection**, then open **Network Inspector**
+   - Select your emulator and app process, then use the network profiles (e.g., **Offline**) to simulate connectivity loss
+   - For more details, see the official docs: https://developer.android.com/studio/profile/network-profiler
 
 #### Using Physical Device
 1. Enable Airplane mode
@@ -110,9 +114,10 @@ npm run cap:open:ios
 ### iOS
 
 #### Using iOS Simulator
-1. Hardware > Network > Airplane Mode (if available)
-2. Or use Network Link Conditioner
-3. System Preferences > Network Link Conditioner
+1. Use **Network Link Conditioner** to simulate offline or poor connectivity
+2. On macOS, enable it via System Settings (or System Preferences) > Developer > Network Link Conditioner
+3. Alternatively, disable WiFi or disconnect the network on the host Mac to simulate being offline
+   > Note: Most iOS Simulator versions do not provide an Airplane Mode option in the Hardware > Network menu.
 
 #### Using Physical Device
 1. Control Center > Airplane Mode

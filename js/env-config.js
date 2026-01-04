@@ -18,7 +18,13 @@
  * @property {boolean} enableAnalytics - Enable analytics tracking
  * @property {boolean} enablePerformanceMonitoring - Enable performance monitoring
  * @property {string} logLevel - Logging level (debug, info, warn, error)
- * @property {Object} firebase - Firebase configuration overrides
+ * @property {Object} api - API-related configuration
+ * @property {number} api.timeout - API request timeout in milliseconds
+ * @property {number} api.retryAttempts - Number of retry attempts for failed API requests
+ * @property {Object} cache - Cache-related configuration
+ * @property {boolean} cache.enabled - Whether cache is enabled
+ * @property {number} cache.maxAge - Maximum cache age in milliseconds
+ * @property {Object} firebase - Firebase configuration overrides (populate with project-specific values)
  */
 
 /**
@@ -40,8 +46,10 @@ const environments = {
       maxAge: 300000, // 5 minutes
     },
     firebase: {
-      // Development can use the same Firebase project or a separate dev project
-      // Override specific settings here if needed
+      // Development can use the same Firebase project or a separate dev project.
+      // Populate with environment-specific Firebase config values if needed:
+      // apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId
+      // See docs/FIREBASE-NATIVE-SETUP.md for configuration options.
     },
   },
 
@@ -60,8 +68,10 @@ const environments = {
       maxAge: 600000, // 10 minutes
     },
     firebase: {
-      // Staging can use a separate Firebase project
-      // Override settings here if needed
+      // Staging can use a separate Firebase project.
+      // Populate with environment-specific Firebase config values if needed:
+      // apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId
+      // See docs/FIREBASE-NATIVE-SETUP.md for configuration options.
     },
   },
 
@@ -80,7 +90,10 @@ const environments = {
       maxAge: 3600000, // 1 hour
     },
     firebase: {
-      // Production Firebase settings
+      // Production Firebase settings.
+      // Populate with environment-specific Firebase config values if needed:
+      // apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId
+      // See docs/FIREBASE-NATIVE-SETUP.md for configuration options.
     },
   },
 };

@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import {
   environments,
   detectEnvironment,
@@ -154,6 +154,132 @@ describe('env-config', () => {
 
     it('isAndroid should return false when no Capacitor', () => {
       expect(platform.isAndroid()).toBe(false);
+    });
+  });
+
+  describe('platform detection with mocked Capacitor', () => {
+    let originalCapacitor;
+
+    beforeEach(() => {
+      originalCapacitor = window.Capacitor;
+    });
+
+    afterEach(() => {
+      if (originalCapacitor === undefined) {
+        delete window.Capacitor;
+      } else {
+        window.Capacitor = originalCapacitor;
+      }
+    });
+
+    it('should detect iOS platform when Capacitor reports ios', () => {
+      window.Capacitor = {
+        getPlatform: () => 'ios',
+        isNativePlatform: () => true,
+      };
+      expect(platform.isIOS()).toBe(true);
+      expect(platform.isAndroid()).toBe(false);
+      expect(platform.isNative()).toBe(true);
+      expect(platform.getName()).toBe('ios');
+    });
+
+    it('should detect Android platform when Capacitor reports android', () => {
+      window.Capacitor = {
+        getPlatform: () => 'android',
+        isNativePlatform: () => true,
+      };
+      expect(platform.isAndroid()).toBe(true);
+      expect(platform.isIOS()).toBe(false);
+      expect(platform.isNative()).toBe(true);
+      expect(platform.getName()).toBe('android');
+    });
+
+    it('should detect web platform in Capacitor web mode', () => {
+      window.Capacitor = {
+        getPlatform: () => 'web',
+        isNativePlatform: () => false,
+      };
+      expect(platform.isWeb()).toBe(true);
+      expect(platform.isNative()).toBe(false);
+      expect(platform.getName()).toBe('web');
+    });
+  });
+
+  describe('environment detection with __APP_ENV__ override', () => {
+    let originalAppEnv;
+
+    beforeEach(() => {
+      originalAppEnv = window.__APP_ENV__;
+    });
+
+    afterEach(() => {
+      if (originalAppEnv === undefined) {
+        delete window.__APP_ENV__;
+      } else {
+        window.__APP_ENV__ = originalAppEnv;
+      }
+    });
+
+    it('should use __APP_ENV__ when set to staging', () => {
+      window.__APP_ENV__ = 'staging';
+      expect(detectEnvironment()).toBe('staging');
+    });
+
+    it('should use __APP_ENV__ when set to production', () => {
+      window.__APP_ENV__ = 'production';
+      expect(detectEnvironment()).toBe('production');
+    });
+
+    it('should use __APP_ENV__ when set to development', () => {
+      window.__APP_ENV__ = 'development';
+      expect(detectEnvironment()).toBe('development');
+    });
+
+    it('should override hostname detection with __APP_ENV__', () => {
+      // jsdom sets hostname to localhost (development), but __APP_ENV__ should override
+      window.__APP_ENV__ = 'production';
+      expect(detectEnvironment()).toBe('production');
+    });
+  });
+
+  describe('native app environment detection', () => {
+    let originalCapacitor;
+    let originalAppEnv;
+
+    beforeEach(() => {
+      originalCapacitor = window.Capacitor;
+      originalAppEnv = window.__APP_ENV__;
+    });
+
+    afterEach(() => {
+      if (originalCapacitor === undefined) {
+        delete window.Capacitor;
+      } else {
+        window.Capacitor = originalCapacitor;
+      }
+      if (originalAppEnv === undefined) {
+        delete window.__APP_ENV__;
+      } else {
+        window.__APP_ENV__ = originalAppEnv;
+      }
+    });
+
+    it('should default to production for native apps without __APP_ENV__', () => {
+      delete window.__APP_ENV__;
+      window.Capacitor = {
+        getPlatform: () => 'ios',
+        isNativePlatform: () => true,
+      };
+      expect(detectEnvironment()).toBe('production');
+    });
+
+    it('should use __APP_ENV__ for native apps when set', () => {
+      window.__APP_ENV__ = 'staging';
+      window.Capacitor = {
+        getPlatform: () => 'android',
+        isNativePlatform: () => true,
+      };
+      expect(detectEnvironment()).toBe('staging');
     });
   });
 

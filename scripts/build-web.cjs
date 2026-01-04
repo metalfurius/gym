@@ -93,19 +93,36 @@ itemsToCopy.forEach((item) => {
 const indexPath = path.join(distDir, 'index.html');
 if (fs.existsSync(indexPath)) {
   let indexContent = fs.readFileSync(indexPath, 'utf8');
-  
-  // Inject environment variable before other scripts
-  const envScript = `<script>window.__APP_ENV__ = '${environment}';</script>`;
-  
-  // Insert before the closing </head> tag or before the first <script> tag
+
+  // Inject environment variable before other scripts, using JSON.stringify for safe serialization
+  const serializedEnvironment = JSON.stringify(environment);
+  const envScript = `<script>window.__APP_ENV__ = ${serializedEnvironment};</script>`;
+  let injected = false;
+
+  // Prefer inserting before the closing </head> tag
   if (indexContent.includes('</head>')) {
     indexContent = indexContent.replace('</head>', `  ${envScript}\n  </head>`);
-  } else if (indexContent.includes('<script')) {
-    indexContent = indexContent.replace('<script', `${envScript}\n  <script`);
+    injected = true;
+  } else {
+    // Fallback: insert immediately after the opening <head> tag if present
+    const headOpenMatch = indexContent.match(/<head[^>]*>/i);
+    if (headOpenMatch && headOpenMatch[0]) {
+      const headTag = headOpenMatch[0];
+      indexContent = indexContent.replace(headTag, `${headTag}\n  ${envScript}`);
+      injected = true;
+    } else if (indexContent.includes('<script')) {
+      // Last resort: insert before the first <script> tag
+      indexContent = indexContent.replace('<script', `${envScript}\n  <script`);
+      injected = true;
+    }
   }
-  
-  fs.writeFileSync(indexPath, indexContent);
-  console.log(`✓ Injected environment: ${environment}`);
+
+  if (injected) {
+    fs.writeFileSync(indexPath, indexContent);
+    console.log(`✓ Injected environment: ${environment}`);
+  } else {
+    console.warn('⚠ Could not inject environment configuration into index.html: no <head> or <script> tag found.');
+  }
 }
 
 console.log(`\n✅ Web build complete for ${environment}! Output in: dist/`);

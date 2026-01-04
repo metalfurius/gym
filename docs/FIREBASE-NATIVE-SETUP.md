@@ -138,10 +138,11 @@ service cloud.firestore {
 
 1. **Enable verbose logging** in development:
    ```javascript
+   import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
    import { isDebugEnabled } from './env-config.js';
    
    if (isDebugEnabled()) {
-     firebase.firestore.setLogLevel('debug');
+     setLogLevel('debug');
    }
    ```
 
