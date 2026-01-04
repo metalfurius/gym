@@ -53,10 +53,10 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ### Build Configuration
 - [x] Create separate build scripts for web, iOS, and Android
-- [ ] Set up environment-specific configurations (development, staging, production)
+- [x] Set up environment-specific configurations (development, staging, production)
 - [x] Configure Capacitor to use the existing web assets
-- [ ] Ensure Firebase works correctly on both platforms
-- [ ] Test offline functionality on native apps
+- [x] Ensure Firebase works correctly on both platforms
+- [x] Test offline functionality on native apps
 
 ### GitHub Actions for Mobile Builds (Debug APK/IPA)
 - [ ] Create `.github/workflows/build-android.yml` - build debug APK (no signing required)

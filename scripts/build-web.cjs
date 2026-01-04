@@ -3,10 +3,40 @@
 /**
  * Build script for web assets
  * Copies the web application files to the dist folder for Capacitor builds
+ * 
+ * Usage:
+ *   node scripts/build-web.cjs [environment]
+ * 
+ * Arguments:
+ *   environment - Optional. One of: development, staging, production (default: production)
+ * 
+ * Examples:
+ *   node scripts/build-web.cjs                  # Build for production
+ *   node scripts/build-web.cjs production       # Build for production
+ *   node scripts/build-web.cjs staging          # Build for staging
+ *   node scripts/build-web.cjs development      # Build for development
  */
 
 const fs = require('fs');
 const path = require('path');
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const validEnvironments = ['development', 'staging', 'production'];
+let environment = 'production'; // Default environment
+
+if (args.length > 0) {
+  const envArg = args[0].toLowerCase();
+  if (validEnvironments.includes(envArg)) {
+    environment = envArg;
+  } else {
+    console.error(`❌ Invalid environment: ${args[0]}`);
+    console.error(`   Valid options: ${validEnvironments.join(', ')}`);
+    process.exit(1);
+  }
+}
+
+console.log(`🔧 Building for environment: ${environment}\n`);
 
 const sourceDir = path.resolve(__dirname, '..');
 const distDir = path.resolve(__dirname, '../dist');
@@ -59,4 +89,40 @@ itemsToCopy.forEach((item) => {
   }
 });
 
-console.log('\n✅ Web build complete! Output in: dist/');
+// Inject environment configuration into index.html
+const indexPath = path.join(distDir, 'index.html');
+if (fs.existsSync(indexPath)) {
+  let indexContent = fs.readFileSync(indexPath, 'utf8');
+
+  // Inject environment variable before other scripts, using JSON.stringify for safe serialization
+  const serializedEnvironment = JSON.stringify(environment);
+  const envScript = `<script>window.__APP_ENV__ = ${serializedEnvironment};</script>`;
+  let injected = false;
+
+  // Prefer inserting before the closing </head> tag
+  if (indexContent.includes('</head>')) {
+    indexContent = indexContent.replace('</head>', `  ${envScript}\n  </head>`);
+    injected = true;
+  } else {
+    // Fallback: insert immediately after the opening <head> tag if present
+    const headOpenMatch = indexContent.match(/<head[^>]*>/i);
+    if (headOpenMatch && headOpenMatch[0]) {
+      const headTag = headOpenMatch[0];
+      indexContent = indexContent.replace(headTag, `${headTag}\n  ${envScript}`);
+      injected = true;
+    } else if (indexContent.includes('<script')) {
+      // Last resort: insert before the first <script> tag
+      indexContent = indexContent.replace('<script', `${envScript}\n  <script`);
+      injected = true;
+    }
+  }
+
+  if (injected) {
+    fs.writeFileSync(indexPath, indexContent);
+    console.log(`✓ Injected environment: ${environment}`);
+  } else {
+    console.warn('⚠ Could not inject environment configuration into index.html: no <head> or <script> tag found.');
+  }
+}
+
+console.log(`\n✅ Web build complete for ${environment}! Output in: dist/`);
