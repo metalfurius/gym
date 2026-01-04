@@ -1,0 +1,170 @@
+name: Copilot Test Generation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'js/**/*.js'
+      - '!js/**/*.test.js'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-tests:
+    name: Check and Request Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get changed JS files
+        id: changed-files
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          # Get list of changed JS files (excluding test files)
+          CHANGED_JS=$(git diff --name-only origin/${BASE_REF}...HEAD -- 'js/**/*.js' ':!js/**/*.test.js' ':!tests/**' 2>/dev/null || echo "")
+          echo "Changed JS files: $CHANGED_JS"
+          
+          if [ -z "$CHANGED_JS" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            # Save to file for later use
+            echo "$CHANGED_JS" > /tmp/changed_files.txt
+          fi
+
+      - name: Run existing tests
+        id: run-tests
+        if: steps.changed-files.outputs.has_changes == 'true'
+        run: |
+          # Run tests and capture exit code
+          set +e
+          npm run test:coverage 2>&1 | tee /tmp/test_output.txt
+          TEST_EXIT_CODE=$?
+          set -e
+          
+          if [ $TEST_EXIT_CODE -eq 0 ]; then
+            echo "tests_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "tests_passed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check test coverage for changed files
+        id: coverage-check
+        if: steps.changed-files.outputs.has_changes == 'true'
+        run: |
+          # Check if changed files have corresponding tests
+          MISSING_TESTS=""
+          while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              # Get the base name without extension
+              BASENAME=$(basename "$file" .js)
+              DIRNAME=$(dirname "$file")
+              
+              # Check for test files in multiple locations:
+              # 1. Adjacent test file (e.g., js/app.test.js)
+              # 2. Unit test directory (e.g., tests/unit/app.test.js)
+              ADJACENT_TEST="${DIRNAME}/${BASENAME}.test.js"
+              UNIT_TEST="tests/unit/${BASENAME}.test.js"
+              UNIT_TEST_MJS="tests/unit/${BASENAME}.test.mjs"
+              
+              if [ ! -f "$ADJACENT_TEST" ] && [ ! -f "$UNIT_TEST" ] && [ ! -f "$UNIT_TEST_MJS" ]; then
+                MISSING_TESTS="${MISSING_TESTS}${file}\n"
+              fi
+            fi
+          done < /tmp/changed_files.txt
+          
+          if [ -n "$MISSING_TESTS" ]; then
+            echo "needs_tests=true" >> $GITHUB_OUTPUT
+            echo -e "$MISSING_TESTS" > /tmp/missing_tests.txt
+          else
+            echo "needs_tests=false" >> $GITHUB_OUTPUT
+            # Create empty file to avoid read errors in the comment step
+            touch /tmp/missing_tests.txt
+          fi
+
+      - name: Comment on PR requesting Copilot test generation
+        if: steps.changed-files.outputs.has_changes == 'true' && (steps.coverage-check.outputs.needs_tests == 'true' || steps.run-tests.outputs.tests_passed == 'false')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read files that need tests
+            let missingTests = '';
+            try {
+              missingTests = fs.readFileSync('/tmp/missing_tests.txt', 'utf8').trim();
+            } catch (e) {
+              missingTests = '';
+            }
+            
+            // Read changed files
+            let changedFiles = '';
+            try {
+              changedFiles = fs.readFileSync('/tmp/changed_files.txt', 'utf8').trim();
+            } catch (e) {
+              changedFiles = '';
+            }
+            
+            const testsPassed = '${{ steps.run-tests.outputs.tests_passed }}' === 'true';
+            
+            let body = '## 🤖 Copilot Test Generation Request\n\n';
+            
+            if (!testsPassed) {
+              body += '❌ **Some tests are failing.** Please fix the failing tests or update them for the new code changes.\n\n';
+            }
+            
+            if (missingTests) {
+              body += '📝 **The following files may need test coverage:**\n\n';
+              body += '```\n' + missingTests + '\n```\n\n';
+            }
+            
+            body += '### Suggested Action\n\n';
+            body += '@copilot Please generate or update tests for the changed files in this PR:\n\n';
+            body += '```\n' + changedFiles + '\n```\n\n';
+            body += 'Follow the testing conventions in `tests/README.md` and use Jest with jsdom environment.\n';
+            
+            // Check for existing comments from this workflow
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.find(c => 
+              c.user.login === 'github-actions[bot]' && 
+              c.body.includes('Copilot Test Generation Request')
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

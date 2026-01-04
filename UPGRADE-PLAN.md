@@ -16,7 +16,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [x] Add test status badge to README.md (auto-generated from workflow)
 - [x] Configure test coverage reporting workflow (upload to Codecov or similar)
 - [x] Set up test result annotations in PR reviews (GitHub Actions feature)
-- [ ] AI agent task: When new code is added, prompt AI to generate/update tests
+- [x] AI agent task: When new code is added, prompt AI to generate/update tests
 
 ### Version Management Automation (GitHub Actions)
 - [x] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
@@ -26,15 +26,15 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [x] Auto-update service worker cache version in the release workflow
 
 ### Branch & PR Management (Repository Settings + Actions)
-- [ ] Enable "Automatically delete head branches" in repository settings
+- [x] Enable "Automatically delete head branches" in repository settings
 - [x] Create `.github/PULL_REQUEST_TEMPLATE.md` for contributor checklist
-- [ ] Configure branch protection rules for main (require PR, passing tests)
+- [x] Configure branch protection rules for main (require PR, passing tests) - Not needed per user request
 - [x] Create `.github/workflows/labeler.yml` - auto-label PRs by file changes
 
 ### Code Quality Automation (GitHub Actions + Dependabot)
 - [x] Create `.github/workflows/lint.yml` - ESLint checks on PRs
 - [x] Add `.eslintrc.cjs` configuration for the project
-- [ ] Create `.github/workflows/format-check.yml` - Prettier formatting checks
+- [x] Create `.github/workflows/format-check.yml` - Prettier formatting checks
 - [x] Create `.github/dependabot.yml` - automated dependency updates
 - [x] Create `.github/workflows/codeql.yml` - security scanning on PRs
 
@@ -196,4 +196,4 @@ To begin implementing this plan:
 
 ---
 
-*Last Updated: January 4, 2026 at 15:30 UTC*
+*Last Updated: January 4, 2026 at 18:52 UTC*
