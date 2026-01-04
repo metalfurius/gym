@@ -14,6 +14,13 @@ export default {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  reporters: [
+    'default',
+    ['jest-junit', {
+      outputDirectory: 'coverage',
+      outputName: 'junit.xml',
+    }],
+  ],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   moduleDirectories: ['node_modules', '<rootDir>'],
   globals: {

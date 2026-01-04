@@ -11,11 +11,11 @@ This document outlines the planned improvements and upgrades for the My Workout 
 > **Note:** All items below are GitHub Actions workflows or repository settings that run automatically. When new testable code is added, an AI agent can be prompted to generate or update tests accordingly.
 
 ### Testing Automation (GitHub Actions)
-- [ ] Create `.github/workflows/test.yml` - runs tests on pull requests automatically
-- [ ] Configure test workflow to trigger on `push` to main branch
-- [ ] Add test status badge to README.md (auto-generated from workflow)
-- [ ] Configure test coverage reporting workflow (upload to Codecov or similar)
-- [ ] Set up test result annotations in PR reviews (GitHub Actions feature)
+- [x] Create `.github/workflows/test.yml` - runs tests on pull requests automatically
+- [x] Configure test workflow to trigger on `push` to main branch
+- [x] Add test status badge to README.md (auto-generated from workflow)
+- [x] Configure test coverage reporting workflow (upload to Codecov or similar)
+- [x] Set up test result annotations in PR reviews (GitHub Actions feature)
 - [ ] AI agent task: When new code is added, prompt AI to generate/update tests
 
 ### Version Management Automation (GitHub Actions)
