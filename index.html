@@ -154,10 +154,6 @@
                     <span class="btn-icon">⚙️</span>
                     <span class="btn-text">Gestionar Mis Rutinas</span>
                 </button>
-                <button id="exercise-stats-btn" class="secondary-action-btn">
-                    <span class="btn-icon">📊</span>
-                    <span class="btn-text">Ver Estadísticas de Ejercicios</span>
-                </button>
             </div>
         </section><!-- Session View -->
         <section id="session-view" class="hidden">
@@ -320,8 +316,36 @@
             <button id="force-update-btn" title="Forzar actualización de la aplicación">
                 🔄 Actualizar
             </button>
+            <button id="settings-btn" title="Ajustes de la aplicación">
+                ⚙️ Ajustes
+            </button>
         </div>
     </footer>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content settings-modal-content">
+            <div class="modal-header">
+                <span class="modal-close settings-modal-close">×</span>
+                <h3>⚙️ Ajustes</h3>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>📊 Información del Caché</h4>
+                    <div id="cache-info-container" class="cache-info-container">
+                        <p>Cargando información del caché...</p>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h4>🗑️ Gestión del Caché</h4>
+                    <p class="settings-warning">Eliminar el caché borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.</p>
+                    <button id="clear-cache-btn" class="btn btn-danger">
+                        🗑️ Eliminar Caché Local
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Chart.js for progress charts (UMD version) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>

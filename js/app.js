@@ -270,14 +270,6 @@ if (dashboardElements.manageRoutinesLinkBtn) {
     console.error('Manage routines link button not found');
 }
 
-if (dashboardElements.exerciseStatsBtn) {
-    dashboardElements.exerciseStatsBtn.addEventListener('click', async () => {
-        await showExerciseStats();
-    });
-} else {
-    console.error('Exercise stats button not found');
-}
-
 if (dashboardElements.startSessionBtn) {
     dashboardElements.startSessionBtn.addEventListener('click', () => {
         const selectedRoutineId = dashboardElements.daySelect.value;
@@ -1417,205 +1409,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 showView('auth');
 
-// Helper function to properly close the stats modal
-function closeStatsModal(overlay) {
-    if (overlay && overlay.parentNode) {
-        // Add closing animation
-        overlay.style.opacity = '0';
-        overlay.style.transform = 'scale(0.95)';
-        
-        // Remove after animation completes
-        setTimeout(() => {
-            if (overlay.parentNode) {
-                overlay.remove();
-            }
-            document.body.style.overflow = 'auto'; // Restore scrolling
-        }, 200);
-    }
-}
-
-// Show exercise statistics modal
-async function showExerciseStats() {
-    try {
-        const { exerciseCache } = await import('./exercise-cache.js');
-        const cacheStats = exerciseCache.getCacheStats();
-        const fullCache = exerciseCache.exportCache();
-        
-        let statsHTML = `
-            <div class="stats-modal">
-                <div class="stats-header">
-                    <h3>📊 Estadísticas de Ejercicios</h3>
-                    <p>Resumen de tu progreso y historial de entrenamientos</p>
-                </div>
-                
-                <div class="stats-summary">
-                    <div class="stat-card">
-                        <div class="stat-number">${cacheStats.exerciseCount}</div>
-                        <div class="stat-label">Ejercicios registrados</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${cacheStats.totalEntries}</div>
-                        <div class="stat-label">Registros totales</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${cacheStats.oldestEntry ? Math.floor((Date.now() - cacheStats.oldestEntry.getTime()) / (1000 * 60 * 60 * 24)) : 0}</div>
-                        <div class="stat-label">Días de historial</div>
-                    </div>
-                </div>
-                
-                <div class="exercises-breakdown">
-                    <h4>Progreso por Ejercicio</h4>
-                    <div class="exercise-list">
-        `;
-          // Add individual exercise stats
-        const exercises = Object.keys(fullCache);
-        if (exercises.length > 0) {
-            exercises.forEach(exerciseKey => {
-                const exercise = fullCache[exerciseKey];
-                if (exercise.history && exercise.history.length > 0) {
-                    statsHTML += `
-                        <div class="exercise-stat-row">
-                            <div class="exercise-name">${exercise.originalName}</div>
-                            <div class="exercise-sessions">${exercise.history.length} sesiones</div>
-                        </div>
-                    `;
-                }
-            });
-        } else {
-            statsHTML += '<p class="no-data">No hay datos de ejercicios todavía. ¡Empieza a entrenar para ver tus estadísticas!</p>';
-        }
-        
-        statsHTML += `
-                    </div>
-                </div>
-                
-                <div class="cache-info">
-                    <h4>Información del Cache</h4>
-                    <p><strong>Tamaño del cache:</strong> ${Math.round(cacheStats.cacheSize / 1024)} KB</p>
-                    ${cacheStats.newestEntry ? `<p><strong>Última actualización:</strong> ${formatDate(cacheStats.newestEntry)}</p>` : ''}
-                </div>
-                
-                <div class="stats-actions">
-                    <button id="close-stats-modal" class="btn btn-primary">Cerrar</button>
-                </div>
-            </div>
-        `;
-          // Create and show modal
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay stats-modal-overlay';
-        overlay.tabIndex = -1; // Make it focusable
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(3px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        `;
-        
-        overlay.innerHTML = statsHTML;
-        
-        // Prevent scrolling on background
-        document.body.style.overflow = 'hidden';
-        
-        // Close on overlay click
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                closeStatsModal(overlay);
-            }
-        });
-        
-        // Close on Escape key
-        overlay.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeStatsModal(overlay);
-            }
-        });
-        
-        // Add close functionality to the close button
-        const closeBtn = overlay.querySelector('#close-stats-modal');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                closeStatsModal(overlay);
-            });
-        }
-        
-        document.body.appendChild(overlay);
-        
-        // Trigger opening animation
-        setTimeout(() => {
-            overlay.style.opacity = '1';
-            overlay.style.transform = 'scale(1)';
-        }, 10);
-        
-        // Focus the overlay to capture keyboard events and prevent background scrolling
-        overlay.focus();
-        
-    } catch (error) {
-        console.error('Error showing exercise stats:', error);
-        alert('Error al cargar las estadísticas de ejercicios.');
-    }
-}
-
-// Test function to add sample exercise data to cache (for debugging)
-async function addTestExerciseData() {
-    try {
-        const { exerciseCache } = await import('./exercise-cache.js');
-        
-        // Sample exercise data
-        const testData = [
-            {
-                exerciseName: 'Press Banca',
-                sets: [
-                    { peso: 60, reps: 10 },
-                    { peso: 65, reps: 8 },
-                    { peso: 70, reps: 6 }
-                ],
-                date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
-            },
-            {
-                exerciseName: 'Sentadillas',
-                sets: [
-                    { peso: 80, reps: 12 },
-                    { peso: 85, reps: 10 },
-                    { peso: 90, reps: 8 }
-                ],
-                date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
-            },
-            {
-                exerciseName: 'Peso Muerto',
-                sets: [
-                    { peso: 100, reps: 5 },
-                    { peso: 105, reps: 5 },
-                    { peso: 110, reps: 3 }
-                ],
-                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
-            }
-        ];
-        
-        testData.forEach(data => {
-            exerciseCache.addExerciseData(data.exerciseName, data.sets, data.date);
-        });
-        
-        console.log('✅ Test data added to exercise cache');
-        const stats = exerciseCache.getCacheStats();
-        console.log('📊 Updated cache stats:', stats);
-        
-        return true;
-    } catch (error) {
-        console.error('❌ Error adding test data:', error);
-        return false;
-    }
-}
-
 // --- Progress Functions ---
 
 /**
@@ -1658,5 +1451,165 @@ async function loadProgressData() {
     }
 }
 
-// Make function available globally for testing
-window.addTestExerciseData = addTestExerciseData;
+// --- Settings Modal ---
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const settingsModalCloseBtn = document.querySelector('.settings-modal-close');
+const clearCacheBtn = document.getElementById('clear-cache-btn');
+const cacheInfoContainer = document.getElementById('cache-info-container');
+
+/**
+ * Formats bytes to a human-readable string
+ */
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * Loads and displays cache information in the settings modal
+ */
+async function loadCacheInfo() {
+    try {
+        const { exerciseCache } = await import('./exercise-cache.js');
+        const cacheStats = exerciseCache.getCacheStats();
+        const storageEstimate = await storageManager.getStorageEstimate();
+        
+        let html = '<div class="cache-stats">';
+        
+        // Exercise cache stats
+        html += `
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">Ejercicios en caché:</span>
+                <span class="cache-stat-value">${cacheStats.exerciseCount}</span>
+            </div>
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">Total de registros:</span>
+                <span class="cache-stat-value">${cacheStats.totalEntries}</span>
+            </div>
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">Tamaño del caché de ejercicios:</span>
+                <span class="cache-stat-value">${formatBytes(cacheStats.cacheSize)}</span>
+            </div>
+        `;
+        
+        if (cacheStats.newestEntry) {
+            html += `
+                <div class="cache-stat-item">
+                    <span class="cache-stat-label">Última actualización:</span>
+                    <span class="cache-stat-value">${formatDate(cacheStats.newestEntry)}</span>
+                </div>
+            `;
+        }
+        
+        if (cacheStats.oldestEntry) {
+            const daysOfHistory = Math.floor((Date.now() - cacheStats.oldestEntry.getTime()) / (1000 * 60 * 60 * 24));
+            html += `
+                <div class="cache-stat-item">
+                    <span class="cache-stat-label">Días de historial:</span>
+                    <span class="cache-stat-value">${daysOfHistory} días</span>
+                </div>
+            `;
+        }
+        
+        // Storage API stats
+        if (storageEstimate) {
+            html += `
+                <hr class="cache-divider">
+                <div class="cache-stat-item">
+                    <span class="cache-stat-label">Almacenamiento usado:</span>
+                    <span class="cache-stat-value">${formatBytes(storageEstimate.usage)}</span>
+                </div>
+                <div class="cache-stat-item">
+                    <span class="cache-stat-label">Cuota disponible:</span>
+                    <span class="cache-stat-value">${formatBytes(storageEstimate.quota)}</span>
+                </div>
+                <div class="cache-stat-item">
+                    <span class="cache-stat-label">Uso:</span>
+                    <span class="cache-stat-value">${storageEstimate.usagePercentage}%</span>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        
+        if (cacheInfoContainer) {
+            cacheInfoContainer.innerHTML = html;
+        }
+    } catch (error) {
+        console.error('Error loading cache info:', error);
+        if (cacheInfoContainer) {
+            cacheInfoContainer.innerHTML = '<p class="error-text">Error al cargar la información del caché.</p>';
+        }
+    }
+}
+
+/**
+ * Shows the settings modal
+ */
+function showSettingsModal() {
+    if (settingsModal) {
+        settingsModal.style.display = 'block';
+        loadCacheInfo();
+    }
+}
+
+/**
+ * Hides the settings modal
+ */
+function hideSettingsModal() {
+    if (settingsModal) {
+        settingsModal.style.display = 'none';
+    }
+}
+
+/**
+ * Clears the exercise cache after user confirmation
+ */
+async function clearExerciseCache() {
+    const confirmMessage = '⚠️ ¿Estás seguro de que quieres eliminar el caché local?\n\nEsto borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.\n\nEl caché se reconstruirá automáticamente la próxima vez que inicies sesión.';
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    try {
+        const { exerciseCache } = await import('./exercise-cache.js');
+        exerciseCache.clearCache();
+        
+        // Reload cache info to show empty state
+        await loadCacheInfo();
+        
+        alert('✅ Caché eliminado correctamente.');
+    } catch (error) {
+        console.error('Error clearing cache:', error);
+        alert('❌ Error al eliminar el caché.');
+    }
+}
+
+// Settings button event listener
+if (settingsBtn) {
+    settingsBtn.addEventListener('click', showSettingsModal);
+}
+
+// Settings modal close button event listener
+if (settingsModalCloseBtn) {
+    settingsModalCloseBtn.addEventListener('click', hideSettingsModal);
+}
+
+// Close settings modal when clicking outside
+if (settingsModal) {
+    window.addEventListener('click', (event) => {
+        if (event.target === settingsModal) {
+            hideSettingsModal();
+        }
+    });
+}
+
+// Clear cache button event listener
+if (clearCacheBtn) {
+    clearCacheBtn.addEventListener('click', clearExerciseCache);
+}

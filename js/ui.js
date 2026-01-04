@@ -37,7 +37,6 @@ export const dashboardElements = {
     resumeSessionBtn: document.getElementById('resume-session-btn'),
     resumeSessionInfo: document.getElementById('resume-session-info'),
     manageRoutinesLinkBtn: document.getElementById('manage-routines-link-btn'),
-    exerciseStatsBtn: document.getElementById('exercise-stats-btn'),
     debugCacheBtn: document.getElementById('debug-cache-btn')
 };
 
