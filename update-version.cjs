@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// filepath: e:\Pc antiguo\hacke\gym-tracker\update-version.js
+// update-version.cjs - Version update script for the workout tracker app
 
 /**
  * Script para actualizar la versión de la aplicación en todos los archivos relevantes
- * Uso: node update-version.js [nueva-version]
- * Ejemplo: node update-version.js 1.0.2
+ * Uso: node update-version.cjs [nueva-version]
+ * Ejemplo: node update-version.cjs 1.0.2
  */
 
 console.log('🚀 Iniciando script de actualización de versión...');
@@ -106,13 +106,13 @@ function main() {
             console.log(`📦 Actualizando a versión específica: ${newVersion}`);
         }
     } else {
-        console.error('❌ Uso: node update-version.js [version|major|minor|patch]');
+        console.error('❌ Uso: node update-version.cjs [version|major|minor|patch]');
         console.error('   Ejemplos:');
-        console.error('     node update-version.js            # Incrementa patch automáticamente');
-        console.error('     node update-version.js patch      # Incrementa patch');
-        console.error('     node update-version.js minor      # Incrementa minor');
-        console.error('     node update-version.js major      # Incrementa major');
-        console.error('     node update-version.js 1.2.3      # Establece versión específica');
+        console.error('     node update-version.cjs            # Incrementa patch automáticamente');
+        console.error('     node update-version.cjs patch      # Incrementa patch');
+        console.error('     node update-version.cjs minor      # Incrementa minor');
+        console.error('     node update-version.cjs major      # Incrementa major');
+        console.error('     node update-version.cjs 1.2.3      # Establece versión específica');
         process.exit(1);
     }
     
