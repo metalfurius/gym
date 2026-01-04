@@ -1,0 +1,16 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    name: Android
+    uses: ./.github/workflows/build-android.yml
+
+  build-ios:
+    name: iOS
+    uses: ./.github/workflows/build-ios.yml
