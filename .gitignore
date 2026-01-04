@@ -31,3 +31,20 @@ temp/
 .firebase/
 firebase-debug.log
 firestore-debug.log
+
+# Capacitor - iOS build artifacts
+ios/App/App/public/
+ios/App/Pods/
+ios/DerivedData/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Capacitor - Android build artifacts
+android/app/src/main/assets/public/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.cxx/
+
