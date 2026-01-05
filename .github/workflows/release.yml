@@ -60,7 +60,7 @@ jobs:
       - name: Rename APK file
         if: steps.check-tag.outputs.exists == 'false'
         run: |
-          mv ./artifacts/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}.apk
+          mv ./artifacts/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
 
       - name: Generate release notes
         if: steps.check-tag.outputs.exists == 'false'
@@ -84,7 +84,7 @@ jobs:
           
           ## Downloads
           
-          - **Android APK**: my-workout-tracker-v${{ steps.version.outputs.version }}.apk
+          - **Android APK**: my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
           
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG:-initial}...v${{ steps.version.outputs.version }}"
           
@@ -109,6 +109,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}.apk
+            ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
