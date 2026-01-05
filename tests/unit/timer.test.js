@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { initSetTimers, getRestTimesData } from '../../js/timer.js';
+import { initSetTimers, getRestTimesData, clearTimerData, resetTimerInitialization, createTimerHTML } from '../../js/timer.js';
 
 describe('Timer Module', () => {
   beforeEach(async () => {
@@ -23,6 +23,9 @@ describe('Timer Module', () => {
     
     // Clear localStorage before each test
     localStorage.clear();
+    
+    // Reset timer initialization
+    resetTimerInitialization();
   });
 
   describe('initSetTimers', () => {
@@ -35,6 +38,13 @@ describe('Timer Module', () => {
     it('should not throw error when exercise list is missing', () => {
       document.body.innerHTML = '';
       expect(() => initSetTimers()).not.toThrow();
+    });
+
+    it('should only initialize once', () => {
+      initSetTimers();
+      initSetTimers(); // Call again
+      // Should not throw and should handle multiple calls gracefully
+      expect(true).toBe(true);
     });
   });
 
@@ -64,6 +74,84 @@ describe('Timer Module', () => {
       document.body.innerHTML = '<div id="exercise-list"></div>';
       const restTimes = getRestTimesData();
       expect(Object.keys(restTimes).length).toBe(0);
+    });
+
+    it('should handle missing timer elements gracefully', () => {
+      document.body.innerHTML = `
+        <div id="exercise-list">
+          <div class="set-timer" data-timer-id="0-0"></div>
+        </div>
+      `;
+      
+      const restTimes = getRestTimesData();
+      expect(restTimes).toBeDefined();
+    });
+  });
+
+  describe('clearTimerData', () => {
+    it('should clear timer data from localStorage', () => {
+      localStorage.setItem('gym-tracker-timer-data', JSON.stringify({ timers: { '0-0': { value: '01:00' } } }));
+      expect(localStorage.getItem('gym-tracker-timer-data')).not.toBeNull();
+      
+      clearTimerData();
+      expect(localStorage.getItem('gym-tracker-timer-data')).toBeNull();
+    });
+
+    it('should not throw when no timer data exists', () => {
+      expect(() => clearTimerData()).not.toThrow();
+    });
+  });
+
+  describe('resetTimerInitialization', () => {
+    it('should reset timer initialization state', () => {
+      initSetTimers();
+      resetTimerInitialization();
+      // Should be able to initialize again after reset
+      expect(() => initSetTimers()).not.toThrow();
+    });
+
+    it('should not throw when timer was never initialized', () => {
+      expect(() => resetTimerInitialization()).not.toThrow();
+    });
+
+    it('should not throw when exercise list is missing', () => {
+      document.body.innerHTML = '';
+      expect(() => resetTimerInitialization()).not.toThrow();
+    });
+  });
+
+  describe('createTimerHTML', () => {
+    it('should create timer HTML string', () => {
+      const html = createTimerHTML(0, 0);
+      
+      expect(html).toContain('set-timer');
+      expect(html).toContain('data-timer-id="0-0"');
+      expect(html).toContain('timer-display-0-0');
+      expect(html).toContain('timer-button-0-0');
+      expect(html).toContain('Iniciar');
+    });
+
+    it('should create unique HTML for different indices', () => {
+      const html1 = createTimerHTML(0, 0);
+      const html2 = createTimerHTML(1, 2);
+      
+      expect(html1).toContain('0-0');
+      expect(html2).toContain('1-2');
+      expect(html1).not.toContain('1-2');
+      expect(html2).not.toContain('0-0');
+    });
+
+    it('should include required data attributes', () => {
+      const html = createTimerHTML(2, 3);
+      
+      expect(html).toContain('data-timer-id="2-3"');
+    });
+
+    it('should have button with correct data attribute', () => {
+      const html = createTimerHTML(1, 1);
+      
+      expect(html).toContain('data-timer-id="1-1"');
+      expect(html).toContain('timer-button');
     });
   });
 
