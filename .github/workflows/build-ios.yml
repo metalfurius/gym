@@ -1,6 +1,30 @@
 name: Build iOS
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - 'ios/**'
+      - 'js/**'
+      - 'css/**'
+      - 'index.html'
+      - 'manifest.json'
+      - 'capacitor.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-ios.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ios/**'
+      - 'js/**'
+      - 'css/**'
+      - 'index.html'
+      - 'manifest.json'
+      - 'capacitor.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-ios.yml'
   workflow_dispatch:
   workflow_call:
 
@@ -24,22 +48,31 @@ jobs:
 
       - name: Select Xcode version
         run: |
-          # Try to use Xcode 16.2 if available, otherwise fall back to default
+          # Use the latest stable Xcode available on the runner
+          # List available Xcode versions for debugging
+          ls -la /Applications/ | grep Xcode || true
+          
+          # Try to use Xcode 16.x if available, otherwise fall back to default
           if [ -d "/Applications/Xcode_16.2.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
           elif [ -d "/Applications/Xcode_16.1.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
           elif [ -d "/Applications/Xcode_16.0.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          elif [ -d "/Applications/Xcode.app" ]; then
+            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
           else
             echo "Using default Xcode version"
           fi
           xcodebuild -version
 
       # Diagnostic step: useful for troubleshooting Xcode/Simulator issues in CI.
-      # You can remove this once the iOS build workflow is stable and working reliably.
       - name: List available simulators
-        run: xcrun simctl list devices available
+        run: |
+          echo "Available iOS Simulator devices:"
+          xcrun simctl list devices available | grep -i ios | head -30
 
       - name: Install dependencies
         run: npm ci
@@ -57,6 +90,8 @@ jobs:
       - name: Build debug app
         working-directory: ios/App
         run: |
+          # Build for iOS Simulator (no code signing required)
+          set -o pipefail
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
@@ -68,7 +103,17 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             ONLY_ACTIVE_ARCH=NO \
-            build
+            build 2>&1 | tee build.log
+          
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "=========================================="
+            echo "BUILD FAILED - Last 100 lines of log:"
+            echo "=========================================="
+            tail -100 build.log
+            exit $BUILD_EXIT_CODE
+          fi
 
       - name: Get version
         id: version
