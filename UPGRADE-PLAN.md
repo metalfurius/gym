@@ -1,46 +1,82 @@
 # My Workout Tracker - Upgrade Plan
 
-This document outlines the planned improvements and upgrades for the My Workout Tracker application. Each phase builds upon the previous one, gradually transforming the web app into a full-featured, AI-powered fitness assistant.
+This document outlines the planned improvements and upgrades for the My Workout Tracker application. The plan focuses on creating a flexible, user-friendly workout system before expanding into AI-powered features.
 
 ---
 
-## Phase 1: GitHub Actions & CI/CD Automation
+## Phase 1: Flexible Workout System ⭐ **CURRENT PRIORITY**
 
-**Goal:** Automate testing, version management, and repository maintenance using GitHub Actions and AI agents. **All tasks in this phase should be fully automated—no manual intervention required.**
+**Goal:** Transform the rigid routine-based system into a flexible workout tracker that adapts to user needs. Focus on muscle group targeting, ad-hoc exercise selection, and training cycle tracking.
 
-> **Note:** All items below are GitHub Actions workflows or repository settings that run automatically. When new testable code is added, an AI agent can be prompted to generate or update tests accordingly.
+### Core Flexibility Features
+- [ ] **Muscle Group Selection**: Allow users to select target muscle groups when starting a session
+  - [ ] Add muscle group selector to dashboard (Chest, Back, Legs, Shoulders, Arms, Core, Full Body, Cardio)
+  - [ ] Support multi-muscle group selection for combined workouts
+  - [ ] Visual muscle group icons/indicators
+  
+- [ ] **Flexible Exercise Selection**: Enable adding exercises during workout without pre-defined routines
+  - [ ] Quick exercise search/filter during session
+  - [ ] Recent/favorite exercises suggestions
+  - [ ] Popular exercises by muscle group
+  - [ ] Maintain compatibility with existing routine system (optional use)
+  
+- [ ] **Training Cycle Tracking**: Implement weekly/monthly training patterns
+  - [ ] Week view showing muscle groups trained
+  - [ ] Rest day tracking
+  - [ ] Training frequency insights per muscle group
+  - [ ] Balance indicators (e.g., "Haven't trained legs in 5 days")
 
-### Testing Automation (GitHub Actions)
-- [x] Create `.github/workflows/test.yml` - runs tests on pull requests automatically
-- [x] Configure test workflow to trigger on `push` to main branch
-- [x] Add test status badge to README.md (auto-generated from workflow)
-- [x] Configure test coverage reporting workflow (upload to Codecov or similar)
-- [x] Set up test result annotations in PR reviews (GitHub Actions feature)
-- [x] AI agent task: When new code is added, prompt AI to generate/update tests
+- [ ] **Quick Start Templates**: Pre-configured muscle group combinations
+  - [ ] "Push Day" (Chest, Shoulders, Triceps)
+  - [ ] "Pull Day" (Back, Biceps)
+  - [ ] "Leg Day" (Quads, Hamstrings, Glutes, Calves)
+  - [ ] "Upper Body" / "Lower Body" splits
+  - [ ] Custom template creation
 
-### Version Management Automation (GitHub Actions)
-- [x] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
-- [x] Add support for version bump type via PR labels (patch/minor/major)
-- [x] Create `.github/workflows/release.yml` - auto-generate release notes from commits
-- [x] Auto-create GitHub releases with version tags on merge
-- [x] Auto-update service worker cache version in the release workflow
+### Data & History Enhancements
+- [ ] Tag sessions with muscle groups trained
+- [ ] Filter history by muscle group
+- [ ] Show training frequency charts per muscle group
+- [ ] Weekly/monthly training summaries
+- [ ] Rest period recommendations based on muscle group
 
-### Branch & PR Management (Repository Settings + Actions)
-- [x] Enable "Automatically delete head branches" in repository settings
-- [x] Create `.github/PULL_REQUEST_TEMPLATE.md` for contributor checklist
-- [x] Configure branch protection rules for main (require PR, passing tests) - Not needed per user request
-- [x] Create `.github/workflows/labeler.yml` - auto-label PRs by file changes
-
-### Code Quality Automation (GitHub Actions + Dependabot)
-- [x] Create `.github/workflows/lint.yml` - ESLint checks on PRs
-- [x] Add `.eslintrc.cjs` configuration for the project
-- [x] Create `.github/workflows/format-check.yml` - Prettier formatting checks
-- [x] Create `.github/dependabot.yml` - automated dependency updates
-- [x] Create `.github/workflows/codeql.yml` - security scanning on PRs
+### UI/UX Improvements
+- [ ] Streamlined session start flow (muscle group → exercises → workout)
+- [ ] Improved mobile exercise input experience
+- [ ] Swipe gestures for quick exercise navigation
+- [ ] Better progress indicators during workout
+- [ ] Session timer with rest recommendations
 
 ---
 
-## Phase 2: AI-First Powered Gym Application
+## Phase 2: Enhanced Analytics & Insights
+
+**Goal:** Provide deeper insights into training patterns and progress without requiring AI.
+
+### Advanced Progress Tracking
+- [ ] Muscle group-specific progress charts
+- [ ] Training volume trends by muscle group
+- [ ] Personal records (PRs) tracking per exercise
+- [ ] Training balance visualization (pie charts showing muscle group distribution)
+- [ ] Strength progression heatmaps
+
+### Smart Recommendations (Rule-Based)
+- [ ] Suggest exercises based on training history
+- [ ] Highlight under-trained muscle groups
+- [ ] Recommend rest days based on training frequency
+- [ ] Volume recommendations per muscle group
+- [ ] Exercise rotation suggestions to prevent plateaus
+
+### Social & Motivation Features
+- [ ] Workout streaks tracking
+- [ ] Monthly challenges (e.g., "Train each muscle group 2x this month")
+- [ ] Achievement badges
+- [ ] Shareable workout summaries
+- [ ] Progress milestone celebrations
+
+---
+
+## Phase 3: AI-Powered Gym Application
 
 **Goal:** Transform the app into an AI-powered fitness assistant that provides personalized recommendations, form guidance, and intelligent workout planning.
 
@@ -88,7 +124,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ---
 
-## Phase 3: Advanced Features & Scaling
+## Phase 4: Advanced Features & Scaling
 
 **Goal:** Add social features, advanced analytics, and prepare for scale.
 
@@ -125,9 +161,10 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 | Phase | Priority | Estimated Effort | Dependencies |
 |-------|----------|------------------|--------------|
-| Phase 1 | High | 1-2 weeks | None |
-| Phase 2 | Medium | 4-8 weeks | Phase 1 complete |
-| Phase 3 | Low | Ongoing | Phase 2 complete |
+| Phase 1: Flexible Workout System | **HIGH** ⭐ | 2-4 weeks | None |
+| Phase 2: Enhanced Analytics | Medium | 2-3 weeks | Phase 1 complete |
+| Phase 3: AI-Powered Features | Low | 8-12 weeks | Phases 1-2 complete |
+| Phase 4: Scaling & Social | Low | Ongoing | Phase 3 complete |
 
 ---
 
@@ -135,9 +172,22 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 To begin implementing this plan:
 
-1. **Start with Phase 1** - Set up GitHub Actions for automated testing
-2. **Complete CI/CD** before implementing AI features to ensure stable builds
-3. **Iterate based on user feedback** throughout the process
+1. **Start with Phase 1** - Build the flexible workout system to replace rigid routines
+2. **Focus on UX first** - Ensure the app is intuitive and adaptable to user needs
+3. **Add intelligence gradually** - Start with rule-based recommendations before AI
+4. **Iterate based on user feedback** throughout the process
+
+---
+
+## Rationale for Phase 1 Priority
+
+The current app is too rigid - users must follow pre-defined routines which doesn't match real-world gym behavior:
+- **Real gym sessions** are often spontaneous: "I'll train chest today" or "Push day"
+- **Muscle group targeting** is more natural than fixed routines
+- **Weekly cycles** (PPL, Upper/Lower, etc.) are more flexible than strict routines
+- **Ad-hoc exercise selection** allows for equipment availability and personal preference
+
+By making the app more flexible first, we create a solid foundation that users will actually want to use, making subsequent AI features more valuable.
 
 ---
 
@@ -150,4 +200,4 @@ To begin implementing this plan:
 
 ---
 
-*Last Updated: January 4, 2026 at 18:52 UTC*
+*Last Updated: January 5, 2026 at 19:25 UTC*
