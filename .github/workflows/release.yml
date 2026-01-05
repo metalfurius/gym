@@ -9,13 +9,25 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
+  build-android:
+    name: Build Android APK
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/build-android.yml
+
+  build-ios:
+    name: Build iOS App
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/build-ios.yml
+
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    # Only run if the version bump workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: [build-android, build-ios]
+    # Only run if the version bump workflow succeeded and both builds completed successfully
+    if: ${{ github.event.workflow_run.conclusion == 'success' && needs.build-android.result == 'success' && needs.build-ios.result == 'success' }}
 
     steps:
       - name: Checkout repository
@@ -43,6 +55,49 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: List available artifacts
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          echo "Listing available artifacts for debugging:"
+          gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts || echo "Could not list artifacts"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Android APK artifact
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/download-artifact@v4
+        with:
+          name: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-android
+          path: ./artifacts/android
+
+      - name: Download iOS simulator app artifact
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/download-artifact@v4
+        with:
+          name: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator
+          path: ./artifacts/ios
+
+      - name: Rename artifacts
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          echo "Listing downloaded Android artifacts:"
+          ls -la ./artifacts/android || true
+          echo "Listing downloaded iOS artifacts:"
+          ls -la ./artifacts/ios || true
+
+          if [ ! -f "./artifacts/android/app-debug.apk" ]; then
+            echo "Error: Expected Android artifact './artifacts/android/app-debug.apk' not found." >&2
+            exit 1
+          fi
+
+          if [ ! -f "./artifacts/ios/App.zip" ]; then
+            echo "Error: Expected iOS artifact './artifacts/ios/App.zip' not found." >&2
+            exit 1
+          fi
+
+          mv ./artifacts/android/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+          mv ./artifacts/ios/App.zip ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
+
       - name: Generate release notes
         if: steps.check-tag.outputs.exists == 'false'
         id: release-notes
@@ -62,6 +117,11 @@ jobs:
           NOTES="## What's Changed
           
           $COMMITS
+          
+          ## Downloads
+          
+          - **Android APK**: my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+          - **iOS Simulator App**: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
           
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG:-initial}...v${{ steps.version.outputs.version }}"
           
@@ -85,5 +145,8 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: false
+          files: |
+            ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+            ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

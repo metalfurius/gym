@@ -22,6 +22,25 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Select Xcode version
+        run: |
+          # Try to use Xcode 16.2 if available, otherwise fall back to default
+          if [ -d "/Applications/Xcode_16.2.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          else
+            echo "Using default Xcode version"
+          fi
+          xcodebuild -version
+
+      # Diagnostic step: useful for troubleshooting Xcode/Simulator issues in CI.
+      # You can remove this once the iOS build workflow is stable and working reliably.
+      - name: List available simulators
+        run: xcrun simctl list devices available
+
       - name: Install dependencies
         run: npm ci
 
@@ -43,11 +62,12 @@ jobs:
             -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,OS=latest' \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO \
             build
 
       - name: Get version
