@@ -26,8 +26,8 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: [build-android, build-ios]
-    # Only run if the version bump workflow succeeded and builds completed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Only run if the version bump workflow succeeded and both builds completed successfully
+    if: ${{ github.event.workflow_run.conclusion == 'success' && needs.build-android.result == 'success' && needs.build-ios.result == 'success' }}
 
     steps:
       - name: Checkout repository
@@ -55,6 +55,14 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: List available artifacts
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          echo "Listing available artifacts for debugging:"
+          gh api /repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts || echo "Could not list artifacts"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download Android APK artifact
         if: steps.check-tag.outputs.exists == 'false'
         uses: actions/download-artifact@v4
@@ -72,6 +80,21 @@ jobs:
       - name: Rename artifacts
         if: steps.check-tag.outputs.exists == 'false'
         run: |
+          echo "Listing downloaded Android artifacts:"
+          ls -la ./artifacts/android || true
+          echo "Listing downloaded iOS artifacts:"
+          ls -la ./artifacts/ios || true
+
+          if [ ! -f "./artifacts/android/app-debug.apk" ]; then
+            echo "Error: Expected Android artifact './artifacts/android/app-debug.apk' not found." >&2
+            exit 1
+          fi
+
+          if [ ! -f "./artifacts/ios/App.zip" ]; then
+            echo "Error: Expected iOS artifact './artifacts/ios/App.zip' not found." >&2
+            exit 1
+          fi
+
           mv ./artifacts/android/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
           mv ./artifacts/ios/App.zip ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
 
