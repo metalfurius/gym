@@ -13,14 +13,22 @@ The current My Workout Tracker app is **too rigid** and doesn't match real-world
 
 ## Vision: A Flexible Workout System
 
-Transform the app to support how people actually train at the gym:
+Transform the app to support **BOTH** structured and spontaneous training - user's choice every session:
 
+**New Flexible Mode:**
 ✅ **Muscle Group Focus**: Start a session by selecting target muscle groups (Chest, Back, Legs, etc.)  
 ✅ **Ad-hoc Exercise Selection**: Add exercises during the workout based on what's available  
 ✅ **Training Cycles**: Track weekly patterns (e.g., "I train each muscle 2x per week")  
 ✅ **Quick Templates**: Pre-configured splits like "Push Day" or "Pull Day"  
 ✅ **Training Balance**: Visual insights showing which muscle groups need attention  
-✅ **Backward Compatible**: Keep existing routine system as an option  
+
+**Existing Routine Mode (Preserved):**
+✅ **Routine Selection**: Continue using pre-defined routines  
+✅ **AI-Generated Routines**: Future support for AI-created workout plans  
+✅ **Structured Plans**: Follow specific exercise sequences  
+
+**The Choice is Yours:**
+Each session, users decide: "Today I'll wing it with chest exercises" OR "Today I'll follow my Push Day routine"  
 
 ## Implementation Approach
 
@@ -32,9 +40,16 @@ Transform the app to support how people actually train at the gym:
 - Visual indicators (icons/colors per muscle group)
 
 #### 2. Flexible Session Start
-- Option A: Start with muscle group(s) → Add exercises during workout
-- Option B: Use existing routine (backward compatible)
-- Quick start templates (Push/Pull/Legs/etc.)
+**Users choose their mode at session start:**
+- **Option A: Quick Start (New Flexible Mode)**
+  - Select muscle group(s) → Add exercises during workout
+  - No pre-planning required
+- **Option B: Use Routine (Existing System)**
+  - Select from saved routines → Follow pre-defined exercises
+  - Fully preserved and functional
+- **Option C: AI Routine (Future)**
+  - Select AI-generated plan → Follow suggested exercises
+- Quick start templates available for both modes (Push/Pull/Legs/etc.)
 
 #### 3. Enhanced Exercise Selection
 - Search/filter exercises by muscle group
@@ -85,11 +100,14 @@ Transform the app to support how people actually train at the gym:
 
 ## Key Design Principles
 
-1. **Flexibility First**: Support spontaneous, adaptive training
-2. **Keep It Simple**: Don't overwhelm users with options
-3. **Progressive Enhancement**: Start basic, add complexity gradually
-4. **Backward Compatible**: Don't break existing workflows
-5. **Mobile-First UX**: Most gym use is on mobile devices
+1. **Dual Mode System**: Support BOTH flexible and routine-based training equally
+2. **User Choice**: Let users decide their approach each session (not forced to one mode)
+3. **Flexibility First**: Add spontaneous, adaptive training option
+4. **Keep It Simple**: Don't overwhelm users with options
+5. **Progressive Enhancement**: Start basic, add complexity gradually
+6. **Backward Compatible**: Don't break existing workflows - preserve routine system
+7. **Mobile-First UX**: Most gym use is on mobile devices
+8. **AI-Ready**: Design flexible mode to work with future AI-generated routines
 
 ## Technical Considerations
 

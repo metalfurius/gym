@@ -44,10 +44,17 @@ We're working on making the app more flexible and user-friendly! Check out:
 - **[FLEXIBILITY-ROADMAP.md](FLEXIBILITY-ROADMAP.md)** - Detailed plan for the flexible workout system (Phase 1 priority)
 
 ### Coming Soon 🚀
+
+**New Flexible Mode** (alongside existing routine system):
 - **Muscle Group Targeting**: Start sessions by selecting target muscle groups (Chest, Back, Legs, etc.)
 - **Flexible Exercise Selection**: Add exercises on-the-fly during your workout
 - **Training Cycle Tracking**: See your weekly training patterns and muscle group balance
 - **Quick Start Templates**: Push/Pull/Legs and other popular workout splits
+
+**Your Choice Each Session:**
+- "Quick Start" → Pick muscle groups, add exercises as you go
+- "Use Routine" → Follow your saved routines (existing feature, fully preserved)
+- "AI Routine" → Future feature for AI-generated workout plans
 
 ## Contributing
 

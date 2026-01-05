@@ -2,7 +2,7 @@
 
 ## Overview
 
-This PR addresses the issue of the gym tracker being "VERY stiff" by refocusing the project roadmap on **flexibility and user experience** before diving into AI features.
+This PR addresses the issue of the gym tracker being "VERY stiff" by refocusing the project roadmap on **adding flexibility alongside existing features** - not replacing them. Users will be able to choose their preferred training mode each session.
 
 ## Changes Made
 
@@ -41,7 +41,7 @@ A comprehensive implementation guide covering:
    - Add exercises during workout (not pre-planned)
    - Quick search/filter by muscle group
    - Recent/favorite exercise suggestions
-   - Maintain backward compatibility with routines
+   - **Works alongside existing routine system**
 
 3. **Training Cycle Tracking**
    - Weekly view showing muscle groups trained
@@ -54,6 +54,12 @@ A comprehensive implementation guide covering:
    - "Pull Day" (Back, Biceps)
    - "Leg Day" (Quads, Hamstrings, Glutes, Calves)
    - Custom template creation
+
+5. **Dual Mode System**
+   - **Option 1**: Quick Start (select muscle groups, add exercises as you go)
+   - **Option 2**: Use Routine (follow pre-defined exercises from saved routines)
+   - **Option 3**: AI Routine (future - follow AI-generated plans)
+   - User chooses mode at start of each session
 
 ## Technical Approach
 
@@ -84,16 +90,24 @@ The current app forces users to:
 - Follow pre-defined exercise lists
 - Can't adapt to gym equipment availability
 - Doesn't support common training patterns (PPL, Upper/Lower)
+- **No option for spontaneous "I'll train chest today" sessions**
 
 ### Real-World Gym Usage
-Most people train by:
-- Deciding muscle groups spontaneously: "I'll do chest today"
+People train in different ways depending on the day:
+- **Spontaneous days**: "I'll do chest today" - pick exercises as you go
+- **Structured days**: "I'll follow my Push Day routine" - follow a plan
+- **AI-assisted days** (future): "I'll do this AI-generated routine" - follow suggestions
 - Adapting exercises based on equipment availability
 - Following weekly patterns (e.g., PPL - Push/Pull/Legs)
-- Tracking overall training balance, not specific routines
+- Tracking overall training balance, not just routine completion
 
 ### The Solution
-Make the app flexible enough to support spontaneous, adaptive training while maintaining the option to use pre-defined routines for users who prefer that structure.
+**Add flexible mode alongside routine mode** - don't replace, enhance:
+- Quick Start mode for spontaneous muscle-group-based training
+- Routine mode preserved and improved for structured workouts
+- Future AI mode will work with both approaches
+- User chooses their preferred mode each session
+- All modes track muscle groups for balance insights
 
 ## Next Steps (Not in This PR)
 

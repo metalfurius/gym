@@ -6,9 +6,15 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ## Phase 1: Flexible Workout System ⭐ **CURRENT PRIORITY**
 
-**Goal:** Transform the rigid routine-based system into a flexible workout tracker that adapts to user needs. Focus on muscle group targeting, ad-hoc exercise selection, and training cycle tracking.
+**Goal:** Add a flexible workout mode alongside the existing routine system, giving users choice in how they train. Users can select their preferred approach each session: spontaneous muscle-group-based training OR structured routine following.
 
 ### Core Flexibility Features
+
+> **Important:** All new flexible features will work **alongside** the existing routine system. Users choose their preferred mode each session:
+> - **Option 1 (New)**: "I'll train chest + shoulders today" → Select muscle groups → Pick exercises as you go
+> - **Option 2 (Existing)**: "I'll do my Push Day routine" → Select routine → Follow pre-defined exercises
+> - **Option 3 (Future)**: "I'll do this AI-generated routine" → Select AI routine → Follow suggested exercises
+
 - [ ] **Muscle Group Selection**: Allow users to select target muscle groups when starting a session
   - [ ] Add muscle group selector to dashboard (Chest, Back, Legs, Shoulders, Arms, Core, Full Body, Cardio)
   - [ ] Support multi-muscle group selection for combined workouts
@@ -41,7 +47,10 @@ This document outlines the planned improvements and upgrades for the My Workout 
 - [ ] Rest period recommendations based on muscle group
 
 ### UI/UX Improvements
-- [ ] Streamlined session start flow (muscle group → exercises → workout)
+- [ ] Streamlined session start flow with **clear choice** between:
+  - "Quick Start" (flexible muscle group mode)
+  - "Use Routine" (existing routine system)
+  - Easy switching between modes
 - [ ] Improved mobile exercise input experience
 - [ ] Swipe gestures for quick exercise navigation
 - [ ] Better progress indicators during workout
