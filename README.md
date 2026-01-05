@@ -37,6 +37,29 @@ A modern, responsive workout tracking web application with session management, r
 - Responsive design with adaptive layouts
 - Browser storage for session persistence
 
+## Roadmap
+
+We're working on making the app more flexible and user-friendly! See **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** for the complete roadmap with all planned phases and next steps.
+
+### Coming Soon 🚀
+
+**New Flexible Mode** (alongside existing routine system):
+- **Muscle Group Targeting**: Start sessions by selecting target muscle groups (Chest, Back, Legs, etc.)
+- **Flexible Exercise Selection**: Add exercises on-the-fly during your workout
+- **Training Cycle Tracking**: See your weekly training patterns and muscle group balance
+- **Quick Start Templates**: Push/Pull/Legs and other popular workout splits
+
+**Weight & Nutrition Tracking:**
+- **Daily Weight Logging**: Track your weight on any day (training or rest days)
+- **Calorie Tracking**: Monitor daily calorie intake
+- **User Goals**: Define your fitness objectives (gain, lose, maintain, recomposition)
+- **Rest Day Tracking**: Log weight and nutrition even on non-training days
+
+**Your Choice Each Session:**
+- "Quick Start" → Pick muscle groups, add exercises as you go
+- "Use Routine" → Follow your saved routines (existing feature, fully preserved)
+- "AI Routine" → Future feature for AI-generated workout plans
+
 ## Contributing
 
 1. Fork the repository

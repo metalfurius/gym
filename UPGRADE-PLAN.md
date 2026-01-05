@@ -1,46 +1,117 @@
 # My Workout Tracker - Upgrade Plan
 
-This document outlines the planned improvements and upgrades for the My Workout Tracker application. Each phase builds upon the previous one, gradually transforming the web app into a full-featured, AI-powered fitness assistant.
+This document outlines the planned improvements and upgrades for the My Workout Tracker application. The plan focuses on creating a flexible, user-friendly workout system before expanding into AI-powered features.
 
 ---
 
-## Phase 1: GitHub Actions & CI/CD Automation
+## Phase 1: Flexible Workout System ⭐ **CURRENT PRIORITY**
 
-**Goal:** Automate testing, version management, and repository maintenance using GitHub Actions and AI agents. **All tasks in this phase should be fully automated—no manual intervention required.**
+**Goal:** Add a flexible workout mode alongside the existing routine system, giving users choice in how they train. Users can select their preferred approach each session: spontaneous muscle-group-based training OR structured routine following. Additionally, add weight and calorie tracking to understand user goals and enable tracking on rest days.
 
-> **Note:** All items below are GitHub Actions workflows or repository settings that run automatically. When new testable code is added, an AI agent can be prompted to generate or update tests accordingly.
+### Core Flexibility Features
 
-### Testing Automation (GitHub Actions)
-- [x] Create `.github/workflows/test.yml` - runs tests on pull requests automatically
-- [x] Configure test workflow to trigger on `push` to main branch
-- [x] Add test status badge to README.md (auto-generated from workflow)
-- [x] Configure test coverage reporting workflow (upload to Codecov or similar)
-- [x] Set up test result annotations in PR reviews (GitHub Actions feature)
-- [x] AI agent task: When new code is added, prompt AI to generate/update tests
+> **Important:** All new flexible features will work **alongside** the existing routine system. Users choose their preferred mode each session:
+> - **Option 1 (New)**: "I'll train chest + shoulders today" → Select muscle groups → Pick exercises as you go
+> - **Option 2 (Existing)**: "I'll do my Push Day routine" → Select routine → Follow pre-defined exercises
+> - **Option 3 (Future)**: "I'll do this AI-generated routine" → Select AI routine → Follow suggested exercises
 
-### Version Management Automation (GitHub Actions)
-- [x] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
-- [x] Add support for version bump type via PR labels (patch/minor/major)
-- [x] Create `.github/workflows/release.yml` - auto-generate release notes from commits
-- [x] Auto-create GitHub releases with version tags on merge
-- [x] Auto-update service worker cache version in the release workflow
+- [ ] **Muscle Group Selection**: Allow users to select target muscle groups when starting a session
+  - [ ] Add muscle group selector to dashboard (Chest, Back, Legs, Shoulders, Arms, Core, Full Body, Cardio)
+  - [ ] Support multi-muscle group selection for combined workouts
+  - [ ] Visual muscle group icons/indicators
+  
+- [ ] **Flexible Exercise Selection**: Enable adding exercises during workout without pre-defined routines
+  - [ ] Quick exercise search/filter during session
+  - [ ] Recent/favorite exercises suggestions
+  - [ ] Popular exercises by muscle group
+  - [ ] Maintain compatibility with existing routine system (optional use)
+  
+- [ ] **Training Cycle Tracking**: Implement weekly/monthly training patterns
+  - [ ] Week view showing muscle groups trained
+  - [ ] Rest day tracking
+  - [ ] Training frequency insights per muscle group
+  - [ ] Balance indicators (e.g., "Haven't trained legs in 5 days")
 
-### Branch & PR Management (Repository Settings + Actions)
-- [x] Enable "Automatically delete head branches" in repository settings
-- [x] Create `.github/PULL_REQUEST_TEMPLATE.md` for contributor checklist
-- [x] Configure branch protection rules for main (require PR, passing tests) - Not needed per user request
-- [x] Create `.github/workflows/labeler.yml` - auto-label PRs by file changes
+- [ ] **Quick Start Templates**: Pre-configured muscle group combinations
+  - [ ] "Push Day" (Chest, Shoulders, Triceps)
+  - [ ] "Pull Day" (Back, Biceps)
+  - [ ] "Leg Day" (Quads, Hamstrings, Glutes, Calves)
+  - [ ] "Upper Body" / "Lower Body" splits
+  - [ ] Custom template creation
 
-### Code Quality Automation (GitHub Actions + Dependabot)
-- [x] Create `.github/workflows/lint.yml` - ESLint checks on PRs
-- [x] Add `.eslintrc.cjs` configuration for the project
-- [x] Create `.github/workflows/format-check.yml` - Prettier formatting checks
-- [x] Create `.github/dependabot.yml` - automated dependency updates
-- [x] Create `.github/workflows/codeql.yml` - security scanning on PRs
+### Weight & Nutrition Tracking
+- [ ] **Daily Weight Tracking**: Log body weight on any day (training or rest days)
+  - [ ] Weight history graph with trend line
+  - [ ] Weight goal setting (gain, lose, maintain, recomposition)
+  - [ ] Progress towards weight goals
+  - [ ] Weekly/monthly weight change statistics
+  
+- [ ] **Calorie Tracking**: Track daily calorie intake
+  - [ ] Simple calorie input field
+  - [ ] Daily calorie goal based on user objectives
+  - [ ] Calorie balance visualization (intake vs. estimated expenditure)
+  - [ ] Track on both training and rest days
+  
+- [ ] **User Goals & Objectives**: Define fitness goals to personalize experience
+  - [ ] Goal selection: Gain muscle, Lose weight, Maintain weight, Recomposition (toning + fat loss)
+  - [ ] Clarify recomposition goal: improve muscle definition while reducing body fat, without focusing solely on scale weight
+  - [ ] Recommended calorie ranges based on goal
+  - [ ] Training frequency recommendations based on goal
+  - [ ] Progress tracking aligned with stated goals
+  
+- [ ] **Non-Training Day Tracking**: Log data even without workouts
+  - [ ] Mark rest days explicitly
+  - [ ] Track weight and calories on rest days
+  - [ ] View complete calendar including rest days
+  - [ ] Rest day statistics and patterns
+
+### Data & History Enhancements
+- [ ] Tag sessions with muscle groups trained
+- [ ] Filter history by muscle group
+- [ ] Show training frequency charts per muscle group
+- [ ] Weekly/monthly training summaries
+- [ ] Rest period recommendations based on muscle group
+
+### UI/UX Improvements
+- [ ] Streamlined session start flow with **clear choice** between:
+  - "Quick Start" (flexible muscle group mode)
+  - "Use Routine" (existing routine system)
+  - Easy switching between modes
+- [ ] Improved mobile exercise input experience
+- [ ] Swipe gestures for quick exercise navigation
+- [ ] Better progress indicators during workout
+- [ ] Session timer with rest recommendations
 
 ---
 
-## Phase 2: AI-First Powered Gym Application
+## Phase 2: Enhanced Analytics & Insights
+
+**Goal:** Provide deeper insights into training patterns and progress without requiring AI.
+
+### Advanced Progress Tracking
+- [ ] Muscle group-specific progress charts
+- [ ] Training volume trends by muscle group
+- [ ] Personal records (PRs) tracking per exercise
+- [ ] Training balance visualization (pie charts showing muscle group distribution)
+- [ ] Strength progression heatmaps
+
+### Smart Recommendations (Rule-Based)
+- [ ] Suggest exercises based on training history
+- [ ] Highlight under-trained muscle groups
+- [ ] Recommend rest days based on training frequency
+- [ ] Volume recommendations per muscle group
+- [ ] Exercise rotation suggestions to prevent plateaus
+
+### Social & Motivation Features
+- [ ] Workout streaks tracking
+- [ ] Monthly challenges (e.g., "Train each muscle group 2x this month")
+- [ ] Achievement badges
+- [ ] Shareable workout summaries
+- [ ] Progress milestone celebrations
+
+---
+
+## Phase 3: AI-Powered Gym Application
 
 **Goal:** Transform the app into an AI-powered fitness assistant that provides personalized recommendations, form guidance, and intelligent workout planning.
 
@@ -88,7 +159,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ---
 
-## Phase 3: Advanced Features & Scaling
+## Phase 4: Advanced Features & Scaling
 
 **Goal:** Add social features, advanced analytics, and prepare for scale.
 
@@ -125,9 +196,10 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 | Phase | Priority | Estimated Effort | Dependencies |
 |-------|----------|------------------|--------------|
-| Phase 1 | High | 1-2 weeks | None |
-| Phase 2 | Medium | 4-8 weeks | Phase 1 complete |
-| Phase 3 | Low | Ongoing | Phase 2 complete |
+| Phase 1: Flexible Workout System | **HIGH** ⭐ | 2-4 weeks | None |
+| Phase 2: Enhanced Analytics | Medium | 2-3 weeks | Phase 1 complete |
+| Phase 3: AI-Powered Features | Low | 8-12 weeks | Phases 1-2 complete |
+| Phase 4: Scaling & Social | Low | Ongoing | Phase 3 complete |
 
 ---
 
@@ -135,9 +207,104 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 To begin implementing this plan:
 
-1. **Start with Phase 1** - Set up GitHub Actions for automated testing
-2. **Complete CI/CD** before implementing AI features to ensure stable builds
-3. **Iterate based on user feedback** throughout the process
+1. **Start with Phase 1** - Build the flexible workout system to replace rigid routines
+2. **Focus on UX first** - Ensure the app is intuitive and adaptable to user needs
+3. **Add intelligence gradually** - Start with rule-based recommendations before AI
+4. **Iterate based on user feedback** throughout the process
+
+---
+
+## Rationale for Phase 1 Priority
+
+The current app is too rigid - users must follow pre-defined routines which doesn't match real-world gym behavior:
+- **Real gym sessions** are often spontaneous: "I'll train chest today" or "Push day"
+- **Muscle group targeting** is more natural than fixed routines
+- **Weekly cycles** (PPL, Upper/Lower, etc.) are more flexible than strict routines
+- **Ad-hoc exercise selection** allows for equipment availability and personal preference
+
+By making the app more flexible first, we create a solid foundation that users will actually want to use, making subsequent AI features more valuable.
+
+---
+
+## Next Steps for Phase 1 Implementation
+
+### 1. Design Phase
+- [ ] Create UI mockups for muscle group selector
+- [ ] Design flexible session start flow with mode selection
+- [ ] Design weight/calorie tracking interface
+- [ ] Design user goals setup flow
+- [ ] Plan database migration strategy
+- [ ] Design training balance visualization components
+
+### 2. Implementation Phase
+- [ ] Update Firestore session schema to include `muscleGroups` array and `sessionType` field
+- [ ] Add user profile schema for weight/calorie tracking and goals
+- [ ] Implement muscle group selector UI on dashboard
+- [ ] Add session mode selection (Quick Start vs Use Routine)
+- [ ] Implement weight logging UI (accessible from dashboard)
+- [ ] Implement calorie tracking UI
+- [ ] Add user goal selection and setup
+- [ ] Enhance exercise selection system for ad-hoc adding
+- [ ] Implement training cycle tracking calendar
+- [ ] Add muscle group filtering to history view
+- [ ] Enable rest day tracking with weight/calorie data
+
+### 3. Testing Phase
+- [ ] Update existing tests for backward compatibility
+- [ ] Add new feature tests for muscle group selection
+- [ ] Test weight and calorie tracking functionality
+- [ ] Test user goal flow and recommendations
+- [ ] Test both flexible and routine modes thoroughly
+- [ ] Manual UI/UX testing on mobile devices
+- [ ] Collect user feedback and iterate
+
+### Technical Details
+**Database Schema:**
+```javascript
+// Flexible session document structure
+{
+  fecha: Timestamp,
+  nombreEntrenamiento: "Upper Body Session",
+  muscleGroups: ["chest", "shoulders", "triceps"],  // NEW
+  sessionType: "flexible",                          // NEW
+  routineId: null,                                   // NEW - no routine linked in flexible mode
+  ejercicios: [...]
+}
+
+// Routine-based session document structure
+{
+  fecha: Timestamp,
+  nombreEntrenamiento: "Push Day Routine",
+  muscleGroups: ["chest", "shoulders", "triceps"],  // NEW - can be derived from routine or stored explicitly
+  sessionType: "routine",                           // NEW
+  routineId: "some-routine-id",                     // NEW - required in routine mode
+  ejercicios: [...]
+}
+
+// User profile additions
+{
+  userId: "user123",
+  weightGoal: "gain" | "lose" | "maintain" | "recomposition",  // NEW
+  currentWeight: 75.5,                                          // NEW
+  targetWeight: 80,                                             // NEW
+  dailyCalorieGoal: 2800,                                       // NEW
+  weightHistory: [                                              // NEW
+    { date: Timestamp, weight: 75.5 },
+    { date: Timestamp, weight: 75.8 }
+  ],
+  calorieHistory: [                                             // NEW
+    { date: Timestamp, calories: 2650 },
+    { date: Timestamp, calories: 2800 }
+  ]
+}
+```
+
+**Key Design Principles:**
+1. Dual Mode System - Support BOTH flexible and routine-based training equally
+2. User Choice - Let users decide their approach each session
+3. Goal-Oriented Tracking - Weight and calorie tracking aligned with user objectives
+4. Backward Compatible - Don't break existing workflows
+5. Mobile-First UX - Most gym use is on mobile devices
 
 ---
 
@@ -150,4 +317,4 @@ To begin implementing this plan:
 
 ---
 
-*Last Updated: January 4, 2026 at 18:52 UTC*
+*Last Updated: January 5, 2026 at 19:25 UTC*
