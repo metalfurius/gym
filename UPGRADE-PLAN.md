@@ -12,14 +12,14 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ### Testing Automation (GitHub Actions)
 - [x] Create `.github/workflows/test.yml` - runs tests on pull requests automatically
-- [x] Configure test workflow to trigger on `push` to main branch
+- [x] Configure test workflow to trigger on `push` to master branch
 - [x] Add test status badge to README.md (auto-generated from workflow)
 - [x] Configure test coverage reporting workflow (upload to Codecov or similar)
 - [x] Set up test result annotations in PR reviews (GitHub Actions feature)
 - [x] AI agent task: When new code is added, prompt AI to generate/update tests
 
 ### Version Management Automation (GitHub Actions)
-- [x] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to main
+- [x] Create `.github/workflows/version-bump.yml` - auto-increment version on merge to master
 - [x] Add support for version bump type via PR labels (patch/minor/major)
 - [x] Create `.github/workflows/release.yml` - auto-generate release notes from commits
 - [x] Auto-create GitHub releases with version tags on merge
