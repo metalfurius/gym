@@ -90,6 +90,10 @@ jobs:
       - name: Build debug app
         working-directory: ios/App
         run: |
+          # Get first available iPhone simulator
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -oE '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}')
+          echo "Building for simulator: $SIMULATOR"
+          
           # Build for iOS Simulator (no code signing required)
           set -o pipefail
           xcodebuild \
@@ -97,7 +101,7 @@ jobs:
             -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,id=$SIMULATOR" \
             -derivedDataPath build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
