@@ -92,6 +92,15 @@ jobs:
         run: |
           # Get first available iPhone simulator
           SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -oE '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}')
+          
+          # Validate that a simulator was found
+          if [ -z "$SIMULATOR" ]; then
+            echo "Error: No iPhone simulator found"
+            echo "Available simulators:"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          
           echo "Building for simulator: $SIMULATOR"
           
           # Build for iOS Simulator (no code signing required)
