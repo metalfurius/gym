@@ -40,50 +40,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ---
 
-## Phase 2: Mobile App with Capacitor
-
-**Goal:** Convert the PWA into native iOS and Android apps using Capacitor while maintaining the current web deployment.
-
-### Capacitor Setup
-- [ ] Install and configure Capacitor in the project
-- [ ] Create `capacitor.config.ts` configuration file
-- [ ] Add iOS platform support
-- [ ] Add Android platform support
-- [ ] Configure app icons and splash screens for both platforms
-
-### Build Configuration
-- [ ] Create separate build scripts for web, iOS, and Android
-- [ ] Set up environment-specific configurations (development, staging, production)
-- [ ] Configure Capacitor to use the existing web assets
-- [ ] Ensure Firebase works correctly on both platforms
-- [ ] Test offline functionality on native apps
-
-### GitHub Actions for Mobile Builds (Debug APK/IPA)
-- [ ] Create `.github/workflows/build-android.yml` - build debug APK (no signing required)
-- [ ] Create `.github/workflows/build-ios.yml` - build debug IPA (macOS runner, no signing)
-- [ ] Upload debug builds as GitHub Actions artifacts for download
-- [ ] Keep GitHub Pages deployment for web version
-- [ ] Add build status badges for mobile builds to README.md
-
-### Native Features Integration
-- [ ] Add push notifications support (Firebase Cloud Messaging)
-- [ ] Implement local notifications for workout reminders
-- [ ] Add haptic feedback for mobile interactions
-- [ ] Integrate device health APIs (HealthKit for iOS, Health Connect for Android)
-- [ ] Add biometric authentication option
-
-### App Store Preparation (Future - When Ready for Release)
-- [ ] Create App Store Connect account and app listing
-- [ ] Create Google Play Console account and app listing
-- [ ] Design app store screenshots and promotional graphics
-- [ ] Write app store descriptions and metadata
-- [ ] Set up app signing certificates and keystores
-
-> **Note:** App store accounts and signing are deferred until the app is ready for public release. Debug builds can be tested without these.
-
----
-
-## Phase 3: AI-First Powered Gym Application
+## Phase 2: AI-First Powered Gym Application
 
 **Goal:** Transform the app into an AI-powered fitness assistant that provides personalized recommendations, form guidance, and intelligent workout planning.
 
@@ -131,7 +88,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ---
 
-## Phase 4: Advanced Features & Scaling
+## Phase 3: Advanced Features & Scaling
 
 **Goal:** Add social features, advanced analytics, and prepare for scale.
 
@@ -158,10 +115,9 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ### Monetization (Optional)
 - [ ] Design freemium model with premium AI features
-- [ ] Implement in-app purchases for mobile apps
-- [ ] Add subscription management
+- [ ] Add subscription management for web application
 - [ ] Create promotional codes and trial periods
-- [ ] Implement payment processing (Stripe, RevenueCat)
+- [ ] Implement payment processing (Stripe)
 
 ---
 
@@ -170,9 +126,8 @@ This document outlines the planned improvements and upgrades for the My Workout 
 | Phase | Priority | Estimated Effort | Dependencies |
 |-------|----------|------------------|--------------|
 | Phase 1 | High | 1-2 weeks | None |
-| Phase 2 | High | 2-4 weeks | Phase 1 complete |
-| Phase 3 | Medium | 4-8 weeks | Phase 2 complete |
-| Phase 4 | Low | Ongoing | Phase 3 complete |
+| Phase 2 | Medium | 4-8 weeks | Phase 1 complete |
+| Phase 3 | Low | Ongoing | Phase 2 complete |
 
 ---
 
@@ -181,9 +136,8 @@ This document outlines the planned improvements and upgrades for the My Workout 
 To begin implementing this plan:
 
 1. **Start with Phase 1** - Set up GitHub Actions for automated testing
-2. **Complete CI/CD** before moving to Capacitor to ensure stable builds
-3. **Test mobile apps thoroughly** before implementing AI features
-4. **Iterate based on user feedback** throughout the process
+2. **Complete CI/CD** before implementing AI features to ensure stable builds
+3. **Iterate based on user feedback** throughout the process
 
 ---
 
