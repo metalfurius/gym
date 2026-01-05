@@ -42,7 +42,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 ### Weight & Nutrition Tracking
 - [ ] **Daily Weight Tracking**: Log body weight on any day (training or rest days)
   - [ ] Weight history graph with trend line
-  - [ ] Weight goal setting (gain, maintain, lose)
+  - [ ] Weight goal setting (gain, lose, maintain, recomposition)
   - [ ] Progress towards weight goals
   - [ ] Weekly/monthly weight change statistics
   
@@ -53,7 +53,8 @@ This document outlines the planned improvements and upgrades for the My Workout 
   - [ ] Track on both training and rest days
   
 - [ ] **User Goals & Objectives**: Define fitness goals to personalize experience
-  - [ ] Goal selection: Gain muscle, Lose weight, Maintain weight, Tone/Recomposition
+  - [ ] Goal selection: Gain muscle, Lose weight, Maintain weight, Recomposition (toning + fat loss)
+  - [ ] Clarify recomposition goal: improve muscle definition while reducing body fat, without focusing solely on scale weight
   - [ ] Recommended calorie ranges based on goal
   - [ ] Training frequency recommendations based on goal
   - [ ] Progress tracking aligned with stated goals
@@ -260,13 +261,23 @@ By making the app more flexible first, we create a solid foundation that users w
 ### Technical Details
 **Database Schema:**
 ```javascript
-// Session document structure
+// Flexible session document structure
 {
   fecha: Timestamp,
   nombreEntrenamiento: "Upper Body Session",
   muscleGroups: ["chest", "shoulders", "triceps"],  // NEW
-  sessionType: "flexible" | "routine",               // NEW
-  routineId: "optional-routine-id",
+  sessionType: "flexible",                          // NEW
+  routineId: null,                                   // NEW - no routine linked in flexible mode
+  ejercicios: [...]
+}
+
+// Routine-based session document structure
+{
+  fecha: Timestamp,
+  nombreEntrenamiento: "Push Day Routine",
+  muscleGroups: ["chest", "shoulders", "triceps"],  // NEW - can be derived from routine or stored explicitly
+  sessionType: "routine",                           // NEW
+  routineId: "some-routine-id",                     // NEW - required in routine mode
   ejercicios: [...]
 }
 

@@ -52,7 +52,7 @@ We're working on making the app more flexible and user-friendly! See **[UPGRADE-
 **Weight & Nutrition Tracking:**
 - **Daily Weight Logging**: Track your weight on any day (training or rest days)
 - **Calorie Tracking**: Monitor daily calorie intake
-- **User Goals**: Define your fitness objectives (gain muscle, lose weight, tone, maintain)
+- **User Goals**: Define your fitness objectives (gain, lose, maintain, recomposition)
 - **Rest Day Tracking**: Log weight and nutrition even on non-training days
 
 **Your Choice Each Session:**
