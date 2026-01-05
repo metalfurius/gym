@@ -49,6 +49,12 @@ We're working on making the app more flexible and user-friendly! See **[UPGRADE-
 - **Training Cycle Tracking**: See your weekly training patterns and muscle group balance
 - **Quick Start Templates**: Push/Pull/Legs and other popular workout splits
 
+**Weight & Nutrition Tracking:**
+- **Daily Weight Logging**: Track your weight on any day (training or rest days)
+- **Calorie Tracking**: Monitor daily calorie intake
+- **User Goals**: Define your fitness objectives (gain muscle, lose weight, tone, maintain)
+- **Rest Day Tracking**: Log weight and nutrition even on non-training days
+
 **Your Choice Each Session:**
 - "Quick Start" → Pick muscle groups, add exercises as you go
 - "Use Routine" → Follow your saved routines (existing feature, fully preserved)

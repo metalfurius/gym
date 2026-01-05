@@ -6,7 +6,7 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ## Phase 1: Flexible Workout System ⭐ **CURRENT PRIORITY**
 
-**Goal:** Add a flexible workout mode alongside the existing routine system, giving users choice in how they train. Users can select their preferred approach each session: spontaneous muscle-group-based training OR structured routine following.
+**Goal:** Add a flexible workout mode alongside the existing routine system, giving users choice in how they train. Users can select their preferred approach each session: spontaneous muscle-group-based training OR structured routine following. Additionally, add weight and calorie tracking to understand user goals and enable tracking on rest days.
 
 ### Core Flexibility Features
 
@@ -38,6 +38,31 @@ This document outlines the planned improvements and upgrades for the My Workout 
   - [ ] "Leg Day" (Quads, Hamstrings, Glutes, Calves)
   - [ ] "Upper Body" / "Lower Body" splits
   - [ ] Custom template creation
+
+### Weight & Nutrition Tracking
+- [ ] **Daily Weight Tracking**: Log body weight on any day (training or rest days)
+  - [ ] Weight history graph with trend line
+  - [ ] Weight goal setting (gain, maintain, lose)
+  - [ ] Progress towards weight goals
+  - [ ] Weekly/monthly weight change statistics
+  
+- [ ] **Calorie Tracking**: Track daily calorie intake
+  - [ ] Simple calorie input field
+  - [ ] Daily calorie goal based on user objectives
+  - [ ] Calorie balance visualization (intake vs. estimated expenditure)
+  - [ ] Track on both training and rest days
+  
+- [ ] **User Goals & Objectives**: Define fitness goals to personalize experience
+  - [ ] Goal selection: Gain muscle, Lose weight, Maintain weight, Tone/Recomposition
+  - [ ] Recommended calorie ranges based on goal
+  - [ ] Training frequency recommendations based on goal
+  - [ ] Progress tracking aligned with stated goals
+  
+- [ ] **Non-Training Day Tracking**: Log data even without workouts
+  - [ ] Mark rest days explicitly
+  - [ ] Track weight and calories on rest days
+  - [ ] View complete calendar including rest days
+  - [ ] Rest day statistics and patterns
 
 ### Data & History Enhancements
 - [ ] Tag sessions with muscle groups trained
@@ -205,20 +230,29 @@ By making the app more flexible first, we create a solid foundation that users w
 ### 1. Design Phase
 - [ ] Create UI mockups for muscle group selector
 - [ ] Design flexible session start flow with mode selection
+- [ ] Design weight/calorie tracking interface
+- [ ] Design user goals setup flow
 - [ ] Plan database migration strategy
 - [ ] Design training balance visualization components
 
 ### 2. Implementation Phase
 - [ ] Update Firestore session schema to include `muscleGroups` array and `sessionType` field
+- [ ] Add user profile schema for weight/calorie tracking and goals
 - [ ] Implement muscle group selector UI on dashboard
 - [ ] Add session mode selection (Quick Start vs Use Routine)
+- [ ] Implement weight logging UI (accessible from dashboard)
+- [ ] Implement calorie tracking UI
+- [ ] Add user goal selection and setup
 - [ ] Enhance exercise selection system for ad-hoc adding
 - [ ] Implement training cycle tracking calendar
 - [ ] Add muscle group filtering to history view
+- [ ] Enable rest day tracking with weight/calorie data
 
 ### 3. Testing Phase
 - [ ] Update existing tests for backward compatibility
 - [ ] Add new feature tests for muscle group selection
+- [ ] Test weight and calorie tracking functionality
+- [ ] Test user goal flow and recommendations
 - [ ] Test both flexible and routine modes thoroughly
 - [ ] Manual UI/UX testing on mobile devices
 - [ ] Collect user feedback and iterate
@@ -232,16 +266,34 @@ By making the app more flexible first, we create a solid foundation that users w
   nombreEntrenamiento: "Upper Body Session",
   muscleGroups: ["chest", "shoulders", "triceps"],  // NEW
   sessionType: "flexible" | "routine",               // NEW
-  routineId: "optional-routine-id",                  // Now optional
+  routineId: "optional-routine-id",
   ejercicios: [...]
+}
+
+// User profile additions
+{
+  userId: "user123",
+  weightGoal: "gain" | "lose" | "maintain" | "recomposition",  // NEW
+  currentWeight: 75.5,                                          // NEW
+  targetWeight: 80,                                             // NEW
+  dailyCalorieGoal: 2800,                                       // NEW
+  weightHistory: [                                              // NEW
+    { date: Timestamp, weight: 75.5 },
+    { date: Timestamp, weight: 75.8 }
+  ],
+  calorieHistory: [                                             // NEW
+    { date: Timestamp, calories: 2650 },
+    { date: Timestamp, calories: 2800 }
+  ]
 }
 ```
 
 **Key Design Principles:**
 1. Dual Mode System - Support BOTH flexible and routine-based training equally
 2. User Choice - Let users decide their approach each session
-3. Backward Compatible - Don't break existing workflows
-4. Mobile-First UX - Most gym use is on mobile devices
+3. Goal-Oriented Tracking - Weight and calorie tracking aligned with user objectives
+4. Backward Compatible - Don't break existing workflows
+5. Mobile-First UX - Most gym use is on mobile devices
 
 ---
 
