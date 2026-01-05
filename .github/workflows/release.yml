@@ -9,12 +9,19 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
+  build-android:
+    name: Build Android APK
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/build-android.yml
+
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    # Only run if the version bump workflow succeeded
+    needs: build-android
+    # Only run if the version bump workflow succeeded and android build completed
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
@@ -43,6 +50,18 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Download Android APK artifact
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/download-artifact@v4
+        with:
+          name: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-android
+          path: ./artifacts
+
+      - name: Rename APK file
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          mv ./artifacts/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}.apk
+
       - name: Generate release notes
         if: steps.check-tag.outputs.exists == 'false'
         id: release-notes
@@ -62,6 +81,10 @@ jobs:
           NOTES="## What's Changed
           
           $COMMITS
+          
+          ## Downloads
+          
+          - **Android APK**: my-workout-tracker-v${{ steps.version.outputs.version }}.apk
           
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG:-initial}...v${{ steps.version.outputs.version }}"
           
@@ -85,5 +108,7 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: false
+          files: |
+            ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
