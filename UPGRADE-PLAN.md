@@ -200,6 +200,51 @@ By making the app more flexible first, we create a solid foundation that users w
 
 ---
 
+## Next Steps for Phase 1 Implementation
+
+### 1. Design Phase
+- [ ] Create UI mockups for muscle group selector
+- [ ] Design flexible session start flow with mode selection
+- [ ] Plan database migration strategy
+- [ ] Design training balance visualization components
+
+### 2. Implementation Phase
+- [ ] Update Firestore session schema to include `muscleGroups` array and `sessionType` field
+- [ ] Implement muscle group selector UI on dashboard
+- [ ] Add session mode selection (Quick Start vs Use Routine)
+- [ ] Enhance exercise selection system for ad-hoc adding
+- [ ] Implement training cycle tracking calendar
+- [ ] Add muscle group filtering to history view
+
+### 3. Testing Phase
+- [ ] Update existing tests for backward compatibility
+- [ ] Add new feature tests for muscle group selection
+- [ ] Test both flexible and routine modes thoroughly
+- [ ] Manual UI/UX testing on mobile devices
+- [ ] Collect user feedback and iterate
+
+### Technical Details
+**Database Schema:**
+```javascript
+// Session document structure
+{
+  fecha: Timestamp,
+  nombreEntrenamiento: "Upper Body Session",
+  muscleGroups: ["chest", "shoulders", "triceps"],  // NEW
+  sessionType: "flexible" | "routine",               // NEW
+  routineId: "optional-routine-id",                  // Now optional
+  ejercicios: [...]
+}
+```
+
+**Key Design Principles:**
+1. Dual Mode System - Support BOTH flexible and routine-based training equally
+2. User Choice - Let users decide their approach each session
+3. Backward Compatible - Don't break existing workflows
+4. Mobile-First UX - Most gym use is on mobile devices
+
+---
+
 ## Notes
 
 - This is a living document that should be updated as features are completed

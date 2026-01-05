@@ -39,9 +39,7 @@ A modern, responsive workout tracking web application with session management, r
 
 ## Roadmap
 
-We're working on making the app more flexible and user-friendly! Check out:
-- **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** - Full feature roadmap with all planned phases
-- **[FLEXIBILITY-ROADMAP.md](FLEXIBILITY-ROADMAP.md)** - Detailed plan for the flexible workout system (Phase 1 priority)
+We're working on making the app more flexible and user-friendly! See **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** for the complete roadmap with all planned phases and next steps.
 
 ### Coming Soon 🚀
 
