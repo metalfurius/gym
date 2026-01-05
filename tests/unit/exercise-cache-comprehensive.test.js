@@ -45,7 +45,7 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
 
       // Add 6 entries (more than maxExerciseHistory which is 5)
       for (let i = 0; i < 6; i++) {
-        cacheManager.addExerciseData('Bench Press', sets, new Date(2024, 0, i + 1));
+        cacheManager.addExerciseData('Bench Press', sets, new Date(Date.UTC(2024, 0, i + 1)));
       }
 
       const history = cacheManager.getExerciseHistory('Bench Press');
@@ -56,8 +56,8 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
       const oldSets = [{ peso: 60, reps: 10 }];
       const newSets = [{ peso: 70, reps: 8 }];
 
-      cacheManager.addExerciseData('Bench Press', oldSets, new Date(2024, 0, 1));
-      cacheManager.addExerciseData('Bench Press', newSets, new Date(2024, 0, 2));
+      cacheManager.addExerciseData('Bench Press', oldSets, new Date(Date.UTC(2024, 0, 1)));
+      cacheManager.addExerciseData('Bench Press', newSets, new Date(Date.UTC(2024, 0, 2)));
 
       const history = cacheManager.getExerciseHistory('Bench Press');
       expect(history[0].sets[0].peso).toBe(70); // Most recent should be first

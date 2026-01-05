@@ -41,10 +41,22 @@ describe('Timer Module', () => {
     });
 
     it('should only initialize once', () => {
-      initSetTimers();
-      initSetTimers(); // Call again
-      // Should not throw and should handle multiple calls gracefully
-      expect(true).toBe(true);
+      const exerciseList = document.getElementById('exercise-list');
+      const addEventListenerSpy = jest.spyOn(exerciseList, 'addEventListener');
+
+      try {
+        // First initialization should attach event listeners
+        initSetTimers();
+        const callCountAfterFirstInit = addEventListenerSpy.mock.calls.length;
+
+        // Second initialization should NOT attach additional listeners
+        initSetTimers();
+        const callCountAfterSecondInit = addEventListenerSpy.mock.calls.length;
+
+        expect(callCountAfterSecondInit).toBe(callCountAfterFirstInit);
+      } finally {
+        addEventListenerSpy.mockRestore();
+      }
     });
   });
 

@@ -104,7 +104,7 @@ describe('ThemeManager Class - Actual Import', () => {
       themeManager = new ThemeManager();
       const loaded = themeManager.loadTheme();
       // Should fallback to default for invalid theme
-      expect(['default', 'invalid-theme']).toContain(loaded);
+      expect(loaded).toBe('default');
     });
   });
 
@@ -146,9 +146,9 @@ describe('ThemeManager Class - Actual Import', () => {
       expect(document.documentElement.getAttribute('data-theme')).toBe('nature');
     });
 
-    it('should apply default theme', () => {
+    it('should apply default theme with empty data-theme attribute', () => {
       themeManager.applyTheme('default');
-      // Default theme sets empty string
+      // Default theme clears data-theme so the base CSS variables (modern theme) are used
       expect(document.documentElement.getAttribute('data-theme')).toBe('');
     });
   });
