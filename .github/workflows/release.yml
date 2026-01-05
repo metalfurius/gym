@@ -17,11 +17,16 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/build-android.yml
 
+  build-ios:
+    name: Build iOS App
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/build-ios.yml
+
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: build-android
-    # Only run if the version bump workflow succeeded and android build completed
+    needs: [build-android, build-ios]
+    # Only run if the version bump workflow succeeded and builds completed
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
@@ -55,12 +60,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-android
-          path: ./artifacts
+          path: ./artifacts/android
 
-      - name: Rename APK file
+      - name: Download iOS simulator app artifact
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/download-artifact@v4
+        with:
+          name: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator
+          path: ./artifacts/ios
+
+      - name: Rename artifacts
         if: steps.check-tag.outputs.exists == 'false'
         run: |
-          mv ./artifacts/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+          mv ./artifacts/android/app-debug.apk ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+          mv ./artifacts/ios/App.zip ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
 
       - name: Generate release notes
         if: steps.check-tag.outputs.exists == 'false'
@@ -85,6 +98,7 @@ jobs:
           ## Downloads
           
           - **Android APK**: my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+          - **iOS Simulator App**: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
           
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG:-initial}...v${{ steps.version.outputs.version }}"
           
@@ -110,5 +124,6 @@ jobs:
           prerelease: false
           files: |
             ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug.apk
+            ./artifacts/my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
