@@ -63,7 +63,7 @@ jobs:
           zip -r App.zip App.app
 
       - name: Upload debug iOS simulator app
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: my-workout-tracker-v${{ steps.version.outputs.version }}-debug-ios-simulator
           path: ios/App/build/Build/Products/Debug-iphonesimulator/App.zip
