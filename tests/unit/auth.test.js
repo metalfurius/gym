@@ -83,10 +83,10 @@ describe('Auth Module', () => {
 
     it('should detect invalid email formats', () => {
       const testCases = [
-        { email: 'invalid', expected: false },
-        { email: 'invalid@', expected: false },
-        { email: '@example.com', expected: false },
-        { email: 'invalid@.com', expected: true }, // This actually passes basic validation
+        { email: 'invalid', expected: false, reason: 'no @ symbol' },
+        { email: 'invalid@', expected: false, reason: '@ at end' },
+        { email: '@example.com', expected: false, reason: '@ at start' },
+        { email: 'invalid@.com', expected: true, reason: 'passes basic check but would fail real validation' },
       ];
 
       testCases.forEach(({ email, expected }) => {

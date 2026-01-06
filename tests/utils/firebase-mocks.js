@@ -77,7 +77,7 @@ export const mockFirestore = {
   collection: jest.fn((db, collectionName) => createMockCollectionRef(collectionName)),
   doc: jest.fn((db, collectionName, docId) => createMockDocRef(collectionName, docId)),
   addDoc: jest.fn(async (collectionRef, data) => {
-    const docId = `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const docId = `doc-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     return createMockDocRef(collectionRef.id, docId);
   }),
   setDoc: jest.fn(async (docRef, data) => {
@@ -230,7 +230,7 @@ export function createMockFirebaseDB() {
     },
     addDoc: async (collectionRef, data) => {
       const collection = collections.get(collectionRef.name) || new Map();
-      const docId = `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const docId = `doc-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       collection.set(docId, { id: docId, ...data });
       collections.set(collectionRef.name, collection);
       return { id: docId };
