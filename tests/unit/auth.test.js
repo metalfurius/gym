@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import {
   createMockAuthUser,
   mockAuth,
-  mockAuthErrors,
   resetFirebaseMocks,
 } from '../utils/firebase-mocks.js';
 
@@ -86,7 +85,7 @@ describe('Auth Module', () => {
         { email: 'invalid', expected: false, reason: 'no @ symbol' },
         { email: 'invalid@', expected: false, reason: '@ at end' },
         { email: '@example.com', expected: false, reason: '@ at start' },
-        { email: 'invalid@.com', expected: true, reason: 'passes basic check but would fail real validation' },
+        { email: 'invalid@.com', expected: true, reason: 'basic check passes (has @ in middle) even though domain validation would fail' },
       ];
 
       testCases.forEach(({ email, expected }) => {
@@ -195,7 +194,7 @@ describe('Auth Module', () => {
     it('should throw error for missing password', async () => {
       await expect(
         mockAuth.signInWithEmailAndPassword(null, 'test@example.com', '')
-      ).rejects.toMatchObject({ code: 'auth/invalid-email' });
+      ).rejects.toMatchObject({ code: 'auth/missing-password' });
     });
   });
 

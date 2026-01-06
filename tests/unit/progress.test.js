@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('Progress Module', () => {
   let progressTabCache;
@@ -462,6 +462,8 @@ describe('Progress Module', () => {
 
     it('should reset initialization state', () => {
       progressTabCache.isInitialized = true;
+      expect(progressTabCache.isInitialized).toBe(true);
+      
       progressTabCache.isInitialized = false;
       expect(progressTabCache.isInitialized).toBe(false);
     });

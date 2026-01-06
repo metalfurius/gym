@@ -305,6 +305,8 @@ describe('Version Manager', () => {
     });
 
     it('should handle missing manifest gracefully', async () => {
+      const FALLBACK_VERSION = '1.1.0'; // Should match the actual fallback in version-manager.js
+      
       global.fetch.mockImplementationOnce(() =>
         Promise.reject(new Error('Not found'))
       );
@@ -315,10 +317,10 @@ describe('Version Manager', () => {
         const manifest = await response.json();
         version = manifest.version;
       } catch (error) {
-        version = '1.1.0'; // Fallback
+        version = FALLBACK_VERSION;
       }
       
-      expect(version).toBe('1.1.0');
+      expect(version).toBe(FALLBACK_VERSION);
     });
   });
 

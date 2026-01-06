@@ -172,8 +172,11 @@ export function createMockUserCredential(user = null) {
  */
 export const mockAuth = {
   createUserWithEmailAndPassword: jest.fn(async (auth, email, password) => {
-    if (!email || !password) {
+    if (!email) {
       throw { code: 'auth/invalid-email', message: 'Invalid email' };
+    }
+    if (!password) {
+      throw { code: 'auth/missing-password', message: 'Missing password' };
     }
     if (password.length < 6) {
       throw { code: 'auth/weak-password', message: 'Weak password' };
@@ -182,8 +185,11 @@ export const mockAuth = {
     return createMockUserCredential(user);
   }),
   signInWithEmailAndPassword: jest.fn(async (auth, email, password) => {
-    if (!email || !password) {
+    if (!email) {
       throw { code: 'auth/invalid-email', message: 'Invalid email' };
+    }
+    if (!password) {
+      throw { code: 'auth/missing-password', message: 'Missing password' };
     }
     const user = createMockAuthUser(email);
     return createMockUserCredential(user);
@@ -252,15 +258,15 @@ export function createMockFirebaseDB() {
  * Reset all Firebase mocks
  */
 export function resetFirebaseMocks() {
-  Object.values(mockFirestore).forEach((mock) => {
-    if (typeof mock === 'function' && mock.mockClear) {
-      mock.mockClear();
+  Object.values(mockFirestore).forEach((mockFn) => {
+    if (typeof mockFn === 'function' && mockFn.mockClear) {
+      mockFn.mockClear();
     }
   });
   
-  Object.values(mockAuth).forEach((mock) => {
-    if (typeof mock === 'function' && mock.mockClear) {
-      mock.mockClear();
+  Object.values(mockAuth).forEach((mockFn) => {
+    if (typeof mockFn === 'function' && mockFn.mockClear) {
+      mockFn.mockClear();
     }
   });
 }

@@ -42,12 +42,12 @@ describe('Firebase Integration Tests', () => {
 
   describe('Firestore Mock Operations', () => {
     it('should mock collection creation', () => {
-      const collectionRef = mockFirebaseFirestore.collection('sessions');
+      mockFirebaseFirestore.collection('sessions');
       expect(mockFirebaseFirestore.collection).toHaveBeenCalledWith('sessions');
     });
 
     it('should mock document creation', () => {
-      const docRef = mockFirebaseFirestore.doc('sessions', 'session-123');
+      mockFirebaseFirestore.doc('sessions', 'session-123');
       expect(mockFirebaseFirestore.doc).toHaveBeenCalledWith('sessions', 'session-123');
     });
 
@@ -74,9 +74,9 @@ describe('Firebase Integration Tests', () => {
     });
 
     it('should mock query construction', () => {
-      const whereConstraint = mockFirebaseFirestore.where('field', '==', 'value');
-      const orderByConstraint = mockFirebaseFirestore.orderBy('field', 'asc');
-      const limitConstraint = mockFirebaseFirestore.limit(10);
+      mockFirebaseFirestore.where('field', '==', 'value');
+      mockFirebaseFirestore.orderBy('field', 'asc');
+      mockFirebaseFirestore.limit(10);
       
       expect(mockFirebaseFirestore.where).toHaveBeenCalledWith('field', '==', 'value');
       expect(mockFirebaseFirestore.orderBy).toHaveBeenCalledWith('field', 'asc');
@@ -219,7 +219,7 @@ describe('Firebase Integration Tests', () => {
 
     it('should handle pagination with startAfter', () => {
       const lastDoc = { id: 'last-doc' };
-      const startAfter = mockFirebaseFirestore.startAfter(lastDoc);
+      mockFirebaseFirestore.startAfter(lastDoc);
       
       expect(mockFirebaseFirestore.startAfter).toHaveBeenCalledWith(lastDoc);
     });
