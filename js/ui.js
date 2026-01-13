@@ -1,6 +1,20 @@
 // --- DOM Elements ---
 import { resetTimerInitialization } from './timer.js';
 
+// --- Security: HTML Escape Function ---
+/**
+ * Escapes HTML special characters to prevent XSS attacks
+ * @param {string} str - The string to escape
+ * @returns {string} - The escaped string safe for innerHTML
+ */
+export function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    const text = String(str);
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 export const views = {
     auth: document.getElementById('auth-view'),
     dashboard: document.getElementById('dashboard-view'),
@@ -302,11 +316,11 @@ export async function renderSessionView(routine, inProgressData = null) {
                 lastWorkoutInfo.innerHTML = `
                     <div class="last-workout-header">
                         <span class="last-workout-title">Último entrenamiento</span>
-                        <span class="workout-time-ago">${timeText}</span>
+                        <span class="workout-time-ago">${escapeHtml(timeText)}</span>
                     </div>
                     <div class="last-workout-details">
                         ${suggestions.suggestions.lastSets.map((set, idx) => 
-                            `<span class="last-set">S${idx + 1}: ${set.peso}kg × ${set.reps}</span>`
+                            `<span class="last-set">S${idx + 1}: ${escapeHtml(set.peso)}kg × ${escapeHtml(set.reps)}</span>`
                         ).join('')}
                     </div>
                 `;
@@ -630,11 +644,11 @@ export function showSessionDetail(sessionData) {
                 
                 ex.sets.forEach((set, index) => {
                     const setLi = document.createElement('li');
-                    let setContent = `Serie ${index + 1}: ${set.peso} kg × ${set.reps} repeticiones`;
+                    let setContent = `Serie ${index + 1}: ${escapeHtml(set.peso)} kg × ${escapeHtml(set.reps)} repeticiones`;
                     
                     // Add rest time if available
                     if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
-                        setContent += ` <span class="rest-time-badge">⏱️ ${set.tiempoDescanso}</span>`;
+                        setContent += ` <span class="rest-time-badge">⏱️ ${escapeHtml(set.tiempoDescanso)}</span>`;
                     }
                     
                     setLi.innerHTML = setContent;
@@ -648,7 +662,7 @@ export function showSessionDetail(sessionData) {
             if (ex.notasEjercicio) {
                 const notesEl = document.createElement('p');
                 notesEl.classList.add('exercise-notes');
-                notesEl.innerHTML = `<em>Notas: ${ex.notasEjercicio}</em>`;
+                notesEl.innerHTML = `<em>Notas: ${escapeHtml(ex.notasEjercicio)}</em>`;
                 exLi.appendChild(notesEl);
             }
             
@@ -782,7 +796,7 @@ export function addExerciseToEditorForm(exerciseData = null) {
         
         <div class="exercise-header">
             <label for="ex-name-${exerciseEditorCounter}">Nombre del Ejercicio:</label>
-            <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${exerciseData?.name || ''}" required placeholder="Ej: Press de banca, Sentadillas...">
+            <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${escapeHtml(exerciseData?.name || '')}" required placeholder="Ej: Press de banca, Sentadillas...">
         </div>
 
         <div class="exercise-type-selector">
@@ -801,11 +815,11 @@ export function addExerciseToEditorForm(exerciseData = null) {
             <div class="form-grid">
                 <div class="form-field">
                     <label for="ex-sets-${exerciseEditorCounter}">Series:</label>
-                    <input type="number" id="ex-sets-${exerciseEditorCounter}" name="ex-sets" min="0" value="${exerciseData?.sets || ''}" placeholder="3">
+                    <input type="number" id="ex-sets-${exerciseEditorCounter}" name="ex-sets" min="0" value="${escapeHtml(exerciseData?.sets || '')}" placeholder="3">
                 </div>
                 <div class="form-field">
                     <label for="ex-reps-${exerciseEditorCounter}">Reps/Objetivo:</label>
-                    <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${exerciseData?.reps || ''}" placeholder="8-12">
+                    <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${escapeHtml(exerciseData?.reps || '')}" placeholder="8-12">
                 </div>
             </div>
         </div>
@@ -817,13 +831,13 @@ export function addExerciseToEditorForm(exerciseData = null) {
             </div>
             <div class="form-field">
                 <label for="ex-duration-${exerciseEditorCounter}">Duración/Objetivo:</label>
-                <input type="text" id="ex-duration-${exerciseEditorCounter}" name="ex-duration" value="${exerciseData?.duration || ''}" placeholder="30 min, 5km, etc.">
+                <input type="text" id="ex-duration-${exerciseEditorCounter}" name="ex-duration" value="${escapeHtml(exerciseData?.duration || '')}" placeholder="30 min, 5km, etc.">
             </div>
         </div>
         
         <div class="exercise-notes">
             <label for="ex-notes-${exerciseEditorCounter}">Notas Adicionales (opcional):</label>
-            <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="${exerciseType === 'strength' ? 'Ej: usar agarre supino, aumentar peso la próxima vez, tempo 3-1-2...' : 'Ej: mantener ritmo constante, controlar frecuencia cardíaca...'}">${exerciseData?.notes || ''}</textarea>
+            <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="${exerciseType === 'strength' ? 'Ej: usar agarre supino, aumentar peso la próxima vez, tempo 3-1-2...' : 'Ej: mantener ritmo constante, controlar frecuencia cardíaca...'}">${escapeHtml(exerciseData?.notes || '')}</textarea>
         </div>
     `;
     

@@ -11,23 +11,25 @@ This document outlines the planned improvements and upgrades for the My Workout 
 **Effort:** 1-2 weeks  
 **Risk:** Low - Refactoring without changing functionality
 
-### Critical Fixes (Do First)
+### Critical Fixes (Do First) ✅ COMPLETED
 
-- [ ] **Update Service Worker cache list** - Several CSS files are missing from `sw.js` cache
-  - [ ] Add `css/components/auth.css`
-  - [ ] Add `css/components/history.css`
-  - [ ] Add `css/components/routines.css`
-  - [ ] Add `css/components/exercise-cache.css`
-  - [ ] Add `css/components/progress.css`
-  - [ ] Add `css/components/timer.css`
+- [x] **Update Service Worker cache list** - All CSS files already present in `sw.js` cache ✅
+  - [x] `css/components/auth.css` (already in cache)
+  - [x] `css/components/history.css` (already in cache)
+  - [x] `css/components/routines.css` (already in cache)
+  - [x] `css/components/exercise-cache.css` (already in cache)
+  - [x] `css/components/progress.css` (already in cache)
+  - [x] `css/components/timer.css` (already in cache)
 
-- [ ] **Fix potential XSS vulnerabilities** - Sanitize user data before innerHTML
-  - [ ] Review `ui.js` innerHTML usage with exercise data
-  - [ ] Replace with textContent or sanitized templates
+- [x] **Fix potential XSS vulnerabilities** - Sanitize user data before innerHTML ✅
+  - [x] Added `escapeHtml()` utility function in `ui.js`
+  - [x] Sanitized all innerHTML usage with exercise data (lastWorkoutInfo, sets display, notes, routine editor)
 
-- [ ] **Fix race condition in initialization** - ThemeManager double initialization
-  - [ ] Remove duplicate DOMContentLoaded listener in `app.js`
-  - [ ] Consolidate initialization logic
+- [x] **Fix race condition in initialization** - ThemeManager double initialization ✅
+  - [x] Removed duplicate initialization from `load` event handler
+  - [x] Removed fallback DOMContentLoaded listener for non-SW browsers
+  - [x] Consolidated to single DOMContentLoaded listener with proper null-check
+  - [x] Added fallback in `initializeAppAfterAuth` for edge cases
 
 ### Code Organization (High Priority)
 
@@ -367,10 +369,10 @@ By making the app more flexible first, we create a solid foundation that users w
 
 ### Week 1: Critical Fixes & Code Organization
 
-#### Day 1-2: Critical Fixes
-- [ ] Update `sw.js` with missing CSS files
-- [ ] Fix XSS vulnerability in `ui.js` innerHTML
-- [ ] Fix ThemeManager race condition
+#### Day 1-2: Critical Fixes ✅ COMPLETED
+- [x] Update `sw.js` with missing CSS files (already complete)
+- [x] Fix XSS vulnerability in `ui.js` innerHTML
+- [x] Fix ThemeManager race condition
 
 #### Day 3-5: Module Extraction
 - [ ] Create `js/utils/logger.js`
@@ -504,9 +506,10 @@ By making the app more flexible first, we create a solid foundation that users w
 
 ## Quick Reference: Phase 0 Checklist
 
-**Critical (Do immediately):**
-- [ ] Update SW cache list
-- [ ] Fix XSS in ui.js
+**Critical (Do immediately):** ✅ COMPLETED
+- [x] Update SW cache list (already complete)
+- [x] Fix XSS in ui.js
+- [x] Fix ThemeManager race condition
 
 **High Priority (Week 1):**
 - [ ] Split app.js into modules
