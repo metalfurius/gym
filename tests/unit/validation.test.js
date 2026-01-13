@@ -332,7 +332,7 @@ describe('Validation utilities', () => {
             expect(result.error).toContain('Mi Campo');
         });
 
-        it('should reject non-string values', () => {
+        it('should convert non-string values to empty string', () => {
             const result = validateOptionalText(123, 'Field');
             expect(result.isValid).toBe(true);
             expect(result.value).toBe('');
