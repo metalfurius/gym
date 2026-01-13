@@ -39,7 +39,22 @@ A modern, responsive workout tracking web application with session management, r
 
 ## Roadmap
 
-We're working on making the app more flexible and user-friendly! See **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** for the complete roadmap with all planned phases and next steps.
+We're working on making the app more flexible and user-friendly! 
+
+### Documentation
+
+- **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** - Complete roadmap with all planned phases and next steps
+- **[TEST-COVERAGE-ROADMAP.md](TEST-COVERAGE-ROADMAP.md)** - Testing strategy and coverage improvement plan
+
+### Current Focus: Phase 0 - Technical Debt ⚡
+
+Before adding new features, we're cleaning up the codebase:
+- Modularizing `app.js` into smaller, maintainable modules
+- Improving error handling and input validation
+- Adding proper logging and notification systems
+- Fixing Service Worker cache gaps
+
+See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) Phase 0 for details.
 
 ### Coming Soon 🚀
 
@@ -59,14 +74,6 @@ We're working on making the app more flexible and user-friendly! See **[UPGRADE-
 - "Quick Start" → Pick muscle groups, add exercises as you go
 - "Use Routine" → Follow your saved routines (existing feature, fully preserved)
 - "AI Routine" → Future feature for AI-generated workout plans
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License and Copyright
 
@@ -88,4 +95,3 @@ This project is licensed for personal and educational use only.
 
 - Firebase for authentication and database services
 - Service Worker for offline capabilities
-- All contributors and testers who have helped improve this project

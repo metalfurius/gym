@@ -18,6 +18,12 @@ import { collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-f
 **What we have**: Excellent test infrastructure, 315 passing tests, 100% business logic validated  
 **What's missing**: Architectural changes to make modules Jest-testable for 80%+ reported coverage
 
+### Connection with UPGRADE-PLAN.md
+
+> **Important:** Phase 0 of the UPGRADE-PLAN creates the modular architecture that makes Phase 2-4 of this roadmap much easier. The new `js/utils/` and `js/modules/` structure will be fully testable from day one.
+
+See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) Phase 0 for the architectural changes that enable better testing.
+
 ---
 
 ## Phase 1: Use Current Infrastructure ✅ COMPLETE
@@ -61,39 +67,131 @@ describe('My Feature', () => {
 
 ---
 
+## Phase 1.5: Test New Utility Modules (from UPGRADE-PLAN Phase 0)
+
+**Goal**: As we create new modules in UPGRADE-PLAN Phase 0, write tests for them immediately  
+**Effort**: Included in Phase 0 work  
+**Status**: READY TO START (parallel with UPGRADE-PLAN Phase 0)
+
+> This phase runs **in parallel** with UPGRADE-PLAN Phase 0. Every new module created should have tests written at the same time.
+
+### New Testable Modules (from Phase 0)
+
+1. **`js/utils/logger.js`** - Easy to test, no Firebase dependency
+   ```javascript
+   // tests/unit/logger.test.js
+   import { logger } from '../../js/utils/logger.js';
+   
+   describe('Logger', () => {
+     it('should log errors in production', () => {...});
+     it('should suppress debug in production', () => {...});
+   });
+   ```
+   Expected coverage gain: +1%
+
+2. **`js/utils/validation.js`** - Pure functions, fully testable
+   ```javascript
+   // tests/unit/validation.test.js
+   import { validateWeight, validateReps, validateEmail } from '../../js/utils/validation.js';
+   
+   describe('Validation Utils', () => {
+     it('should reject weight > 500kg', () => {...});
+     it('should reject negative reps', () => {...});
+   });
+   ```
+   Expected coverage gain: +2%
+
+3. **`js/utils/debounce.js`** - Pure utility, testable
+   ```javascript
+   // tests/unit/debounce.test.js
+   import { debounce, throttle } from '../../js/utils/debounce.js';
+   
+   describe('Rate Limiting', () => {
+     it('should debounce rapid calls', () => {...});
+   });
+   ```
+   Expected coverage gain: +1%
+
+4. **`js/modules/pagination.js`** - Extracted logic, testable
+   ```javascript
+   // tests/unit/pagination.test.js
+   import { PaginationManager } from '../../js/modules/pagination.js';
+   
+   describe('Pagination', () => {
+     it('should track page state correctly', () => {...});
+     it('should handle empty results', () => {...});
+   });
+   ```
+   Expected coverage gain: +2%
+
+5. **`js/utils/notifications.js`** - DOM-based but testable with jsdom
+   ```javascript
+   // tests/unit/notifications.test.js
+   import { showToast, hideToast } from '../../js/utils/notifications.js';
+   
+   describe('Toast Notifications', () => {
+     it('should create toast element', () => {...});
+     it('should auto-dismiss after timeout', () => {...});
+   });
+   ```
+   Expected coverage gain: +1%
+
+### Benefits of This Approach
+
+- **No Firebase dependency** - All new modules are pure JS or DOM-only
+- **TDD-friendly** - Write tests as you create modules
+- **Immediate coverage gain** - +7-10% just from new modules
+- **Better code quality** - Testable design from the start
+
+**Expected Coverage After Phase 1.5**: ~15%
+
+---
+
 ## Phase 2: Quick Wins - Extract Pure Functions
 
-**Goal**: Increase reported coverage to ~15-20% without major refactoring  
+**Goal**: Increase reported coverage to ~25-30% by extracting remaining pure functions  
 **Effort**: 1-2 days  
-**Status**: NOT STARTED
+**Status**: NOT STARTED  
+**Prerequisites**: Phase 1.5 complete (new modules from UPGRADE-PLAN Phase 0)
+
+> **Note:** Phase 1.5 already creates `validation.js`, `logger.js`, `debounce.js`, and `notifications.js`. This phase focuses on extracting **additional** pure functions from existing code.
 
 ### Actions
 
-1. **Extract validation functions** (30 min)
-   - Move email validation to `js/utils/validation.js`
-   - Move password validation to `js/utils/validation.js`
-   - Create tests for these pure functions
+1. **Extract date/time utilities** (1 hour)
+   - Move `timestampToLocalDateString` from `app.js` to `js/utils/date-helpers.js`
+   - Move `formatDate`, `formatDateShort` from `ui.js` to `js/utils/date-helpers.js`
+   - Move `formatDateForChart` from `progress.js` to `js/utils/date-helpers.js`
+   - Create comprehensive tests
    - Expected coverage gain: +3%
 
-2. **Extract data transformation functions** (1 hour)
-   - Move `timestampToLocalDateString` to `js/utils/date-helpers.js`
-   - Move data formatting functions to `js/utils/formatters.js`
+2. **Extract calculation functions** (1 hour)
+   - Create `js/utils/calculations.js`
+   - Move `processChartData` logic from `progress.js`
+   - Move `analyzeSessionType`, `combineWorkoutTypes` from `app.js`
+   - Move statistics functions (max, avg, trends)
+   - Create tests
+   - Expected coverage gain: +3%
+
+3. **Extract storage wrappers** (1 hour)
+   - Create `js/utils/storage.js` - localStorage/sessionStorage with error handling
+   - Move `saveInProgressSession`, `loadInProgressSession`, `clearInProgressSession` from `app.js`
    - Create tests
    - Expected coverage gain: +2%
 
-3. **Extract calculation functions** (1 hour)
-   - Move progress calculations to `js/utils/calculations.js`
-   - Move statistics functions to `js/utils/statistics.js`
-   - Create tests
-   - Expected coverage gain: +3%
+4. **Extract auth error messages** (30 min)
+   - Move `getFriendlyAuthErrorMessage` from `auth.js` to `js/utils/auth-errors.js`
+   - Create exhaustive tests for all error codes
+   - Expected coverage gain: +1%
 
-4. **Create utility modules** (2 hours)
-   - `js/utils/storage.js` - localStorage/sessionStorage wrappers
-   - `js/utils/dom.js` - DOM manipulation helpers
-   - Create tests
-   - Expected coverage gain: +5%
+5. **Extract DOM helpers** (1 hour)
+   - Create `js/utils/dom.js` for common DOM operations
+   - Move `showLoading`, `hideLoading` from `ui.js`
+   - Move element creation patterns
+   - Create tests with jsdom
+   - Expected coverage gain: +2%
 
-**Total Expected Coverage**: ~15-20%  
+**Total Expected Coverage after Phase 2**: ~25-30%  
 **Risk**: Low - no breaking changes, just code organization
 
 ---
@@ -340,21 +438,25 @@ describe('My Feature', () => {
 
 ## Recommendations
 
-### Recommended Path
+### Recommended Path (Aligned with UPGRADE-PLAN)
 
-**For Quick Improvement (1-2 weeks)**:
+**Parallel Execution Strategy (2-3 weeks)**:
 1. ✅ Phase 1 (Complete)
-2. → Phase 2 (Extract pure functions) - Do this now
-3. → Phase 3 (Abstraction layer) - Do next
+2. → **UPGRADE-PLAN Phase 0 + Test Phase 1.5** (Do together!)
+   - Create new modules (`logger.js`, `validation.js`, etc.)
+   - Write tests for each new module immediately (TDD)
+3. → Phase 2 (Extract remaining pure functions)
+4. → Phase 3 (Abstraction layer)
 
-**Expected Result**: 50% reported coverage with low risk
+**Expected Result**: 50% reported coverage while improving architecture
 
 **For 80%+ Coverage (1-2 months)**:
 1. ✅ Phase 1 (Complete)
-2. → Phase 2 (Quick wins)
-3. → Phase 3 (Abstraction layer)
-4. → Choose: Phase 4 (Build tooling) OR Phase 5 (Full DI)
-5. → Phase 6 (Maintain)
+2. → UPGRADE-PLAN Phase 0 + Phase 1.5 (parallel)
+3. → Phase 2 (Extract functions)
+4. → Phase 3 (Abstraction layer)
+5. → Choose: Phase 4 (Build tooling) OR Phase 5 (Full DI)
+6. → Phase 6 (Maintain)
 
 **Phase 4 vs Phase 5**:
 - **Phase 4** (Build tooling): Faster, less invasive, good enough
@@ -362,15 +464,18 @@ describe('My Feature', () => {
 
 ### Next Actions (Start Now)
 
-1. **Create `js/utils/validation.js`** with email/password validation
-2. **Create `js/utils/date-helpers.js`** with date functions
-3. **Create tests for these new modules**
-4. **Update app.js, auth.js to use the new utilities**
-5. **Run coverage - should see 15-20%**
+> **Key Insight**: Start with UPGRADE-PLAN Phase 0. Every module you create there is an opportunity for immediate test coverage.
 
-**Time to start**: 30 minutes  
-**Time to complete Phase 2**: 1-2 days  
-**Coverage gain**: 10-15%
+1. **Start UPGRADE-PLAN Phase 0** - See [UPGRADE-PLAN.md](UPGRADE-PLAN.md)
+2. **As you create `js/utils/logger.js`** → Write `tests/unit/logger.test.js`
+3. **As you create `js/utils/validation.js`** → Write `tests/unit/validation.test.js`
+4. **As you create `js/utils/debounce.js`** → Write `tests/unit/debounce.test.js`
+5. **As you create `js/modules/pagination.js`** → Write `tests/unit/pagination.test.js`
+6. **Run coverage after each module** - Watch it climb!
+
+**Time to complete Phase 0 + 1.5**: 1-2 weeks  
+**Coverage gain from new modules**: +7-10%  
+**Bonus**: Cleaner architecture, better maintainability
 
 ---
 
@@ -379,81 +484,193 @@ describe('My Feature', () => {
 | Phase | Effort | Coverage Gain | Risk | Status |
 |-------|--------|---------------|------|--------|
 | Phase 1: Current Infrastructure | - | 100% logic | Low | ✅ COMPLETE |
-| Phase 2: Extract Pure Functions | 1-2 days | +10-15% | Low | ⏳ Ready to start |
-| Phase 3: Abstraction Layer | 1 week | +30-35% | Medium | 📋 Planned |
-| Phase 4: Build Tooling | 2 weeks | +30-35% | High | 📋 Alternative |
-| Phase 5: Full DI | 3 weeks | +30-35% | Very High | 📋 Alternative |
+| Phase 1.5: Test New Modules | Included in UPGRADE-PLAN | +7-10% | Low | ⏳ Ready (parallel with UPGRADE-PLAN Phase 0) |
+| Phase 2: Extract Pure Functions | 1-2 days | +10-15% | Low | 📋 After Phase 1.5 |
+| Phase 3: Abstraction Layer | 1 week | +20-25% | Medium | 📋 Planned |
+| Phase 4: Build Tooling | 2 weeks | +25-30% | High | 📋 Alternative |
+| Phase 5: Full DI | 3 weeks | +25-30% | Very High | 📋 Alternative |
 | Phase 6: Maintain | Ongoing | Maintain 80%+ | Low | 📋 Future |
 
 **Current**: 6% reported, 100% logic tested  
-**Phase 2 Target**: 15-20% reported  
-**Phase 3 Target**: 50% reported  
-**Phase 4/5 Target**: 80%+ reported  
+**After Phase 1.5**: ~15% reported (new utility modules)  
+**After Phase 2**: ~25-30% reported (extracted functions)  
+**After Phase 3**: ~50% reported (abstraction layer)  
+**After Phase 4/5**: 80%+ reported (full testability)  
 
 ---
 
-## Quick Start - Phase 2 Actions
+## Quick Start - Phase 1.5 Actions (TDD with UPGRADE-PLAN Phase 0)
 
-Ready to start Phase 2? Here's your todo list:
+Ready to start? Here's how to combine UPGRADE-PLAN Phase 0 with testing:
 
-### Step 1: Create validation utilities (30 min)
-```bash
-# Create the file
-touch js/utils/validation.js
+### Step 1: Create logger with tests (30 min)
+
+```javascript
+// js/utils/logger.js
+const LOG_LEVELS = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 };
+
+// In browser, check for development mode
+const isDev = typeof window !== 'undefined' && 
+              (window.location.hostname === 'localhost' || 
+               window.location.hostname === '127.0.0.1');
+const currentLevel = isDev ? LOG_LEVELS.DEBUG : LOG_LEVELS.WARN;
+
+export const logger = {
+  debug: (...args) => currentLevel <= LOG_LEVELS.DEBUG && console.log('[DEBUG]', ...args),
+  info: (...args) => currentLevel <= LOG_LEVELS.INFO && console.log('[INFO]', ...args),
+  warn: (...args) => currentLevel <= LOG_LEVELS.WARN && console.warn('[WARN]', ...args),
+  error: (...args) => console.error('[ERROR]', ...args),
+};
+
+export { LOG_LEVELS };
 ```
 
 ```javascript
-// js/utils/validation.js
-export function validateEmail(email) {
-  return email && email.includes('@') && email.indexOf('@') > 0 && 
-         email.indexOf('@') < email.length - 1;
-}
+// tests/unit/logger.test.js
+import { logger, LOG_LEVELS } from '../../js/utils/logger.js';
 
-export function validatePassword(password) {
-  return password && password.length >= 6;
-}
-
-export function getFriendlyAuthErrorMessage(errorCode) {
-  const messages = {
-    'auth/invalid-email': 'El formato del email no es válido.',
-    'auth/user-disabled': 'Esta cuenta de usuario ha sido deshabilitada.',
-    // ... rest of error codes
-  };
-  return messages[errorCode] || 'Error de autenticación. Inténtalo de nuevo.';
-}
-```
-
-### Step 2: Create tests (30 min)
-```javascript
-// tests/unit/validation.test.js
-import { validateEmail, validatePassword } from '../../js/utils/validation.js';
-
-describe('Validation Utils', () => {
-  it('should validate email', () => {
-    expect(validateEmail('test@example.com')).toBe(true);
-    expect(validateEmail('invalid')).toBe(false);
+describe('Logger', () => {
+  it('should always log errors', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation();
+    logger.error('test error');
+    expect(spy).toHaveBeenCalledWith('[ERROR]', 'test error');
+    spy.mockRestore();
   });
   
-  it('should validate password', () => {
-    expect(validatePassword('123456')).toBe(true);
-    expect(validatePassword('12345')).toBe(false);
+  it('should have correct log levels', () => {
+    expect(LOG_LEVELS.DEBUG).toBe(0);
+    expect(LOG_LEVELS.ERROR).toBe(3);
   });
 });
 ```
 
-### Step 3: Update auth.js (15 min)
-Replace inline validation with imported functions
+### Step 2: Create validation with tests (45 min)
 
-### Step 4: Run tests and coverage (5 min)
+```javascript
+// js/utils/validation.js
+export function validateWeight(weight) {
+  const num = parseFloat(weight);
+  return !isNaN(num) && num >= 0 && num <= 500;
+}
+
+export function validateReps(reps) {
+  const num = parseInt(reps, 10);
+  return !isNaN(num) && num >= 0 && num <= 1000;
+}
+
+export function validateUserWeight(weight) {
+  const num = parseFloat(weight);
+  return !isNaN(num) && num >= 20 && num <= 300;
+}
+
+export function validateEmail(email) {
+  return email && typeof email === 'string' && 
+         email.includes('@') && 
+         email.indexOf('@') > 0 && 
+         email.indexOf('@') < email.length - 1;
+}
+
+export function validatePassword(password) {
+  return password && typeof password === 'string' && password.length >= 6;
+}
+```
+
+```javascript
+// tests/unit/validation.test.js
+import { 
+  validateWeight, validateReps, validateUserWeight,
+  validateEmail, validatePassword 
+} from '../../js/utils/validation.js';
+
+describe('Validation Utils', () => {
+  describe('validateWeight', () => {
+    it('should accept valid weights', () => {
+      expect(validateWeight(50)).toBe(true);
+      expect(validateWeight('75.5')).toBe(true);
+      expect(validateWeight(0)).toBe(true);
+    });
+    
+    it('should reject invalid weights', () => {
+      expect(validateWeight(-1)).toBe(false);
+      expect(validateWeight(501)).toBe(false);
+      expect(validateWeight('abc')).toBe(false);
+    });
+  });
+  
+  describe('validateEmail', () => {
+    it('should validate emails correctly', () => {
+      expect(validateEmail('test@example.com')).toBe(true);
+      expect(validateEmail('invalid')).toBe(false);
+      expect(validateEmail('@test.com')).toBe(false);
+      expect(validateEmail('test@')).toBe(false);
+    });
+  });
+});
+```
+
+### Step 3: Create debounce with tests (30 min)
+
+```javascript
+// js/utils/debounce.js
+export function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+export function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+```
+
+```javascript
+// tests/unit/debounce.test.js
+import { debounce, throttle } from '../../js/utils/debounce.js';
+
+describe('Debounce', () => {
+  jest.useFakeTimers();
+  
+  it('should debounce function calls', () => {
+    const fn = jest.fn();
+    const debouncedFn = debounce(fn, 100);
+    
+    debouncedFn();
+    debouncedFn();
+    debouncedFn();
+    
+    expect(fn).not.toHaveBeenCalled();
+    
+    jest.advanceTimersByTime(100);
+    
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### Step 4: Run tests after each module
 ```bash
 npm run test:coverage
 ```
 
-**Total time**: ~90 minutes  
-**Expected result**: Coverage increases to 15-20%
+**Total time for Phase 1.5**: 3-4 hours  
+**Expected coverage gain**: +7-10%  
+**Bonus**: These modules are now ready for use in UPGRADE-PLAN Phase 0!
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: January 6, 2026  
-**Status**: Ready for Phase 2 implementation
+**Document Version**: 2.0  
+**Last Updated**: January 13, 2026  
+**Status**: Ready for Phase 1.5 implementation (parallel with UPGRADE-PLAN Phase 0)

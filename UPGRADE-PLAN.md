@@ -4,6 +4,131 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 ---
 
+## Phase 0: Technical Debt & Architecture ⚡ **PREREQUISITE**
+
+**Goal:** Clean up existing codebase, improve maintainability, and fix critical issues before adding new features. This phase ensures a solid foundation for all future development.
+
+**Effort:** 1-2 weeks  
+**Risk:** Low - Refactoring without changing functionality
+
+### Critical Fixes (Do First)
+
+- [ ] **Update Service Worker cache list** - Several CSS files are missing from `sw.js` cache
+  - [ ] Add `css/components/auth.css`
+  - [ ] Add `css/components/history.css`
+  - [ ] Add `css/components/routines.css`
+  - [ ] Add `css/components/exercise-cache.css`
+  - [ ] Add `css/components/progress.css`
+  - [ ] Add `css/components/timer.css`
+
+- [ ] **Fix potential XSS vulnerabilities** - Sanitize user data before innerHTML
+  - [ ] Review `ui.js` innerHTML usage with exercise data
+  - [ ] Replace with textContent or sanitized templates
+
+- [ ] **Fix race condition in initialization** - ThemeManager double initialization
+  - [ ] Remove duplicate DOMContentLoaded listener in `app.js`
+  - [ ] Consolidate initialization logic
+
+### Code Organization (High Priority)
+
+- [ ] **Split `app.js` into smaller modules** (~1600 lines is too large)
+  - [ ] Create `js/modules/calendar.js` - Calendar rendering and navigation
+  - [ ] Create `js/modules/session-manager.js` - Session CRUD operations
+  - [ ] Create `js/modules/history-manager.js` - History fetching and pagination
+  - [ ] Create `js/modules/settings.js` - Settings modal functionality
+  - [ ] Create `js/modules/scroll-to-top.js` - Scroll button logic
+  - [ ] Update `app.js` to only orchestrate modules
+  - [ ] Create `js/modules/pagination.js` - Reusable pagination class
+
+- [ ] **Create configurable logging system**
+  - [ ] Create `js/utils/logger.js` with log levels (debug, info, warn, error)
+  - [ ] Replace console.log/error calls throughout codebase
+  - [ ] Disable debug logs in production builds
+
+- [ ] **Implement event listener cleanup**
+  - [ ] Track listeners added per view
+  - [ ] Clean up listeners when navigating away from views
+  - [ ] Prevent memory leaks in long-running sessions
+
+### Input Validation & Error Handling
+
+- [ ] **Add input validation limits**
+  - [ ] Weight inputs: 0-500 kg range validation
+  - [ ] Repetitions: 0-1000 range validation
+  - [ ] Series: 1-20 range validation
+  - [ ] User weight: 20-300 kg range validation
+  - [ ] Show user-friendly validation messages
+
+- [ ] **Unify error handling system**
+  - [ ] Create `js/utils/notifications.js` for toast notifications
+  - [ ] Replace inconsistent alert() calls with toast system
+  - [ ] Consistent error display across all modules
+
+- [ ] **Improve offline error messages**
+  - [ ] Detect offline state proactively
+  - [ ] Show informative messages when operations fail offline
+  - [ ] Queue operations for retry when online
+
+### Performance & Reliability
+
+- [ ] **Add Firebase call rate limiting**
+  - [ ] Implement debounce for calendar navigation (300ms)
+  - [ ] Throttle rapid save operations
+  - [ ] Add request queuing for batch operations
+
+- [ ] **Add Firebase CDN fallback** (Optional but recommended)
+  - [ ] Install Firebase as npm dependency
+  - [ ] Configure build to use npm version
+  - [ ] Keep CDN as fallback for direct browser usage
+
+### Documentation & Configuration
+
+- [ ] **Prepare for internationalization (i18n)**
+  - [ ] Create `js/utils/i18n.js` with string extraction
+  - [ ] Create `locales/es.json` with Spanish strings
+  - [ ] Replace hardcoded strings with i18n keys
+  - [ ] (Future: Add more languages)
+
+### Technical Details
+
+**New Module Structure:**
+```
+js/
+├── app.js                    # Main orchestrator (reduced to ~200 lines)
+├── auth.js                   # Authentication (existing)
+├── ui.js                     # UI utilities (existing)
+├── modules/
+│   ├── calendar.js           # Calendar functionality
+│   ├── session-manager.js    # Session CRUD
+│   ├── history-manager.js    # History with pagination
+│   ├── settings.js           # Settings modal
+│   ├── scroll-to-top.js      # Scroll button
+│   └── pagination.js         # Reusable pagination
+├── utils/
+│   ├── logger.js             # Configurable logging
+│   ├── notifications.js      # Toast notification system
+│   ├── validation.js         # Input validation
+│   ├── i18n.js               # Internationalization
+│   └── debounce.js           # Rate limiting utilities
+└── ... (existing files)
+```
+
+**Logger System Example:**
+```javascript
+// js/utils/logger.js
+const LOG_LEVELS = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 };
+const currentLevel = process.env.NODE_ENV === 'production' ? LOG_LEVELS.WARN : LOG_LEVELS.DEBUG;
+
+export const logger = {
+  debug: (...args) => currentLevel <= LOG_LEVELS.DEBUG && console.log('[DEBUG]', ...args),
+  info: (...args) => currentLevel <= LOG_LEVELS.INFO && console.log('[INFO]', ...args),
+  warn: (...args) => currentLevel <= LOG_LEVELS.WARN && console.warn('[WARN]', ...args),
+  error: (...args) => console.error('[ERROR]', ...args), // Always log errors
+};
+```
+
+---
+
 ## Phase 1: Flexible Workout System ⭐ **CURRENT PRIORITY**
 
 **Goal:** Add a flexible workout mode alongside the existing routine system, giving users choice in how they train. Users can select their preferred approach each session: spontaneous muscle-group-based training OR structured routine following. Additionally, add weight and calorie tracking to understand user goals and enable tracking on rest days.
@@ -196,7 +321,8 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 | Phase | Priority | Estimated Effort | Dependencies |
 |-------|----------|------------------|--------------|
-| Phase 1: Flexible Workout System | **HIGH** ⭐ | 2-4 weeks | None |
+| Phase 0: Technical Debt & Architecture | **CRITICAL** ⚡ | 1-2 weeks | None |
+| Phase 1: Flexible Workout System | **HIGH** ⭐ | 2-4 weeks | Phase 0 complete |
 | Phase 2: Enhanced Analytics | Medium | 2-3 weeks | Phase 1 complete |
 | Phase 3: AI-Powered Features | Low | 8-12 weeks | Phases 1-2 complete |
 | Phase 4: Scaling & Social | Low | Ongoing | Phase 3 complete |
@@ -207,10 +333,21 @@ This document outlines the planned improvements and upgrades for the My Workout 
 
 To begin implementing this plan:
 
-1. **Start with Phase 1** - Build the flexible workout system to replace rigid routines
-2. **Focus on UX first** - Ensure the app is intuitive and adaptable to user needs
-3. **Add intelligence gradually** - Start with rule-based recommendations before AI
-4. **Iterate based on user feedback** throughout the process
+1. **Start with Phase 0** - Clean up technical debt before adding features
+2. **Then Phase 1** - Build the flexible workout system with solid foundation
+3. **Focus on UX first** - Ensure the app is intuitive and adaptable to user needs
+4. **Add intelligence gradually** - Start with rule-based recommendations before AI
+5. **Iterate based on user feedback** throughout the process
+
+### Why Phase 0 First?
+
+The current codebase has accumulated technical debt that will slow down Phase 1 development:
+- **`app.js` is ~1600 lines** - Hard to modify without breaking things
+- **Missing CSS in Service Worker** - Offline experience is incomplete
+- **No input validation** - User data quality issues
+- **Inconsistent error handling** - Poor user experience when things fail
+
+Addressing these issues first (1-2 weeks) will make Phase 1 faster and safer to implement.
 
 ---
 
@@ -226,7 +363,53 @@ By making the app more flexible first, we create a solid foundation that users w
 
 ---
 
+## Next Steps for Phase 0 Implementation (START HERE)
+
+### Week 1: Critical Fixes & Code Organization
+
+#### Day 1-2: Critical Fixes
+- [ ] Update `sw.js` with missing CSS files
+- [ ] Fix XSS vulnerability in `ui.js` innerHTML
+- [ ] Fix ThemeManager race condition
+
+#### Day 3-5: Module Extraction
+- [ ] Create `js/utils/logger.js`
+- [ ] Create `js/utils/validation.js`
+- [ ] Create `js/modules/calendar.js` (extract from app.js)
+- [ ] Create `js/modules/settings.js` (extract from app.js)
+- [ ] Create `js/modules/scroll-to-top.js` (extract from app.js)
+
+#### Day 6-7: Refactoring & Testing
+- [ ] Update imports in `app.js` to use new modules
+- [ ] Create `js/modules/pagination.js` reusable class
+- [ ] Update all tests to work with new structure
+- [ ] Manual testing of all functionality
+
+### Week 2: Error Handling & Polish
+
+#### Day 1-2: Notifications & Validation
+- [ ] Create `js/utils/notifications.js` toast system
+- [ ] Replace all `alert()` calls with toast notifications
+- [ ] Implement input validation in forms
+- [ ] Add user-friendly validation messages
+
+#### Day 3-4: Performance & Rate Limiting
+- [ ] Create `js/utils/debounce.js`
+- [ ] Add debounce to calendar navigation
+- [ ] Add throttle to save operations
+- [ ] Improve offline error messages
+
+#### Day 5-7: Documentation & Cleanup
+- [ ] Replace console.log with logger throughout codebase
+- [ ] Update README with new project structure
+- [ ] Prepare i18n infrastructure (optional)
+- [ ] Final testing and bug fixes
+
+---
+
 ## Next Steps for Phase 1 Implementation
+
+> **Note:** Complete Phase 0 before starting Phase 1
 
 ### 1. Design Phase
 - [ ] Create UI mockups for muscle group selector
@@ -314,7 +497,27 @@ By making the app more flexible first, we create a solid foundation that users w
 - Priorities may shift based on user feedback and business requirements
 - Each checkbox represents a discrete task that can be worked on independently
 - Consider creating GitHub Issues for each major task to track progress
+- **Phase 0 was added to address technical debt** identified during code review
+- Completing Phase 0 first will make all subsequent phases faster and safer
 
 ---
 
-*Last Updated: January 5, 2026 at 19:25 UTC*
+## Quick Reference: Phase 0 Checklist
+
+**Critical (Do immediately):**
+- [ ] Update SW cache list
+- [ ] Fix XSS in ui.js
+
+**High Priority (Week 1):**
+- [ ] Split app.js into modules
+- [ ] Create logger system
+- [ ] Add input validation
+
+**Medium Priority (Week 2):**
+- [ ] Toast notification system
+- [ ] Rate limiting (debounce)
+- [ ] Offline error handling
+
+---
+
+*Last Updated: January 13, 2026*
