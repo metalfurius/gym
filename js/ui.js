@@ -1,5 +1,7 @@
 // --- DOM Elements ---
 import { resetTimerInitialization } from './timer.js';
+import { logger } from './utils/logger.js';
+import { toast } from './utils/notifications.js';
 
 // --- Security: HTML Escape Function ---
 /**
@@ -27,7 +29,7 @@ export const views = {
 
 export const navButtons = {
     dashboard: document.getElementById('nav-dashboard'),
-    manageRoutines: document.getElementById('nav-manage-routines'), // New nav button
+    manageRoutines: document.getElementById('nav-manage-routines'),
     history: document.getElementById('nav-history'),
     progress: document.getElementById('nav-progress'),
     logout: document.getElementById('logout-btn')
@@ -45,7 +47,7 @@ export const authElements = {
 export const dashboardElements = {
     userEmail: document.getElementById('user-email'),
     currentDate: document.getElementById('current-date'),
-    daySelect: document.getElementById('day-select'), // Now populates with user's routines
+    daySelect: document.getElementById('day-select'),
     startSessionBtn: document.getElementById('start-session-btn'),
     resumeSessionArea: document.getElementById('resume-session-area'), 
     resumeSessionBtn: document.getElementById('resume-session-btn'),
@@ -91,7 +93,7 @@ export const manageRoutinesElements = {
 export const routineEditorElements = {
     form: document.getElementById('routine-editor-form'),
     title: document.getElementById('routine-editor-title'),
-    routineIdInput: document.getElementById('routine-id'), // Hidden input for ID
+    routineIdInput: document.getElementById('routine-id'),
     routineNameInput: document.getElementById('routine-name'),
     exercisesContainer: document.getElementById('routine-exercises-container'),
     addExerciseBtn: document.getElementById('add-exercise-to-routine-btn'),
@@ -128,7 +130,7 @@ export function showView(viewToShowId) {
     if (views[viewToShowId]) {
         views[viewToShowId].classList.remove('hidden');
     } else {
-        console.error(`View with id ${viewToShowId} not found.`);
+        logger.error(`View with id ${viewToShowId} not found.`);
     }
 
     Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
@@ -136,7 +138,6 @@ export function showView(viewToShowId) {
     if (viewToShowId === 'manageRoutines' && navButtons.manageRoutines) navButtons.manageRoutines.classList.add('active');
     if (viewToShowId === 'history' && navButtons.history) navButtons.history.classList.add('active');
     if (viewToShowId === 'progress' && navButtons.progress) navButtons.progress.classList.add('active');
-    // routineEditor is a sub-view, doesn't need nav highlighting
 }
 
 export function updateNav(isLoggedIn) {
@@ -178,15 +179,15 @@ export function formatDateShort(date) {
 // Populates the day selector on the dashboard with the user's routines
 export function populateDaySelector(userRoutines) {
     if (!dashboardElements.daySelect) {
-        console.error('Day select element not found');
+        logger.error('Day select element not found');
         return;
     }
     
-    dashboardElements.daySelect.innerHTML = '<option value="">-- Elige una rutina --</option>'; // Reset
+    dashboardElements.daySelect.innerHTML = '<option value="">-- Elige una rutina --</option>';
     if (userRoutines && userRoutines.length > 0) {
         userRoutines.forEach(routine => {
             const option = document.createElement('option');
-            option.value = routine.id; // Firestore document ID
+            option.value = routine.id;
             option.textContent = routine.name;
             dashboardElements.daySelect.appendChild(option);
         });
@@ -199,32 +200,34 @@ export function populateDaySelector(userRoutines) {
     }
     
     if (dashboardElements.startSessionBtn) {
-        dashboardElements.startSessionBtn.disabled = true; // Disable until a routine is selected
+        dashboardElements.startSessionBtn.disabled = true;
     } else {
-        console.error('Start session button not found');
+        logger.error('Start session button not found');
     }
 }
 
 
 export async function renderSessionView(routine, inProgressData = null) {
     if (!routine || !routine.exercises) {
-        console.error("Routine data is invalid for session view:", routine);
-        alert("Error: Datos de la rutina no válidos.");
+        logger.error("Routine data is invalid for session view:", routine);
+        toast.error("Error: Datos de la rutina no válidos.");
         showView('dashboard');
         return;
     }
 
     sessionElements.title.textContent = routine.name;
-    sessionElements.exerciseList.innerHTML = ''; // Clear previous exercises
+    sessionElements.exerciseList.innerHTML = '';
     
-    // Añadir campo para el peso del usuario
+    // Add user weight input field
     const userWeightDiv = document.createElement('div');
     userWeightDiv.className = 'user-weight-input';
     
     const userWeightLabel = document.createElement('label');
     userWeightLabel.textContent = 'Tu peso hoy (kg):';
     userWeightLabel.htmlFor = 'user-weight';
-    userWeightDiv.appendChild(userWeightLabel);    const userWeightInput = document.createElement('input');
+    userWeightDiv.appendChild(userWeightLabel);
+    
+    const userWeightInput = document.createElement('input');
     userWeightInput.type = 'text';
     userWeightInput.id = 'user-weight';
     userWeightInput.name = 'user-weight';
@@ -232,26 +235,22 @@ export async function renderSessionView(routine, inProgressData = null) {
     userWeightInput.inputMode = 'decimal';
     userWeightInput.pattern = '[0-9]*[.,]?[0-9]*';
     
-    // Reemplazar coma por punto inmediatamente y validar formato
+    // Replace comma with period and validate format
     userWeightInput.addEventListener('input', function(e) {
         let value = e.target.value;
-        // Reemplazar coma por punto
         value = value.replace(',', '.');
-        // Permitir solo números, un punto decimal y máximo 2 decimales
         value = value.replace(/[^0-9.]/g, '');
-        // Evitar múltiples puntos
         const parts = value.split('.');
         if (parts.length > 2) {
             value = parts[0] + '.' + parts.slice(1).join('');
         }
-        // Limitar a 2 decimales
         if (parts[1] && parts[1].length > 2) {
             value = parts[0] + '.' + parts[1].substring(0, 2);
         }
         e.target.value = value;
     });
     
-    // Validar rango y redondear a 1 decimal al terminar de editar
+    // Validate range and round to 1 decimal on blur
     userWeightInput.addEventListener('blur', function(e) {
         let value = e.target.value.replace(',', '.');
         if (value && !isNaN(value)) {
@@ -270,7 +269,7 @@ export async function renderSessionView(routine, inProgressData = null) {
     if (inProgressData?.pesoUsuario) {
         userWeightInput.value = inProgressData.pesoUsuario;
     }
-    userWeightDiv.appendChild(userWeightInput);    
+    userWeightDiv.appendChild(userWeightInput);
     sessionElements.exerciseList.appendChild(userWeightDiv);
 
     // Process exercises with proper async handling
@@ -290,20 +289,21 @@ export async function renderSessionView(routine, inProgressData = null) {
 
         if (exercise.type === 'strength') {
             const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} series` : exercise.sets;
-            target.textContent = `Objetivo: ${setsDisplay} x ${exercise.reps} reps`;        } else if (exercise.type === 'cardio') {
+            target.textContent = `Objetivo: ${setsDisplay} x ${exercise.reps} reps`;
+        } else if (exercise.type === 'cardio') {
             target.textContent = `Objetivo: ${exercise.duration || 'Tiempo/Distancia'}`;
         } else {
-            target.textContent = `Objetivo: ${exercise.reps || 'Completar'}`; // Fallback for unknown or old types
+            target.textContent = `Objetivo: ${exercise.reps || 'Completar'}`;
         }
         exerciseBlock.appendChild(target);
         
         // Inputs for sets
         if (exercise.type === 'strength') {
-            // Obtener sugerencias del cache para este ejercicio
+            // Get suggestions from cache for this exercise
             const { exerciseCache } = await import('./exercise-cache.js');
             const suggestions = exerciseCache.getExerciseSuggestions(exercise.name);
             
-            // Mostrar información del último entrenamiento si existe
+            // Show last workout info if available
             if (suggestions.hasHistory) {
                 const lastWorkoutInfo = document.createElement('div');
                 lastWorkoutInfo.className = 'last-workout-info';
@@ -325,7 +325,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                     </div>
                 `;
                 
-                // Añadir botón para usar valores anteriores
+                // Add button to use previous values
                 if (!inProgressData?.ejercicios[exerciseIndex]) {
                     const useLastBtn = document.createElement('button');
                     useLastBtn.type = 'button';
@@ -340,7 +340,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                 
                 exerciseBlock.appendChild(lastWorkoutInfo);
             } else {
-                // Mostrar mensaje cuando no hay historial
+                // Show message when no history
                 const noHistoryInfo = document.createElement('div');
                 noHistoryInfo.className = 'no-exercise-history';
                 noHistoryInfo.textContent = '💡 Primera vez haciendo este ejercicio. ¡Registra tus datos para futuras referencias!';
@@ -362,7 +362,8 @@ export async function renderSessionView(routine, inProgressData = null) {
                 weightInput.type = 'text';
                 weightInput.id = `weight-${exerciseIndex}-${i}`;
                 weightInput.name = `weight-${exerciseIndex}-${i}`;
-                  // Usar sugerencia del cache si está disponible y no hay datos en progreso
+                
+                // Use cache suggestion if available
                 let placeholderText = 'Peso (kg)';
                 if (suggestions.hasHistory && suggestions.suggestions.lastSets[i]) {
                     const lastSet = suggestions.suggestions.lastSets[i];
@@ -378,26 +379,22 @@ export async function renderSessionView(routine, inProgressData = null) {
                 weightInput.inputMode = 'decimal';
                 weightInput.pattern = '[0-9]*[.,]?[0-9]*';
                 
-                // Reemplazar coma por punto inmediatamente y validar formato
+                // Replace comma with period and validate format
                 weightInput.addEventListener('input', function(e) {
                     let value = e.target.value;
-                    // Reemplazar coma por punto
                     value = value.replace(',', '.');
-                    // Permitir solo números, un punto decimal y máximo 2 decimales
                     value = value.replace(/[^0-9.]/g, '');
-                    // Evitar múltiples puntos
                     const parts = value.split('.');
                     if (parts.length > 2) {
                         value = parts[0] + '.' + parts.slice(1).join('');
                     }
-                    // Limitar a 2 decimales
                     if (parts[1] && parts[1].length > 2) {
                         value = parts[0] + '.' + parts[1].substring(0, 2);
                     }
                     e.target.value = value;
                 });
                 
-                // Redondear a 1 decimal al terminar de editar
+                // Round to 1 decimal on blur
                 weightInput.addEventListener('blur', function(e) {
                     let value = e.target.value.replace(',', '.');
                     if (value && !isNaN(value)) {
@@ -409,11 +406,14 @@ export async function renderSessionView(routine, inProgressData = null) {
                 if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]) {
                     weightInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].peso || '';
                 }
-                setRow.appendChild(weightInput);                const repsInput = document.createElement('input');
+                setRow.appendChild(weightInput);
+                
+                const repsInput = document.createElement('input');
                 repsInput.type = 'number';
                 repsInput.id = `reps-${exerciseIndex}-${i}`;
                 repsInput.name = `reps-${exerciseIndex}-${i}`;
-                  // Usar sugerencia del cache si está disponible y no hay datos en progreso
+                
+                // Use cache suggestion if available
                 let repsPlaceholder = 'Reps';
                 if (suggestions.hasHistory && suggestions.suggestions.lastSets[i]) {
                     const lastSet = suggestions.suggestions.lastSets[i];
@@ -463,8 +463,6 @@ export async function renderSessionView(routine, inProgressData = null) {
                 exerciseBlock.appendChild(setRow);
             }
         } else if (exercise.type === 'cardio') {
-            // For cardio, maybe just one input for actual duration/distance or rely on notes
-            // Or could have a specific input if desired, for now, it's simpler
             const infoPara = document.createElement('p');
             infoPara.textContent = "Registra los detalles en las notas.";
             infoPara.style.fontSize = '0.9em';
@@ -485,7 +483,6 @@ export async function renderSessionView(routine, inProgressData = null) {
         notesTextarea.placeholder = exercise.type === 'cardio' ? 'Ej: 20 min a 140bpm, o 5km en 25 min...' : 'Añade notas sobre este ejercicio...';
         notesTextarea.className = 'exercise-notes';
         
-        // Pre-rellenar con notas de una sesión en progreso, o usar las notas de la rutina como base.
         if (inProgressData?.ejercicios[exerciseIndex]?.notasEjercicio) {
             notesTextarea.value = inProgressData.ejercicios[exerciseIndex].notasEjercicio;
         } else if (exercise.notes) {
@@ -519,23 +516,19 @@ export function renderHistoryList(sessions) {
         li.dataset.sessionId = session.id;
         li.classList.add('session-card');
         
-        // Nombre de la sesión
         const nameEl = document.createElement('div');
         nameEl.classList.add('session-name');
         nameEl.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
         li.appendChild(nameEl);
         
-        // Contenedor para información inline
         const inlineInfoEl = document.createElement('div');
         inlineInfoEl.classList.add('session-inline-info');
         
-        // Fecha de la sesión
         const dateEl = document.createElement('div');
         dateEl.classList.add('session-date');
         dateEl.textContent = session.fecha && session.fecha.toDate ? formatDateShort(session.fecha.toDate()) : 'Fecha no disponible';
         inlineInfoEl.appendChild(dateEl);
         
-        // Peso del usuario (si está disponible)
         if (session.pesoUsuario) {
             const weightEl = document.createElement('div');
             weightEl.classList.add('session-weight');
@@ -545,25 +538,22 @@ export function renderHistoryList(sessions) {
         
         li.appendChild(inlineInfoEl);
         
-        // Resumen de ejercicios
         if (session.ejercicios && session.ejercicios.length > 0) {
             const summaryEl = document.createElement('div');
             summaryEl.classList.add('session-summary');
             summaryEl.textContent = `${session.ejercicios.length} ejercicios realizados`;
             li.appendChild(summaryEl);
         }
-          // Botones de acción (ahora en columna)
+        
         const actionsEl = document.createElement('div');
         actionsEl.classList.add('session-actions');
         
-        // Botón de ver detalles
         const viewBtn = document.createElement('button');
         viewBtn.textContent = 'Ver detalles';
         viewBtn.classList.add('session-action-btn', 'view');
         viewBtn.dataset.action = 'view-session';
         actionsEl.appendChild(viewBtn);
         
-        // Botón de eliminar
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Eliminar';
         deleteBtn.classList.add('session-action-btn', 'delete');
@@ -573,13 +563,10 @@ export function renderHistoryList(sessions) {
         
         li.appendChild(actionsEl);
         
-        // Evento para mostrar detalles al hacer clic en la tarjeta
         li.addEventListener('click', (e) => {
-            // Si se hizo clic en un botón de acción, no mostrar detalles
             if (e.target.classList.contains('session-action-btn')) {
                 return;
             }
-            // Simular clic en el botón de ver detalles
             viewBtn.click();
         });
         
@@ -592,13 +579,11 @@ export function renderHistoryList(sessions) {
 export function showSessionDetail(sessionData) {
     if (!sessionData) return;
     
-    // Título del modal
     sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || "Detalle de Sesión";
-      // Información de fecha
+    
     let dateInfo = `${formatDate(sessionData.fecha.toDate())}`;
     sessionDetailModal.date.textContent = dateInfo;
     
-    // Añadir badge de peso si está disponible
     if (sessionData.pesoUsuario) {
         const weightBadge = document.createElement('span');
         weightBadge.classList.add('user-weight-badge');
@@ -606,7 +591,6 @@ export function showSessionDetail(sessionData) {
         sessionDetailModal.date.appendChild(weightBadge);
     }
     
-    // Lista de ejercicios
     sessionDetailModal.exercises.innerHTML = '';
     
     if (sessionData.ejercicios && sessionData.ejercicios.length > 0) {
@@ -614,16 +598,13 @@ export function showSessionDetail(sessionData) {
             const exLi = document.createElement('li');
             exLi.classList.add('exercise-detail');
             
-            // Nombre del ejercicio
             const nameEl = document.createElement('strong');
             nameEl.textContent = ex.nombreEjercicio;
             exLi.appendChild(nameEl);
             
-            // Badge para el tipo de ejercicio
             const typeEl = document.createElement('span');
             typeEl.classList.add('exercise-type-badge');
             
-            // Asignar las clases apropiadas según el tipo
             if (ex.tipoEjercicio === 'strength') {
                 typeEl.classList.add('strength');
                 typeEl.textContent = '💪 Fuerza';
@@ -637,7 +618,6 @@ export function showSessionDetail(sessionData) {
             
             exLi.appendChild(typeEl);
             
-            // Series (para ejercicios de fuerza)
             if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
                 const setsUl = document.createElement('ul');
                 setsUl.classList.add('sets-list');
@@ -646,7 +626,6 @@ export function showSessionDetail(sessionData) {
                     const setLi = document.createElement('li');
                     let setContent = `Serie ${index + 1}: ${escapeHtml(set.peso)} kg × ${escapeHtml(set.reps)} repeticiones`;
                     
-                    // Add rest time if available
                     if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
                         setContent += ` <span class="rest-time-badge">⏱️ ${escapeHtml(set.tiempoDescanso)}</span>`;
                     }
@@ -658,7 +637,6 @@ export function showSessionDetail(sessionData) {
                 exLi.appendChild(setsUl);
             }
             
-            // Notas del ejercicio
             if (ex.notasEjercicio) {
                 const notesEl = document.createElement('p');
                 notesEl.classList.add('exercise-notes');
@@ -674,9 +652,9 @@ export function showSessionDetail(sessionData) {
         sessionDetailModal.exercises.appendChild(noExercisesEl);
     }
     
-    // Mostrar el modal
     sessionDetailModal.modal.style.display = 'block';
 }
+
 export function hideSessionDetail() {
     sessionDetailModal.modal.style.display = 'none';
 }
@@ -702,11 +680,9 @@ export function renderManageRoutinesView(routines) {
         const li = document.createElement('li');
         li.className = 'routine-card';
 
-        // Contenedor de información de la rutina
         const routineInfo = document.createElement('div');
         routineInfo.className = 'routine-info';
 
-        // Nombre de la rutina
         const nameContainer = document.createElement('div');
         nameContainer.className = 'routine-name-container';
         
@@ -717,7 +693,6 @@ export function renderManageRoutinesView(routines) {
 
         routineInfo.appendChild(nameContainer);
 
-        // Descripción de la rutina (número de ejercicios)
         const description = document.createElement('div');
         description.className = 'routine-description';
         const exerciseCount = routine.exercises ? routine.exercises.length : 0;
@@ -726,11 +701,9 @@ export function renderManageRoutinesView(routines) {
 
         li.appendChild(routineInfo);
 
-        // Contenedor de acciones
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'routine-actions';
 
-        // Botón de editar
         const editBtn = document.createElement('button');
         editBtn.textContent = 'Editar';
         editBtn.className = 'routine-action-btn edit';
@@ -744,7 +717,6 @@ export function renderManageRoutinesView(routines) {
 
         li.appendChild(actionsDiv);
 
-        // Event listener para hacer clic en toda la tarjeta (abre edición)
         li.addEventListener('click', (e) => {
             if (!e.target.closest('.routine-actions')) {
                 editBtn.click();
@@ -757,27 +729,26 @@ export function renderManageRoutinesView(routines) {
     showView('manageRoutines');
 }
 
-let exerciseEditorCounter = 0; // To give unique IDs to dynamically added exercise fields
+let exerciseEditorCounter = 0;
 
 export function renderRoutineEditor(routine = null) {
     routineEditorElements.form.reset();
-    routineEditorElements.exercisesContainer.innerHTML = ''; // Clear existing exercises
+    routineEditorElements.exercisesContainer.innerHTML = '';
     exerciseEditorCounter = 0;
 
-    if (routine) { // Editing existing routine
+    if (routine) {
         routineEditorElements.title.textContent = 'Editar Rutina';
         routineEditorElements.routineIdInput.value = routine.id;
         routineEditorElements.routineNameInput.value = routine.name;
         routineEditorElements.deleteRoutineBtn.classList.remove('hidden');
         routineEditorElements.deleteRoutineBtn.dataset.routineId = routine.id;
 
-
         routine.exercises.forEach(ex => addExerciseToEditorForm(ex));
-    } else { // Creating new routine
+    } else {
         routineEditorElements.title.textContent = 'Crear Nueva Rutina';
-        routineEditorElements.routineIdInput.value = ''; // No ID yet for new
+        routineEditorElements.routineIdInput.value = '';
         routineEditorElements.deleteRoutineBtn.classList.add('hidden');
-        addExerciseToEditorForm(); // Add one empty exercise to start
+        addExerciseToEditorForm();
     }
     showView('routineEditor');
 }
@@ -843,7 +814,6 @@ export function addExerciseToEditorForm(exerciseData = null) {
     
     routineEditorElements.exercisesContainer.appendChild(exerciseDiv);
 
-    // Event listeners
     const typeSelect = exerciseDiv.querySelector('select[name="ex-type"]');
     const strengthFields = exerciseDiv.querySelector('.strength-fields');
     const cardioFields = exerciseDiv.querySelector('.cardio-fields');
@@ -870,7 +840,6 @@ export function addExerciseToEditorForm(exerciseData = null) {
         }, 300);
     });
     
-    // Animate the new exercise in
     exerciseDiv.style.animation = 'slideInUp 0.3s ease forwards';
 }
 
@@ -882,6 +851,7 @@ export function showLoading(buttonElement, text = 'Cargando...') {
         buttonElement.innerHTML = `<span class="spinner spinner-inline"></span> ${text}`;
     }
 }
+
 export function hideLoading(buttonElement) {
      if (buttonElement) {
         buttonElement.disabled = false;
@@ -901,7 +871,7 @@ export const calendarElements = {
 };
 
 // Debug calendar elements at module load time
-console.log('Calendar elements loaded:', {
+logger.debug('Calendar elements loaded:', {
     container: !!calendarElements.container,
     calendarView: !!calendarElements.calendarView,
     prevMonthBtn: !!calendarElements.prevMonthBtn,
@@ -911,24 +881,16 @@ console.log('Calendar elements loaded:', {
 });
 
 function initHistoryFilters() {
-    // Exit if elements don't exist yet
     if (!historyElements.filterButtons || !historyElements.searchInput) return;
     
-    // Initialize filter buttons
     historyElements.filterButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Remove active class from all buttons
             historyElements.filterButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
             button.classList.add('active');
-            
-            // Apply the filter
             applyHistoryFilters();
         });
     });
     
-    // Initialize search input
     historyElements.searchInput.addEventListener('input', () => {
         applyHistoryFilters();
     });
@@ -952,7 +914,7 @@ export function applyHistoryFilters() {
             
             const textToSearch = [
                 nameEl ? nameEl.textContent.toLowerCase() : '',
-                dateEl ? dateEl.textContent.toLowerCase() : '', // Asegúrate que este selector es correcto
+                dateEl ? dateEl.textContent.toLowerCase() : '',
                 summaryEl ? summaryEl.textContent.toLowerCase() : ''
             ].join(' ');
             
@@ -961,14 +923,12 @@ export function applyHistoryFilters() {
         
         item.style.display = passesSearchFilter ? '' : 'none';
     });
-
-    
 }
 
 if (historyElements.searchInput) {
     historyElements.searchInput.addEventListener('input', applyHistoryFilters);
 } else {
-    console.warn("History search input not found for attaching event listener in ui.js");
+    logger.warn("History search input not found for attaching event listener in ui.js");
 }
 
 // Helper function to fill exercise inputs with last workout values
@@ -993,24 +953,6 @@ function fillExerciseWithLastValues(exerciseIndex, lastSets) {
         }
     });
     
-    // Show feedback message
-    showCacheStatus('Valores del último entrenamiento aplicados', 'success');
-}
-
-// Show cache status notifications
-function showCacheStatus(message, type = 'success') {
-    let statusEl = document.querySelector('.cache-status');
-    if (!statusEl) {
-        statusEl = document.createElement('div');
-        statusEl.className = 'cache-status';
-        document.body.appendChild(statusEl);
-    }
-    
-    statusEl.textContent = message;
-    statusEl.className = `cache-status ${type}`;
-    statusEl.classList.add('show');
-    
-    setTimeout(() => {
-        statusEl.classList.remove('show');
-    }, 3000);
+    // Show feedback message using toast notification
+    toast.success('Valores del último entrenamiento aplicados');
 }

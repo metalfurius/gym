@@ -48,6 +48,18 @@ const urlsToCache = [
   './js/progress.js',
   './js/timer.js',
   './js/theme-manager.js',
+  // Utility modules
+  './js/utils/logger.js',
+  './js/utils/validation.js',
+  './js/utils/notifications.js',
+  './js/utils/debounce.js',
+  // Feature modules
+  './js/modules/scroll-to-top.js',
+  './js/modules/settings.js',
+  './js/modules/calendar.js',
+  './js/modules/session-manager.js',
+  './js/modules/history-manager.js',
+  './js/modules/pagination.js',
   // Assets
   './manifest.json',
   './assets/icons/icon-192x192.png',
