@@ -89,9 +89,15 @@ let currentHistoryPageNumber = 1;
 // --- App Initialization triggered by Auth ---
 export async function initializeAppAfterAuth(user) {
     if (user) {
-        // Inicializar el theme manager solo una vez
+        // ThemeManager should already be initialized by DOMContentLoaded listener.
+        // This is a fallback in case auth resolves before DOM is ready (rare edge case).
         if (!themeManager) {
-            themeManager = new ThemeManager();
+            try {
+                themeManager = new ThemeManager();
+                console.log('Theme manager initialized (auth fallback)');
+            } catch (error) {
+                console.error('Theme manager initialization failed:', error);
+            }
         }
         
         dashboardElements.currentDate.textContent = formatDate(new Date());
@@ -951,13 +957,8 @@ if (manageRoutinesElements.deleteAllRoutinesBtn) {
 // PWA Service Worker and Storage Manager Initialization
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
-        // Initialize theme manager first for immediate UI theming
-        try {
-            themeManager = new ThemeManager();
-            console.log('Theme manager initialized');
-        } catch (error) {
-            console.error('Theme manager initialization failed:', error);
-        }
+        // Note: ThemeManager is initialized once in DOMContentLoaded at the end of this file
+        // to avoid race conditions with multiple initialization attempts
 
         // Initialize version control first - this handles app updates and cache management
         try {
@@ -1001,17 +1002,9 @@ if ('serviceWorker' in navigator) {
             loadFirebaseDiagnostics();
         }
     });
-} else {
-    // Si no hay service worker disponible, inicializar el theme manager inmediatamente
-    document.addEventListener('DOMContentLoaded', () => {
-        try {
-            themeManager = new ThemeManager();
-            console.log('Theme manager initialized (fallback)');
-        } catch (error) {
-            console.error('Theme manager initialization failed:', error);
-        }
-    });
 }
+// Note: ThemeManager initialization for non-service-worker browsers is handled 
+// in the single DOMContentLoaded listener at the end of this file
 
 // Función para obtener los datos de actividad del mes (optimizada para cargar solo el mes necesario)
 async function getMonthlyActivity(userId, year, month) {
@@ -1400,10 +1393,18 @@ if (forceUpdateBtn) {
     });
 }
 
-// Inicializar el theme manager inmediatamente cuando se carga el script
+// SINGLE POINT OF INITIALIZATION for ThemeManager
+// This is the only place where ThemeManager should be initialized to avoid race conditions.
+// The null check ensures it's only initialized once, even if DOMContentLoaded fires after
+// initializeAppAfterAuth (which can happen with fast auth state resolution).
 document.addEventListener('DOMContentLoaded', () => {
     if (!themeManager) {
-        themeManager = new ThemeManager();
+        try {
+            themeManager = new ThemeManager();
+            console.log('Theme manager initialized');
+        } catch (error) {
+            console.error('Theme manager initialization failed:', error);
+        }
     }
 });
 
