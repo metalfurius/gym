@@ -7,7 +7,7 @@ import { resetTimerInitialization } from './timer.js';
  * @param {string} str - The string to escape
  * @returns {string} - The escaped string safe for innerHTML
  */
-function escapeHtml(str) {
+export function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     const text = String(str);
     const div = document.createElement('div');
@@ -792,7 +792,7 @@ export function addExerciseToEditorForm(exerciseData = null) {
     let exerciseType = exerciseData?.type || 'strength';
 
     exerciseDiv.innerHTML = `
-        <button type="button" class="remove-exercise-btn" data-target="${escapeHtml(exerciseDiv.dataset.editorId)}" title="Eliminar ejercicio">×</button>
+        <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="Eliminar ejercicio">×</button>
         
         <div class="exercise-header">
             <label for="ex-name-${exerciseEditorCounter}">Nombre del Ejercicio:</label>
