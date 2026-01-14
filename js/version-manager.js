@@ -1,5 +1,5 @@
 
-import { saveInProgressSession, loadInProgressSession, clearInProgressSession } from './app.js';
+import { saveInProgressSession, loadInProgressSession, clearInProgressSession } from './modules/session-manager.js';
 
 const VERSION_KEY = 'gym-tracker-version';
 const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
