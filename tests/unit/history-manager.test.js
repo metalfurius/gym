@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it } from '@jest/globals';
 
 // Note: We cannot import the module directly due to Firebase CDN dependencies
 // These tests validate localStorage-based functionality that doesn't require Firebase

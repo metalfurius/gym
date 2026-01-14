@@ -2,9 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 import { 
     initSettings, 
     destroySettings,
-    showSettingsModal,
-    hideSettingsModal,
-    loadCacheInfo,
     formatBytes,
     clearExerciseCache
 } from '../../js/modules/settings.js';

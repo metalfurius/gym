@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it } from '@jest/globals';
 
 // Note: Pagination module requires Firebase CDN imports
 // These tests document expected behavior for integration tests
