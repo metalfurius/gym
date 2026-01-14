@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { auth } from './firebase-config.js';
 import { showView, updateNav, displayAuthError, displayAuthSuccess, clearAuthMessages, authElements, dashboardElements } from './ui.js';
-import { clearInProgressSession } from './app.js';
+import { clearInProgressSession } from './modules/session-manager.js';
 import { initializeAppAfterAuth } from './app.js';
 
 let currentUser = null;
