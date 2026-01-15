@@ -126,6 +126,11 @@ export const progressElements = {
 
 export function showView(viewToShowId) {
     // Cleanup listeners from previous view
+    // NOTE: The event manager currently only cleans up listeners that were added through
+    // addViewListener(). Many event listeners in the codebase (in app.js, modules, timer.js, etc.)
+    // are still added directly with addEventListener and will not be cleaned up automatically.
+    // This could cause memory leaks. Consider migrating existing addEventListener calls to use
+    // addViewListener() from event-manager.js for proper cleanup on view transitions.
     if (currentView && currentView !== viewToShowId) {
         cleanupViewListeners(currentView);
         logger.debug(`Cleaned up listeners for view: ${currentView}`);

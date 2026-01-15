@@ -14,6 +14,7 @@ class OfflineManager {
         this.initialized = false;
         this.onlineHandler = null;
         this.offlineHandler = null;
+        this.isProcessing = false;
     }
 
     /**
@@ -81,7 +82,7 @@ class OfflineManager {
     /**
      * Handle coming back online
      */
-    handleOnline() {
+    async handleOnline() {
         this.isOnline = true;
         logger.info('App is now online');
         try {
@@ -95,9 +96,14 @@ class OfflineManager {
         this.notifyListeners(true);
         
         // Process pending operations with error handling
-        this.processPendingOperations().catch(error => {
-            logger.error('Failed to process pending operations:', error);
-        });
+        // Prevent concurrent processing with a flag
+        if (!this.isProcessing && this.pendingOperations.length > 0) {
+            try {
+                await this.processPendingOperations();
+            } catch (error) {
+                logger.error('Failed to process pending operations:', error);
+            }
+        }
     }
 
     /**
@@ -196,42 +202,52 @@ class OfflineManager {
      */
     async processPendingOperations() {
         if (this.pendingOperations.length === 0) return;
-
-        logger.info(`Processing ${this.pendingOperations.length} pending operations`);
-        
-        const operations = [...this.pendingOperations];
-        this.pendingOperations = [];
-
-        let successCount = 0;
-        let failureCount = 0;
-
-        for (const { operation, description } of operations) {
-            try {
-                await operation();
-                successCount++;
-                logger.info(`Completed queued operation: ${description}`);
-            } catch (error) {
-                failureCount++;
-                logger.error(`Failed queued operation: ${description}`, error);
-                // Re-queue if still failing
-                this.pendingOperations.push({ operation, description, timestamp: Date.now() });
-            }
+        if (this.isProcessing) {
+            logger.debug('Already processing pending operations, skipping');
+            return;
         }
 
-        if (successCount > 0) {
-            try {
-                toast.success(`${successCount} operación(es) completada(s)`, { duration: 3000 });
-            } catch (e) {
-                logger.debug('Toast not available', e);
-            }
-        }
+        this.isProcessing = true;
         
-        if (failureCount > 0) {
-            try {
-                toast.warning(`${failureCount} operación(es) fallida(s)`, { duration: 4000 });
-            } catch (e) {
-                logger.debug('Toast not available', e);
+        try {
+            logger.info(`Processing ${this.pendingOperations.length} pending operations`);
+            
+            const operations = [...this.pendingOperations];
+            this.pendingOperations = [];
+
+            let successCount = 0;
+            let failureCount = 0;
+
+            for (const { operation, description } of operations) {
+                try {
+                    await operation();
+                    successCount++;
+                    logger.info(`Completed queued operation: ${description}`);
+                } catch (error) {
+                    failureCount++;
+                    logger.error(`Failed queued operation: ${description}`, error);
+                    // Re-queue if still failing
+                    this.pendingOperations.push({ operation, description, timestamp: Date.now() });
+                }
             }
+
+            if (successCount > 0) {
+                try {
+                    toast.success(`${successCount} operación(es) completada(s)`, { duration: 3000 });
+                } catch (e) {
+                    logger.debug('Toast not available', e);
+                }
+            }
+            
+            if (failureCount > 0) {
+                try {
+                    toast.warning(`${failureCount} operación(es) fallida(s)`, { duration: 4000 });
+                } catch (e) {
+                    logger.debug('Toast not available', e);
+                }
+            }
+        } finally {
+            this.isProcessing = false;
         }
     }
 
