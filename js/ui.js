@@ -2,6 +2,10 @@
 import { resetTimerInitialization } from './timer.js';
 import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
+import { cleanupViewListeners } from './utils/event-manager.js';
+
+// Track current view for cleanup
+let currentView = null;
 
 // --- Security: HTML Escape Function ---
 /**
@@ -121,6 +125,17 @@ export const progressElements = {
 // --- UI Functions ---
 
 export function showView(viewToShowId) {
+    // Cleanup listeners from previous view
+    // NOTE: The event manager currently only cleans up listeners that were added through
+    // addViewListener(). Many event listeners in the codebase (in app.js, modules, timer.js, etc.)
+    // are still added directly with addEventListener and will not be cleaned up automatically.
+    // This could cause memory leaks. Consider migrating existing addEventListener calls to use
+    // addViewListener() from event-manager.js for proper cleanup on view transitions.
+    if (currentView && currentView !== viewToShowId) {
+        cleanupViewListeners(currentView);
+        logger.debug(`Cleaned up listeners for view: ${currentView}`);
+    }
+    
     // Reset timer initialization when navigating away from session view
     if (!views.session.classList.contains('hidden') && viewToShowId !== 'session') {
         resetTimerInitialization();
@@ -138,6 +153,9 @@ export function showView(viewToShowId) {
     if (viewToShowId === 'manageRoutines' && navButtons.manageRoutines) navButtons.manageRoutines.classList.add('active');
     if (viewToShowId === 'history' && navButtons.history) navButtons.history.classList.add('active');
     if (viewToShowId === 'progress' && navButtons.progress) navButtons.progress.classList.add('active');
+    
+    // Update current view tracking
+    currentView = viewToShowId;
 }
 
 export function updateNav(isLoggedIn) {

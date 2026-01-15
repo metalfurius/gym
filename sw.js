@@ -53,6 +53,8 @@ const urlsToCache = [
   './js/utils/validation.js',
   './js/utils/notifications.js',
   './js/utils/debounce.js',
+  './js/utils/event-manager.js',
+  './js/utils/offline-manager.js',
   // Feature modules
   './js/modules/scroll-to-top.js',
   './js/modules/settings.js',
