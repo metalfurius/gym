@@ -23,7 +23,6 @@ import { initializeProgressView, loadExerciseList, updateChart, resetProgressVie
 import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
 import { offlineManager } from './utils/offline-manager.js';
-import { cleanupViewListeners } from './utils/event-manager.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
 import { initCalendar, updateCalendarView, hideCalendar } from './modules/calendar.js';

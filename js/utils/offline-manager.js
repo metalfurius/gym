@@ -40,7 +40,7 @@ class OfflineManager {
         this.isOnline = false;
         logger.warn('App is now offline');
         try {
-            toast('Sin conexión a Internet. Algunas funciones estarán limitadas.', 'warning', 5000);
+            toast.warning('Sin conexión a Internet. Algunas funciones estarán limitadas.', { duration: 5000 });
         } catch (e) {
             // Toast may not be available in test environment
             logger.debug('Toast not available', e);
@@ -57,7 +57,7 @@ class OfflineManager {
         this.isOnline = true;
         logger.info('App is now online');
         try {
-            toast('Conexión restablecida', 'success', 3000);
+            toast.success('Conexión restablecida', { duration: 3000 });
         } catch (e) {
             // Toast may not be available in test environment
             logger.debug('Toast not available', e);
@@ -89,7 +89,7 @@ class OfflineManager {
         if (!this.checkOnline()) {
             logger.warn('Operation attempted while offline');
             try {
-                toast(errorMessage, 'error', 4000);
+                toast.error(errorMessage, { duration: 4000 });
             } catch (e) {
                 logger.debug('Toast not available', e);
             }
@@ -97,7 +97,7 @@ class OfflineManager {
             if (queueIfOffline) {
                 this.queueOperation(operation, errorMessage);
                 try {
-                    toast('La operación se guardará para cuando haya conexión', 'info', 3000);
+                    toast.info('La operación se guardará para cuando haya conexión', { duration: 3000 });
                 } catch (e) {
                     logger.debug('Toast not available', e);
                 }
@@ -113,7 +113,7 @@ class OfflineManager {
             if (this.isNetworkError(error)) {
                 logger.error('Network error during operation:', error);
                 try {
-                    toast('Error de conexión. Verifica tu Internet e intenta de nuevo.', 'error', 5000);
+                    toast.error('Error de conexión. Verifica tu Internet e intenta de nuevo.', { duration: 5000 });
                 } catch (e) {
                     logger.debug('Toast not available', e);
                 }
@@ -190,7 +190,7 @@ class OfflineManager {
 
         if (successCount > 0) {
             try {
-                toast(`${successCount} operación(es) completada(s)`, 'success', 3000);
+                toast.success(`${successCount} operación(es) completada(s)`, { duration: 3000 });
             } catch (e) {
                 logger.debug('Toast not available', e);
             }
@@ -198,7 +198,7 @@ class OfflineManager {
         
         if (failureCount > 0) {
             try {
-                toast(`${failureCount} operación(es) fallida(s)`, 'warning', 4000);
+                toast.warning(`${failureCount} operación(es) fallida(s)`, { duration: 4000 });
             } catch (e) {
                 logger.debug('Toast not available', e);
             }
