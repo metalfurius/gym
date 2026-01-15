@@ -208,43 +208,46 @@ class OfflineManager {
         }
 
         this.isProcessing = true;
-        logger.info(`Processing ${this.pendingOperations.length} pending operations`);
         
-        const operations = [...this.pendingOperations];
-        this.pendingOperations = [];
+        try {
+            logger.info(`Processing ${this.pendingOperations.length} pending operations`);
+            
+            const operations = [...this.pendingOperations];
+            this.pendingOperations = [];
 
-        let successCount = 0;
-        let failureCount = 0;
+            let successCount = 0;
+            let failureCount = 0;
 
-        for (const { operation, description } of operations) {
-            try {
-                await operation();
-                successCount++;
-                logger.info(`Completed queued operation: ${description}`);
-            } catch (error) {
-                failureCount++;
-                logger.error(`Failed queued operation: ${description}`, error);
-                // Re-queue if still failing
-                this.pendingOperations.push({ operation, description, timestamp: Date.now() });
+            for (const { operation, description } of operations) {
+                try {
+                    await operation();
+                    successCount++;
+                    logger.info(`Completed queued operation: ${description}`);
+                } catch (error) {
+                    failureCount++;
+                    logger.error(`Failed queued operation: ${description}`, error);
+                    // Re-queue if still failing
+                    this.pendingOperations.push({ operation, description, timestamp: Date.now() });
+                }
             }
-        }
 
-        this.isProcessing = false;
-
-        if (successCount > 0) {
-            try {
-                toast.success(`${successCount} operación(es) completada(s)`, { duration: 3000 });
-            } catch (e) {
-                logger.debug('Toast not available', e);
+            if (successCount > 0) {
+                try {
+                    toast.success(`${successCount} operación(es) completada(s)`, { duration: 3000 });
+                } catch (e) {
+                    logger.debug('Toast not available', e);
+                }
             }
-        }
-        
-        if (failureCount > 0) {
-            try {
-                toast.warning(`${failureCount} operación(es) fallida(s)`, { duration: 4000 });
-            } catch (e) {
-                logger.debug('Toast not available', e);
+            
+            if (failureCount > 0) {
+                try {
+                    toast.warning(`${failureCount} operación(es) fallida(s)`, { duration: 4000 });
+                } catch (e) {
+                    logger.debug('Toast not available', e);
+                }
             }
+        } finally {
+            this.isProcessing = false;
         }
     }
 
