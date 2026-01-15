@@ -31,7 +31,8 @@ class OfflineManager {
         window.addEventListener('online', this.onlineHandler);
         window.addEventListener('offline', this.offlineHandler);
 
-        // Check initial state
+        // Check initial state using the current navigator.onLine value
+        this.isOnline = navigator.onLine;
         if (!this.isOnline) {
             this.handleOffline();
         }
