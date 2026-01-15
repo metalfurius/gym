@@ -387,14 +387,14 @@ describe('OfflineManager', () => {
             expect(offlineManager.getPendingCount()).toBe(0);
         });
 
-        it('should handle rapid state changes', () => {
+        it('should handle rapid state changes', async () => {
             const listener = jest.fn();
             offlineManager.addListener(listener);
 
             offlineManager.handleOffline();
-            offlineManager.handleOnline();
+            await offlineManager.handleOnline();
             offlineManager.handleOffline();
-            offlineManager.handleOnline();
+            await offlineManager.handleOnline();
 
             expect(listener).toHaveBeenCalledTimes(4);
         });
