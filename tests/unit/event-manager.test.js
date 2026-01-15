@@ -38,6 +38,7 @@ describe('EventManager', () => {
         it('should track listener for the view', () => {
             eventManager.add('test-view', mockElement, 'click', mockHandler);
 
+            expect(mockElement.addEventListener).toHaveBeenCalledWith('click', mockHandler, {});
             expect(eventManager.getListenerCount('test-view')).toBe(1);
         });
 

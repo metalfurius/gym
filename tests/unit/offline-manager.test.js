@@ -8,6 +8,7 @@ import { offlineManager } from '../../js/utils/offline-manager.js';
 
 describe('OfflineManager', () => {
     let originalOnLine;
+    let originalAddEventListener;
     let onlineCallback;
     let offlineCallback;
 
@@ -21,7 +22,8 @@ describe('OfflineManager', () => {
             get: () => true
         });
 
-        // Mock window event listeners
+        // Save and mock window event listeners
+        originalAddEventListener = window.addEventListener;
         onlineCallback = null;
         offlineCallback = null;
         window.addEventListener = jest.fn((event, callback) => {
@@ -40,6 +42,12 @@ describe('OfflineManager', () => {
         if (originalOnLine) {
             Object.defineProperty(Navigator.prototype, 'onLine', originalOnLine);
         }
+        
+        // Restore original window.addEventListener
+        if (originalAddEventListener) {
+            window.addEventListener = originalAddEventListener;
+        }
+        
         offlineManager.clearPending();
     });
 
@@ -59,6 +67,45 @@ describe('OfflineManager', () => {
             offlineManager.init();
 
             expect(offlineManager.initialized).toBe(firstInit);
+        });
+    });
+
+    describe('destroy()', () => {
+        it('should remove event listeners and clean up state', () => {
+            // Mock removeEventListener
+            const originalRemoveEventListener = window.removeEventListener;
+            window.removeEventListener = jest.fn();
+
+            offlineManager.init();
+            const onlineHandler = offlineManager.onlineHandler;
+            const offlineHandler = offlineManager.offlineHandler;
+
+            offlineManager.destroy();
+
+            expect(window.removeEventListener).toHaveBeenCalledWith('online', onlineHandler);
+            expect(window.removeEventListener).toHaveBeenCalledWith('offline', offlineHandler);
+            expect(offlineManager.initialized).toBe(false);
+            expect(offlineManager.onlineHandler).toBe(null);
+            expect(offlineManager.offlineHandler).toBe(null);
+
+            // Restore
+            window.removeEventListener = originalRemoveEventListener;
+        });
+
+        it('should not throw when called without initialization', () => {
+            expect(() => {
+                offlineManager.destroy();
+            }).not.toThrow();
+        });
+
+        it('should clear pending operations', () => {
+            offlineManager.init();
+            offlineManager.queueOperation(jest.fn(), 'Test operation');
+            expect(offlineManager.getPendingCount()).toBe(1);
+
+            offlineManager.destroy();
+
+            expect(offlineManager.getPendingCount()).toBe(0);
         });
     });
 

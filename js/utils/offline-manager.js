@@ -12,6 +12,8 @@ class OfflineManager {
         this.pendingOperations = [];
         this.listeners = [];
         this.initialized = false;
+        this.onlineHandler = null;
+        this.offlineHandler = null;
     }
 
     /**
@@ -20,9 +22,13 @@ class OfflineManager {
     init() {
         if (this.initialized) return;
 
+        // Create bound handlers for later removal
+        this.onlineHandler = () => this.handleOnline();
+        this.offlineHandler = () => this.handleOffline();
+
         // Listen for online/offline events
-        window.addEventListener('online', () => this.handleOnline());
-        window.addEventListener('offline', () => this.handleOffline());
+        window.addEventListener('online', this.onlineHandler);
+        window.addEventListener('offline', this.offlineHandler);
 
         // Check initial state
         if (!this.isOnline) {
@@ -31,6 +37,30 @@ class OfflineManager {
 
         this.initialized = true;
         logger.info('OfflineManager initialized');
+    }
+
+    /**
+     * Clean up event listeners and resources
+     */
+    destroy() {
+        if (!this.initialized) return;
+
+        // Remove event listeners
+        if (this.onlineHandler) {
+            window.removeEventListener('online', this.onlineHandler);
+        }
+        if (this.offlineHandler) {
+            window.removeEventListener('offline', this.offlineHandler);
+        }
+
+        // Clear state
+        this.onlineHandler = null;
+        this.offlineHandler = null;
+        this.initialized = false;
+        this.listeners = [];
+        this.clearPending();
+
+        logger.info('OfflineManager destroyed');
     }
 
     /**
@@ -66,8 +96,10 @@ class OfflineManager {
         // Notify listeners
         this.notifyListeners(true);
         
-        // Process pending operations
-        this.processPendingOperations();
+        // Process pending operations with error handling
+        this.processPendingOperations().catch(error => {
+            logger.error('Failed to process pending operations:', error);
+        });
     }
 
     /**
