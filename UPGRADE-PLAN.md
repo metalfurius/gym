@@ -99,11 +99,11 @@ This document outlines the planned improvements and upgrades for the My Workout 
   - [x] Test helper utilities and factories
   
 - [ ] **Concurrent Task: Test New Utility Modules** (Phase 1.5)
-  - [ ] Write tests for `js/utils/logger.js` (pure functions, no Firebase) → +1% coverage
-  - [ ] Write tests for `js/utils/validation.js` (pure input validation) → +2% coverage
-  - [ ] Write tests for `js/utils/debounce.js` (rate limiting utilities) → +1% coverage
-  - [ ] Write tests for `js/utils/notifications.js` (toast system) → +1% coverage
-  - [ ] Write tests for `js/modules/pagination.js` (reusable pagination class) → +2% coverage
+  - [x] Write tests for `js/utils/logger.js` (pure functions, no Firebase) → +1% coverage *(tests in `tests/unit/logger.test.js`)*
+  - [x] Write tests for `js/utils/validation.js` (pure input validation) → +2% coverage *(tests in `tests/unit/validation.test.js`)*
+  - [x] Write tests for `js/utils/debounce.js` (rate limiting utilities) → +1% coverage *(tests in `tests/unit/debounce.test.js`)*
+  - [x] Write tests for `js/utils/notifications.js` (toast system) → +1% coverage *(tests in `tests/unit/notifications.test.js`)*
+  - [x] Write tests for `js/modules/pagination.js` (reusable pagination class) → +2% coverage *(tests in `tests/unit/pagination.test.js`)*
   - [ ] Write tests for newly extracted modules (`calendar.js`, `session-manager.js`, etc.) as they're created
 
 #### How to Run Tests
