@@ -24,7 +24,6 @@ describe('OfflineManager', () => {
         // Mock window event listeners
         onlineCallback = null;
         offlineCallback = null;
-        const originalAddEventListener = window.addEventListener;
         window.addEventListener = jest.fn((event, callback) => {
             if (event === 'online') onlineCallback = callback;
             if (event === 'offline') offlineCallback = callback;
