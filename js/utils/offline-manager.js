@@ -14,6 +14,7 @@ class OfflineManager {
         this.initialized = false;
         this.onlineHandler = null;
         this.offlineHandler = null;
+        this.isProcessing = false;
     }
 
     /**
@@ -81,7 +82,7 @@ class OfflineManager {
     /**
      * Handle coming back online
      */
-    handleOnline() {
+    async handleOnline() {
         this.isOnline = true;
         logger.info('App is now online');
         try {
@@ -95,9 +96,14 @@ class OfflineManager {
         this.notifyListeners(true);
         
         // Process pending operations with error handling
-        this.processPendingOperations().catch(error => {
-            logger.error('Failed to process pending operations:', error);
-        });
+        // Prevent concurrent processing with a flag
+        if (!this.isProcessing && this.pendingOperations.length > 0) {
+            try {
+                await this.processPendingOperations();
+            } catch (error) {
+                logger.error('Failed to process pending operations:', error);
+            }
+        }
     }
 
     /**
@@ -196,7 +202,12 @@ class OfflineManager {
      */
     async processPendingOperations() {
         if (this.pendingOperations.length === 0) return;
+        if (this.isProcessing) {
+            logger.debug('Already processing pending operations, skipping');
+            return;
+        }
 
+        this.isProcessing = true;
         logger.info(`Processing ${this.pendingOperations.length} pending operations`);
         
         const operations = [...this.pendingOperations];
@@ -217,6 +228,8 @@ class OfflineManager {
                 this.pendingOperations.push({ operation, description, timestamp: Date.now() });
             }
         }
+
+        this.isProcessing = false;
 
         if (successCount > 0) {
             try {

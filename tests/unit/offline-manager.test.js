@@ -147,13 +147,9 @@ describe('OfflineManager', () => {
 
             const mockOperation = jest.fn(async () => 'success');
 
-            try {
-                await offlineManager.executeWithOfflineHandling(mockOperation, 'Custom error');
-                expect(true).toBe(false); // Should not reach here
-            } catch (error) {
-                // Expected to throw
-                expect(error.message).toContain('Offline');
-            }
+            await expect(
+                offlineManager.executeWithOfflineHandling(mockOperation, 'Custom error')
+            ).rejects.toThrow('Offline');
 
             expect(mockOperation).not.toHaveBeenCalled();
         });
@@ -387,8 +383,8 @@ describe('OfflineManager', () => {
 
             expect(listener).toHaveBeenCalledWith(true);
             expect(mockOp).toHaveBeenCalled();
-            // After processing, expect 0 pending (or 1 if had error)
-            expect(offlineManager.getPendingCount()).toBeLessThanOrEqual(1);
+            // After processing, expect 0 pending operations for successful scenario
+            expect(offlineManager.getPendingCount()).toBe(0);
         });
 
         it('should handle rapid state changes', () => {
