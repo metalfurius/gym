@@ -43,9 +43,7 @@ class OfflineManager {
      * Clean up event listeners and resources
      */
     destroy() {
-        if (!this.initialized) return;
-
-        // Remove event listeners
+        // Remove event listeners even if not officially initialized
         if (this.onlineHandler) {
             window.removeEventListener('online', this.onlineHandler);
         }
