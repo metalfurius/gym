@@ -43,8 +43,7 @@ We're working on making the app more flexible and user-friendly!
 
 ### Documentation
 
-- **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** - Complete roadmap with all planned phases and next steps
-- **[TEST-COVERAGE-ROADMAP.md](TEST-COVERAGE-ROADMAP.md)** - Testing strategy and coverage improvement plan
+- **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** - Complete roadmap with all planned phases, current progress, and implementation details (including testing strategy)
 
 ### Current Focus: Phase 0 - Technical Debt ⚡
 

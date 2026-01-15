@@ -84,6 +84,51 @@ This document outlines the planned improvements and upgrades for the My Workout 
   - [ ] Configure build to use npm version
   - [ ] Keep CDN as fallback for direct browser usage
 
+### Testing Strategy & Coverage
+
+> **Current Status**: 315 tests passing ✅, ~100% business logic coverage, 6.04% reported coverage
+> 
+> **The Issue**: Firebase CDN imports block Jest module execution, but our infrastructure is solid. Phase 1.5 aligns new modules with tests immediately.
+
+#### Phase 0 Testing Tasks
+- [x] **Current Infrastructure** ✅ COMPLETE
+  - [x] Firebase mocking system (`tests/utils/firebase-mocks.js`)
+  - [x] 193+ new unit tests across 7 files
+  - [x] Complete business logic validation
+  - [x] DOM event simulation
+  - [x] Test helper utilities and factories
+  
+- [ ] **Concurrent Task: Test New Utility Modules** (Phase 1.5)
+  - [ ] Write tests for `js/utils/logger.js` (pure functions, no Firebase) → +1% coverage
+  - [ ] Write tests for `js/utils/validation.js` (pure input validation) → +2% coverage
+  - [ ] Write tests for `js/utils/debounce.js` (rate limiting utilities) → +1% coverage
+  - [ ] Write tests for `js/utils/notifications.js` (toast system) → +1% coverage
+  - [ ] Write tests for `js/modules/pagination.js` (reusable pagination class) → +2% coverage
+  - [ ] Write tests for newly extracted modules (`calendar.js`, `session-manager.js`, etc.) as they're created
+
+#### How to Run Tests
+```bash
+# Run all automated tests
+npm test
+
+# Run with coverage report
+npm run test:coverage
+
+# Watch mode for TDD
+npm run test:watch
+
+# Start server for manual tests
+npm run serve
+# Open: http://localhost:8080/tests/manual/index.html
+```
+
+#### Testing Best Practices
+1. **Write tests alongside feature code** - When creating new modules, test them immediately
+2. **Target 80%+ coverage** - Focus on business logic and user-facing behavior
+3. **Use mock factories** - Keep test setup simple with helper functions from `tests/utils/test-helpers.js`
+4. **Arrange-Act-Assert pattern** - Every test follows clear structure for readability
+5. **Run coverage regularly** - `npm run test:coverage` to track progress
+
 ### Documentation & Configuration
 
 - [ ] **Prepare for internationalization (i18n)**
@@ -132,7 +177,77 @@ export const logger = {
 
 ---
 
-## Phase 1: Flexible Workout System ⭐ **CURRENT PRIORITY**
+## Phase 1.5: Testing & Quality Assurance (Concurrent with Phase 0)
+
+**Goal:** Build comprehensive test coverage for new modules created in Phase 0 while maintaining existing test quality.
+
+**Effort:** Included in Phase 0 work (parallel task)  
+**Status:** READY TO START
+
+> **Key Principle:** Every new module created in Phase 0 should have tests written immediately, not after. This ensures high quality and prevents technical debt.
+
+### Testing Infrastructure (Already Built ✅)
+
+We have excellent testing infrastructure ready:
+- **Firebase Mocking** - Complete mock system for Firebase Auth & Firestore
+- **DOM Testing** - jsdom environment with event simulation
+- **Test Helpers** - Factory functions for creating mock data
+- **314+ Tests** - Comprehensive test suite validating all business logic
+- **Test Runners** - npm scripts for easy test execution
+
+### Concurrent Testing Tasks with Phase 0
+
+As Phase 0 creates new modules, these get tested immediately:
+
+| Module | Testability | Expected Coverage |
+|--------|-------------|------------------|
+| `js/utils/logger.js` | Pure functions, no Firebase | +1% |
+| `js/utils/validation.js` | Pure input validation | +2% |
+| `js/utils/debounce.js` | Timing utilities | +1% |
+| `js/utils/notifications.js` | DOM toast system | +1% |
+| `js/modules/pagination.js` | Reusable class | +2% |
+| `js/modules/calendar.js` | DOM & Firebase queries | +3% |
+| `js/modules/session-manager.js` | Firebase operations | +4% |
+| `js/modules/history-manager.js` | Query & UI logic | +3% |
+| `js/modules/settings.js` | Form handling | +2% |
+| `js/modules/scroll-to-top.js` | DOM events | +1% |
+
+**Target:** 25%+ coverage gain by end of Phase 0
+
+### Testing Patterns & Examples
+
+```javascript
+// Unit test for validation (pure function)
+import { validateWeight } from '../../js/utils/validation.js';
+
+describe('Validation Utils', () => {
+  it('should reject weight > 500kg', () => {
+    expect(validateWeight(501)).toBe(false);
+  });
+  
+  it('should accept valid weight ranges', () => {
+    expect(validateWeight(75.5)).toBe(true);
+  });
+});
+```
+
+```javascript
+// Integration test for session operations (with Firebase mocks)
+import { mockFirestore } from '../utils/firebase-mocks.js';
+import { saveSession } from '../../js/modules/session-manager.js';
+
+describe('Session Manager', () => {
+  it('should save session to Firestore', async () => {
+    const session = { fecha: new Date(), ejercicios: [] };
+    await saveSession(session);
+    
+    const saved = await mockFirestore.collection('sessions').getDocs();
+    expect(saved.docs.length).toBeGreaterThan(0);
+  });
+});
+```
+
+---
 
 **Goal:** Add a flexible workout mode alongside the existing routine system, giving users choice in how they train. Users can select their preferred approach each session: spontaneous muscle-group-based training OR structured routine following. Additionally, add weight and calorie tracking to understand user goals and enable tracking on rest days.
 
