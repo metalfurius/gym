@@ -230,6 +230,53 @@ describe('ExerciseCacheManager', () => {
     });
   });
 
+  describe('clearCache', () => {
+    it('should remove cache from localStorage', () => {
+      const testCache = {
+        'bench-press': {
+          originalName: 'Bench Press',
+          history: [{ peso: 60, reps: 10 }]
+        }
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(testCache));
+      
+      // Verify cache exists
+      expect(localStorage.getItem(CACHE_KEY)).not.toBeNull();
+      
+      // Clear cache
+      cacheManager.clearCache();
+      
+      // Verify cache is removed
+      expect(localStorage.getItem(CACHE_KEY)).toBeNull();
+    });
+
+    it('should handle clearing cache when no cache exists', () => {
+      // Ensure no cache exists
+      localStorage.removeItem(CACHE_KEY);
+      expect(localStorage.getItem(CACHE_KEY)).toBeNull();
+      
+      // Should not throw error
+      expect(() => cacheManager.clearCache()).not.toThrow();
+      
+      // Should still be null
+      expect(localStorage.getItem(CACHE_KEY)).toBeNull();
+    });
+
+    it('should handle localStorage errors gracefully', () => {
+      // Mock localStorage.removeItem to throw an error
+      const originalRemoveItem = Storage.prototype.removeItem;
+      Storage.prototype.removeItem = () => {
+        throw new Error('localStorage error');
+      };
+      
+      // Should not throw error (errors are caught internally)
+      expect(() => cacheManager.clearCache()).not.toThrow();
+      
+      // Restore original method
+      Storage.prototype.removeItem = originalRemoveItem;
+    });
+  });
+
   describe('cache statistics', () => {
     it('should calculate cache size', () => {
       const cache = {

@@ -325,11 +325,6 @@ export class ExerciseCacheManager {
      */
     exportCache() {
         return this.getFullCache();
-    }    /**
-     * Limpia completamente el cache
-     */
-    clearCache() {
-        localStorage.removeItem(this.cacheKey);
     }
 
     /**

@@ -76,23 +76,27 @@ export async function initializeProgressView() {
         return;
     }
 
-    // Force rebuild of exercise cache to ensure all history is loaded
-    logger.info('📚 Progress view initializing - rebuilding exercise cache...');
-    try {
-        const { exerciseCache } = await import('./exercise-cache.js');
-        exerciseCache.clearCache(); // Clear old cache
-        
-        const { getCurrentUser } = await import('./auth.js');
-        const { db } = await import('./firebase-config.js');
-        const user = getCurrentUser();
-        
-        if (user && db) {
-            // Force complete rebuild
-            await exerciseCache.buildCacheFromHistory(user.uid, db);
-            logger.info('✅ Exercise cache rebuilt successfully');
+    // Only rebuild exercise cache when progress cache is invalid or missing
+    if (!isProgressCacheValid()) {
+        logger.info('📚 Progress view initializing - rebuilding exercise cache (cache invalid or missing)...');
+        try {
+            const { exerciseCache } = await import('./exercise-cache.js');
+            exerciseCache.clearCache(); // Clear old cache
+            
+            const { getCurrentUser } = await import('./auth.js');
+            const { db } = await import('./firebase-config.js');
+            const user = getCurrentUser();
+            
+            if (user && db) {
+                // Rebuild only when needed to avoid unnecessary Firestore queries
+                await exerciseCache.buildCacheFromHistory(user.uid, db);
+                logger.info('✅ Exercise cache rebuilt successfully');
+            }
+        } catch (error) {
+            logger.error('❌ Error rebuilding cache:', error);
         }
-    } catch (error) {
-        logger.error('❌ Error rebuilding cache:', error);
+    } else {
+        logger.info('📚 Progress view initializing - using existing exercise cache');
     }
 
     // Event listeners
@@ -312,7 +316,7 @@ export async function updateChart() {
         hideNoDataMessage();
         
     } catch (error) {
-            logger.error('Error updating chart:', error);
+        logger.error('Error updating chart:', error);
         hideChart();
         hideStats();
         showNoDataMessage();
@@ -326,37 +330,37 @@ export async function updateChart() {
  */
 async function getExerciseData(exerciseName, period) {
     try {
-        logger.info(`📊 Getting exercise data for: "${exerciseName}", period: ${period}`);
+        logger.debug(`📊 Getting exercise data for: "${exerciseName}", period: ${period}`);
         
         // Usar cache si está disponible
         const cacheKey = `${exerciseName}_${period}`;
         if (exerciseDataCache.has(cacheKey)) {
-            logger.info(`✅ Found in memory cache`);
+            logger.debug(`✅ Found in memory cache`);
             return exerciseDataCache.get(cacheKey);
         }
 
         // Obtener datos del cache de ejercicios
         const { exerciseCache } = await import('./exercise-cache.js');
         const fullCache = exerciseCache.exportCache();
-        logger.info(`📦 Exercise cache has ${Object.keys(fullCache).length} exercises`);
+        logger.debug(`📦 Exercise cache has ${Object.keys(fullCache).length} exercises`);
         
         // Buscar el ejercicio en el cache - normalizar ambos lados de la comparación
         const normalizedSelectedName = normalizeExerciseName(exerciseName);
-        logger.info(`🔍 Normalized name: "${normalizedSelectedName}"`);
+        logger.debug(`🔍 Normalized name: "${normalizedSelectedName}"`);
         
         const exerciseKey = Object.keys(fullCache).find(key => {
             const normalized = normalizeExerciseName(fullCache[key].originalName);
-            logger.info(`  Comparing "${normalized}" with "${normalizedSelectedName}"?`);
+            logger.debug(`  Comparing "${normalized}" with "${normalizedSelectedName}"?`);
             return normalized === normalizedSelectedName;
         });
         
-        logger.info(`🔑 Exercise key found: ${exerciseKey ? 'YES' : 'NO'}`);
+        logger.debug(`🔑 Exercise key found: ${exerciseKey ? 'YES' : 'NO'}`);
         if (exerciseKey) {
-            logger.info(`   History entries: ${fullCache[exerciseKey].history ? fullCache[exerciseKey].history.length : 'NO HISTORY'}`);
+            logger.debug(`   History entries: ${fullCache[exerciseKey].history ? fullCache[exerciseKey].history.length : 'NO HISTORY'}`);
         }
         
         if (!exerciseKey || !fullCache[exerciseKey].history) {
-            logger.info(`⚠️  Falling back to session data load`);
+            logger.debug(`⚠️  Falling back to session data load`);
             // Fallback: intentar obtener datos directamente de las sesiones
             return await getExerciseDataFromSessions(exerciseName, period);
         }
@@ -883,16 +887,6 @@ async function loadExercisesFromSessions() {
             }
         });
 
-        // Ordenar por número de sesiones (mayor a menor) y luego alfabéticamente
-        exercisesWithCount.sort((a, b) => {
-            if (b.sessionCount !== a.sessionCount) {
-                return b.sessionCount - a.sessionCount;
-            }
-            return a.name.localeCompare(b.name);
-        });
-
-        const validExercises = exercisesWithCount.map(ex => ex.name);
-        
         // Ordenar por número de sesiones (mayor a menor) y luego alfabéticamente
         exercisesWithCount.sort((a, b) => {
             if (b.sessionCount !== a.sessionCount) {
