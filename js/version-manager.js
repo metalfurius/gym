@@ -1,5 +1,6 @@
 
 import { saveInProgressSession, loadInProgressSession, clearInProgressSession } from './modules/session-manager.js';
+import { logger } from './utils/logger.js';
 
 const VERSION_KEY = 'gym-tracker-version';
 const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
@@ -13,7 +14,7 @@ async function getCurrentVersionFromManifest() {
         const manifest = await response.json();
         return manifest.version;
     } catch (error) {
-        console.error('Version Manager: Error fetching version from manifest:', error);
+        logger.error('Version Manager: Error fetching version from manifest:', error);
         // Fallback a versión por defecto si no se puede obtener del manifest
         return '1.1.0';
     }
@@ -26,18 +27,18 @@ export async function initVersionControl() {
     const CURRENT_VERSION = await getCurrentVersionFromManifest();
     const storedVersion = localStorage.getItem(VERSION_KEY);
     
-    console.log(`Version Manager: Current=${CURRENT_VERSION}, Stored=${storedVersion || 'none'}`);
+    logger.info(`Version Manager: Current=${CURRENT_VERSION}, Stored=${storedVersion || 'none'}`);
     
     if (!storedVersion) {
         // Primera instalación
         localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
-        console.log('Version Manager: First installation detected');
+        logger.info('Version Manager: First installation detected');
         return { isUpdate: false, isFirstInstall: true };
     }
     
     if (storedVersion !== CURRENT_VERSION) {
         // Hay una actualización
-        console.log(`Version Manager: Update detected from ${storedVersion} to ${CURRENT_VERSION}`);
+        logger.info(`Version Manager: Update detected from ${storedVersion} to ${CURRENT_VERSION}`);
         await handleAppUpdate(storedVersion, CURRENT_VERSION);
         return { isUpdate: true, isFirstInstall: false, oldVersion: storedVersion };
     }
@@ -54,7 +55,7 @@ async function handleAppUpdate(oldVersion, newVersion) {
         // 1. Preservar sesión en progreso si existe
         const inProgressSession = loadInProgressSession();
         if (inProgressSession) {
-            console.log('Version Manager: Backing up in-progress session');
+            logger.info('Version Manager: Backing up in-progress session');
             localStorage.setItem(BACKUP_SESSION_KEY, JSON.stringify(inProgressSession));
         }
         
@@ -69,15 +70,15 @@ async function handleAppUpdate(oldVersion, newVersion) {
         
         // 5. Restaurar sesión en progreso si existía
         if (inProgressSession) {
-            console.log('Version Manager: Restoring in-progress session');
+            logger.info('Version Manager: Restoring in-progress session');
             saveInProgressSession(inProgressSession);
             localStorage.removeItem(BACKUP_SESSION_KEY);
         }
         
-        console.log('Version Manager: Update process completed successfully');
+        logger.info('Version Manager: Update process completed successfully');
         
     } catch (error) {
-        console.error('Version Manager: Error during update process:', error);
+        logger.error('Version Manager: Error during update process:', error);
         // En caso de error, intentar restaurar sesión desde backup
         const backupSession = localStorage.getItem(BACKUP_SESSION_KEY);
         if (backupSession) {
@@ -85,9 +86,9 @@ async function handleAppUpdate(oldVersion, newVersion) {
                 const sessionData = JSON.parse(backupSession);
                 saveInProgressSession(sessionData);
                 localStorage.removeItem(BACKUP_SESSION_KEY);
-                console.log('Version Manager: Session restored from backup after error');
+                logger.info('Version Manager: Session restored from backup after error');
             } catch (restoreError) {
-                console.error('Version Manager: Could not restore session from backup:', restoreError);
+                logger.error('Version Manager: Could not restore session from backup:', restoreError);
             }
         }
     }
@@ -104,7 +105,7 @@ async function clearBrowserCaches() {
             const deletePromises = cacheNames
                 .filter(name => name.startsWith('gym-tracker-'))
                 .map(name => {
-                    console.log(`Version Manager: Deleting cache: ${name}`);
+                    logger.info(`Version Manager: Deleting cache: ${name}`);
                     return caches.delete(name);
                 });
             await Promise.all(deletePromises);
@@ -118,9 +119,9 @@ async function clearBrowserCaches() {
             }
         }
         
-        console.log('Version Manager: Browser caches cleared successfully');
+        logger.info('Version Manager: Browser caches cleared successfully');
     } catch (error) {
-        console.error('Version Manager: Error clearing caches:', error);
+        logger.error('Version Manager: Error clearing caches:', error);
     }
 }
 
@@ -203,7 +204,7 @@ function showUpdateNotification(oldVersion, newVersion) {
  * Fuerza una actualización manual de la aplicación
  */
 export async function forceAppUpdate() {
-    console.log('Version Manager: Forcing app update...');
+    logger.info('Version Manager: Forcing app update...');
     
     const forceUpdateBtn = document.getElementById('force-update-btn');
     
@@ -241,7 +242,7 @@ export async function forceAppUpdate() {
         window.location.reload(true);
         
     } catch (error) {
-        console.error('Version Manager: Error during forced update:', error);
+        logger.error('Version Manager: Error during forced update:', error);
         
         // Mostrar estado de error
         if (forceUpdateBtn) {
@@ -281,10 +282,10 @@ export function checkForBackupSession() {
             const sessionData = JSON.parse(backupSession);
             saveInProgressSession(sessionData);
             localStorage.removeItem(BACKUP_SESSION_KEY);
-            console.log('Version Manager: Backup session restored on app start');
+            logger.info('Version Manager: Backup session restored on app start');
             return true;
         } catch (error) {
-            console.error('Version Manager: Error restoring backup session:', error);
+            logger.error('Version Manager: Error restoring backup session:', error);
             localStorage.removeItem(BACKUP_SESSION_KEY);
             return false;
         }

@@ -40,16 +40,16 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
       expect(Object.keys(cache)).toHaveLength(0);
     });
 
-    it('should limit history to max entries', () => {
+    it('should keep all exercise history (no limit)', () => {
       const sets = [{ peso: 60, reps: 10 }];
 
-      // Add 6 entries (more than maxExerciseHistory which is 5)
+      // Add 6 entries (previously limited to 5, now keeping all)
       for (let i = 0; i < 6; i++) {
         cacheManager.addExerciseData('Bench Press', sets, new Date(Date.UTC(2024, 0, i + 1)));
       }
 
       const history = cacheManager.getExerciseHistory('Bench Press');
-      expect(history).toHaveLength(5); // Should be limited to 5
+      expect(history).toHaveLength(6); // Should keep all entries for progress charts
     });
 
     it('should add most recent data at the beginning', () => {

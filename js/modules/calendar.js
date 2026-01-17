@@ -8,6 +8,7 @@ import { collection, query, where, getDocs, Timestamp } from "https://www.gstati
 import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
+import { addViewListener } from '../utils/event-manager.js';
 
 // Constants
 const MIN_CALENDAR_YEAR = 2025;
@@ -422,11 +423,6 @@ function handleCalendarNavigationClick(event) {
  * Sets up DOM references and event listeners
  */
 export function initCalendar() {
-    if (isInitialized) {
-        logger.debug('Calendar already initialized');
-        return;
-    }
-
     // Get DOM elements
     calendarContainer = document.getElementById('activity-calendar-container');
     calendarView = document.getElementById('activity-calendar');
@@ -436,10 +432,14 @@ export function initCalendar() {
     loadingSpinner = document.getElementById('calendar-loading-spinner');
 
     // Set up event delegation for navigation
-    document.addEventListener('click', handleCalendarNavigationClick);
-
-    isInitialized = true;
-    logger.debug('Calendar module initialized');
+    // Only attach if not already initialized to avoid duplicate listeners
+    if (!isInitialized) {
+        addViewListener('dashboard', document, 'click', handleCalendarNavigationClick);
+        isInitialized = true;
+        logger.debug('Calendar module initialized');
+    } else {
+        logger.debug('Calendar DOM references refreshed');
+    }
 }
 
 /**
@@ -465,7 +465,11 @@ export function resetToCurrentMonth() {
 export function destroyCalendar() {
     if (!isInitialized) return;
 
-    document.removeEventListener('click', handleCalendarNavigationClick);
+    // Note: Calendar navigation listeners are registered via addViewListener('dashboard', ...)
+    // and are cleaned up centrally when cleanupViewListeners('dashboard') is invoked as part
+    // of the dashboard view lifecycle (in setupDashboardViewListeners). This keeps listener
+    // management centralized in the view/event manager system. We reset local state here
+    // and do NOT call cleanup directly to avoid interfering with other dashboard listeners.
     
     // Reset state
     calendarContainer = null;

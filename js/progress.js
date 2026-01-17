@@ -1,12 +1,31 @@
 // progress.js - Funcionalidad para la vista de progreso
 
 import { progressElements } from './ui.js';
+import { logger } from './utils/logger.js';
 
 // Chart.js instance
 let progressChart = null;
 
 // Cache de datos de ejercicios
 let exerciseDataCache = new Map();
+
+/**
+ * Normaliza nombres de ejercicios para facilitar comparaciones.
+ * Elimina espacios extra, normaliza casing, elimina puntuación y reemplaza espacios por guiones bajos.
+ * Debe coincidir con la normalización en ExerciseCacheManager para correcta comparación.
+ * 
+ * @param {string} name - Nombre del ejercicio a normalizar
+ * @returns {string} Nombre normalizado
+ */
+export function normalizeExerciseName(name) {
+    if (!name) return '';
+    
+    // Alinear comportamiento con ExerciseCacheManager:
+    // - minúsculas y trim
+    // - eliminar signos de puntuación
+    // - reemplazar espacios por guiones bajos
+    return name.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
+}
 
 // Cache para la pestaña de progreso
 let progressTabCache = {
@@ -54,9 +73,9 @@ function cacheExercisesList(exercises, exercisesWithCount = null) {
 /**
  * Inicializa la vista de progreso
  */
-export function initializeProgressView() {
+export async function initializeProgressView() {
     if (!progressElements.exerciseSelect) {
-        console.error('Progress elements not found');
+        logger.error('Progress elements not found');
         return;
     }
 
@@ -66,10 +85,10 @@ export function initializeProgressView() {
         return;
     }
 
-    // Event listeners
-    progressElements.exerciseSelect.addEventListener('change', handleExerciseChange);
-    progressElements.metricSelect.addEventListener('change', updateChart);
-    progressElements.periodSelect.addEventListener('change', updateChart);
+    // Progress view initialized:
+    // - Exercise data cache is initialized separately in initializeExerciseCache
+    // - Event listeners (exerciseSelect, metricSelect, periodSelect) are managed in setupProgressViewListeners
+    logger.info('📚 Progress view initialized');
 }
 
 /**
@@ -159,8 +178,8 @@ function showCacheIndicator() {
 export async function loadExerciseList() {
     if (!progressElements.exerciseSelect) return;
 
-    // Verificar si ya tenemos datos en caché válidos
-    if (isProgressCacheValid() && progressTabCache.exercisesList) {
+    // Verificar si ya tenemos datos en caché válidos CON información de conteo
+    if (isProgressCacheValid() && progressTabCache.exercisesList && progressTabCache.exercisesWithCount) {
         populateExerciseSelector(progressTabCache.exercisesList, true, progressTabCache.exercisesWithCount);
         return;
     }
@@ -213,14 +232,14 @@ export async function loadExerciseList() {
 
         if (sortedExercises.length === 0) {
             // Fallback: si el cache no tiene ejercicios, intentar cargar directamente de las sesiones
-            const fallbackExercises = await loadExercisesFromSessions();
-            populateExerciseSelector(fallbackExercises);
+            const fallbackData = await loadExercisesFromSessions();
+            populateExerciseSelector(fallbackData.names, false, fallbackData.withCounts);
         } else {
             populateExerciseSelector(sortedExercises, false, exercisesWithCount);
         }
         
     } catch (error) {
-        console.error('Error loading exercise list:', error);
+        logger.error('Error loading exercise list:', error);
         progressElements.exerciseSelect.innerHTML = '<option value="">Error cargando ejercicios</option>';
         hideProgressLoading();
     }
@@ -229,7 +248,7 @@ export async function loadExerciseList() {
 /**
  * Maneja el cambio de ejercicio seleccionado
  */
-async function handleExerciseChange() {
+export async function handleExerciseChange() {
     const selectedExercise = progressElements.exerciseSelect.value;
     
     if (!selectedExercise) {
@@ -283,7 +302,7 @@ export async function updateChart() {
         hideNoDataMessage();
         
     } catch (error) {
-        console.error('Error updating chart:', error);
+        logger.error('Error updating chart:', error);
         hideChart();
         hideStats();
         showNoDataMessage();
@@ -297,22 +316,36 @@ export async function updateChart() {
  */
 async function getExerciseData(exerciseName, period) {
     try {
+        logger.debug(`📊 Getting exercise data for: "${exerciseName}", period: ${period}`);
+        
         // Usar cache si está disponible
         const cacheKey = `${exerciseName}_${period}`;
         if (exerciseDataCache.has(cacheKey)) {
+            logger.debug(`✅ Found in memory cache`);
             return exerciseDataCache.get(cacheKey);
         }
 
         // Obtener datos del cache de ejercicios
         const { exerciseCache } = await import('./exercise-cache.js');
         const fullCache = exerciseCache.exportCache();
+        logger.debug(`📦 Exercise cache has ${Object.keys(fullCache).length} exercises`);
         
-        // Buscar el ejercicio en el cache
-        const exerciseKey = Object.keys(fullCache).find(key => 
-            fullCache[key].originalName === exerciseName
-        );
+        // Buscar el ejercicio en el cache - normalizar ambos lados de la comparación
+        const normalizedSelectedName = normalizeExerciseName(exerciseName);
+        logger.debug(`🔍 Normalized name: "${normalizedSelectedName}"`);
+        
+        const exerciseKey = Object.keys(fullCache).find(key => {
+            const normalized = normalizeExerciseName(fullCache[key].originalName);
+            return normalized === normalizedSelectedName;
+        });
+        
+        logger.debug(`🔑 Exercise key found: ${exerciseKey ? 'YES' : 'NO'}`);
+        if (exerciseKey) {
+            logger.debug(`   History entries: ${fullCache[exerciseKey].history ? fullCache[exerciseKey].history.length : 'NO HISTORY'}`);
+        }
         
         if (!exerciseKey || !fullCache[exerciseKey].history) {
+            logger.debug(`⚠️  Falling back to session data load`);
             // Fallback: intentar obtener datos directamente de las sesiones
             return await getExerciseDataFromSessions(exerciseName, period);
         }
@@ -385,7 +418,7 @@ async function getExerciseData(exerciseName, period) {
         return processedData;
         
     } catch (error) {
-        console.error('Error getting exercise data:', error);
+        logger.error('Error getting exercise data:', error);
         return [];
     }
 }
@@ -395,18 +428,24 @@ async function getExerciseData(exerciseName, period) {
  */
 async function getExerciseDataFromSessions(exerciseName, period) {
     try {
+        logger.info(`🔄 Fallback: Loading ${exerciseName} data directly from sessions`);
         const { getCurrentUser } = await import('./auth.js');
         const { db } = await import('./firebase-config.js');
         const { collection, query, orderBy, getDocs, Timestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
         
         const user = getCurrentUser();
-        if (!user) return [];
+        if (!user) {
+            logger.warn('⚠️  No user logged in');
+            return [];
+        }
         
         const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
         const q = query(sessionsRef, orderBy('fecha', 'desc'));
         const querySnapshot = await getDocs(q);
+        logger.info(`📋 Total sessions loaded: ${querySnapshot.size}`);
         
         const exerciseData = [];
+        const normalizedSelected = normalizeExerciseName(exerciseName);
         
         querySnapshot.forEach(doc => {
             const sessionData = doc.data();
@@ -416,8 +455,9 @@ async function getExerciseDataFromSessions(exerciseName, period) {
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
                 sessionData.ejercicios.forEach(ejercicio => {
                     const name = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
+                    const normalizedName = normalizeExerciseName(name);
                     
-                    if (name === exerciseName && ejercicio.tipoEjercicio === 'strength' && ejercicio.sets) {
+                    if (normalizedName === normalizedSelected && ejercicio.tipoEjercicio === 'strength' && ejercicio.sets) {
                         // Calcular métricas
                         let maxWeight = 0;
                         let totalVolume = 0;
@@ -445,6 +485,8 @@ async function getExerciseDataFromSessions(exerciseName, period) {
             }
         });
         
+        logger.info(`📊 Found ${exerciseData.length} matching exercises in sessions`);
+        
         // Filtrar por período
         const now = new Date();
         let startDate = new Date();
@@ -466,6 +508,7 @@ async function getExerciseDataFromSessions(exerciseName, period) {
         }
         
         const filteredData = exerciseData.filter(record => record.date >= startDate);
+        logger.info(`✅ After period filter (${period}): ${filteredData.length} records`);
         
         // Ordenar por fecha
         filteredData.sort((a, b) => a.date - b.date);
@@ -473,7 +516,7 @@ async function getExerciseDataFromSessions(exerciseName, period) {
         return filteredData;
         
     } catch (error) {
-        console.error('❌ Error in fallback exercise data loading:', error);
+        logger.error('❌ Error in fallback exercise data loading:', error);
         return [];
     }
 }
@@ -781,7 +824,11 @@ export function resetProgressView() {
 }
 
 /**
- * Función de fallback para cargar ejercicios directamente de las sesiones
+ * Función de fallback para cargar ejercicios directamente de las sesiones.
+ * Agrega y ordena los ejercicios a partir de las sesiones del usuario actual.
+ *
+ * @returns {Promise<{names: string[], withCounts: {name: string, sessionCount: number}[]}>}
+ *          Objeto con la lista de nombres de ejercicios y sus contadores de sesiones.
  */
 async function loadExercisesFromSessions() {
     try {
@@ -790,7 +837,7 @@ async function loadExercisesFromSessions() {
         const { collection, query, orderBy, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
         
         const user = getCurrentUser();
-        if (!user) return [];
+        if (!user) return { names: [], withCounts: [] };
 
         
         const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
@@ -798,6 +845,7 @@ async function loadExercisesFromSessions() {
         const querySnapshot = await getDocs(q);
         
         const exerciseCount = new Map(); // Para contar cuántas veces aparece cada ejercicio
+        const originalNames = new Map(); // Mapear nombre normalizado -> nombre original
         
         querySnapshot.forEach(doc => {
             const sessionData = doc.data();
@@ -806,25 +854,41 @@ async function loadExercisesFromSessions() {
                 sessionData.ejercicios.forEach(ejercicio => {
                     const exerciseName = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
                     if (exerciseName && ejercicio.tipoEjercicio === 'strength') {
-                        const count = exerciseCount.get(exerciseName) || 0;
-                        exerciseCount.set(exerciseName, count + 1);
+                        const normalizedName = normalizeExerciseName(exerciseName);
+                        const count = exerciseCount.get(normalizedName) || 0;
+                        exerciseCount.set(normalizedName, count + 1);
+                        // Guardar el nombre original (sin normalizar) para usar después
+                        if (!originalNames.has(normalizedName)) {
+                            originalNames.set(normalizedName, exerciseName);
+                        }
                     }
                 });
             }
         });
         
         // Solo devolver ejercicios con al menos 3 sesiones
-        const validExercises = [];
-        exerciseCount.forEach((count, exerciseName) => {
+        const exercisesWithCount = [];
+        exerciseCount.forEach((count, normalizedName) => {
             if (count >= 3) {
-                validExercises.push(exerciseName);
+                const originalName = originalNames.get(normalizedName) || normalizedName;
+                exercisesWithCount.push({ name: originalName, sessionCount: count });
             }
         });
+
+        // Ordenar por número de sesiones (mayor a menor) y luego alfabéticamente
+        exercisesWithCount.sort((a, b) => {
+            if (b.sessionCount !== a.sessionCount) {
+                return b.sessionCount - a.sessionCount;
+            }
+            return a.name.localeCompare(b.name);
+        });
         
-        return validExercises.sort();
+        const sortedNames = exercisesWithCount.map(ex => ex.name);
+        
+        return { names: sortedNames, withCounts: exercisesWithCount };
         
     } catch (error) {
-        console.error('❌ Error in fallback exercise loading:', error);
-        return [];
+        logger.error('❌ Error in fallback exercise loading:', error);
+        return { names: [], withCounts: [] };
     }
 }

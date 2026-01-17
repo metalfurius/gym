@@ -14,12 +14,14 @@ import { logger } from '../utils/logger.js';
 import { toast } from '../utils/notifications.js';
 import { clearTimerData } from '../timer.js';
 import { invalidateProgressCache } from '../progress.js';
+import { offlineManager } from '../utils/offline-manager.js';
 
 // Constants
 const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 
 // State
 let currentRoutineForSession = null;
+let isSavingSession = false;
 
 /**
  * Saves a session in progress to localStorage
@@ -162,6 +164,11 @@ export async function saveSessionData(onSuccess) {
         toast.error("Error: No hay rutina activa o no has iniciado sesión.");
         return;
     }
+
+    if (isSavingSession) {
+        toast.info('Ya se está guardando la sesión. Espera un momento.');
+        return;
+    }
     
     const sessionDataFromForm = getSessionFormData();
     if (sessionDataFromForm.ejercicios.length === 0) {
@@ -179,10 +186,19 @@ export async function saveSessionData(onSuccess) {
     };
     
     showLoading(sessionElements.saveBtn, 'Guardando...');
+    isSavingSession = true;
     
     try {
-        const userSessionsCollectionRef = collection(db, "users", user.uid, "sesiones_entrenamiento");
-        await addDoc(userSessionsCollectionRef, finalSessionData);
+        const saveOperation = async () => {
+            const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
+            await addDoc(userSessionsCollectionRef, finalSessionData);
+        };
+
+        await offlineManager.executeWithOfflineHandling(
+            saveOperation,
+            'Sin conexión. La sesión se guardará automáticamente al recuperar Internet.',
+            true
+        );
         
         // Update exercise cache with new session data
         const { exerciseCache } = await import('../exercise-cache.js');
@@ -208,16 +224,22 @@ export async function saveSessionData(onSuccess) {
             onSuccess();
         }
     } catch (error) {
-        logger.error("Error adding document:", error);
-        toast.error("Error al guardar la sesión.");
-        
-        // Load diagnostics on Firestore errors
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
-            const { loadFirebaseDiagnostics } = await import('../app.js');
-            loadFirebaseDiagnostics();
+        logger.error('Error adding document:', error);
+
+        if (error.message?.startsWith('Offline:')) {
+            toast.info('Sesión en cola. Se guardará cuando vuelvas a estar en línea.');
+        } else {
+            toast.error('Error al guardar la sesión.');
+            
+            // Load diagnostics on Firestore errors
+            if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
+                const { loadFirebaseDiagnostics } = await import('../app.js');
+                loadFirebaseDiagnostics();
+            }
         }
     } finally {
         hideLoading(sessionElements.saveBtn);
+        isSavingSession = false;
     }
 }
 

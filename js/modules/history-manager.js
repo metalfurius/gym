@@ -12,6 +12,8 @@ import { getCurrentUser } from '../auth.js';
 import { historyElements, renderHistoryList, showSessionDetail, showLoading, hideLoading } from '../ui.js';
 import { logger } from '../utils/logger.js';
 import { toast } from '../utils/notifications.js';
+import { addViewListener, cleanupViewListeners } from '../utils/event-manager.js';
+import { offlineManager } from '../utils/offline-manager.js';
 
 // Pagination constants
 const HISTORY_PAGE_SIZE = 10;
@@ -70,6 +72,14 @@ export async function fetchAndRenderHistory(direction = 'initial') {
         historyElements.list.innerHTML = '<li>Debes iniciar sesión para ver tu historial.</li>';
         historyElements.loadingSpinner.classList.add('hidden');
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
+        return;
+    }
+
+    if (!offlineManager.checkOnline()) {
+        historyElements.list.innerHTML = '<li>Sin conexión. No se puede cargar el historial.</li>';
+        historyElements.loadingSpinner.classList.add('hidden');
+        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
+        toast.warning('Estás sin conexión. No se pudo cargar el historial.');
         return;
     }
 
@@ -293,17 +303,19 @@ async function handleHistoryListClick(event) {
  * Sets up event listeners for history list and pagination
  */
 export function initHistoryManager() {
+    cleanupViewListeners('history');
+
     // History list click handler
     if (historyElements.list) {
-        historyElements.list.addEventListener('click', handleHistoryListClick);
+        addViewListener('history', historyElements.list, 'click', handleHistoryListClick);
     }
 
     // Pagination button listeners
     if (historyElements.prevPageBtn) {
-        historyElements.prevPageBtn.addEventListener('click', () => fetchAndRenderHistory('prev'));
+        addViewListener('history', historyElements.prevPageBtn, 'click', () => fetchAndRenderHistory('prev'));
     }
     if (historyElements.nextPageBtn) {
-        historyElements.nextPageBtn.addEventListener('click', () => fetchAndRenderHistory('next'));
+        addViewListener('history', historyElements.nextPageBtn, 'click', () => fetchAndRenderHistory('next'));
     }
 
     logger.debug('History manager initialized');
@@ -313,10 +325,7 @@ export function initHistoryManager() {
  * Cleans up history manager
  */
 export function destroyHistoryManager() {
-    if (historyElements.list) {
-        historyElements.list.removeEventListener('click', handleHistoryListClick);
-    }
-    
+    cleanupViewListeners('history');
     resetPaginationState();
     logger.debug('History manager destroyed');
 }

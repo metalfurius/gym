@@ -1,5 +1,7 @@
 // timer.js - Handles set rest timer functionality
 
+import { logger } from './utils/logger.js';
+
 // Store active timers by ID to access them easily
 const activeTimers = {};
 
@@ -33,7 +35,7 @@ export function initSetTimers() {
     const exerciseList = document.getElementById('exercise-list');
     
     if (!exerciseList) {
-        console.warn('Exercise list not found, cannot initialize timers');
+        logger.warn('Exercise list not found, cannot initialize timers');
         return;
     }
     
@@ -198,7 +200,7 @@ function restoreTimerValues() {
             }
         });
     } catch (error) {
-        console.error('Error restoring timer values:', error);
+        logger.error('Error restoring timer values:', error);
     }
 }
 

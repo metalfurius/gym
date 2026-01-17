@@ -4,6 +4,20 @@ import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
 import { cleanupViewListeners } from './utils/event-manager.js';
 
+// View initializer registry (populated from app.js)
+const viewInitializers = new Map();
+
+/**
+ * Register an initializer for a given view. Called automatically from showView.
+ * @param {string} viewName
+ * @param {Function} initializer
+ */
+export function registerViewInitializer(viewName, initializer) {
+    if (typeof initializer === 'function') {
+        viewInitializers.set(viewName, initializer);
+    }
+}
+
 // Track current view for cleanup
 let currentView = null;
 
@@ -124,7 +138,7 @@ export const progressElements = {
 
 // --- UI Functions ---
 
-export function showView(viewToShowId) {
+export async function showView(viewToShowId) {
     // Cleanup listeners from previous view
     // NOTE: The event manager currently only cleans up listeners that were added through
     // addViewListener(). Many event listeners in the codebase (in app.js, modules, timer.js, etc.)
@@ -154,6 +168,16 @@ export function showView(viewToShowId) {
     if (viewToShowId === 'history' && navButtons.history) navButtons.history.classList.add('active');
     if (viewToShowId === 'progress' && navButtons.progress) navButtons.progress.classList.add('active');
     
+    // Run view-specific initializer after the view is shown
+    const initializer = viewInitializers.get(viewToShowId);
+    if (initializer) {
+        try {
+            await initializer();
+        } catch (error) {
+            logger.error('Error running view initializer:', error);
+        }
+    }
+
     // Update current view tracking
     currentView = viewToShowId;
 }

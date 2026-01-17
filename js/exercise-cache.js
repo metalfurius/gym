@@ -1,12 +1,14 @@
 // Exercise Cache Manager
 // Manages local caching of exercise history for better UX and reduced Firebase calls
 
+import { logger } from './utils/logger.js';
+
 export class ExerciseCacheManager {
     constructor() {
         this.cacheKey = 'gym-tracker-exercise-cache';
         this.backupKey = 'gym-tracker-exercise-backup';
         this.maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 días en milisegundos
-        this.maxExerciseHistory = 5; // Mantener hasta 5 registros por ejercicio
+        // NOTE: Exercise history is unlimited by count but subject to 7-day age cleanup via cleanOldEntries()
     }
 
     /**
@@ -18,7 +20,7 @@ export class ExerciseCacheManager {
             const cached = localStorage.getItem(this.cacheKey);
             return cached ? JSON.parse(cached) : {};
         } catch (error) {
-            console.error('Error leyendo cache de ejercicios:', error);
+            logger.error('Error leyendo cache de ejercicios:', error);
             return {};
         }
     }
@@ -31,9 +33,11 @@ export class ExerciseCacheManager {
         try {
             localStorage.setItem(this.cacheKey, JSON.stringify(cache));
         } catch (error) {
-            console.error('Error guardando cache de ejercicios:', error);
+            logger.error('Error guardando cache de ejercicios:', error);
         }
-    }    /**
+    }
+
+    /**
      * Obtiene el historial de un ejercicio específico
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Array} Array con el historial del ejercicio (más reciente primero)
@@ -91,11 +95,12 @@ export class ExerciseCacheManager {
         // Añadir al principio del array (más reciente primero)
         cache[normalizedName].history.unshift(historyEntry);
 
-        // Mantener solo los últimos N registros
-        cache[normalizedName].history = cache[normalizedName].history.slice(0, this.maxExerciseHistory);
+        // No limitar el historial - necesitamos todos los datos para gráficos de progreso. El historial se limpará automáticamente por edad usando cleanOldEntries()
 
         this.saveFullCache(cache);
-    }/**
+    }
+
+    /**
      * Obtiene sugerencias para peso/reps basadas en el historial
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Object} Sugerencias de peso y reps
@@ -128,16 +133,19 @@ export class ExerciseCacheManager {
         };
         
         return suggestions;
-    }/**
+    }
+
+    /**
      * Procesa una sesión completa y actualiza el cache
      * @param {Object} sessionData - Datos de la sesión guardada
-     */    processCompletedSession(sessionData) {
+     */
+    processCompletedSession(sessionData) {
         if (!sessionData.ejercicios) {
-            console.log('⚠️ Sesión sin ejercicios, saltando');
+            logger.warn('⚠️ Sesión sin ejercicios, saltando');
             return;
         }
 
-        const        sessionDate = sessionData.fecha && sessionData.fecha.toDate ? 
+        const sessionDate = sessionData.fecha && sessionData.fecha.toDate ? 
             sessionData.fecha.toDate() : new Date();
 
         sessionData.ejercicios.forEach((ejercicio) => {
@@ -145,6 +153,18 @@ export class ExerciseCacheManager {
                 this.addExerciseData(ejercicio.nombreEjercicio, ejercicio.sets, sessionDate);
             }
         });
+    }
+
+    /**
+     * Limpia el cache por completo (para forzar reconstrucción)
+     */
+    clearCache() {
+        try {
+            localStorage.removeItem(this.cacheKey);
+            logger.info('🧹 Exercise cache cleared - will rebuild on next use');
+        } catch (error) {
+            logger.error('Error clearing cache:', error);
+        }
     }
 
     /**
@@ -165,9 +185,10 @@ export class ExerciseCacheManager {
 
             // Guardar backup en Firestore
             const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-            const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");            await setDoc(backupDocRef, backupData, { merge: true });
+            const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");
+            await setDoc(backupDocRef, backupData, { merge: true });
         } catch (error) {
-            console.error('Error sincronizando cache con Firebase:', error);
+            logger.error('Error sincronizando cache con Firebase:', error);
         }
     }
 
@@ -188,12 +209,12 @@ export class ExerciseCacheManager {
                 const backupData = backupDoc.data();
                 if (backupData.cache) {
                     this.saveFullCache(backupData.cache);
-                    console.log('Cache de ejercicios restaurado desde Firebase');
+                    logger.info('Cache de ejercicios restaurado desde Firebase');
                     return true;
                 }
             }
         } catch (error) {
-            console.error('Error restaurando cache desde Firebase:', error);
+            logger.error('Error restaurando cache desde Firebase:', error);
         }
 
         return false;
@@ -203,17 +224,18 @@ export class ExerciseCacheManager {
      * Construye el cache inicial desde el historial de sesiones existente
      * @param {string} userId - ID del usuario
      * @param {Object} db - Instancia de Firestore
-     */    async buildCacheFromHistory(userId, db) {
+     */
+    async buildCacheFromHistory(userId, db) {
         if (!userId || !db) return;
 
         try {
             const { collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
             
-            // Obtener las últimas 50 sesiones para construir el cache
+            // Obtener las últimas 200 sesiones para construir el cache completo (reducido de 500 para mejor rendimiento)
             const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
-            const q = query(sessionsRef, orderBy("fecha", "desc"), limit(50));
+            const q = query(sessionsRef, orderBy("fecha", "desc"), limit(200));
             const querySnapshot = await getDocs(q);
-              // Procesar sesiones en orden cronológico inverso (más antigua primero)
+            // Procesar sesiones en orden cronológico inverso (más antigua primero)
             const sessions = querySnapshot.docs.reverse();
             
             sessions.forEach((docSnap) => {
@@ -221,7 +243,7 @@ export class ExerciseCacheManager {
                 this.processCompletedSession(sessionData);
             });
         } catch (error) {
-            console.error('Error construyendo cache desde historial:', error);
+            logger.error('Error construyendo cache desde historial:', error);
         }
     }
 
@@ -231,6 +253,7 @@ export class ExerciseCacheManager {
      * @returns {string} Nombre normalizado
      */
     normalizeExerciseName(exerciseName) {
+        if (!exerciseName) return '';
         return exerciseName
             .toLowerCase()
             .trim()
@@ -263,7 +286,7 @@ export class ExerciseCacheManager {
 
         if (cleaned) {
             this.saveFullCache(cache);
-            console.log('Cache de ejercicios limpiado');
+            logger.info('Cache de ejercicios limpiado');
         }
     }
 
@@ -305,11 +328,6 @@ export class ExerciseCacheManager {
      */
     exportCache() {
         return this.getFullCache();
-    }    /**
-     * Limpia completamente el cache
-     */
-    clearCache() {
-        localStorage.removeItem(this.cacheKey);
     }
 
     /**
@@ -362,7 +380,7 @@ export class ExerciseCacheManager {
             
             return foundMissingExercises;
         } catch (error) {
-            console.error('Error verificando integridad del cache:', error);
+            logger.error('Error verificando integridad del cache:', error);
             return false;
         }
     }
@@ -386,10 +404,11 @@ export class ExerciseCacheManager {
             
             return false;
         } catch (error) {
-            console.error('Error validando cache:', error);
+            logger.error('Error validando cache:', error);
             return false;
         }
-    }}
+    }
+}
 
 // Crear instancia singleton
 export const exerciseCache = new ExerciseCacheManager();
