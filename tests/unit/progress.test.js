@@ -609,8 +609,9 @@ describe('Progress Module', () => {
         const cacheResult = cacheManager.normalizeExerciseName(input);
         expect(progressResult).toBe(cacheResult);
       });
-      
-      // Test empty/null/undefined separately since ExerciseCacheManager doesn't handle them
+
+      // Test empty/null/undefined separately since progress.js handles them gracefully
+      // while ExerciseCacheManager would throw an error
       expect(normalizeExerciseName('')).toBe('');
       expect(normalizeExerciseName(null)).toBe('');
       expect(normalizeExerciseName(undefined)).toBe('');
