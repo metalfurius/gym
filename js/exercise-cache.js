@@ -231,7 +231,7 @@ export class ExerciseCacheManager {
         try {
             const { collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
             
-            // Get last 200 sessions to build comprehensive cache (reduced from 500 for better performance)
+            // Obtener las últimas 200 sesiones para construir el cache completo (reducido de 500 para mejor rendimiento)
             const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
             const q = query(sessionsRef, orderBy("fecha", "desc"), limit(200));
             const querySnapshot = await getDocs(q);
