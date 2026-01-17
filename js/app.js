@@ -17,7 +17,7 @@ import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
 import { initSetTimers, clearTimerData } from './timer.js';
-import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, invalidateProgressCache } from './progress.js';
+import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, invalidateProgressCache, handleExerciseChange } from './progress.js';
 
 // Import new modules
 import { logger } from './utils/logger.js';
@@ -474,12 +474,30 @@ function setupHistoryViewListeners() {
     initHistoryManager();
 }
 
+function setupProgressViewListeners() {
+    cleanupViewListeners('progress');
+    
+    // Add event listeners using the event manager
+    if (progressElements.exerciseSelect) {
+        addViewListener('progress', progressElements.exerciseSelect, 'change', handleExerciseChange);
+    }
+    
+    if (progressElements.metricSelect) {
+        addViewListener('progress', progressElements.metricSelect, 'change', updateChart);
+    }
+    
+    if (progressElements.periodSelect) {
+        addViewListener('progress', progressElements.periodSelect, 'change', updateChart);
+    }
+}
+
 // Register view initializers so they run whenever a view is shown
 registerViewInitializer('dashboard', setupDashboardViewListeners);
 registerViewInitializer('session', setupSessionViewListeners);
 registerViewInitializer('manageRoutines', setupManageRoutinesViewListeners);
 registerViewInitializer('routineEditor', setupRoutineEditorViewListeners);
 registerViewInitializer('history', setupHistoryViewListeners);
+registerViewInitializer('progress', setupProgressViewListeners);
 
 // --- Event Listeners ---
 
@@ -622,7 +640,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize modules
     initScrollToTop();
     initSettings();
-    initCalendar();
 });
 
 showView('auth');

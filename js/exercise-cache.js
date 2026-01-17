@@ -99,7 +99,9 @@ export class ExerciseCacheManager {
         // El historial se limpará automáticamente por edad usando cleanOldEntries()
 
         this.saveFullCache(cache);
-    }/**
+    }
+
+    /**
      * Obtiene sugerencias para peso/reps basadas en el historial
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Object} Sugerencias de peso y reps
@@ -184,7 +186,8 @@ export class ExerciseCacheManager {
 
             // Guardar backup en Firestore
             const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-            const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");            await setDoc(backupDocRef, backupData, { merge: true });
+            const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");
+            await setDoc(backupDocRef, backupData, { merge: true });
         } catch (error) {
             logger.error('Error sincronizando cache con Firebase:', error);
         }
@@ -221,9 +224,9 @@ export class ExerciseCacheManager {
     /**
      * Construye el cache inicial desde el historial de sesiones existente
      * @param {string} userId - ID del usuario
-      * @param {Object} db - Instancia de Firestore
-      */
-     async buildCacheFromHistory(userId, db) {
+     * @param {Object} db - Instancia de Firestore
+     */
+    async buildCacheFromHistory(userId, db) {
         if (!userId || !db) return;
 
         try {
@@ -233,7 +236,7 @@ export class ExerciseCacheManager {
             const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
             const q = query(sessionsRef, orderBy("fecha", "desc"), limit(500));
             const querySnapshot = await getDocs(q);
-              // Procesar sesiones en orden cronológico inverso (más antigua primero)
+            // Procesar sesiones en orden cronológico inverso (más antigua primero)
             const sessions = querySnapshot.docs.reverse();
             
             sessions.forEach((docSnap) => {
