@@ -404,13 +404,11 @@ function setupRoutineEditorViewListeners() {
 
             showLoading(routineEditorElements.saveRoutineBtn, 'Guardando rutina...');
             try {
-                let docRef;
                 if (routineId) {
-                    docRef = doc(db, 'users', user.uid, 'routines', routineId);
-                    await setDoc(docRef, routineData, { merge: true });
+                    await setDoc(doc(db, 'users', user.uid, 'routines', routineId), routineData, { merge: true });
                 } else {
                     routineData.createdAt = Timestamp.now();
-                    docRef = await addDoc(collection(db, 'users', user.uid, 'routines'), routineData);
+                    await addDoc(collection(db, 'users', user.uid, 'routines'), routineData);
                 }
                 toast.success('Rutina guardada con éxito!');
                 await fetchUserRoutines(user);

@@ -424,9 +424,9 @@ function handleCalendarNavigationClick(event) {
  */
 export function initCalendar() {
     if (isInitialized) {
-        // Re-attach navigation listeners when re-entering the dashboard view
-        addViewListener('dashboard', document, 'click', handleCalendarNavigationClick);
-        logger.debug('Calendar navigation listeners re-attached');
+        // Listeners are already attached and managed by the event manager
+        // No need to re-attach - the event manager handles cleanup/re-attachment
+        logger.debug('Calendar already initialized, skipping listener setup');
         return;
     }
 
