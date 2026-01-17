@@ -8,7 +8,7 @@ import { collection, query, where, getDocs, Timestamp } from "https://www.gstati
 import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
-import { addViewListener, cleanupViewListeners } from '../utils/event-manager.js';
+import { addViewListener } from '../utils/event-manager.js';
 
 // Constants
 const MIN_CALENDAR_YEAR = 2025;
@@ -465,7 +465,9 @@ export function resetToCurrentMonth() {
 export function destroyCalendar() {
     if (!isInitialized) return;
 
-    cleanupViewListeners('dashboard');
+    // Note: Calendar listeners are managed by the dashboard view and cleaned up
+    // when setupDashboardViewListeners is called. We don't need to clean them here
+    // to avoid removing other dashboard listeners.
     
     // Reset state
     calendarContainer = null;
