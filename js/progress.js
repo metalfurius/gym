@@ -24,9 +24,7 @@ export function normalizeExerciseName(name) {
     // - trim y minúsculas
     // - eliminar signos de puntuación
     // - reemplazar espacios por guiones bajos
-    const normalized = name.toString().trim().toLowerCase();
-    const withoutPunctuation = normalized.replace(/[^\w\s]/g, '');
-    return withoutPunctuation.replace(/\s+/g, '_');
+    return name.toString().trim().toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
 }
 
 // Cache para la pestaña de progreso
