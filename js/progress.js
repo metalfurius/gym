@@ -21,10 +21,10 @@ export function normalizeExerciseName(name) {
     if (!name) return '';
     
     // Alinear comportamiento con ExerciseCacheManager:
-    // - trim y minúsculas
+    // - minúsculas y trim
     // - eliminar signos de puntuación
     // - reemplazar espacios por guiones bajos
-    return name.toString().trim().toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
+    return name.toString().toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
 }
 
 // Cache para la pestaña de progreso

@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
+import { normalizeExerciseName } from '../../js/progress.js';
+import { ExerciseCacheManager } from '../../js/exercise-cache.js';
 
 describe('Progress Module', () => {
   let progressTabCache;
@@ -466,6 +468,152 @@ describe('Progress Module', () => {
       
       progressTabCache.isInitialized = false;
       expect(progressTabCache.isInitialized).toBe(false);
+    });
+  });
+
+  describe('normalizeExerciseName', () => {
+    let cacheManager;
+
+    beforeEach(() => {
+      cacheManager = new ExerciseCacheManager();
+    });
+
+    it('should normalize basic exercise names', () => {
+      const testCases = [
+        { input: 'Bench Press', expected: 'bench_press' },
+        { input: 'Squats', expected: 'squats' },
+        { input: 'Deadlifts', expected: 'deadlifts' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should handle exercise names with punctuation', () => {
+      const testCases = [
+        { input: 'Barbell Bench-Press (Wide)', expected: 'barbell_benchpress_wide' },
+        { input: 'Pull-Ups', expected: 'pullups' },
+        { input: "Farmer's Walk", expected: 'farmers_walk' },
+        { input: 'T-Bar Row', expected: 'tbar_row' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should handle exercise names with extra whitespace', () => {
+      const testCases = [
+        { input: '  BENCH PRESS  ', expected: 'bench_press' },
+        { input: 'Bench  Press', expected: 'bench_press' },
+        { input: '   Squats   ', expected: 'squats' },
+        { input: 'Dead   Lifts', expected: 'dead_lifts' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should handle uppercase exercise names', () => {
+      const testCases = [
+        { input: 'BENCH PRESS', expected: 'bench_press' },
+        { input: 'SQUATS', expected: 'squats' },
+        { input: 'DEADLIFT', expected: 'deadlift' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should handle mixed case exercise names', () => {
+      const testCases = [
+        { input: 'BeNcH pReSs', expected: 'bench_press' },
+        { input: 'SqUaTs', expected: 'squats' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should handle empty or null input', () => {
+      expect(normalizeExerciseName('')).toBe('');
+      expect(normalizeExerciseName(null)).toBe('');
+      expect(normalizeExerciseName(undefined)).toBe('');
+    });
+
+    it('should handle numbers in exercise names', () => {
+      const testCases = [
+        { input: '21s Curls', expected: '21s_curls' },
+        { input: '5x5 Program', expected: '5x5_program' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should handle special characters', () => {
+      const testCases = [
+        { input: 'Chest Fly (Cable)', expected: 'chest_fly_cable' },
+        { input: 'Leg Press @ 45°', expected: 'leg_press_45' },
+        { input: 'Pull-ups & Chin-ups', expected: 'pullups_chinups' }
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        const result = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(result).toBe(expected);
+        expect(result).toBe(cacheResult);
+      });
+    });
+
+    it('should produce identical results to ExerciseCacheManager for all cases', () => {
+      // Comprehensive test to ensure perfect alignment
+      const testInputs = [
+        'Bench Press',
+        'Barbell Bench-Press (Wide)',
+        '  BENCH PRESS  ',
+        'Pull-Ups',
+        "Farmer's Walk",
+        'T-Bar Row',
+        'BeNcH pReSs',
+        '21s Curls',
+        'Chest Fly (Cable)',
+        'Leg Press @ 45°'
+      ];
+
+      testInputs.forEach(input => {
+        const progressResult = normalizeExerciseName(input);
+        const cacheResult = cacheManager.normalizeExerciseName(input);
+        expect(progressResult).toBe(cacheResult);
+      });
+      
+      // Test empty/null/undefined separately since ExerciseCacheManager doesn't handle them
+      expect(normalizeExerciseName('')).toBe('');
+      expect(normalizeExerciseName(null)).toBe('');
+      expect(normalizeExerciseName(undefined)).toBe('');
     });
   });
 });
