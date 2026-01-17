@@ -13,7 +13,7 @@ let exerciseDataCache = new Map();
  * Normaliza nombres de ejercicios para comparación consistente
  * Elimina espacios extra, normaliza casing, etc.
  */
-function normalizeExerciseName(name) {
+export function normalizeExerciseName(name) {
     if (!name) return '';
     return name.trim().toLowerCase();
 }
@@ -98,11 +98,6 @@ export async function initializeProgressView() {
     } else {
         logger.info('📚 Progress view initializing - using existing exercise cache');
     }
-
-    // Event listeners
-    progressElements.exerciseSelect.addEventListener('change', handleExerciseChange);
-    progressElements.metricSelect.addEventListener('change', updateChart);
-    progressElements.periodSelect.addEventListener('change', updateChart);
 }
 
 /**
@@ -262,7 +257,7 @@ export async function loadExerciseList() {
 /**
  * Maneja el cambio de ejercicio seleccionado
  */
-async function handleExerciseChange() {
+export async function handleExerciseChange() {
     const selectedExercise = progressElements.exerciseSelect.value;
     
     if (!selectedExercise) {
@@ -350,7 +345,6 @@ async function getExerciseData(exerciseName, period) {
         
         const exerciseKey = Object.keys(fullCache).find(key => {
             const normalized = normalizeExerciseName(fullCache[key].originalName);
-            logger.debug(`  Comparing "${normalized}" with "${normalizedSelectedName}"?`);
             return normalized === normalizedSelectedName;
         });
         
