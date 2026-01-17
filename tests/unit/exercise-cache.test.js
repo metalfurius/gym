@@ -16,7 +16,7 @@ describe('ExerciseCacheManager', () => {
       expect(cacheManager.cacheKey).toBe(CACHE_KEY);
       expect(cacheManager.backupKey).toBe(BACKUP_KEY);
       expect(cacheManager.maxCacheAge).toBe(7 * 24 * 60 * 60 * 1000);
-      expect(cacheManager.maxExerciseHistory).toBe(5);
+      // maxExerciseHistory removed - we now keep all history for progress charts
     });
   });
 
@@ -160,11 +160,12 @@ describe('ExerciseCacheManager', () => {
   });
 
   describe('max history limit', () => {
-    it('should define max exercise history limit', () => {
-      expect(cacheManager.maxExerciseHistory).toBe(5);
+    it('should keep all exercise history for progress charts', () => {
+      // maxExerciseHistory was removed - we now keep all entries
+      expect(typeof cacheManager.maxExerciseHistory).toBe('undefined');
     });
 
-    it('should limit history to max entries', () => {
+    it('should not limit history entries', () => {
       const history = [
         { peso: 60, reps: 10 },
         { peso: 65, reps: 8 },
@@ -174,9 +175,11 @@ describe('ExerciseCacheManager', () => {
         { peso: 85, reps: 3 }
       ];
 
-      const limitedHistory = history.slice(0, cacheManager.maxExerciseHistory);
-      expect(limitedHistory).toHaveLength(5);
-      expect(limitedHistory[0].peso).toBe(60);
+      // All entries should be kept now (no limit)
+      expect(history).toHaveLength(6);
+      // Verify all entries are present
+      expect(history[0].peso).toBe(60);
+      expect(history[5].peso).toBe(85);
     });
   });
 

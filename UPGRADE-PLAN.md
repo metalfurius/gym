@@ -47,10 +47,10 @@ This document outlines the planned improvements and upgrades for the My Workout 
   - [x] Replace console.log/error calls throughout codebase ✅
   - [x] Disable debug logs in production builds ✅
 
-- [ ] **Implement event listener cleanup**
-  - [ ] Track listeners added per view
-  - [ ] Clean up listeners when navigating away from views
-  - [ ] Prevent memory leaks in long-running sessions
+- [x] **Implement event listener cleanup**
+  - [x] Track listeners added per view
+  - [x] Clean up listeners when navigating away from views
+  - [x] Prevent memory leaks in long-running sessions
 
 ### Input Validation & Error Handling
 
@@ -66,17 +66,17 @@ This document outlines the planned improvements and upgrades for the My Workout 
   - [x] Replace inconsistent alert() calls with toast system ✅
   - [x] Consistent error display across all modules ✅
 
-- [ ] **Improve offline error messages**
-  - [ ] Detect offline state proactively
-  - [ ] Show informative messages when operations fail offline
-  - [ ] Queue operations for retry when online
+- [x] **Improve offline error messages**
+  - [x] Detect offline state proactively
+  - [x] Show informative messages when operations fail offline
+  - [x] Queue operations for retry when online
 
 ### Performance & Reliability
 
 - [x] **Add Firebase call rate limiting** ✅
   - [x] Create `js/utils/debounce.js` utility ✅
   - [x] Implement debounce for calendar navigation (300ms) ✅
-  - [ ] Throttle rapid save operations (partially done via debounce)
+  - [x] Throttle rapid save operations (guarded + queued saves)
   - [ ] Add request queuing for batch operations
 
 - [ ] **Add Firebase CDN fallback** (Optional but recommended)

@@ -1,6 +1,8 @@
 // Storage manager for handling persistent storage in a modern way
 // This replaces the deprecated StorageType.persistent API
 
+import { logger } from './utils/logger.js';
+
 export class StorageManager {
     constructor() {
         this.isSupported = 'storage' in navigator && 'estimate' in navigator.storage;
@@ -12,7 +14,7 @@ export class StorageManager {
      */
     async requestPersistentStorage() {
         if (!this.isSupported) {
-            console.warn('Storage API not supported in this browser');
+            logger.warn('Storage API not supported in this browser');
             return false;
         }
 
@@ -20,20 +22,20 @@ export class StorageManager {
             // Check if we already have persistent storage
             const isPersistent = await navigator.storage.persisted();
             if (isPersistent) {
-                console.log('Storage is already persistent');
+                logger.info('Storage is already persistent');
                 return true;
             }
 
             // Request persistent storage
             const granted = await navigator.storage.persist();
             if (granted) {
-                console.log('Persistent storage granted');
+                logger.info('Persistent storage granted');
             } else {
-                console.log('Persistent storage denied');
+                logger.warn('Persistent storage denied');
             }
             return granted;
         } catch (error) {
-            console.error('Error requesting persistent storage:', error);
+            logger.error('Error requesting persistent storage:', error);
             return false;
         }
     }
@@ -55,7 +57,7 @@ export class StorageManager {
                 usagePercentage: estimate.quota ? (estimate.usage / estimate.quota * 100).toFixed(2) : 0
             };
         } catch (error) {
-            console.error('Error getting storage estimate:', error);
+            logger.error('Error getting storage estimate:', error);
             return null;
         }
     }
@@ -72,7 +74,7 @@ export class StorageManager {
         try {
             return await navigator.storage.persisted();
         } catch (error) {
-            console.error('Error checking storage persistence:', error);
+            logger.error('Error checking storage persistence:', error);
             return false;
         }
     }
@@ -83,7 +85,7 @@ export class StorageManager {
      */
     async initialize() {
         if (!this.isSupported) {
-            console.warn('Modern Storage API not supported. Some features may not work optimally.');
+            logger.warn('Modern Storage API not supported. Some features may not work optimally.');
             return;
         }
 
@@ -91,7 +93,7 @@ export class StorageManager {
         const isPersistent = await this.isPersistent();
         const estimate = await this.getStorageEstimate();
 
-        console.log('Storage status:', {
+        logger.info('Storage status:', {
             isPersistent,
             estimate
         });

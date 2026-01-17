@@ -1,12 +1,22 @@
 // progress.js - Funcionalidad para la vista de progreso
 
 import { progressElements } from './ui.js';
+import { logger } from './utils/logger.js';
 
 // Chart.js instance
 let progressChart = null;
 
 // Cache de datos de ejercicios
 let exerciseDataCache = new Map();
+
+/**
+ * Normaliza nombres de ejercicios para comparación consistente
+ * Elimina espacios extra, normaliza casing, etc.
+ */
+function normalizeExerciseName(name) {
+    if (!name) return '';
+    return name.trim().toLowerCase();
+}
 
 // Cache para la pestaña de progreso
 let progressTabCache = {
@@ -54,9 +64,9 @@ function cacheExercisesList(exercises, exercisesWithCount = null) {
 /**
  * Inicializa la vista de progreso
  */
-export function initializeProgressView() {
+export async function initializeProgressView() {
     if (!progressElements.exerciseSelect) {
-        console.error('Progress elements not found');
+        logger.error('Progress elements not found');
         return;
     }
 
@@ -64,6 +74,25 @@ export function initializeProgressView() {
     if (typeof Chart === 'undefined') {
         setTimeout(initializeProgressView, 100);
         return;
+    }
+
+    // Force rebuild of exercise cache to ensure all history is loaded
+    logger.info('📚 Progress view initializing - rebuilding exercise cache...');
+    try {
+        const { exerciseCache } = await import('./exercise-cache.js');
+        exerciseCache.clearCache(); // Clear old cache
+        
+        const { getCurrentUser } = await import('./auth.js');
+        const { db } = await import('./firebase-config.js');
+        const user = getCurrentUser();
+        
+        if (user && db) {
+            // Force complete rebuild
+            await exerciseCache.buildCacheFromHistory(user.uid, db);
+            logger.info('✅ Exercise cache rebuilt successfully');
+        }
+    } catch (error) {
+        logger.error('❌ Error rebuilding cache:', error);
     }
 
     // Event listeners
@@ -159,8 +188,8 @@ function showCacheIndicator() {
 export async function loadExerciseList() {
     if (!progressElements.exerciseSelect) return;
 
-    // Verificar si ya tenemos datos en caché válidos
-    if (isProgressCacheValid() && progressTabCache.exercisesList) {
+    // Verificar si ya tenemos datos en caché válidos CON información de conteo
+    if (isProgressCacheValid() && progressTabCache.exercisesList && progressTabCache.exercisesWithCount) {
         populateExerciseSelector(progressTabCache.exercisesList, true, progressTabCache.exercisesWithCount);
         return;
     }
@@ -213,14 +242,14 @@ export async function loadExerciseList() {
 
         if (sortedExercises.length === 0) {
             // Fallback: si el cache no tiene ejercicios, intentar cargar directamente de las sesiones
-            const fallbackExercises = await loadExercisesFromSessions();
-            populateExerciseSelector(fallbackExercises);
+            const fallbackData = await loadExercisesFromSessions();
+            populateExerciseSelector(fallbackData.names, false, fallbackData.withCounts);
         } else {
             populateExerciseSelector(sortedExercises, false, exercisesWithCount);
         }
         
     } catch (error) {
-        console.error('Error loading exercise list:', error);
+        logger.error('Error loading exercise list:', error);
         progressElements.exerciseSelect.innerHTML = '<option value="">Error cargando ejercicios</option>';
         hideProgressLoading();
     }
@@ -283,7 +312,7 @@ export async function updateChart() {
         hideNoDataMessage();
         
     } catch (error) {
-        console.error('Error updating chart:', error);
+            logger.error('Error updating chart:', error);
         hideChart();
         hideStats();
         showNoDataMessage();
@@ -297,22 +326,37 @@ export async function updateChart() {
  */
 async function getExerciseData(exerciseName, period) {
     try {
+        logger.info(`📊 Getting exercise data for: "${exerciseName}", period: ${period}`);
+        
         // Usar cache si está disponible
         const cacheKey = `${exerciseName}_${period}`;
         if (exerciseDataCache.has(cacheKey)) {
+            logger.info(`✅ Found in memory cache`);
             return exerciseDataCache.get(cacheKey);
         }
 
         // Obtener datos del cache de ejercicios
         const { exerciseCache } = await import('./exercise-cache.js');
         const fullCache = exerciseCache.exportCache();
+        logger.info(`📦 Exercise cache has ${Object.keys(fullCache).length} exercises`);
         
-        // Buscar el ejercicio en el cache
-        const exerciseKey = Object.keys(fullCache).find(key => 
-            fullCache[key].originalName === exerciseName
-        );
+        // Buscar el ejercicio en el cache - normalizar ambos lados de la comparación
+        const normalizedSelectedName = normalizeExerciseName(exerciseName);
+        logger.info(`🔍 Normalized name: "${normalizedSelectedName}"`);
+        
+        const exerciseKey = Object.keys(fullCache).find(key => {
+            const normalized = normalizeExerciseName(fullCache[key].originalName);
+            logger.info(`  Comparing "${normalized}" with "${normalizedSelectedName}"?`);
+            return normalized === normalizedSelectedName;
+        });
+        
+        logger.info(`🔑 Exercise key found: ${exerciseKey ? 'YES' : 'NO'}`);
+        if (exerciseKey) {
+            logger.info(`   History entries: ${fullCache[exerciseKey].history ? fullCache[exerciseKey].history.length : 'NO HISTORY'}`);
+        }
         
         if (!exerciseKey || !fullCache[exerciseKey].history) {
+            logger.info(`⚠️  Falling back to session data load`);
             // Fallback: intentar obtener datos directamente de las sesiones
             return await getExerciseDataFromSessions(exerciseName, period);
         }
@@ -385,7 +429,7 @@ async function getExerciseData(exerciseName, period) {
         return processedData;
         
     } catch (error) {
-        console.error('Error getting exercise data:', error);
+        logger.error('Error getting exercise data:', error);
         return [];
     }
 }
@@ -395,18 +439,24 @@ async function getExerciseData(exerciseName, period) {
  */
 async function getExerciseDataFromSessions(exerciseName, period) {
     try {
+        logger.info(`🔄 Fallback: Loading ${exerciseName} data directly from sessions`);
         const { getCurrentUser } = await import('./auth.js');
         const { db } = await import('./firebase-config.js');
         const { collection, query, orderBy, getDocs, Timestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
         
         const user = getCurrentUser();
-        if (!user) return [];
+        if (!user) {
+            logger.warn('⚠️  No user logged in');
+            return [];
+        }
         
         const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
         const q = query(sessionsRef, orderBy('fecha', 'desc'));
         const querySnapshot = await getDocs(q);
+        logger.info(`📋 Total sessions loaded: ${querySnapshot.size}`);
         
         const exerciseData = [];
+        const normalizedSelected = normalizeExerciseName(exerciseName);
         
         querySnapshot.forEach(doc => {
             const sessionData = doc.data();
@@ -416,8 +466,9 @@ async function getExerciseDataFromSessions(exerciseName, period) {
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
                 sessionData.ejercicios.forEach(ejercicio => {
                     const name = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
+                    const normalizedName = normalizeExerciseName(name);
                     
-                    if (name === exerciseName && ejercicio.tipoEjercicio === 'strength' && ejercicio.sets) {
+                    if (normalizedName === normalizedSelected && ejercicio.tipoEjercicio === 'strength' && ejercicio.sets) {
                         // Calcular métricas
                         let maxWeight = 0;
                         let totalVolume = 0;
@@ -445,6 +496,8 @@ async function getExerciseDataFromSessions(exerciseName, period) {
             }
         });
         
+        logger.info(`📊 Found ${exerciseData.length} matching exercises in sessions`);
+        
         // Filtrar por período
         const now = new Date();
         let startDate = new Date();
@@ -466,6 +519,7 @@ async function getExerciseDataFromSessions(exerciseName, period) {
         }
         
         const filteredData = exerciseData.filter(record => record.date >= startDate);
+        logger.info(`✅ After period filter (${period}): ${filteredData.length} records`);
         
         // Ordenar por fecha
         filteredData.sort((a, b) => a.date - b.date);
@@ -473,7 +527,7 @@ async function getExerciseDataFromSessions(exerciseName, period) {
         return filteredData;
         
     } catch (error) {
-        console.error('❌ Error in fallback exercise data loading:', error);
+        logger.error('❌ Error in fallback exercise data loading:', error);
         return [];
     }
 }
@@ -782,6 +836,7 @@ export function resetProgressView() {
 
 /**
  * Función de fallback para cargar ejercicios directamente de las sesiones
+ * Retorna objeto con {names: [...], withCounts: [{name, sessionCount}, ...]}
  */
 async function loadExercisesFromSessions() {
     try {
@@ -790,7 +845,7 @@ async function loadExercisesFromSessions() {
         const { collection, query, orderBy, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
         
         const user = getCurrentUser();
-        if (!user) return [];
+        if (!user) return { names: [], withCounts: [] };
 
         
         const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
@@ -798,6 +853,7 @@ async function loadExercisesFromSessions() {
         const querySnapshot = await getDocs(q);
         
         const exerciseCount = new Map(); // Para contar cuántas veces aparece cada ejercicio
+        const originalNames = new Map(); // Mapear nombre normalizado -> nombre original
         
         querySnapshot.forEach(doc => {
             const sessionData = doc.data();
@@ -806,25 +862,51 @@ async function loadExercisesFromSessions() {
                 sessionData.ejercicios.forEach(ejercicio => {
                     const exerciseName = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
                     if (exerciseName && ejercicio.tipoEjercicio === 'strength') {
-                        const count = exerciseCount.get(exerciseName) || 0;
-                        exerciseCount.set(exerciseName, count + 1);
+                        const normalizedName = normalizeExerciseName(exerciseName);
+                        const count = exerciseCount.get(normalizedName) || 0;
+                        exerciseCount.set(normalizedName, count + 1);
+                        // Guardar el nombre original (sin normalizar) para usar después
+                        if (!originalNames.has(normalizedName)) {
+                            originalNames.set(normalizedName, exerciseName);
+                        }
                     }
                 });
             }
         });
         
         // Solo devolver ejercicios con al menos 3 sesiones
-        const validExercises = [];
-        exerciseCount.forEach((count, exerciseName) => {
+        const exercisesWithCount = [];
+        exerciseCount.forEach((count, normalizedName) => {
             if (count >= 3) {
-                validExercises.push(exerciseName);
+                const originalName = originalNames.get(normalizedName) || normalizedName;
+                exercisesWithCount.push({ name: originalName, sessionCount: count });
             }
         });
+
+        // Ordenar por número de sesiones (mayor a menor) y luego alfabéticamente
+        exercisesWithCount.sort((a, b) => {
+            if (b.sessionCount !== a.sessionCount) {
+                return b.sessionCount - a.sessionCount;
+            }
+            return a.name.localeCompare(b.name);
+        });
+
+        const validExercises = exercisesWithCount.map(ex => ex.name);
         
-        return validExercises.sort();
+        // Ordenar por número de sesiones (mayor a menor) y luego alfabéticamente
+        exercisesWithCount.sort((a, b) => {
+            if (b.sessionCount !== a.sessionCount) {
+                return b.sessionCount - a.sessionCount;
+            }
+            return a.name.localeCompare(b.name);
+        });
+        
+        const sortedNames = exercisesWithCount.map(ex => ex.name);
+        
+        return { names: sortedNames, withCounts: exercisesWithCount };
         
     } catch (error) {
-        console.error('❌ Error in fallback exercise loading:', error);
-        return [];
+        logger.error('❌ Error in fallback exercise loading:', error);
+        return { names: [], withCounts: [] };
     }
 }

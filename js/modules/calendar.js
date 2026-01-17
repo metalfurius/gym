@@ -8,6 +8,7 @@ import { collection, query, where, getDocs, Timestamp } from "https://www.gstati
 import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
+import { addViewListener, cleanupViewListeners } from '../utils/event-manager.js';
 
 // Constants
 const MIN_CALENDAR_YEAR = 2025;
@@ -423,7 +424,9 @@ function handleCalendarNavigationClick(event) {
  */
 export function initCalendar() {
     if (isInitialized) {
-        logger.debug('Calendar already initialized');
+        // Re-attach navigation listeners when re-entering the dashboard view
+        addViewListener('dashboard', document, 'click', handleCalendarNavigationClick);
+        logger.debug('Calendar navigation listeners re-attached');
         return;
     }
 
@@ -436,7 +439,7 @@ export function initCalendar() {
     loadingSpinner = document.getElementById('calendar-loading-spinner');
 
     // Set up event delegation for navigation
-    document.addEventListener('click', handleCalendarNavigationClick);
+    addViewListener('dashboard', document, 'click', handleCalendarNavigationClick);
 
     isInitialized = true;
     logger.debug('Calendar module initialized');
@@ -465,7 +468,7 @@ export function resetToCurrentMonth() {
 export function destroyCalendar() {
     if (!isInitialized) return;
 
-    document.removeEventListener('click', handleCalendarNavigationClick);
+    cleanupViewListeners('dashboard');
     
     // Reset state
     calendarContainer = null;

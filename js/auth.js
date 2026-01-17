@@ -3,6 +3,7 @@ import { auth } from './firebase-config.js';
 import { showView, updateNav, displayAuthError, displayAuthSuccess, clearAuthMessages, authElements, dashboardElements } from './ui.js';
 import { clearInProgressSession } from './modules/session-manager.js';
 import { initializeAppAfterAuth } from './app.js';
+import { logger } from './utils/logger.js';
 
 let currentUser = null;
 
@@ -21,7 +22,7 @@ function getFriendlyAuthErrorMessage(error) {
         case 'auth/operation-not-allowed': return "Inicio de sesión con email/contraseña no habilitado.";
         case 'auth/missing-password': return "Por favor, introduce una contraseña.";
         default:
-            console.error("Unhandled Auth Error:", error);
+            logger.error('Unhandled Auth Error:', error);
             return "Error de autenticación. Inténtalo de nuevo.";
     }
 }
@@ -102,7 +103,7 @@ export async function handleLogout() {
         await firebaseSignOut(auth);
         clearInProgressSession();
     } catch (error) {
-        console.error("Logout error:", error);
+        logger.error('Logout error:', error);
         alert("Error al cerrar sesión.");
     }
 }
@@ -114,25 +115,25 @@ export async function handleLogout() {
 if (authElements.loginBtn) {
     authElements.loginBtn.addEventListener('click', handleEmailLogin);
 } else {
-    console.error("Login button not found for attaching event listener.");
+    logger.error('Login button not found for attaching event listener.');
 }
 
 if (authElements.signupBtn) {
     authElements.signupBtn.addEventListener('click', handleEmailSignup);
 } else {
-    console.error("Signup button not found for attaching event listener.");
+    logger.error('Signup button not found for attaching event listener.');
 }
 
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
-        console.log("User logged in:", user.email);
+        logger.info('User logged in:', user.email);
         dashboardElements.userEmail.textContent = user.email;
         updateNav(true);
         await initializeAppAfterAuth(user); // This will now fetch/initialize routines
         showView('dashboard'); 
     } else {
-        console.log("User logged out");
+        logger.info('User logged out');
         updateNav(false);
         dashboardElements.userEmail.textContent = '';
         showView('auth'); 
