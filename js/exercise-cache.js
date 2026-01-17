@@ -95,8 +95,7 @@ export class ExerciseCacheManager {
         // Añadir al principio del array (más reciente primero)
         cache[normalizedName].history.unshift(historyEntry);
 
-        // No limitar el historial - necesitamos todos los datos para gráficos de progreso
-        // El historial se limpará automáticamente por edad usando cleanOldEntries()
+        // No limitar el historial - necesitamos todos los datos para gráficos de progreso. El historial se limpará automáticamente por edad usando cleanOldEntries()
 
         this.saveFullCache(cache);
     }
