@@ -17,7 +17,7 @@ import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
 import { initSetTimers, clearTimerData } from './timer.js';
-import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, invalidateProgressCache, handleExerciseChange } from './progress.js';
+import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, handleExerciseChange } from './progress.js';
 
 // Import new modules
 import { logger } from './utils/logger.js';

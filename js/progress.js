@@ -10,12 +10,21 @@ let progressChart = null;
 let exerciseDataCache = new Map();
 
 /**
- * Normaliza nombres de ejercicios para comparación consistente
- * Elimina espacios extra, normaliza casing, etc.
+ * Normaliza nombres de ejercicios para facilitar comparaciones.
+ * Elimina espacios extra, normaliza casing, elimina puntuación y reemplaza espacios por guiones bajos.
+ * Debe coincidir con la normalización en ExerciseCacheManager para correcta comparación.
+ * 
+ * @param {string} name - Nombre del ejercicio a normalizar
+ * @returns {string} Nombre normalizado
  */
 export function normalizeExerciseName(name) {
     if (!name) return '';
-    return name.trim().toLowerCase();
+    
+    // Alinear comportamiento con ExerciseCacheManager:
+    // - minúsculas y trim
+    // - eliminar signos de puntuación
+    // - reemplazar espacios por guiones bajos
+    return name.toString().toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
 }
 
 // Cache para la pestaña de progreso
@@ -833,8 +842,11 @@ export function resetProgressView() {
 }
 
 /**
- * Función de fallback para cargar ejercicios directamente de las sesiones
- * Retorna objeto con {names: [...], withCounts: [{name, sessionCount}, ...]}
+ * Función de fallback para cargar ejercicios directamente de las sesiones.
+ * Agrega y ordena los ejercicios a partir de las sesiones del usuario actual.
+ *
+ * @returns {Promise<{names: string[], withCounts: {name: string, sessionCount: number}[]}>}
+ *          Objeto con la lista de nombres de ejercicios y sus contadores de sesiones.
  */
 async function loadExercisesFromSessions() {
     try {

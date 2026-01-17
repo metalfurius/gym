@@ -423,13 +423,6 @@ function handleCalendarNavigationClick(event) {
  * Sets up DOM references and event listeners
  */
 export function initCalendar() {
-    if (isInitialized) {
-        // Listeners are already attached and managed by the event manager
-        // No need to re-attach - the event manager handles cleanup/re-attachment
-        logger.debug('Calendar already initialized, skipping listener setup');
-        return;
-    }
-
     // Get DOM elements
     calendarContainer = document.getElementById('activity-calendar-container');
     calendarView = document.getElementById('activity-calendar');
@@ -439,10 +432,14 @@ export function initCalendar() {
     loadingSpinner = document.getElementById('calendar-loading-spinner');
 
     // Set up event delegation for navigation
-    addViewListener('dashboard', document, 'click', handleCalendarNavigationClick);
-
-    isInitialized = true;
-    logger.debug('Calendar module initialized');
+    // Only attach if not already initialized to avoid duplicate listeners
+    if (!isInitialized) {
+        addViewListener('dashboard', document, 'click', handleCalendarNavigationClick);
+        isInitialized = true;
+        logger.debug('Calendar module initialized');
+    } else {
+        logger.debug('Calendar DOM references refreshed');
+    }
 }
 
 /**
