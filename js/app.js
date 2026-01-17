@@ -139,30 +139,32 @@ async function fetchUserRoutines(user) {
         return;
     }
 
-    if (!offlineManager.checkOnline()) {
-        logger.warn('Offline: cannot load routines right now');
-        toast.warning('Sin conexión. No se pueden cargar tus rutinas.');
-        currentUserRoutines = [];
-        populateDaySelector([]);
-        return;
-    }
-    const routinesCollectionRef = collection(db, "users", user.uid, "routines");
-    const q = query(routinesCollectionRef, orderBy("createdAt", "asc"));
-    
     try {
-        const querySnapshot = await getDocs(q);
-        currentUserRoutines = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        populateDaySelector(currentUserRoutines);
-        // If manage routines view is active, refresh it too
-        if (!views.manageRoutines.classList.contains('hidden')) {
-            renderManageRoutinesView(currentUserRoutines);
-        }
+        await offlineManager.executeWithOfflineHandling(
+            async () => {
+                const routinesCollectionRef = collection(db, "users", user.uid, "routines");
+                const q = query(routinesCollectionRef, orderBy("createdAt", "asc"));
+                
+                const querySnapshot = await getDocs(q);
+                currentUserRoutines = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                populateDaySelector(currentUserRoutines);
+                
+                // If manage routines view is active, refresh it too
+                if (!views.manageRoutines.classList.contains('hidden')) {
+                    renderManageRoutinesView(currentUserRoutines);
+                }
+            },
+            'No se pueden cargar las rutinas sin conexión. Se reintentará cuando vuelvas a estar en línea.',
+            true // Queue for retry when online
+        );
     } catch (error) {
         logger.error("Error fetching user routines:", error);
         currentUserRoutines = [];
         populateDaySelector([]);
-        // Load diagnostics on Firestore errors
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+        
+        // Load diagnostics on Firestore errors (not offline errors)
+        if (!error.message?.startsWith('Offline:') && 
+            (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT'))) {
             loadFirebaseDiagnostics();
         }
     }

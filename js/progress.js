@@ -85,28 +85,8 @@ export async function initializeProgressView() {
         return;
     }
 
-    // Only rebuild exercise cache when progress cache is invalid or missing
-    if (!isProgressCacheValid()) {
-        logger.info('📚 Progress view initializing - rebuilding exercise cache (cache invalid or missing)...');
-        try {
-            const { exerciseCache } = await import('./exercise-cache.js');
-            exerciseCache.clearCache(); // Clear old cache
-            
-            const { getCurrentUser } = await import('./auth.js');
-            const { db } = await import('./firebase-config.js');
-            const user = getCurrentUser();
-            
-            if (user && db) {
-                // Rebuild only when needed to avoid unnecessary Firestore queries
-                await exerciseCache.buildCacheFromHistory(user.uid, db);
-                logger.info('✅ Exercise cache rebuilt successfully');
-            }
-        } catch (error) {
-            logger.error('❌ Error rebuilding cache:', error);
-        }
-    } else {
-        logger.info('📚 Progress view initializing - using existing exercise cache');
-    }
+    // Progress view initialized - exercise cache is managed separately in initializeExerciseCache
+    logger.info('📚 Progress view initialized');
 }
 
 /**

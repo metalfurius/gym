@@ -232,7 +232,7 @@ export async function saveSessionData(onSuccess) {
             toast.error('Error al guardar la sesión.');
             
             // Load diagnostics on Firestore errors
-            if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+            if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
                 const { loadFirebaseDiagnostics } = await import('../app.js');
                 loadFirebaseDiagnostics();
             }

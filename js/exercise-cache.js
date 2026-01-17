@@ -8,7 +8,7 @@ export class ExerciseCacheManager {
         this.cacheKey = 'gym-tracker-exercise-cache';
         this.backupKey = 'gym-tracker-exercise-backup';
         this.maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 días en milisegundos
-        // NOTE: We store ALL exercise history (not limited) for progress charts
+        // NOTE: Exercise history is unlimited by count but subject to 7-day age cleanup via cleanOldEntries()
     }
 
     /**
@@ -231,9 +231,9 @@ export class ExerciseCacheManager {
         try {
             const { collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
             
-            // Obtener las últimas 500 sesiones para construir el cache completo
+            // Obtener las últimas 200 sesiones para construir el cache completo (reducido de 500 para mejor rendimiento)
             const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
-            const q = query(sessionsRef, orderBy("fecha", "desc"), limit(500));
+            const q = query(sessionsRef, orderBy("fecha", "desc"), limit(200));
             const querySnapshot = await getDocs(q);
             // Procesar sesiones en orden cronológico inverso (más antigua primero)
             const sessions = querySnapshot.docs.reverse();
