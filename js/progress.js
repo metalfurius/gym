@@ -85,7 +85,9 @@ export async function initializeProgressView() {
         return;
     }
 
-    // Progress view initialized - exercise cache is managed separately in initializeExerciseCache
+    // Progress view initialized:
+    // - Exercise data cache is initialized separately in initializeExerciseCache
+    // - Event listeners (exerciseSelect, metricSelect, periodSelect) are managed in setupProgressViewListeners
     logger.info('📚 Progress view initialized');
 }
 

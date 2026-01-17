@@ -16,7 +16,7 @@ describe('ExerciseCacheManager', () => {
       expect(cacheManager.cacheKey).toBe(CACHE_KEY);
       expect(cacheManager.backupKey).toBe(BACKUP_KEY);
       expect(cacheManager.maxCacheAge).toBe(7 * 24 * 60 * 60 * 1000);
-      // maxExerciseHistory removed - we now keep all history for progress charts
+      // maxExerciseHistory removed - history is unlimited by count but still cleaned up by age via maxCacheAge (7 days)
     });
   });
 

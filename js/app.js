@@ -163,6 +163,7 @@ async function fetchUserRoutines(user) {
         populateDaySelector([]);
         
         // Load diagnostics on Firestore errors (not offline errors)
+        // Note: When queued for retry, the operation will attempt again when user is back online
         if (!error.message?.startsWith('Offline:') && 
             (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT'))) {
             loadFirebaseDiagnostics();

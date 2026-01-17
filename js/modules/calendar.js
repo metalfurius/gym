@@ -467,9 +467,9 @@ export function destroyCalendar() {
 
     // Note: Calendar navigation listeners are registered via addViewListener('dashboard', ...)
     // and are cleaned up centrally when cleanupViewListeners('dashboard') is invoked as part
-    // of the dashboard view lifecycle (e.g., in setupDashboardViewListeners). We only reset
-    // local state here and intentionally do not remove listeners directly to keep listener
-    // management centralized in the view/event manager.
+    // of the dashboard view lifecycle (in setupDashboardViewListeners). This keeps listener
+    // management centralized in the view/event manager system. We reset local state here
+    // and do NOT call cleanup directly to avoid interfering with other dashboard listeners.
     
     // Reset state
     calendarContainer = null;
