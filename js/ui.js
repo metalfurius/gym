@@ -138,7 +138,7 @@ export const progressElements = {
 
 // --- UI Functions ---
 
-export function showView(viewToShowId) {
+export async function showView(viewToShowId) {
     // Cleanup listeners from previous view
     // NOTE: The event manager currently only cleans up listeners that were added through
     // addViewListener(). Many event listeners in the codebase (in app.js, modules, timer.js, etc.)
@@ -172,7 +172,7 @@ export function showView(viewToShowId) {
     const initializer = viewInitializers.get(viewToShowId);
     if (initializer) {
         try {
-            initializer();
+            await initializer();
         } catch (error) {
             logger.error('Error running view initializer:', error);
         }

@@ -253,6 +253,7 @@ export class ExerciseCacheManager {
      * @returns {string} Nombre normalizado
      */
     normalizeExerciseName(exerciseName) {
+        if (!exerciseName) return '';
         return exerciseName
             .toLowerCase()
             .trim()

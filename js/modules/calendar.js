@@ -465,9 +465,11 @@ export function resetToCurrentMonth() {
 export function destroyCalendar() {
     if (!isInitialized) return;
 
-    // Note: Calendar listeners are managed by the dashboard view and cleaned up
-    // when setupDashboardViewListeners is called. We don't need to clean them here
-    // to avoid removing other dashboard listeners.
+    // Note: Calendar navigation listeners are registered via addViewListener('dashboard', ...)
+    // and are cleaned up centrally when cleanupViewListeners('dashboard') is invoked as part
+    // of the dashboard view lifecycle (e.g., in setupDashboardViewListeners). We only reset
+    // local state here and intentionally do not remove listeners directly to keep listener
+    // management centralized in the view/event manager.
     
     // Reset state
     calendarContainer = null;

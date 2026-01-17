@@ -24,7 +24,7 @@ export function normalizeExerciseName(name) {
     // - minúsculas y trim
     // - eliminar signos de puntuación
     // - reemplazar espacios por guiones bajos
-    return name.toString().toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
+    return name.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
 }
 
 // Cache para la pestaña de progreso

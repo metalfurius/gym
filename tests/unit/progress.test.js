@@ -610,11 +610,15 @@ describe('Progress Module', () => {
         expect(progressResult).toBe(cacheResult);
       });
 
-      // Test empty/null/undefined separately since progress.js handles them gracefully
-      // while ExerciseCacheManager would throw an error
+      // Test empty/null/undefined handling matches between both implementations
       expect(normalizeExerciseName('')).toBe('');
       expect(normalizeExerciseName(null)).toBe('');
       expect(normalizeExerciseName(undefined)).toBe('');
+      
+      // Test ExerciseCacheManager handles null/undefined gracefully now
+      expect(cacheManager.normalizeExerciseName('')).toBe('');
+      expect(cacheManager.normalizeExerciseName(null)).toBe('');
+      expect(cacheManager.normalizeExerciseName(undefined)).toBe('');
     });
   });
 });
