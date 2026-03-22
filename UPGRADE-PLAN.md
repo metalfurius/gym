@@ -16,6 +16,17 @@ Code cleanup, modularization, and infrastructure improvements. Codebase now has:
 
 ---
 
+## Phase 0.5 Progress Snapshot (March 22, 2026)
+
+Implemented in this upgrade pass:
+- Local-first cache utility with IndexedDB + localStorage fallback
+- Cache-first routines/history/calendar/progress data reads
+- Firebase read/write usage tracking with per-operation breakdown
+- Settings modal dashboard for Firebase usage + reset control
+- Cache invalidation hooks after session and routine writes
+- Throttled exercise-cache integrity checks to reduce repeated reads
+
+---
 ## Phase 0.5: Firebase Optimization (CRITICAL - BEFORE PHASE 1)
 
 **Problem:** Currently hitting ~10k Firebase reads per day with single user - excessive and costly.
@@ -28,7 +39,7 @@ Code cleanup, modularization, and infrastructure improvements. Codebase now has:
 ### Immediate Optimizations
 
 #### 1. Local-First Architecture
-- [ ] **IndexedDB Cache Layer**: 
+- [x] **IndexedDB Cache Layer**: 
   - Store all user data locally in IndexedDB
   - Firestore becomes backup/sync only, not primary data source
   - Read from local cache first, Firebase second
@@ -84,7 +95,7 @@ Code cleanup, modularization, and infrastructure improvements. Codebase now has:
   - Implement change detection before writes
 
 #### 5. Static Data Caching
-- [ ] **Exercise Database**:
+- [x] **Exercise Database**:
   - Cache exercise list in IndexedDB indefinitely
   - Only fetch from Firestore on version mismatch
   - Store version number to detect updates
@@ -96,7 +107,7 @@ Code cleanup, modularization, and infrastructure improvements. Codebase now has:
   - Update local cache on preference changes
 
 #### 6. Monitoring & Analytics
-- [ ] **Firebase Usage Dashboard**:
+- [x] **Firebase Usage Dashboard**:
   - Track reads/writes per session
   - Log expensive queries
   - Alert when daily limit approaches
@@ -805,3 +816,4 @@ Use existing test infrastructure:
 ---
 
 *Last Updated: January 25, 2026*
+

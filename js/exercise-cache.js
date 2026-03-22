@@ -2,11 +2,14 @@
 // Manages local caching of exercise history for better UX and reduced Firebase calls
 
 import { logger } from './utils/logger.js';
+import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
 
 export class ExerciseCacheManager {
     constructor() {
         this.cacheKey = 'gym-tracker-exercise-cache';
         this.backupKey = 'gym-tracker-exercise-backup';
+        this.integrityCheckKey = 'gym-tracker-exercise-cache-integrity';
+        this.integrityCheckIntervalMs = 6 * 60 * 60 * 1000;
         this.maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 días en milisegundos
         // NOTE: Exercise history is unlimited by count but subject to 7-day age cleanup via cleanOldEntries()
     }
@@ -161,10 +164,46 @@ export class ExerciseCacheManager {
     clearCache() {
         try {
             localStorage.removeItem(this.cacheKey);
+            localStorage.removeItem(this.integrityCheckKey);
             logger.info('🧹 Exercise cache cleared - will rebuild on next use');
         } catch (error) {
             logger.error('Error clearing cache:', error);
         }
+    }
+
+    getIntegrityMetadata() {
+        try {
+            const raw = localStorage.getItem(this.integrityCheckKey);
+            return raw ? JSON.parse(raw) : {};
+        } catch (error) {
+            logger.warn('Could not read integrity metadata:', error);
+            return {};
+        }
+    }
+
+    saveIntegrityMetadata(metadata) {
+        try {
+            localStorage.setItem(this.integrityCheckKey, JSON.stringify(metadata));
+        } catch (error) {
+            logger.warn('Could not persist integrity metadata:', error);
+        }
+    }
+
+    shouldSkipIntegrityCheck(userId) {
+        const metadata = this.getIntegrityMetadata();
+        const entry = metadata[userId];
+        if (!entry || !entry.checkedAt) return false;
+
+        return (Date.now() - entry.checkedAt) < this.integrityCheckIntervalMs;
+    }
+
+    markIntegrityChecked(userId, rebuilt = false) {
+        const metadata = this.getIntegrityMetadata();
+        metadata[userId] = {
+            checkedAt: Date.now(),
+            rebuilt
+        };
+        this.saveIntegrityMetadata(metadata);
     }
 
     /**
@@ -187,6 +226,7 @@ export class ExerciseCacheManager {
             const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
             const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");
             await setDoc(backupDocRef, backupData, { merge: true });
+            firebaseUsageTracker.trackWrite(1, 'exerciseCache.syncBackup');
         } catch (error) {
             logger.error('Error sincronizando cache con Firebase:', error);
         }
@@ -204,6 +244,7 @@ export class ExerciseCacheManager {
             const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
             const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");
             const backupDoc = await getDoc(backupDocRef);
+            firebaseUsageTracker.trackRead(backupDoc.exists() ? 1 : 0, 'exerciseCache.restoreBackup');
 
             if (backupDoc.exists()) {
                 const backupData = backupDoc.data();
@@ -235,6 +276,7 @@ export class ExerciseCacheManager {
             const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
             const q = query(sessionsRef, orderBy("fecha", "desc"), limit(200));
             const querySnapshot = await getDocs(q);
+            firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.buildFromHistory');
             // Procesar sesiones en orden cronológico inverso (más antigua primero)
             const sessions = querySnapshot.docs.reverse();
             
@@ -346,6 +388,7 @@ export class ExerciseCacheManager {
             const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
             const q = query(sessionsRef, orderBy("fecha", "desc"), limit(10));
             const querySnapshot = await getDocs(q);
+            firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.verifyIntegrity');
             
             const recentSessions = querySnapshot.docs;
             const cacheStats = this.getCacheStats();
@@ -395,13 +438,19 @@ export class ExerciseCacheManager {
         if (!userId || !db) return false;
 
         try {
+            if (this.shouldSkipIntegrityCheck(userId)) {
+                return false;
+            }
+
             const needsRebuild = await this.verifyCacheIntegrity(userId, db);
             
             if (needsRebuild) {
                 await this.buildCacheFromHistory(userId, db);
+                this.markIntegrityChecked(userId, true);
                 return true;
             }
-            
+
+            this.markIntegrityChecked(userId, false);
             return false;
         } catch (error) {
             logger.error('Error validando cache:', error);
@@ -412,3 +461,5 @@ export class ExerciseCacheManager {
 
 // Crear instancia singleton
 export const exerciseCache = new ExerciseCacheManager();
+
+

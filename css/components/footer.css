@@ -477,6 +477,44 @@ footer p {
     transform: translateY(0);
 }
 
+.btn-secondary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+.firebase-usage-list {
+    margin-top: var(--spacing-md);
+}
+
+.firebase-usage-list ul {
+    margin: var(--spacing-xs) 0 0 0;
+    padding-left: 18px;
+}
+
+.firebase-usage-list li {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
 .error-text {
     color: #e74c3c;
     font-size: 0.9rem;

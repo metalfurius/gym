@@ -9,9 +9,13 @@ import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
 import { addViewListener } from '../utils/event-manager.js';
+import { localFirstCache } from '../utils/local-first-cache.js';
+import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
+import { serializeActivityMap, deserializeActivityMap } from '../utils/firestore-serialization.js';
 
 // Constants
 const MIN_CALENDAR_YEAR = 2025;
+const CALENDAR_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
 // State
 let currentCalendarYear = new Date().getFullYear();
@@ -111,6 +115,20 @@ async function getMonthlyActivity(userId, year, month) {
     const activityMap = new Map(); // 'YYYY-MM-DD' -> { count, type }
     const startDate = new Date(year, month, 1); // First day of month
     const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Last day of month
+    const cacheKey = `calendar:${userId}:${year}-${month + 1}`;
+
+    try {
+        const cachedEntry = await localFirstCache.getEntry(cacheKey);
+        if (cachedEntry?.value) {
+            const cachedMap = deserializeActivityMap(cachedEntry.value);
+            if (localFirstCache.isFresh(cachedEntry, CALENDAR_CACHE_TTL_MS) || !navigator.onLine) {
+                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                return cachedMap;
+            }
+        }
+    } catch (error) {
+        logger.warn('Could not read monthly activity cache:', error);
+    }
 
     try {
         const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
@@ -119,6 +137,10 @@ async function getMonthlyActivity(userId, year, month) {
             where("fecha", "<=", Timestamp.fromDate(endDate))
         );
         const querySnapshot = await getDocs(q);
+        firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.monthlyActivity', {
+            year,
+            month: month + 1
+        });
 
         querySnapshot.forEach(docSnap => {
             const session = docSnap.data();
@@ -141,9 +163,21 @@ async function getMonthlyActivity(userId, year, month) {
                 }
             }
         });
+
+        await localFirstCache.set(cacheKey, serializeActivityMap(activityMap), {
+            metadata: { year, month: month + 1 }
+        });
     } catch (error) {
         logger.error("Error fetching monthly activity:", error);
-        // Show user-friendly error message
+        try {
+            const cachedEntry = await localFirstCache.getEntry(cacheKey);
+            if (cachedEntry?.value) {
+                return deserializeActivityMap(cachedEntry.value);
+            }
+        } catch (cacheError) {
+            logger.warn('Could not recover monthly activity from cache:', cacheError);
+        }
+
         if (calendarView) {
             calendarView.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">Error al cargar la actividad del mes</div>';
         }

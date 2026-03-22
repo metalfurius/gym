@@ -15,6 +15,8 @@ import { toast } from '../utils/notifications.js';
 import { clearTimerData } from '../timer.js';
 import { invalidateProgressCache } from '../progress.js';
 import { offlineManager } from '../utils/offline-manager.js';
+import { localFirstCache } from '../utils/local-first-cache.js';
+import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 
 // Constants
 const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
@@ -192,6 +194,7 @@ export async function saveSessionData(onSuccess) {
         const saveOperation = async () => {
             const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
             await addDoc(userSessionsCollectionRef, finalSessionData);
+            firebaseUsageTracker.trackWrite(1, 'session.save');
         };
 
         await offlineManager.executeWithOfflineHandling(
@@ -210,6 +213,14 @@ export async function saveSessionData(onSuccess) {
         // Sync cache with Firebase for backup (without blocking)
         exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
             logger.warn('Error syncing exercise cache:', error);
+        });
+
+        Promise.all([
+            localFirstCache.clearByPrefix(`history:${user.uid}:`),
+            localFirstCache.clearByPrefix(`calendar:${user.uid}:`),
+            localFirstCache.clearByPrefix(`progress:sessions:${user.uid}`)
+        ]).catch((cacheError) => {
+            logger.warn('Could not invalidate local caches after session save:', cacheError);
         });
         
         toast.success("¡Sesión guardada con éxito!");
@@ -365,3 +376,4 @@ export default {
     cancelSession,
     setupSessionAutoSave
 };
+

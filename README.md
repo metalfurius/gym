@@ -5,87 +5,67 @@
 [![CodeQL](https://github.com/metalfurius/gym/actions/workflows/codeql.yml/badge.svg)](https://github.com/metalfurius/gym/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/metalfurius/gym/branch/main/graph/badge.svg)](https://codecov.io/gh/metalfurius/gym)
 
-A modern, responsive workout tracking web application with session management, routine customization, and progress visualization features.
+A modern, responsive workout tracking web app with session management, routine customization, and progress visualization.
 
 ## Features
 
-- **Comprehensive Workout Management**: Create, track, and manage custom workout routines
-- **Multiple Views**: Dashboard, Session, History, and Routine Management views
-- **Activity Calendar**: Visual tracking of workout consistency throughout the year
-- **Session History**: Detailed record of all completed workout sessions
-- **Routine Customization**: Create and modify workout routines with custom exercises
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **User Authentication**: Secure email and password login
-- **Responsive Interface**: Adapts to different screen sizes and orientations
-- **Session Continuity**: Resume interrupted workout sessions
+- Comprehensive workout management (routines, sessions, history)
+- Multiple views: Dashboard, Session, History, Routine Management, Progress
+- Activity calendar for monthly workout consistency
+- Exercise progress charts with cached historical data
+- User authentication with Firebase Auth
+- Responsive mobile-friendly interface
+- Session continuity for in-progress workouts
+- Local-first data optimizations to reduce repeated Firestore reads
 
 ## Usage
 
-1. Register or log in using your email and password
-2. Choose a workout routine for your session
-3. Track your exercises, sets, and reps during your workout
-4. Save completed sessions to your history
-5. Create and customize your own workout routines
-6. View your workout activity on the yearly calendar
-7. Review detailed history of past workout sessions
+1. Register or log in.
+2. Select a routine.
+3. Track sets/reps during your workout.
+4. Save the session.
+5. Review history and progress charts.
 
 ## Technical Features
 
 - Firebase Authentication and Firestore database
-- Service Worker for offline functionality
-- Modular CSS architecture
-- Responsive design with adaptive layouts
-- Browser storage for session persistence
+- Service Worker for offline/static asset caching
+- Modular JS and CSS architecture
+- Browser storage for in-progress session persistence
+- Local-first cache layer (IndexedDB with localStorage fallback)
+- Firebase read/write telemetry in the Settings modal
 
 ## Roadmap
 
-We're working on making the app more flexible and user-friendly! 
+See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) for the full multi-phase roadmap.
 
-### Documentation
+### Current Focus: Phase 0.5 Firebase Optimization
 
-- **[UPGRADE-PLAN.md](UPGRADE-PLAN.md)** - Complete roadmap with all planned phases, current progress, and implementation details (including testing strategy)
+- Cache-first loading for routines/history/calendar/progress fallback
+- Usage tracking for Firebase reads/writes and high-cost operations
+- Smarter cache invalidation after session and routine writes
+- Throttled exercise-cache integrity checks to cut repeated reads
 
-### Current Focus: Phase 0 - Technical Debt ⚡
+### Coming Soon
 
-Before adding new features, we're cleaning up the codebase:
-- Modularizing `app.js` into smaller, maintainable modules
-- Improving error handling and input validation
-- Adding proper logging and notification systems
-- Fixing Service Worker cache gaps
-
-See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) Phase 0 for details.
-
-### Coming Soon 🚀
-
-**New Flexible Mode** (alongside existing routine system):
-- **Muscle Group Targeting**: Start sessions by selecting target muscle groups (Chest, Back, Legs, etc.)
-- **Flexible Exercise Selection**: Add exercises on-the-fly during your workout
-- **Training Cycle Tracking**: See your weekly training patterns and muscle group balance
-- **Quick Start Templates**: Push/Pull/Legs and other popular workout splits
-
-**Weight & Nutrition Tracking:**
-- **Daily Weight Logging**: Track your weight on any day (training or rest days)
-- **Calorie Tracking**: Monitor daily calorie intake
-- **User Goals**: Define your fitness objectives (gain, lose, maintain, recomposition)
-- **Rest Day Tracking**: Log weight and nutrition even on non-training days
-
-**Your Choice Each Session:**
-- "Quick Start" → Pick muscle groups, add exercises as you go
-- "Use Routine" → Follow your saved routines (existing feature, fully preserved)
-- "AI Routine" → Future feature for AI-generated workout plans
+- Flexible workout mode (muscle-group first sessions)
+- Weight and nutrition logging
+- Goal tracking and integrated insights
 
 ## License and Copyright
 
-© [metalfurius] 2025. All Rights Reserved.
+� [metalfurius] 2025. All Rights Reserved.
 
 This project is licensed for personal and educational use only.
 
-### Restrictions:
-- Commercial use is strictly prohibited without explicit permission
-- Redistribution of this software in source or binary forms is not permitted without prior written consent
-- Derivative works based on this software are not permitted without prior written consent
+### Restrictions
 
-### Permissions:
+- Commercial use is prohibited without explicit permission
+- Redistribution of source or binary forms is not permitted without prior written consent
+- Derivative works are not permitted without prior written consent
+
+### Permissions
+
 - Personal use
 - Educational use
 - Non-commercial research and development

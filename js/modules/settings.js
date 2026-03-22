@@ -7,12 +7,14 @@ import { logger } from '../utils/logger.js';
 import { toast } from '../utils/notifications.js';
 import { storageManager } from '../storage-manager.js';
 import { formatDate } from '../ui.js';
+import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 
 // DOM Elements
 let settingsBtn = null;
 let settingsModal = null;
 let settingsModalCloseBtn = null;
 let clearCacheBtn = null;
+let resetFirebaseUsageBtn = null;
 let cacheInfoContainer = null;
 
 let isInitialized = false;
@@ -28,6 +30,23 @@ export function formatBytes(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function formatDuration(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    }
+
+    if (minutes > 0) {
+        return `${minutes}m ${seconds}s`;
+    }
+
+    return `${seconds}s`;
 }
 
 /**
@@ -46,6 +65,7 @@ export async function loadCacheInfo() {
         const { exerciseCache } = await import('../exercise-cache.js');
         const cacheStats = exerciseCache.getCacheStats();
         const storageEstimate = await storageManager.getStorageEstimate();
+        const firebaseUsage = firebaseUsageTracker.getSummary();
         
         let html = '<div class="cache-stats">';
         
@@ -101,6 +121,34 @@ export async function loadCacheInfo() {
                     <span class="cache-stat-value">${storageEstimate.usagePercentage}%</span>
                 </div>
             `;
+        }
+
+        html += `
+            <hr class="cache-divider">
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">Lecturas Firebase (sesiÃ³n):</span>
+                <span class="cache-stat-value">${firebaseUsage.reads}</span>
+            </div>
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">Escrituras Firebase (sesiÃ³n):</span>
+                <span class="cache-stat-value">${firebaseUsage.writes}</span>
+            </div>
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">DuraciÃ³n de sesiÃ³n:</span>
+                <span class="cache-stat-value">${formatDuration(firebaseUsage.sessionDurationMs)}</span>
+            </div>
+            <div class="cache-stat-item">
+                <span class="cache-stat-label">Costo estimado:</span>
+                <span class="cache-stat-value">$${firebaseUsage.estimatedCostUsd.toFixed(4)}</span>
+            </div>
+        `;
+
+        if (firebaseUsage.topOperations.length > 0) {
+            html += '<div class="firebase-usage-list"><strong>Operaciones mÃ¡s costosas:</strong><ul>';
+            firebaseUsage.topOperations.forEach((operation) => {
+                html += `<li>${operation.type} - ${operation.operation}: ${operation.total}</li>`;
+            });
+            html += '</ul></div>';
         }
         
         html += '</div>';
@@ -163,6 +211,12 @@ export async function clearExerciseCache() {
     }
 }
 
+export function resetFirebaseUsageMetrics() {
+    firebaseUsageTracker.reset();
+    loadCacheInfo();
+    toast.success('MÃ©tricas de Firebase reiniciadas');
+}
+
 /**
  * Initializes the settings modal functionality
  * Sets up event listeners for opening/closing the modal and cache operations
@@ -178,6 +232,7 @@ export function initSettings() {
     settingsModal = document.getElementById('settings-modal');
     settingsModalCloseBtn = document.querySelector('.settings-modal-close');
     clearCacheBtn = document.getElementById('clear-cache-btn');
+    resetFirebaseUsageBtn = document.getElementById('reset-firebase-usage-btn');
     cacheInfoContainer = document.getElementById('cache-info-container');
 
     // Settings button event listener
@@ -206,6 +261,16 @@ export function initSettings() {
         clearCacheBtn.addEventListener('click', clearExerciseCache);
     }
 
+    if (resetFirebaseUsageBtn) {
+        resetFirebaseUsageBtn.addEventListener('click', resetFirebaseUsageMetrics);
+    }
+
+    window.addEventListener('firebaseUsageUpdated', () => {
+        if (settingsModal && settingsModal.style.display === 'block') {
+            loadCacheInfo();
+        }
+    });
+
     isInitialized = true;
     logger.debug('Settings module initialized');
 }
@@ -222,6 +287,7 @@ export function destroySettings() {
     settingsModal = null;
     settingsModalCloseBtn = null;
     clearCacheBtn = null;
+    resetFirebaseUsageBtn = null;
     cacheInfoContainer = null;
     isInitialized = false;
 

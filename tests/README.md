@@ -4,6 +4,23 @@
 
 This test suite provides comprehensive testing coverage for the My Workout Tracker application, including unit tests, integration tests, and manual testing interfaces.
 
+## App-Level Automated Coverage
+
+The repository now includes an app-level automated journey test that exercises the real UI flow end-to-end inside Jest/jsdom using Firebase runtime mocks.
+
+- Main app journey test: `tests/integration/app-user-journey.test.js`
+- Firebase URL mocks used by the app test:
+  - `tests/mocks/firebase-app.js`
+  - `tests/mocks/firebase-auth.js`
+  - `tests/mocks/firebase-firestore.js`
+  - `tests/mocks/firebase-state.js`
+
+Run it with:
+
+```bash
+npm run test:app
+```
+
 ## Test Structure
 
 ```

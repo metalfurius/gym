@@ -24,6 +24,9 @@ import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
 import { offlineManager } from './utils/offline-manager.js';
 import { addViewListener, cleanupViewListeners } from './utils/event-manager.js';
+import { localFirstCache } from './utils/local-first-cache.js';
+import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
+import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
 import { initCalendar, updateCalendarView, hideCalendar } from './modules/calendar.js';
@@ -53,6 +56,7 @@ let themeManager = null;
 
 // State
 let currentUserRoutines = [];
+const ROUTINES_CACHE_TTL_MS = 10 * 60 * 1000;
 
 // --- App Initialization triggered by Auth ---
 export async function initializeAppAfterAuth(user) {
@@ -132,11 +136,38 @@ async function initializeExerciseCache(user) {
     }
 }
 
-async function fetchUserRoutines(user) {
+async function fetchUserRoutines(user, options = {}) {
     if (!user) {
         currentUserRoutines = [];
         populateDaySelector([]);
         return;
+    }
+
+    const forceRefresh = options.forceRefresh === true;
+    const cacheKey = `routines:${user.uid}`;
+    let hasRenderedFromCache = false;
+
+    if (!forceRefresh) {
+        try {
+            const cachedEntry = await localFirstCache.getEntry(cacheKey);
+            if (cachedEntry?.value && Array.isArray(cachedEntry.value)) {
+                const cachedRoutines = deserializeRoutinesFromCache(cachedEntry.value);
+
+                currentUserRoutines = cachedRoutines;
+                populateDaySelector(currentUserRoutines);
+                hasRenderedFromCache = true;
+
+                if (!views.manageRoutines.classList.contains('hidden')) {
+                    renderManageRoutinesView(currentUserRoutines);
+                }
+
+                if (localFirstCache.isFresh(cachedEntry, ROUTINES_CACHE_TTL_MS)) {
+                    return;
+                }
+            }
+        } catch (cacheError) {
+            logger.warn('Could not read routines cache:', cacheError);
+        }
     }
 
     try {
@@ -146,8 +177,13 @@ async function fetchUserRoutines(user) {
                 const q = query(routinesCollectionRef, orderBy("createdAt", "asc"));
                 
                 const querySnapshot = await getDocs(q);
+                firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'routines.fetch');
                 currentUserRoutines = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 populateDaySelector(currentUserRoutines);
+
+                await localFirstCache.set(cacheKey, serializeRoutinesForCache(currentUserRoutines), {
+                    metadata: { source: 'firestore' }
+                });
                 
                 // If manage routines view is active, refresh it too
                 if (!views.manageRoutines.classList.contains('hidden')) {
@@ -159,8 +195,11 @@ async function fetchUserRoutines(user) {
         );
     } catch (error) {
         logger.error("Error fetching user routines:", error);
-        currentUserRoutines = [];
-        populateDaySelector([]);
+
+        if (!hasRenderedFromCache) {
+            currentUserRoutines = [];
+            populateDaySelector([]);
+        }
         
         // Load diagnostics on Firestore errors (not offline errors)
         // Note: When queued for retry, the operation will attempt again when user is back online
@@ -328,9 +367,10 @@ function setupManageRoutinesViewListeners() {
 
                 if (routinesDeletedCount > 0) {
                     await batch.commit();
+                    firebaseUsageTracker.trackWrite(routinesDeletedCount, 'routines.deleteAll');
                     toast.success(`${routinesDeletedCount} rutina(s) borradas exitosamente.`);
                     
-                    await fetchUserRoutines(user);
+                    await fetchUserRoutines(user, { forceRefresh: true });
                     if (!views.manageRoutines.classList.contains('hidden')) {
                         renderManageRoutinesView(currentUserRoutines);
                     }
@@ -409,12 +449,14 @@ function setupRoutineEditorViewListeners() {
             try {
                 if (routineId) {
                     await setDoc(doc(db, 'users', user.uid, 'routines', routineId), routineData, { merge: true });
+                    firebaseUsageTracker.trackWrite(1, 'routines.update');
                 } else {
                     routineData.createdAt = Timestamp.now();
                     await addDoc(collection(db, 'users', user.uid, 'routines'), routineData);
+                    firebaseUsageTracker.trackWrite(1, 'routines.create');
                 }
                 toast.success('Rutina guardada con éxito!');
-                await fetchUserRoutines(user);
+                await fetchUserRoutines(user, { forceRefresh: true });
                 showView('manageRoutines');
                 renderManageRoutinesView(currentUserRoutines);
             } catch (error) {
@@ -453,8 +495,9 @@ function setupRoutineEditorViewListeners() {
                 showLoading(routineEditorElements.deleteRoutineBtn, 'Eliminando...');
                 try {
                     await deleteDoc(doc(db, 'users', user.uid, 'routines', routineId));
+                    firebaseUsageTracker.trackWrite(1, 'routines.deleteOne');
                     toast.success('Rutina eliminada con éxito.');
-                    await fetchUserRoutines(user);
+                    await fetchUserRoutines(user, { forceRefresh: true });
                     showView('manageRoutines');
                     renderManageRoutinesView(currentUserRoutines);
                 } catch (error) {
@@ -639,6 +682,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize offline detection
     offlineManager.init();
+
+    // Initialize local-first cache store in the background
+    localFirstCache.initialize().catch((error) => {
+        logger.warn('Local cache initialization failed:', error);
+    });
     
     // Initialize modules
     initScrollToTop();
