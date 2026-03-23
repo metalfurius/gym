@@ -1,4 +1,4 @@
-# My Workout Tracker
+﻿# My Workout Tracker
 
 [![Tests](https://github.com/metalfurius/gym/actions/workflows/test.yml/badge.svg)](https://github.com/metalfurius/gym/actions/workflows/test.yml)
 [![Lint](https://github.com/metalfurius/gym/actions/workflows/lint.yml/badge.svg)](https://github.com/metalfurius/gym/actions/workflows/lint.yml)
@@ -46,7 +46,13 @@ See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) for the full multi-phase roadmap.
 - Smarter cache invalidation after session and routine writes
 - Throttled exercise-cache integrity checks to cut repeated reads
 
-### Coming Soon
+### Next Planned Phase (Future): Phase 0.6 Hardening
+
+- Stability-first hardening before major lifestyle feature expansion
+- Reliability fixes for session restore and offline queued operations
+- Quality ratchet for lint debt, skipped critical tests, and staged coverage goals
+
+### Later
 
 - Flexible workout mode (muscle-group first sessions)
 - Weight and nutrition logging
@@ -54,7 +60,7 @@ See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) for the full multi-phase roadmap.
 
 ## License and Copyright
 
-� [metalfurius] 2025. All Rights Reserved.
+© [metalfurius] 2025. All Rights Reserved.
 
 This project is licensed for personal and educational use only.
 
@@ -94,3 +100,4 @@ Commands:
 - `npm run test:coverage`
 
 CI (`.github/workflows/test.yml`) runs `npm run test:app` before coverage on PRs and `main` pushes.
+
