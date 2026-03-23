@@ -109,7 +109,7 @@ describe('App User Journey', () => {
     await waitForUi(50);
   });
 
-  it('completes signup, routine creation, session save, and history rendering', async () => {
+  it('covers core flows: signup, routine create/edit/delete, session resume, save, and history', async () => {
     const testEmail = 'e2e-user@example.com';
 
     setField('#auth-email', testEmail);
@@ -136,13 +136,24 @@ describe('App User Journey', () => {
 
     const createdRoutines = __getMockCollectionDocuments('users/mock-user-1/routines');
     expect(createdRoutines).toHaveLength(1);
+    expect(createdRoutines[0].data.name).toBe('Push Day');
+
+    click('#routine-list .routine-action-btn.edit');
+    await waitForUi(150);
+    setField('#routine-name', 'Push Day Updated');
+    routineForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await waitForUi(300);
+
+    const updatedRoutines = __getMockCollectionDocuments('users/mock-user-1/routines');
+    expect(updatedRoutines).toHaveLength(1);
+    expect(updatedRoutines[0].data.name).toBe('Push Day Updated');
 
     click('#nav-dashboard');
     await waitForUi(200);
 
     const daySelect = document.getElementById('day-select');
     const routineOption = Array.from(daySelect.options).find(
-      (option) => option.value && option.textContent.includes('Push Day')
+      (option) => option.value && option.textContent.includes('Push Day Updated')
     );
     expect(routineOption).toBeDefined();
 
@@ -158,21 +169,55 @@ describe('App User Journey', () => {
 
     setField('input[name="weight-0-0"]', '60');
     setField('input[name="reps-0-0"]', '10');
+    expect(localStorage.getItem('gymTracker_inProgressSession')).not.toBeNull();
+
+    click('#nav-dashboard');
+    await waitForUi(250);
+
+    expect(isVisible('dashboard-view')).toBe(true);
+    expect(document.getElementById('resume-session-btn').classList.contains('hidden')).toBe(false);
+    expect(document.getElementById('resume-session-info').textContent).toContain('Push Day Updated');
+
+    click('#resume-session-btn');
+    await waitForUi(250);
+
+    expect(isVisible('session-view')).toBe(true);
+    expect(document.querySelector('input[name="weight-0-0"]').value).toBe('60');
+    expect(document.querySelector('input[name="reps-0-0"]').value).toBe('10');
+
     click('#save-session-btn');
     await waitForUi(300);
 
     expect(isVisible('dashboard-view')).toBe(true);
+    expect(localStorage.getItem('gymTracker_inProgressSession')).toBeNull();
 
     const createdSessions = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
     expect(createdSessions).toHaveLength(1);
-    expect(createdSessions[0].data.nombreEntrenamiento).toBe('Push Day');
+    expect(createdSessions[0].data.nombreEntrenamiento).toBe('Push Day Updated');
 
     click('#nav-history');
     await waitForUi(300);
 
     expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBe(1);
-    expect(document.getElementById('history-list').textContent).toContain('Push Day');
-  }, 20000);
+    expect(document.getElementById('history-list').textContent).toContain('Push Day Updated');
+
+    click('#nav-manage-routines');
+    await waitForUi(150);
+    click('#routine-list .routine-action-btn.edit');
+    await waitForUi(150);
+    click('#delete-routine-btn');
+    await waitForUi(300);
+
+    const routinesAfterDelete = __getMockCollectionDocuments('users/mock-user-1/routines');
+    expect(routinesAfterDelete).toHaveLength(0);
+
+    click('#nav-dashboard');
+    await waitForUi(200);
+    const selectableRoutine = Array.from(document.getElementById('day-select').options).find(
+      (option) => option.value
+    );
+    expect(selectableRoutine).toBeUndefined();
+  }, 30000);
 
   afterAll(() => {
     __resetMockFirebase();

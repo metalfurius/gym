@@ -9,6 +9,17 @@ This test suite provides comprehensive testing coverage for the My Workout Track
 The repository now includes an app-level automated journey test that exercises the real UI flow end-to-end inside Jest/jsdom using Firebase runtime mocks.
 
 - Main app journey test: `tests/integration/app-user-journey.test.js`
+- Secondary auth/navigation journey test: `tests/integration/app-auth-navigation.test.js`
+- Offline recovery journey test: `tests/integration/app-offline-recovery.test.js`
+- Offline retry journey test: `tests/integration/app-offline-retry.test.js`
+- Covered flows:
+  - signup/login
+  - routine create/edit/delete
+  - in-progress session resume
+  - session save + history rendering
+  - logout/login persistence + multi-routine switching
+  - offline queue + online recovery for session saves
+  - retry behavior when first reconnect sync fails
 - Firebase URL mocks used by the app test:
   - `tests/mocks/firebase-app.js`
   - `tests/mocks/firebase-auth.js`
@@ -59,6 +70,9 @@ npm run test:unit
 
 # Run integration tests only
 npm run test:integration
+
+# Run app-level user journeys only
+npm run test:app
 
 # Run with coverage report
 npm run test:coverage

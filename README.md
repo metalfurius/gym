@@ -74,3 +74,23 @@ This project is licensed for personal and educational use only.
 
 - Firebase for authentication and database services
 - Service Worker for offline capabilities
+
+## Testing
+
+- Unit tests: `tests/unit/*.test.js`
+- Integration tests: `tests/integration/*.test.js`
+- App-level automated journeys:
+  - `tests/integration/app-user-journey.test.js`
+  - `tests/integration/app-auth-navigation.test.js`
+  - `tests/integration/app-offline-recovery.test.js`
+  - `tests/integration/app-offline-retry.test.js`
+- Manual browser checks: `tests/manual/*`
+
+Commands:
+
+- `npm run test:unit`
+- `npm run test:integration`
+- `npm run test:app`
+- `npm run test:coverage`
+
+CI (`.github/workflows/test.yml`) runs `npm run test:app` before coverage on PRs and `main` pushes.

@@ -17,6 +17,9 @@ const firestoreInstance = {
   __isMockFirestore: true,
 };
 
+let addDocFailuresRemaining = 0;
+let addDocFailureError = null;
+
 function ensureCollectionRef(collectionRef) {
   if (!collectionRef || collectionRef.__type !== 'collection') {
     throw new Error('Expected collection reference');
@@ -98,6 +101,14 @@ export function startAfter(snapshot) {
 export async function addDoc(collectionRef, data) {
   ensureCollectionRef(collectionRef);
 
+  if (addDocFailuresRemaining > 0) {
+    addDocFailuresRemaining -= 1;
+    if (addDocFailureError) {
+      throw addDocFailureError;
+    }
+    throw new Error('Failed to fetch');
+  }
+
   const id = __createDocumentId();
   const path = `${collectionRef.path}/${id}`;
   __firestoreState.documents.set(path, __cloneMockValue(data));
@@ -106,6 +117,16 @@ export async function addDoc(collectionRef, data) {
     id,
     path,
   };
+}
+
+export function __setMockAddDocFailures(count = 1, error = null) {
+  addDocFailuresRemaining = Math.max(0, Number(count) || 0);
+  addDocFailureError = error;
+}
+
+export function __resetMockFirestoreBehavior() {
+  addDocFailuresRemaining = 0;
+  addDocFailureError = null;
 }
 
 export async function setDoc(docRef, data, options = {}) {

@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run app journey tests
+        run: npm run test:app
+
       - name: Run tests with coverage
         run: npm run test:coverage
 

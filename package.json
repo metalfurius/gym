@@ -10,7 +10,7 @@
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
-    "test:app": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js --runInBand",
+    "test:app": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
     "serve": "python3 -m http.server 8080",
     "lint": "eslint . --ext .js,.cjs",
