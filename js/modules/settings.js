@@ -18,6 +18,8 @@ let resetFirebaseUsageBtn = null;
 let cacheInfoContainer = null;
 
 let isInitialized = false;
+let handleWindowClick = null;
+let handleFirebaseUsageUpdated = null;
 
 /**
  * Formats bytes to a human-readable string
@@ -251,11 +253,12 @@ export function initSettings() {
 
     // Close settings modal when clicking outside
     if (settingsModal) {
-        window.addEventListener('click', (event) => {
+        handleWindowClick = (event) => {
             if (event.target === settingsModal) {
                 hideSettingsModal();
             }
-        });
+        };
+        window.addEventListener('click', handleWindowClick);
     }
 
     // Clear cache button event listener
@@ -267,11 +270,12 @@ export function initSettings() {
         resetFirebaseUsageBtn.addEventListener('click', resetFirebaseUsageMetrics);
     }
 
-    window.addEventListener('firebaseUsageUpdated', () => {
+    handleFirebaseUsageUpdated = () => {
         if (settingsModal && settingsModal.style.display === 'block') {
             loadCacheInfo();
         }
-    });
+    };
+    window.addEventListener('firebaseUsageUpdated', handleFirebaseUsageUpdated);
 
     isInitialized = true;
     logger.debug('Settings module initialized');
@@ -281,17 +285,45 @@ export function initSettings() {
  * Cleans up settings functionality
  */
 export function destroySettings() {
+    if (!isInitialized) {
+        settingsBtn = null;
+        settingsModal = null;
+        settingsModalCloseBtn = null;
+        clearCacheBtn = null;
+        resetFirebaseUsageBtn = null;
+        cacheInfoContainer = null;
+        handleWindowClick = null;
+        handleFirebaseUsageUpdated = null;
+        return;
+    }
+
+    if (settingsBtn) {
+        settingsBtn.removeEventListener('click', showSettingsModal);
+    }
+    if (settingsModalCloseBtn) {
+        settingsModalCloseBtn.removeEventListener('click', hideSettingsModal);
+    }
+    if (clearCacheBtn) {
+        clearCacheBtn.removeEventListener('click', clearExerciseCache);
+    }
+    if (resetFirebaseUsageBtn) {
+        resetFirebaseUsageBtn.removeEventListener('click', resetFirebaseUsageMetrics);
+    }
+    if (handleWindowClick) {
+        window.removeEventListener('click', handleWindowClick);
+    }
+    if (handleFirebaseUsageUpdated) {
+        window.removeEventListener('firebaseUsageUpdated', handleFirebaseUsageUpdated);
+    }
+
     settingsBtn = null;
     settingsModal = null;
     settingsModalCloseBtn = null;
     clearCacheBtn = null;
     resetFirebaseUsageBtn = null;
     cacheInfoContainer = null;
-
-    if (!isInitialized) return;
-
-    // Remove event listeners would go here if we stored references
-    // For now, just reset state
+    handleWindowClick = null;
+    handleFirebaseUsageUpdated = null;
     isInitialized = false;
 
     logger.debug('Settings module destroyed');

@@ -1,17 +1,17 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: March 23, 2026
+Last updated: March 24, 2026
 
 ## Vision
 
 Build a mobile-first fitness companion that connects training, nutrition, and body composition in one fast, reliable app.
 
-## Current State (March 23, 2026)
+## Current State (March 24, 2026)
 
 - Core workout tracking is in production.
 - Local-first cache and Firebase usage telemetry are in place.
 - App and integration journeys are stable in CI.
-- Phase 0.6 hardening is planned but not implemented yet.
+- Phase 0.6 hardening is in progress with core reliability milestones delivered.
 
 ## Roadmap Format
 
@@ -42,7 +42,7 @@ Goal: Finish Firebase optimization baseline and keep product development stable.
 
 ---
 
-## Next - Phase 0.6 Hardening (future, not started)
+## Next - Phase 0.6 Hardening (in progress)
 
 Goal: Introduce a stability-first hardening phase before major lifestyle features.
 
@@ -57,6 +57,17 @@ Milestone update (March 24, 2026):
   - Durable offline queue support implemented for serializable operations.
   - Settings text encoding issues fixed for Firebase usage labels.
   - Regression tests added for restore flow and persisted offline queue replay.
+  - Unit test suites unskipped and stabilized for:
+    - Pagination module (`tests/unit/pagination.test.js`)
+    - History manager module (`tests/unit/history-manager.test.js`)
+    - Session manager module (`tests/unit/session-manager.test.js`)
+    - Settings module (`tests/unit/settings.test.js`)
+    - Calendar module (`tests/unit/calendar.test.js`)
+  - Full local validation run is green via `npm run test:all`:
+    - `lint:errors` passed
+    - unit and integration suites passed
+    - app journey suites passed
+    - coverage reached 61.32% (above 60% Phase 0.6A gate)
 
 #### Roadmap cleanup
 
@@ -78,15 +89,18 @@ Milestone update (March 24, 2026):
 
 #### Test plan
 
-1. Add regression tests for version upgrade + session restore.
-2. Add regression tests for offline queue persistence across reload.
-3. Unskip and stabilize tests for: history manager, pagination, session manager, settings, calendar.
+1. [done] Add regression tests for version upgrade + session restore.
+2. [done] Add regression tests for offline queue persistence across reload.
+3. [done] Unskip and stabilize tests for: history manager, pagination, session manager, settings, calendar.
+4. [done] History manager and pagination suites are now unskipped and stable.
+5. [done] Session manager, settings, and calendar suites are now unskipped and stable.
+6. [done] Logger production-mode cases are now unskipped and stable; unit suites currently have no skipped tests.
 
 #### Quality gates
 
-1. Reduce lint warnings in a controlled pass and establish a ratchet policy.
-2. Raise total coverage from current baseline (about 51.57%) to at least 60%.
-3. Keep app-level journey tests as required CI gates.
+1. [in progress] Reduce lint warnings in a controlled pass and establish a ratchet policy.
+2. [done] Raise total coverage from current baseline (about 51.57%) to at least 60% (currently 61.37%).
+3. [done] Keep app-level journey tests as required CI gates.
 
 ### 0.6B: Quality Ratchet and Readiness Gate
 
