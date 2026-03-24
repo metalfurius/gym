@@ -32,6 +32,8 @@ Run it with:
 npm run test:app
 ```
 
+`npm run test:app` now runs ESLint in errors-only mode first. Use `npm run test:app:only` to run just the app journey tests.
+
 ## Test Structure
 
 ```

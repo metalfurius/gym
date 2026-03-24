@@ -371,7 +371,7 @@ function setupManageRoutinesViewListeners() {
                 return;
             }
 
-            const confirmMessage = `âš ï¸ ATENCIÃ“N: Vas a borrar TODAS tus ${currentUserRoutines.length} rutina(s) permanentemente.\n\nÂ¿EstÃ¡s completamente seguro? Esta acciÃ³n NO se puede deshacer.`;
+            const confirmMessage = `ATENCION: Vas a borrar TODAS tus ${currentUserRoutines.length} rutina(s) permanentemente.\n\nEstas completamente seguro? Esta accion NO se puede deshacer.`;
             
             if (!confirm(confirmMessage)) {
                 return;

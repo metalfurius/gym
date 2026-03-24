@@ -96,8 +96,10 @@ Commands:
 
 - `npm run test:unit`
 - `npm run test:integration`
-- `npm run test:app`
+- `npm run test:app` (runs ESLint errors check first, then app journeys)
+- `npm run test:app:only` (app journeys only, no lint gate)
 - `npm run test:coverage`
+- `npm run lint:errors` (errors-only ESLint gate)
 
 CI (`.github/workflows/test.yml`) runs `npm run test:app` before coverage on PRs and `main` pushes.
 
