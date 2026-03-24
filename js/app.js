@@ -4,10 +4,10 @@
  */
 
 import { db } from './firebase-config.js';
-import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, setDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser, handleLogout } from './auth.js';
 import {
-    showView, updateNav, formatDate, populateDaySelector, renderSessionView,
+    showView, formatDate, populateDaySelector,
     renderManageRoutinesView, renderRoutineEditor, addExerciseToEditorForm,
     views, navButtons, dashboardElements, sessionElements, historyElements, sessionDetailModal,
     manageRoutinesElements, routineEditorElements, progressElements, showLoading, hideLoading,
@@ -16,7 +16,6 @@ import {
 import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
-import { initSetTimers, clearTimerData } from './timer.js';
 import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, handleExerciseChange } from './progress.js';
 
 // Import new modules
@@ -31,12 +30,10 @@ import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
 import { initCalendar, updateCalendarView, hideCalendar } from './modules/calendar.js';
 import { 
-    saveInProgressSession, loadInProgressSession, clearInProgressSession,
-    getCurrentRoutineForSession, setCurrentRoutineForSession,
-    getSessionFormData, saveSessionData, checkAndOfferResumeSession,
+    setCurrentRoutineForSession, saveSessionData, checkAndOfferResumeSession,
     startSession, cancelSession, setupSessionAutoSave
 } from './modules/session-manager.js';
-import { initHistoryManager, fetchAndRenderHistory, getSessionsCache } from './modules/history-manager.js';
+import { initHistoryManager, fetchAndRenderHistory } from './modules/history-manager.js';
 
 // Conditional loading of firebase diagnostics
 let diagnosticsLoaded = false;
@@ -622,7 +619,7 @@ document.addEventListener('editRoutineClicked', (event) => {
     if (routineToEdit) {
         renderRoutineEditor(routineToEdit);
     } else {
-        toast.error("No se pudo encontrar la rutina para editar.");
+        toast.error('No se pudo encontrar la rutina para editar.');
     }
 });
 

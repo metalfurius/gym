@@ -3,7 +3,7 @@
  * Provides a reusable pagination implementation for Firestore queries
  */
 
-import { query, orderBy, limit, startAfter, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { query, orderBy, limit, startAfter, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { logger } from '../utils/logger.js';
 
 /**

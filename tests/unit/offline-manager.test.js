@@ -10,8 +10,6 @@ import { localFirstCache } from '../../js/utils/local-first-cache.js';
 describe('OfflineManager', () => {
     let originalOnLine;
     let originalAddEventListener;
-    let onlineCallback;
-    let offlineCallback;
 
     beforeEach(async () => {
         // Save original navigator.onLine
@@ -25,11 +23,9 @@ describe('OfflineManager', () => {
 
         // Save and mock window event listeners
         originalAddEventListener = window.addEventListener;
-        onlineCallback = null;
-        offlineCallback = null;
-        window.addEventListener = jest.fn((event, callback) => {
-            if (event === 'online') onlineCallback = callback;
-            if (event === 'offline') offlineCallback = callback;
+        window.addEventListener = jest.fn((event, _callback) => {
+            if (event === 'online') return;
+            if (event === 'offline') return;
         });
 
         // Reset manager state

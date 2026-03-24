@@ -7,12 +7,12 @@ import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
 import { serializeSessionsForCache, deserializeSessionsFromCache } from './utils/firestore-serialization.js';
 
 let progressChart = null;
-let exerciseDataCache = new Map();
+const exerciseDataCache = new Map();
 
 const PROGRESS_SESSIONS_CACHE_TTL_MS = 10 * 60 * 1000;
 const MAX_PROGRESS_SESSIONS = 300;
 
-let progressTabCache = {
+const progressTabCache = {
     exercisesList: null,
     exercisesWithCount: null,
     lastCacheTime: null,

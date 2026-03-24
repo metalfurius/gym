@@ -223,8 +223,8 @@ export class ExerciseCacheManager {
             };
 
             // Guardar backup en Firestore
-            const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-            const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");
+            const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+            const backupDocRef = doc(db, 'users', userId, 'app_data', 'exercise_cache');
             await setDoc(backupDocRef, backupData, { merge: true });
             firebaseUsageTracker.trackWrite(1, 'exerciseCache.syncBackup');
         } catch (error) {
@@ -241,8 +241,8 @@ export class ExerciseCacheManager {
         if (!userId || !db) return false;
 
         try {
-            const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-            const backupDocRef = doc(db, "users", userId, "app_data", "exercise_cache");
+            const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+            const backupDocRef = doc(db, 'users', userId, 'app_data', 'exercise_cache');
             const backupDoc = await getDoc(backupDocRef);
             firebaseUsageTracker.trackRead(backupDoc.exists() ? 1 : 0, 'exerciseCache.restoreBackup');
 
@@ -270,11 +270,11 @@ export class ExerciseCacheManager {
         if (!userId || !db) return;
 
         try {
-            const { collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+            const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
             
             // Obtener las últimas 200 sesiones para construir el cache completo (reducido de 500 para mejor rendimiento)
-            const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
-            const q = query(sessionsRef, orderBy("fecha", "desc"), limit(200));
+            const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
+            const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(200));
             const querySnapshot = await getDocs(q);
             firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.buildFromHistory');
             // Procesar sesiones en orden cronológico inverso (más antigua primero)
@@ -382,11 +382,11 @@ export class ExerciseCacheManager {
         if (!userId || !db) return false;
 
         try {
-            const { collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+            const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
             
             // Obtener las últimas 10 sesiones para verificar
-            const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
-            const q = query(sessionsRef, orderBy("fecha", "desc"), limit(10));
+            const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
+            const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(10));
             const querySnapshot = await getDocs(q);
             firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.verifyIntegrity');
             

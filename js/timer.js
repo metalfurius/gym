@@ -5,9 +5,6 @@ import { logger } from './utils/logger.js';
 // Store active timers by ID to access them easily
 const activeTimers = {};
 
-// Store rest times data for each set
-const restTimesData = {};
-
 // Storage key for timer data in localStorage
 const TIMERS_STORAGE_KEY = 'gym-tracker-timer-data';
 
@@ -162,7 +159,7 @@ function pauseAllTimers() {
 // Save timer value to localStorage
 function saveTimerValue(timerId, timeValue, isRunning) {
     // Get existing timer data
-    let timerData = JSON.parse(localStorage.getItem(TIMERS_STORAGE_KEY) || '{}');
+    const timerData = JSON.parse(localStorage.getItem(TIMERS_STORAGE_KEY) || '{}');
     
     // Update with new value
     if (!timerData.timers) timerData.timers = {};

@@ -235,8 +235,8 @@ export function populateDaySelector(userRoutines) {
         });
     } else {
         const option = document.createElement('option');
-        option.value = "";
-        option.textContent = "No tienes rutinas. ¡Crea una!";
+        option.value = '';
+        option.textContent = 'No tienes rutinas. ¡Crea una!';
         option.disabled = true;
         dashboardElements.daySelect.appendChild(option);
     }
@@ -251,8 +251,8 @@ export function populateDaySelector(userRoutines) {
 
 export async function renderSessionView(routine, inProgressData = null) {
     if (!routine || !routine.exercises) {
-        logger.error("Routine data is invalid for session view:", routine);
-        toast.error("Error: Datos de la rutina no válidos.");
+        logger.error('Routine data is invalid for session view:', routine);
+        toast.error('Error: Datos de la rutina no válidos.');
         showView('dashboard');
         return;
     }
@@ -294,7 +294,7 @@ export async function renderSessionView(routine, inProgressData = null) {
     
     // Validate range and round to 1 decimal on blur
     userWeightInput.addEventListener('blur', function(e) {
-        let value = e.target.value.replace(',', '.');
+        const value = e.target.value.replace(',', '.');
         if (value && !isNaN(value)) {
             const numValue = parseFloat(value);
             if (numValue < 20) {
@@ -352,8 +352,8 @@ export async function renderSessionView(routine, inProgressData = null) {
                 
                 const daysAgo = suggestions.daysSinceLastSession;
                 const timeText = daysAgo === 0 ? 'hoy' : 
-                                daysAgo === 1 ? 'ayer' : 
-                                `hace ${daysAgo} días`;
+                    daysAgo === 1 ? 'ayer' : 
+                        `hace ${daysAgo} días`;
                 
                 lastWorkoutInfo.innerHTML = `
                     <div class="last-workout-header">
@@ -362,8 +362,8 @@ export async function renderSessionView(routine, inProgressData = null) {
                     </div>
                     <div class="last-workout-details">
                         ${suggestions.suggestions.lastSets.map((set, idx) => 
-                            `<span class="last-set">S${idx + 1}: ${escapeHtml(set.peso)}kg × ${escapeHtml(set.reps)}</span>`
-                        ).join('')}
+        `<span class="last-set">S${idx + 1}: ${escapeHtml(set.peso)}kg × ${escapeHtml(set.reps)}</span>`
+    ).join('')}
                     </div>
                 `;
                 
@@ -438,7 +438,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                 
                 // Round to 1 decimal on blur
                 weightInput.addEventListener('blur', function(e) {
-                    let value = e.target.value.replace(',', '.');
+                    const value = e.target.value.replace(',', '.');
                     if (value && !isNaN(value)) {
                         const rounded = Math.round(parseFloat(value) * 10) / 10;
                         e.target.value = rounded;
@@ -468,7 +468,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                     repsInput.dataset.suggestion = suggestions.suggestions.reps;
                 }
                 repsInput.placeholder = repsPlaceholder;
-                repsInput.min = "0";
+                repsInput.min = '0';
                 if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]) {
                     repsInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].reps || '';
                 }
@@ -506,7 +506,7 @@ export async function renderSessionView(routine, inProgressData = null) {
             }
         } else if (exercise.type === 'cardio') {
             const infoPara = document.createElement('p');
-            infoPara.textContent = "Registra los detalles en las notas.";
+            infoPara.textContent = 'Registra los detalles en las notas.';
             infoPara.style.fontSize = '0.9em';
             infoPara.style.color = '#666';
             exerciseBlock.appendChild(infoPara);
@@ -514,7 +514,7 @@ export async function renderSessionView(routine, inProgressData = null) {
 
 
         const notesLabel = document.createElement('label');
-        notesLabel.textContent = "Notas de la sesión:";
+        notesLabel.textContent = 'Notas de la sesión:';
         notesLabel.htmlFor = `notes-${exerciseIndex}`;
         notesLabel.style.marginTop = '10px';
         exerciseBlock.appendChild(notesLabel);
@@ -621,9 +621,9 @@ export function renderHistoryList(sessions) {
 export function showSessionDetail(sessionData) {
     if (!sessionData) return;
     
-    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || "Detalle de Sesión";
+    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || 'Detalle de Sesión';
     
-    let dateInfo = `${formatDate(sessionData.fecha.toDate())}`;
+    const dateInfo = `${formatDate(sessionData.fecha.toDate())}`;
     sessionDetailModal.date.textContent = dateInfo;
     
     if (sessionData.pesoUsuario) {
@@ -802,7 +802,7 @@ export function addExerciseToEditorForm(exerciseData = null) {
     exerciseDiv.className = 'routine-exercise-editor';
     exerciseDiv.dataset.editorId = `exEditor-${exerciseEditorCounter}`;
 
-    let exerciseType = exerciseData?.type || 'strength';
+    const exerciseType = exerciseData?.type || 'strength';
 
     exerciseDiv.innerHTML = `
         <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="Eliminar ejercicio">×</button>
@@ -895,7 +895,7 @@ export function showLoading(buttonElement, text = 'Cargando...') {
 }
 
 export function hideLoading(buttonElement) {
-     if (buttonElement) {
+    if (buttonElement) {
         buttonElement.disabled = false;
         if (buttonElement.dataset.originalText) {
             buttonElement.textContent = buttonElement.dataset.originalText;
@@ -921,22 +921,6 @@ logger.debug('Calendar elements loaded:', {
     currentMonthDisplay: !!calendarElements.currentMonthDisplay,
     loadingSpinner: !!calendarElements.loadingSpinner
 });
-
-function initHistoryFilters() {
-    if (!historyElements.filterButtons || !historyElements.searchInput) return;
-    
-    historyElements.filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            historyElements.filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            applyHistoryFilters();
-        });
-    });
-    
-    historyElements.searchInput.addEventListener('input', () => {
-        applyHistoryFilters();
-    });
-}
 
 export function applyHistoryFilters() {
     if (!historyElements.list || !historyElements.searchInput) return;
@@ -970,7 +954,7 @@ export function applyHistoryFilters() {
 if (historyElements.searchInput) {
     historyElements.searchInput.addEventListener('input', applyHistoryFilters);
 } else {
-    logger.warn("History search input not found for attaching event listener in ui.js");
+    logger.warn('History search input not found for attaching event listener in ui.js');
 }
 
 // Helper function to fill exercise inputs with last workout values

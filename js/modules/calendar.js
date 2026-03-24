@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase-config.js';
-import { collection, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { collection, query, where, getDocs, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
@@ -131,10 +131,10 @@ async function getMonthlyActivity(userId, year, month) {
     }
 
     try {
-        const sessionsRef = collection(db, "users", userId, "sesiones_entrenamiento");
+        const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
         const q = query(sessionsRef,
-            where("fecha", ">=", Timestamp.fromDate(startDate)),
-            where("fecha", "<=", Timestamp.fromDate(endDate))
+            where('fecha', '>=', Timestamp.fromDate(startDate)),
+            where('fecha', '<=', Timestamp.fromDate(endDate))
         );
         const querySnapshot = await getDocs(q);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.monthlyActivity', {
@@ -168,7 +168,7 @@ async function getMonthlyActivity(userId, year, month) {
             metadata: { year, month: month + 1 }
         });
     } catch (error) {
-        logger.error("Error fetching monthly activity:", error);
+        logger.error('Error fetching monthly activity:', error);
         try {
             const cachedEntry = await localFirstCache.getEntry(cacheKey);
             if (cachedEntry?.value) {
@@ -209,13 +209,13 @@ function renderActivityCalendar(year, month, activityData) {
     
     calendarView.innerHTML = ''; // Clear previous calendar
     
-    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
-                       "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     
     currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
 
     // Add day headers
-    const dayHeaders = ["L", "M", "X", "J", "V", "S", "D"];
+    const dayHeaders = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
     dayHeaders.forEach(dayHeader => {
         const headerCell = document.createElement('div');
         headerCell.classList.add('day-header');

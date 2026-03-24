@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase-config.js';
-import { collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { collection, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { 
     showView, sessionElements, dashboardElements, 
@@ -208,7 +208,7 @@ export function getSessionFormData() {
 export async function saveSessionData(onSuccess) {
     const user = getCurrentUser();
     if (!currentRoutineForSession || !user) {
-        toast.error("Error: No hay rutina activa o no has iniciado sesión.");
+        toast.error('Error: No hay rutina activa o no has iniciado sesión.');
         return;
     }
 
@@ -219,7 +219,7 @@ export async function saveSessionData(onSuccess) {
     
     const sessionDataFromForm = getSessionFormData();
     if (sessionDataFromForm.ejercicios.length === 0) {
-        toast.warning("No se registraron datos para ningún ejercicio. Introduce datos o notas para guardar la sesión.");
+        toast.warning('No se registraron datos para ningún ejercicio. Introduce datos o notas para guardar la sesión.');
         return;
     }
     
@@ -272,7 +272,7 @@ export async function saveSessionData(onSuccess) {
             logger.warn('Could not invalidate local caches after session save:', cacheError);
         });
         
-        toast.success("¡Sesión guardada con éxito!");
+        toast.success('¡Sesión guardada con éxito!');
         sessionElements.form.reset();
         clearInProgressSession();
         clearTimerData();
@@ -352,13 +352,13 @@ export async function startSession(routineId, userRoutines) {
     
     const selectedRoutine = userRoutines.find(r => r.id === routineId);
     if (!selectedRoutine) {
-        toast.error("Rutina no encontrada. Por favor, selecciona otra.");
+        toast.error('Rutina no encontrada. Por favor, selecciona otra.');
         return;
     }
 
     const inProgress = loadInProgressSession();
     if (inProgress && inProgress.routineId !== routineId) {
-        if (!confirm("Tienes otra sesión en progreso. ¿Descartarla y empezar esta nueva?")) {
+        if (!confirm('Tienes otra sesión en progreso. ¿Descartarla y empezar esta nueva?')) {
             return;
         }
         clearInProgressSession();
@@ -374,7 +374,7 @@ export async function startSession(routineId, userRoutines) {
  * Cancels the current session
  */
 export function cancelSession() {
-    if (confirm("¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.")) {
+    if (confirm('¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.')) {
         sessionElements.form.reset();
         clearInProgressSession();
         clearTimerData();

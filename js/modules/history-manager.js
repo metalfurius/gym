@@ -28,7 +28,6 @@ import { serializeSessionsForCache, deserializeSessionsFromCache } from '../util
 const HISTORY_PAGE_SIZE = 10;
 const HISTORY_CACHE_TTL_MS = 5 * 60 * 1000;
 
-let historyPageFirstDocSnapshot = null;
 let historyPageLastDocSnapshot = null;
 let historyPageDocSnapshotsStack = [];
 let currentHistoryPageNumber = 1;
@@ -63,7 +62,6 @@ export function getSessionsCache() {
 }
 
 function resetPaginationState() {
-    historyPageFirstDocSnapshot = null;
     historyPageLastDocSnapshot = null;
     historyPageDocSnapshotsStack = [];
     currentHistoryPageNumber = 1;
@@ -185,7 +183,6 @@ export async function fetchAndRenderHistory(direction = 'initial') {
                 historyPageDocSnapshotsStack.push(firstDocOfCurrentPage);
             }
 
-            historyPageFirstDocSnapshot = firstDocOfCurrentPage;
             historyPageLastDocSnapshot = querySnapshot.docs[querySnapshot.docs.length - 1];
         } else {
             if (direction === 'next') historyPageLastDocSnapshot = null;
@@ -289,7 +286,6 @@ async function reloadCurrentPage(user) {
     renderHistoryList(reloadedSessions);
 
     if (snapshot.docs.length > 0) {
-        historyPageFirstDocSnapshot = snapshot.docs[0];
         historyPageLastDocSnapshot = snapshot.docs[snapshot.docs.length - 1];
     } else {
         historyPageLastDocSnapshot = null;

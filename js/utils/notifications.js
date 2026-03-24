@@ -28,7 +28,6 @@ const NOTIFICATION_ICONS = {
 };
 
 let notificationContainer = null;
-let notificationQueue = [];
 
 /**
  * Initialize the notification container

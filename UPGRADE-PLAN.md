@@ -12,6 +12,7 @@ Build a mobile-first fitness companion that connects training, nutrition, and bo
 - Local-first cache and Firebase usage telemetry are in place.
 - App and integration journeys are stable in CI.
 - Phase 0.6 hardening is in progress with core reliability milestones delivered.
+- ESLint warning backlog has been reduced to zero and a CI ratchet is now active.
 
 ## Roadmap Format
 
@@ -67,7 +68,11 @@ Milestone update (March 24, 2026):
     - `lint:errors` passed
     - unit and integration suites passed
     - app journey suites passed
-    - coverage reached 61.32% (above 60% Phase 0.6A gate)
+    - coverage reached 61.80% (above 60% Phase 0.6A gate)
+  - Lint debt cleanup milestone reached:
+    - warnings reduced from 4962 to 0 (`npm run lint`)
+    - strict warning ratchet added via `npm run lint:ratchet` (`--max-warnings 0`)
+    - lint CI workflow now enforces the zero-warning budget
 
 #### Roadmap cleanup
 
@@ -98,15 +103,15 @@ Milestone update (March 24, 2026):
 
 #### Quality gates
 
-1. [in progress] Reduce lint warnings in a controlled pass and establish a ratchet policy.
-2. [done] Raise total coverage from current baseline (about 51.57%) to at least 60% (currently 61.37%).
+1. [done] Reduce lint warnings in a controlled pass and establish a ratchet policy.
+2. [done] Raise total coverage from current baseline (about 51.57%) to at least 60% (currently 61.80%).
 3. [done] Keep app-level journey tests as required CI gates.
 
 ### 0.6B: Quality Ratchet and Readiness Gate
 
 #### Quality gates
 
-1. Continue lint warning reduction and tighten CI warning budget.
+1. Maintain zero-warning lint baseline and keep CI ratchet strict.
 2. Raise total coverage from 60% to at least 70%.
 3. Keep all newly unskipped critical suites green.
 

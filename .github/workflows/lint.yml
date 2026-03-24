@@ -27,6 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+      - name: Run ESLint Ratchet (0 warnings)
+        run: npm run lint:ratchet
         continue-on-error: false

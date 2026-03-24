@@ -15,6 +15,7 @@
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
     "serve": "python3 -m http.server 8080",
     "lint": "eslint . --ext .js,.cjs",
+    "lint:ratchet": "eslint . --ext .js,.cjs --max-warnings 0",
     "lint:errors": "eslint . --ext .js,.cjs --quiet",
     "lint:fix": "eslint . --ext .js,.cjs --fix",
     "format": "prettier --write \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",

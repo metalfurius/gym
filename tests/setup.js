@@ -3,64 +3,64 @@ import { jest, beforeEach } from '@jest/globals';
 
 // Mock localStorage
 const localStorageMock = (() => {
-  let store = {};
-  return {
-    getItem: (key) => store[key] || null,
-    setItem: (key, value) => {
-      store[key] = value.toString();
-    },
-    removeItem: (key) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    },
-    get length() {
-      return Object.keys(store).length;
-    },
-    key: (index) => {
-      const keys = Object.keys(store);
-      return keys[index] || null;
-    },
-  };
+    let store = {};
+    return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => {
+            store[key] = value.toString();
+        },
+        removeItem: (key) => {
+            delete store[key];
+        },
+        clear: () => {
+            store = {};
+        },
+        get length() {
+            return Object.keys(store).length;
+        },
+        key: (index) => {
+            const keys = Object.keys(store);
+            return keys[index] || null;
+        },
+    };
 })();
 
 global.localStorage = localStorageMock;
 
 // Mock sessionStorage (separate instance from localStorage)
 const sessionStorageMock = (() => {
-  let store = {};
-  return {
-    getItem: (key) => store[key] || null,
-    setItem: (key, value) => {
-      store[key] = value.toString();
-    },
-    removeItem: (key) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    },
-    get length() {
-      return Object.keys(store).length;
-    },
-    key: (index) => {
-      const keys = Object.keys(store);
-      return keys[index] || null;
-    },
-  };
+    let store = {};
+    return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => {
+            store[key] = value.toString();
+        },
+        removeItem: (key) => {
+            delete store[key];
+        },
+        clear: () => {
+            store = {};
+        },
+        get length() {
+            return Object.keys(store).length;
+        },
+        key: (index) => {
+            const keys = Object.keys(store);
+            return keys[index] || null;
+        },
+    };
 })();
 
 global.sessionStorage = sessionStorageMock;
 
 // Mock navigator.storage
 global.navigator.storage = {
-  estimate: async () => ({
-    quota: 1024 * 1024 * 1024,
-    usage: 1024 * 1024,
-  }),
-  persisted: async () => true,
-  persist: async () => true,
+    estimate: async () => ({
+        quota: 1024 * 1024 * 1024,
+        usage: 1024 * 1024,
+    }),
+    persisted: async () => true,
+    persist: async () => true,
 };
 
 // Setup console spies to reduce noise without replacing the global console object
@@ -73,16 +73,16 @@ const warnSpy = jest.spyOn(console, 'warn');
 const errorSpy = jest.spyOn(console, 'error');
 
 if (silenceConsole) {
-  logSpy.mockImplementation(() => {});
-  debugSpy.mockImplementation(() => {});
-  infoSpy.mockImplementation(() => {});
-  warnSpy.mockImplementation(() => {});
-  errorSpy.mockImplementation(() => {});
+    logSpy.mockImplementation(() => {});
+    debugSpy.mockImplementation(() => {});
+    infoSpy.mockImplementation(() => {});
+    warnSpy.mockImplementation(() => {});
+    errorSpy.mockImplementation(() => {});
 }
 
 // Reset mocks before each test
 beforeEach(() => {
-  localStorage.clear();
-  sessionStorage.clear();
-  jest.clearAllMocks();
+    localStorage.clear();
+    sessionStorage.clear();
+    jest.clearAllMocks();
 });

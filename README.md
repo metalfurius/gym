@@ -39,18 +39,17 @@ A modern, responsive workout tracking web app with session management, routine c
 
 See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) for the full multi-phase roadmap.
 
-### Current Focus: Phase 0.5 Firebase Optimization
+### Current Focus: Phase 0.6 Hardening
 
-- Cache-first loading for routines/history/calendar/progress fallback
-- Usage tracking for Firebase reads/writes and high-cost operations
-- Smarter cache invalidation after session and routine writes
-- Throttled exercise-cache integrity checks to cut repeated reads
-
-### Next Planned Phase (Future): Phase 0.6 Hardening
-
-- Stability-first hardening before major lifestyle feature expansion
 - Reliability fixes for session restore and offline queued operations
-- Quality ratchet for lint debt, skipped critical tests, and staged coverage goals
+- Zero-warning ESLint baseline with CI ratchet (`npm run lint:ratchet`)
+- Coverage maintained above 60% with app journey suites as CI gates
+
+### Next Planned Phase (Future): Phase 1 Mobile-First UX and Lifestyle Core
+
+- Daily dashboard and faster quick logging flows
+- Weight and nutrition logging
+- Goal progress indicators and reminders
 
 ### Later
 
@@ -99,6 +98,8 @@ Commands:
 - `npm run test:app` (runs ESLint errors check first, then app journeys)
 - `npm run test:app:only` (app journeys only, no lint gate)
 - `npm run test:coverage`
+- `npm run lint`
+- `npm run lint:ratchet` (fails if any warning is introduced)
 - `npm run lint:errors` (errors-only ESLint gate)
 
 CI (`.github/workflows/test.yml`) runs `npm run test:app` before coverage on PRs and `main` pushes.

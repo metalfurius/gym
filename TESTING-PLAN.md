@@ -56,6 +56,8 @@ These mock files are wired in `jest.config.js` through URL module mapping for:
 - `npm run test:app` (runs ESLint errors check first, then app journeys)
 - `npm run test:app:only` (app journeys only, no lint gate)
 - `npm run test:coverage`
+- `npm run lint`
+- `npm run lint:ratchet` (strict warning budget: 0)
 - `npm run lint:errors`
 
 ## CI Enforcement

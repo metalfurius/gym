@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
 import { auth } from './firebase-config.js';
 import { showView, updateNav, displayAuthError, displayAuthSuccess, clearAuthMessages, authElements, dashboardElements } from './ui.js';
 import { clearInProgressSession } from './modules/session-manager.js';
@@ -13,17 +13,17 @@ export function getCurrentUser() {
 
 function getFriendlyAuthErrorMessage(error) {
     switch (error.code) {
-        case 'auth/invalid-email': return "El formato del email no es válido.";
-        case 'auth/user-disabled': return "Esta cuenta de usuario ha sido deshabilitada.";
-        case 'auth/user-not-found': return "No se encontró ningún usuario con este email.";
-        case 'auth/wrong-password': return "La contraseña es incorrecta.";
-        case 'auth/email-already-in-use': return "Este email ya está registrado. Intenta iniciar sesión.";
-        case 'auth/weak-password': return "La contraseña es demasiado débil (mínimo 6 caracteres).";
-        case 'auth/operation-not-allowed': return "Inicio de sesión con email/contraseña no habilitado.";
-        case 'auth/missing-password': return "Por favor, introduce una contraseña.";
+        case 'auth/invalid-email': return 'El formato del email no es válido.';
+        case 'auth/user-disabled': return 'Esta cuenta de usuario ha sido deshabilitada.';
+        case 'auth/user-not-found': return 'No se encontró ningún usuario con este email.';
+        case 'auth/wrong-password': return 'La contraseña es incorrecta.';
+        case 'auth/email-already-in-use': return 'Este email ya está registrado. Intenta iniciar sesión.';
+        case 'auth/weak-password': return 'La contraseña es demasiado débil (mínimo 6 caracteres).';
+        case 'auth/operation-not-allowed': return 'Inicio de sesión con email/contraseña no habilitado.';
+        case 'auth/missing-password': return 'Por favor, introduce una contraseña.';
         default:
             logger.error('Unhandled Auth Error:', error);
-            return "Error de autenticación. Inténtalo de nuevo.";
+            return 'Error de autenticación. Inténtalo de nuevo.';
     }
 }
 
@@ -33,11 +33,11 @@ export async function handleEmailSignup(event) {
     const email = authElements.emailInput.value;
     const password = authElements.passwordInput.value;
     if (!email || !password) {
-        displayAuthError("Por favor, introduce email y contraseña.");
+        displayAuthError('Por favor, introduce email y contraseña.');
         return;
     }
     if (password.length < 6) {
-        displayAuthError("La contraseña debe tener al menos 6 caracteres.");
+        displayAuthError('La contraseña debe tener al menos 6 caracteres.');
         return;
     }
 
@@ -45,9 +45,9 @@ export async function handleEmailSignup(event) {
     authElements.loginBtn.disabled = true;
 
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, email, password);
         // onAuthStateChanged will handle the rest
-        displayAuthSuccess("¡Registro exitoso! Serás redirigido.");
+        displayAuthSuccess('¡Registro exitoso! Serás redirigido.');
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
         // Load diagnostics on auth errors that might be network-related
@@ -71,15 +71,16 @@ export async function handleEmailLogin(event) {
     const email = authElements.emailInput.value;
     const password = authElements.passwordInput.value;
     if (!email || !password) {
-        displayAuthError("Por favor, introduce email y contraseña.");
+        displayAuthError('Por favor, introduce email y contraseña.');
         return;
     }
 
     authElements.loginBtn.disabled = true;
     authElements.signupBtn.disabled = true;
 
-    try {        await signInWithEmailAndPassword(auth, email, password);
-        displayAuthSuccess("¡Inicio de sesión exitoso! Serás redirigido.");
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        displayAuthSuccess('¡Inicio de sesión exitoso! Serás redirigido.');
         // onAuthStateChanged will handle fetching routines for existing user
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
@@ -104,7 +105,7 @@ export async function handleLogout() {
         clearInProgressSession();
     } catch (error) {
         logger.error('Logout error:', error);
-        alert("Error al cerrar sesión.");
+        alert('Error al cerrar sesión.');
     }
 }
 
