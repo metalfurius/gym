@@ -1,4 +1,4 @@
-/**
+﻿/**
  * My Workout Tracker - Main Application
  * This is the main orchestrator that imports and initializes all modules
  */
@@ -80,6 +80,11 @@ export async function initializeAppAfterAuth(user) {
         
         // Initialize progress view
         initializeProgressView();
+
+        // Process any queued durable operations that were waiting for auth context.
+        offlineManager.processPendingOperations().catch((error) => {
+            logger.warn('Could not process pending offline operations after auth:', error);
+        });
         
         checkAndOfferResumeSession(currentUserRoutines);
         
@@ -136,6 +141,25 @@ async function initializeExerciseCache(user) {
     }
 }
 
+async function refreshUserRoutinesFromFirestore(user) {
+    const cacheKey = `routines:${user.uid}`;
+    const routinesCollectionRef = collection(db, 'users', user.uid, 'routines');
+    const q = query(routinesCollectionRef, orderBy('createdAt', 'asc'));
+
+    const querySnapshot = await getDocs(q);
+    firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'routines.fetch');
+    currentUserRoutines = querySnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    populateDaySelector(currentUserRoutines);
+
+    await localFirstCache.set(cacheKey, serializeRoutinesForCache(currentUserRoutines), {
+        metadata: { source: 'firestore' }
+    });
+
+    if (!views.manageRoutines.classList.contains('hidden')) {
+        renderManageRoutinesView(currentUserRoutines);
+    }
+}
+
 async function fetchUserRoutines(user, options = {}) {
     if (!user) {
         currentUserRoutines = [];
@@ -172,43 +196,48 @@ async function fetchUserRoutines(user, options = {}) {
 
     try {
         await offlineManager.executeWithOfflineHandling(
-            async () => {
-                const routinesCollectionRef = collection(db, "users", user.uid, "routines");
-                const q = query(routinesCollectionRef, orderBy("createdAt", "asc"));
-                
-                const querySnapshot = await getDocs(q);
-                firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'routines.fetch');
-                currentUserRoutines = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                populateDaySelector(currentUserRoutines);
-
-                await localFirstCache.set(cacheKey, serializeRoutinesForCache(currentUserRoutines), {
-                    metadata: { source: 'firestore' }
-                });
-                
-                // If manage routines view is active, refresh it too
-                if (!views.manageRoutines.classList.contains('hidden')) {
-                    renderManageRoutinesView(currentUserRoutines);
+            async () => refreshUserRoutinesFromFirestore(user),
+            'No se pueden cargar las rutinas sin conexion. Se reintentara cuando vuelvas a estar en linea.',
+            true,
+            {
+                type: 'routines.fetch',
+                payload: {
+                    userId: user.uid
                 }
-            },
-            'No se pueden cargar las rutinas sin conexión. Se reintentará cuando vuelvas a estar en línea.',
-            true // Queue for retry when online
+            }
         );
     } catch (error) {
-        logger.error("Error fetching user routines:", error);
+        logger.error('Error fetching user routines:', error);
 
         if (!hasRenderedFromCache) {
             currentUserRoutines = [];
             populateDaySelector([]);
         }
-        
-        // Load diagnostics on Firestore errors (not offline errors)
-        // Note: When queued for retry, the operation will attempt again when user is back online
-        if (!error.message?.startsWith('Offline:') && 
-            (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT'))) {
+
+        if (!error.message?.startsWith('Offline:')
+            && (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT'))) {
             loadFirebaseDiagnostics();
         }
     }
 }
+
+offlineManager.registerOperationHandler('routines.fetch', async (payload) => {
+    if (!payload?.userId) {
+        throw new Error('Invalid queued routines.fetch payload');
+    }
+
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+        throw new Error('User not ready for routines fetch replay');
+    }
+
+    if (currentUser.uid !== payload.userId) {
+        logger.warn('Dropping queued routines.fetch for a different user');
+        return;
+    }
+
+    await refreshUserRoutinesFromFirestore(currentUser);
+});
 
 // --- View-specific listener setup ---
 
@@ -283,11 +312,11 @@ function setupManageRoutinesViewListeners() {
         addViewListener('manageRoutines', manageRoutinesElements.exportRoutinesBtn, 'click', async () => {
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesión para realizar esta acción.');
+                toast.error('Debes iniciar sesiÃ³n para realizar esta acciÃ³n.');
                 return;
             }
 
-            if (!confirm('¿Deseas exportar todas tus rutinas al portapapeles? Se copiará un JSON con todas tus rutinas.')) {
+            if (!confirm('Â¿Deseas exportar todas tus rutinas al portapapeles? Se copiarÃ¡ un JSON con todas tus rutinas.')) {
                 return;
             }
 
@@ -333,7 +362,7 @@ function setupManageRoutinesViewListeners() {
         addViewListener('manageRoutines', manageRoutinesElements.deleteAllRoutinesBtn, 'click', async () => {
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesión para realizar esta acción.');
+                toast.error('Debes iniciar sesiÃ³n para realizar esta acciÃ³n.');
                 return;
             }
 
@@ -342,13 +371,13 @@ function setupManageRoutinesViewListeners() {
                 return;
             }
 
-            const confirmMessage = `⚠️ ATENCIÓN: Vas a borrar TODAS tus ${currentUserRoutines.length} rutina(s) permanentemente.\n\n¿Estás completamente seguro? Esta acción NO se puede deshacer.`;
+            const confirmMessage = `âš ï¸ ATENCIÃ“N: Vas a borrar TODAS tus ${currentUserRoutines.length} rutina(s) permanentemente.\n\nÂ¿EstÃ¡s completamente seguro? Esta acciÃ³n NO se puede deshacer.`;
             
             if (!confirm(confirmMessage)) {
                 return;
             }
 
-            const finalConfirm = prompt('Para confirmar, escribe "BORRAR TODO" (en mayúsculas):');
+            const finalConfirm = prompt('Para confirmar, escribe "BORRAR TODO" (en mayÃºsculas):');
             if (finalConfirm !== 'BORRAR TODO') {
                 toast.info('Cancelado. No se borraron las rutinas.');
                 return;
@@ -404,14 +433,14 @@ function setupRoutineEditorViewListeners() {
             event.preventDefault();
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesión para guardar rutinas.');
+                toast.error('Debes iniciar sesiÃ³n para guardar rutinas.');
                 return;
             }
 
             const routineId = routineEditorElements.routineIdInput.value;
             const routineName = routineEditorElements.routineNameInput.value.trim();
             if (!routineName) {
-                toast.warning('El nombre de la rutina no puede estar vacío.');
+                toast.warning('El nombre de la rutina no puede estar vacÃ­o.');
                 return;
             }
 
@@ -435,7 +464,7 @@ function setupRoutineEditorViewListeners() {
             });
 
             if (exercises.length === 0) {
-                toast.warning('Debes añadir al menos un ejercicio a la rutina.');
+                toast.warning('Debes aÃ±adir al menos un ejercicio a la rutina.');
                 return;
             }
 
@@ -455,7 +484,7 @@ function setupRoutineEditorViewListeners() {
                     await addDoc(collection(db, 'users', user.uid, 'routines'), routineData);
                     firebaseUsageTracker.trackWrite(1, 'routines.create');
                 }
-                toast.success('Rutina guardada con éxito!');
+                toast.success('Rutina guardada con Ã©xito!');
                 await fetchUserRoutines(user, { forceRefresh: true });
                 showView('manageRoutines');
                 renderManageRoutinesView(currentUserRoutines);
@@ -473,7 +502,7 @@ function setupRoutineEditorViewListeners() {
 
     if (routineEditorElements.cancelEditRoutineBtn) {
         addViewListener('routineEditor', routineEditorElements.cancelEditRoutineBtn, 'click', () => {
-            if (confirm('¿Cancelar edición? Los cambios no guardados se perderán.')) {
+            if (confirm('Â¿Cancelar ediciÃ³n? Los cambios no guardados se perderÃ¡n.')) {
                 showView('manageRoutines');
             }
         });
@@ -491,12 +520,12 @@ function setupRoutineEditorViewListeners() {
                 return;
             }
 
-            if (confirm(`¿Estás seguro de que quieres eliminar la rutina "${routineToDelete.name}"? Esta acción no se puede deshacer.`)) {
+            if (confirm(`Â¿EstÃ¡s seguro de que quieres eliminar la rutina "${routineToDelete.name}"? Esta acciÃ³n no se puede deshacer.`)) {
                 showLoading(routineEditorElements.deleteRoutineBtn, 'Eliminando...');
                 try {
                     await deleteDoc(doc(db, 'users', user.uid, 'routines', routineId));
                     firebaseUsageTracker.trackWrite(1, 'routines.deleteOne');
-                    toast.success('Rutina eliminada con éxito.');
+                    toast.success('Rutina eliminada con Ã©xito.');
                     await fetchUserRoutines(user, { forceRefresh: true });
                     showView('manageRoutines');
                     renderManageRoutinesView(currentUserRoutines);
@@ -656,14 +685,14 @@ if (versionInfoElement) {
             versionInfoElement.textContent = `v${version}`;
         } catch (error) {
             logger.error('Error getting version for UI:', error);
-            versionInfoElement.textContent = 'v1.1.0';
+            versionInfoElement.textContent = 'v1.0.2';
         }
     })();
 }
 
 if (forceUpdateBtn) {
     forceUpdateBtn.addEventListener('click', async () => {
-        if (confirm('¿Estás seguro de que quieres forzar la actualización de la aplicación? Esto limpiará el caché y recargará la página.')) {
+        if (confirm('Â¿EstÃ¡s seguro de que quieres forzar la actualizaciÃ³n de la aplicaciÃ³n? Esto limpiarÃ¡ el cachÃ© y recargarÃ¡ la pÃ¡gina.')) {
             await forceAppUpdate();
         }
     });
@@ -711,3 +740,4 @@ async function loadProgressData() {
 
 // Export for module compatibility
 export { currentUserRoutines, fetchUserRoutines };
+

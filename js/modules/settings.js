@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Settings modal module
  * Manages the settings modal, cache information display, and cache clearing
  */
@@ -72,7 +72,7 @@ export async function loadCacheInfo() {
         // Exercise cache stats
         html += `
             <div class="cache-stat-item">
-                <span class="cache-stat-label">Ejercicios en caché:</span>
+                <span class="cache-stat-label">Ejercicios en cache:</span>
                 <span class="cache-stat-value">${cacheStats.exerciseCount}</span>
             </div>
             <div class="cache-stat-item">
@@ -80,7 +80,7 @@ export async function loadCacheInfo() {
                 <span class="cache-stat-value">${cacheStats.totalEntries}</span>
             </div>
             <div class="cache-stat-item">
-                <span class="cache-stat-label">Tamaño del caché de ejercicios:</span>
+                <span class="cache-stat-label">Tamano del cache de ejercicios:</span>
                 <span class="cache-stat-value">${formatBytes(cacheStats.cacheSize)}</span>
             </div>
         `;
@@ -88,7 +88,7 @@ export async function loadCacheInfo() {
         if (cacheStats.newestEntry) {
             html += `
                 <div class="cache-stat-item">
-                    <span class="cache-stat-label">Última actualización:</span>
+                    <span class="cache-stat-label">Ultima actualizacion:</span>
                     <span class="cache-stat-value">${formatDate(cacheStats.newestEntry)}</span>
                 </div>
             `;
@@ -98,8 +98,8 @@ export async function loadCacheInfo() {
             const daysOfHistory = Math.floor((Date.now() - cacheStats.oldestEntry.getTime()) / (1000 * 60 * 60 * 24));
             html += `
                 <div class="cache-stat-item">
-                    <span class="cache-stat-label">Días de historial:</span>
-                    <span class="cache-stat-value">${daysOfHistory} días</span>
+                    <span class="cache-stat-label">Dias de historial:</span>
+                    <span class="cache-stat-value">${daysOfHistory} dias</span>
                 </div>
             `;
         }
@@ -126,15 +126,15 @@ export async function loadCacheInfo() {
         html += `
             <hr class="cache-divider">
             <div class="cache-stat-item">
-                <span class="cache-stat-label">Lecturas Firebase (sesiÃ³n):</span>
+                <span class="cache-stat-label">Lecturas Firebase (sesion):</span>
                 <span class="cache-stat-value">${firebaseUsage.reads}</span>
             </div>
             <div class="cache-stat-item">
-                <span class="cache-stat-label">Escrituras Firebase (sesiÃ³n):</span>
+                <span class="cache-stat-label">Escrituras Firebase (sesion):</span>
                 <span class="cache-stat-value">${firebaseUsage.writes}</span>
             </div>
             <div class="cache-stat-item">
-                <span class="cache-stat-label">DuraciÃ³n de sesiÃ³n:</span>
+                <span class="cache-stat-label">Duracion de sesion:</span>
                 <span class="cache-stat-value">${formatDuration(firebaseUsage.sessionDurationMs)}</span>
             </div>
             <div class="cache-stat-item">
@@ -144,7 +144,7 @@ export async function loadCacheInfo() {
         `;
 
         if (firebaseUsage.topOperations.length > 0) {
-            html += '<div class="firebase-usage-list"><strong>Operaciones mÃ¡s costosas:</strong><ul>';
+            html += '<div class="firebase-usage-list"><strong>Operaciones mas costosas:</strong><ul>';
             firebaseUsage.topOperations.forEach((operation) => {
                 html += `<li>${operation.type} - ${operation.operation}: ${operation.total}</li>`;
             });
@@ -156,7 +156,9 @@ export async function loadCacheInfo() {
         cacheInfoContainer.innerHTML = html;
     } catch (error) {
         logger.error('Error loading cache info:', error);
-        cacheInfoContainer.innerHTML = '<p class="error-text">Error al cargar la información del caché.</p>';
+        if (cacheInfoContainer) {
+            cacheInfoContainer.innerHTML = '<p class="error-text">Error al cargar la informacion del cache.</p>';
+        }
     }
 }
 
@@ -191,7 +193,7 @@ export function hideSettingsModal() {
  * Clears the exercise cache after user confirmation
  */
 export async function clearExerciseCache() {
-    const confirmMessage = '⚠️ ¿Estás seguro de que quieres eliminar el caché local?\n\nEsto borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.\n\nEl caché se reconstruirá automáticamente la próxima vez que inicies sesión.';
+    const confirmMessage = '¿Estas seguro de que quieres eliminar el cache local?\n\nEsto borrara los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se veran afectados.\n\nEl cache se reconstruira automaticamente la proxima vez que inicies sesion.';
     
     if (!confirm(confirmMessage)) {
         return;
@@ -204,17 +206,17 @@ export async function clearExerciseCache() {
         // Reload cache info to show empty state
         await loadCacheInfo();
         
-        toast.success('Caché eliminado correctamente');
+        toast.success('Cache eliminado correctamente');
     } catch (error) {
         logger.error('Error clearing cache:', error);
-        toast.error('Error al eliminar el caché');
+        toast.error('Error al eliminar el cache');
     }
 }
 
 export function resetFirebaseUsageMetrics() {
     firebaseUsageTracker.reset();
     loadCacheInfo();
-    toast.success('MÃ©tricas de Firebase reiniciadas');
+    toast.success('Metricas de Firebase reiniciadas');
 }
 
 /**
@@ -279,16 +281,17 @@ export function initSettings() {
  * Cleans up settings functionality
  */
 export function destroySettings() {
-    if (!isInitialized) return;
-
-    // Remove event listeners would go here if we stored references
-    // For now, just reset state
     settingsBtn = null;
     settingsModal = null;
     settingsModalCloseBtn = null;
     clearCacheBtn = null;
     resetFirebaseUsageBtn = null;
     cacheInfoContainer = null;
+
+    if (!isInitialized) return;
+
+    // Remove event listeners would go here if we stored references
+    // For now, just reset state
     isInitialized = false;
 
     logger.debug('Settings module destroyed');
@@ -303,3 +306,5 @@ export default {
     clearCache: clearExerciseCache,
     formatBytes
 };
+
+

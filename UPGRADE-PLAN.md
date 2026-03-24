@@ -50,6 +50,14 @@ Target window: start no earlier than April 2026, after current Phase 0.5 work is
 
 ### 0.6A: Planning and Reliability Foundations
 
+Milestone update (March 24, 2026):
+
+- Major reliability milestone reached:
+  - Session restore contract fixed and made backward-compatible.
+  - Durable offline queue support implemented for serializable operations.
+  - Settings text encoding issues fixed for Firebase usage labels.
+  - Regression tests added for restore flow and persisted offline queue replay.
+
 #### Roadmap cleanup
 
 1. Keep this roadmap synchronized with implementation status.
@@ -149,4 +157,3 @@ Planned capabilities:
 2. Mobile-first interaction quality: optimize daily logging speed and one-handed use.
 3. Incremental quality ratchet: improve lint and coverage by staged gates, not one-time big-bang changes.
 4. Backward compatibility first: preserve existing data and flows during migrations.
-

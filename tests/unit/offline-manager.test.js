@@ -5,6 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { offlineManager } from '../../js/utils/offline-manager.js';
+import { localFirstCache } from '../../js/utils/local-first-cache.js';
 
 describe('OfflineManager', () => {
     let originalOnLine;
@@ -12,7 +13,7 @@ describe('OfflineManager', () => {
     let onlineCallback;
     let offlineCallback;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // Save original navigator.onLine
         originalOnLine = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine');
 
@@ -35,9 +36,10 @@ describe('OfflineManager', () => {
         offlineManager.isOnline = true;
         offlineManager.initialized = false;
         offlineManager.clearPending();
+        await localFirstCache.clearAll();
     });
 
-    afterEach(() => {
+    afterEach(async () => {
         // Restore original navigator.onLine
         if (originalOnLine) {
             Object.defineProperty(Navigator.prototype, 'onLine', originalOnLine);
@@ -49,6 +51,7 @@ describe('OfflineManager', () => {
         }
         
         offlineManager.clearPending();
+        await localFirstCache.clearAll();
     });
 
     describe('init()', () => {
@@ -67,6 +70,32 @@ describe('OfflineManager', () => {
             offlineManager.init();
 
             expect(offlineManager.initialized).toBe(firstInit);
+        });
+
+        it('should process restored persisted queue on init when online', async () => {
+            const replayHandler = jest.fn(async () => 'replayed');
+            offlineManager.registerOperationHandler('init.replay', replayHandler);
+
+            await localFirstCache.set('offline:pending-operations:v1', [
+                {
+                    id: 'persisted-1',
+                    description: 'Init replay',
+                    timestamp: Date.now(),
+                    descriptor: {
+                        type: 'init.replay',
+                        payload: { source: 'init' }
+                    }
+                }
+            ]);
+
+            offlineManager.init();
+
+            await new Promise((resolve) => setTimeout(resolve, 20));
+
+            expect(replayHandler).toHaveBeenCalledWith({ source: 'init' });
+            expect(offlineManager.getPendingCount()).toBe(0);
+
+            offlineManager.removeOperationHandler('init.replay');
         });
     });
 
@@ -292,6 +321,46 @@ describe('OfflineManager', () => {
             ).resolves.not.toThrow();
 
             expect(offlineManager.getPendingCount()).toBe(0);
+        });
+
+        it('should persist descriptor-based queued operations and replay after restore', async () => {
+            Object.defineProperty(Navigator.prototype, 'onLine', {
+                configurable: true,
+                get: () => false
+            });
+
+            const replayHandler = jest.fn(async () => 'replayed');
+            offlineManager.registerOperationHandler('test.persist', replayHandler);
+
+            await expect(
+                offlineManager.executeWithOfflineHandling(
+                    jest.fn(async () => 'ok'),
+                    'Persist this operation',
+                    true,
+                    {
+                        type: 'test.persist',
+                        payload: { id: 123 }
+                    }
+                )
+            ).rejects.toThrow('Offline');
+
+            expect(offlineManager.getPendingCount()).toBe(1);
+
+            // Simulate app reload by clearing in-memory queue, then restoring persisted queue.
+            offlineManager.pendingOperations = [];
+            await offlineManager.restorePersistedQueue();
+            expect(offlineManager.getPendingCount()).toBe(1);
+
+            Object.defineProperty(Navigator.prototype, 'onLine', {
+                configurable: true,
+                get: () => true
+            });
+
+            await offlineManager.processPendingOperations();
+            expect(replayHandler).toHaveBeenCalledWith({ id: 123 });
+            expect(offlineManager.getPendingCount()).toBe(0);
+
+            offlineManager.removeOperationHandler('test.persist');
         });
     });
 

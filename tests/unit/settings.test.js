@@ -1,9 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+﻿import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { 
     initSettings, 
     destroySettings,
     formatBytes,
-    clearExerciseCache
+    clearExerciseCache,
+    showSettingsModal,
+    hideSettingsModal
 } from '../../js/modules/settings.js';
 
 /**
@@ -16,7 +18,7 @@ describe('Settings module', () => {
         document.body.innerHTML = `
             <button id="settings-btn">Settings</button>
             <div id="settings-modal" style="display: none;">
-                <button class="settings-modal-close">×</button>
+                <button class="settings-modal-close">Ã—</button>
                 <div id="cache-info-container"></div>
                 <button id="clear-cache-btn">Clear Cache</button>
             </div>
@@ -60,40 +62,52 @@ describe('Settings module', () => {
     });
 
     describe('initSettings', () => {
-        it.skip('should initialize settings module', () => {
-            // Skipped: causes worker failures due to exercise-cache import issues
+        it('should initialize settings module', () => {
+            expect(() => initSettings()).not.toThrow();
         });
 
-        it.skip('should attach click event to settings button', () => {
-            // Skipped: causes worker failures
+        it('should attach click event to settings button', () => {
+            initSettings();
+            document.getElementById('settings-btn').click();
+            expect(document.getElementById('settings-modal').style.display).toBe('block');
         });
 
-        it.skip('should not initialize twice', () => {
-            // Skipped: causes worker failures
+        it('should not initialize twice', () => {
+            expect(() => {
+                initSettings();
+                initSettings();
+            }).not.toThrow();
         });
 
-        it.skip('should handle missing DOM elements gracefully', () => {
-            // Skipped: causes worker failures
+        it('should handle missing DOM elements gracefully', () => {
+            document.body.innerHTML = '';
+            expect(() => initSettings()).not.toThrow();
         });
     });
 
     describe('showSettingsModal', () => {
-        it.skip('should display the settings modal', () => {
-            // Skipped: triggers loadCacheInfo which has import issues
+        it('should display the settings modal', () => {
+            showSettingsModal();
+            expect(document.getElementById('settings-modal').style.display).toBe('block');
         });
 
-        it.skip('should handle missing modal gracefully', () => {
-            // Skipped: triggers loadCacheInfo
+        it('should handle missing modal gracefully', () => {
+            document.getElementById('settings-modal').remove();
+            expect(() => showSettingsModal()).not.toThrow();
         });
     });
 
     describe('hideSettingsModal', () => {
-        it.skip('should hide the settings modal', () => {
-            // Skipped: depends on showSettingsModal
+        it('should hide the settings modal', () => {
+            const modal = document.getElementById('settings-modal');
+            modal.style.display = 'block';
+            hideSettingsModal();
+            expect(modal.style.display).toBe('none');
         });
 
-        it.skip('should handle missing modal gracefully', () => {
-            // Skipped
+        it('should handle missing modal gracefully', () => {
+            document.getElementById('settings-modal').remove();
+            expect(() => hideSettingsModal()).not.toThrow();
         });
     });
 
@@ -124,7 +138,7 @@ describe('Settings module', () => {
             await clearExerciseCache();
 
             expect(global.confirm).toHaveBeenCalled();
-            expect(global.confirm.mock.calls[0][0]).toContain('¿Estás seguro');
+            expect(global.confirm.mock.calls[0][0]).toContain('¿Estas seguro');
         });
 
         it('should not clear cache if user cancels', async () => {
@@ -189,3 +203,4 @@ describe('Settings module', () => {
         });
     });
 });
+

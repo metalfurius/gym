@@ -25,16 +25,63 @@ const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 let currentRoutineForSession = null;
 let isSavingSession = false;
 
+function buildSessionQueuePayload(userId, sessionData) {
+    const { fecha, ...rest } = sessionData;
+    const fechaIso = fecha?.toDate?.()?.toISOString?.() || new Date().toISOString();
+
+    return {
+        userId,
+        sessionData: {
+            ...rest,
+            fechaIso
+        }
+    };
+}
+
+function buildSessionFromQueuePayload(payload) {
+    if (!payload?.sessionData) return null;
+
+    const { fechaIso, ...rest } = payload.sessionData;
+    const parsedDate = fechaIso ? new Date(fechaIso) : new Date();
+    const safeDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+
+    return {
+        ...rest,
+        fecha: Timestamp.fromDate(safeDate)
+    };
+}
+
+offlineManager.registerOperationHandler('session.save', async (payload) => {
+    const hydratedSession = buildSessionFromQueuePayload(payload);
+    if (!hydratedSession || !payload?.userId) {
+        throw new Error('Invalid queued session payload');
+    }
+
+    const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
+    await addDoc(userSessionsCollectionRef, hydratedSession);
+    firebaseUsageTracker.trackWrite(1, 'session.save.replayed');
+});
+
 /**
  * Saves a session in progress to localStorage
- * @param {string} routineId - The routine ID
+ * @param {string|Object} routineIdOrSnapshot - The routine ID or a full snapshot object
  * @param {Object} data - The session data to save
  */
-export function saveInProgressSession(routineId, data) {
+export function saveInProgressSession(routineIdOrSnapshot, data) {
+    let routineId = routineIdOrSnapshot;
+    let sessionData = data;
+    let timestamp = Date.now();
+
+    if (routineIdOrSnapshot && typeof routineIdOrSnapshot === 'object' && data === undefined) {
+        routineId = routineIdOrSnapshot.routineId ?? null;
+        sessionData = routineIdOrSnapshot.data ?? {};
+        timestamp = routineIdOrSnapshot.timestamp ?? Date.now();
+    }
+
     const sessionToStore = {
         routineId: routineId,
-        data: data,
-        timestamp: Date.now()
+        data: sessionData,
+        timestamp
     };
     localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(sessionToStore));
 }
@@ -148,8 +195,6 @@ export function getSessionFormData() {
         // Only add exercise if it has sets (for strength) or notes
         if ((exerciseFromRoutine.type === 'strength' && exerciseEntry.sets.length > 0) || exerciseEntry.notasEjercicio) {
             sessionData.ejercicios.push(exerciseEntry);
-        } else if (exerciseFromRoutine.type === 'cardio' && exerciseEntry.notasEjercicio) {
-            sessionData.ejercicios.push(exerciseEntry);
         }
     });
     
@@ -200,7 +245,11 @@ export async function saveSessionData(onSuccess) {
         await offlineManager.executeWithOfflineHandling(
             saveOperation,
             'Sin conexión. La sesión se guardará automáticamente al recuperar Internet.',
-            true
+            true,
+            {
+                type: 'session.save',
+                payload: buildSessionQueuePayload(user.uid, finalSessionData)
+            }
         );
         
         // Update exercise cache with new session data
