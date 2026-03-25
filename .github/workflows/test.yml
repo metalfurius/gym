@@ -32,8 +32,11 @@ jobs:
       - name: Run app journey tests
         run: npm run test:app
 
-      - name: Run tests with coverage
-        run: npm run test:coverage
+      - name: Fail on skipped tests
+        run: npm run test:no-skips
+
+      - name: Run tests with staged coverage gate
+        run: npm run test:coverage:gate
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

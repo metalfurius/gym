@@ -1,178 +1,102 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: March 24, 2026
+Last updated: March 25, 2026
 
-## Vision
+## Purpose
 
-Build a mobile-first fitness companion that connects training, nutrition, and body composition in one fast, reliable app.
+This file is the single source of truth for product and technical priorities.
+Execution has started. This document is kept synchronized with completed implementation milestones.
 
-## Current State (March 24, 2026)
+## Current Baseline (verified March 25, 2026)
 
-- Core workout tracking is in production.
-- Local-first cache and Firebase usage telemetry are in place.
-- App and integration journeys are stable in CI.
-- Phase 0.6 hardening is in progress with core reliability milestones delivered.
-- ESLint warning backlog has been reduced to zero and a CI ratchet is now active.
+- [done] `npm run lint:ratchet` passes (zero warnings).
+- [done] `npm run test:app` passes (app journey suites green).
+- [done] `npm run test:coverage:gate` passes at 67.50% statements coverage.
+- [done] 622 automated tests pass locally.
+- [done] Staged coverage ratchet is enforced by tooling (`scripts/coverage-gate.mjs` + CI workflow).
 
-## Roadmap Format
+## Six-Week Strategy (March 30, 2026 to May 10, 2026)
 
-This roadmap is organized as:
+Execution split:
 
-- Now: Active and near-term execution
-- Next: Planned future work that is approved but not started
-- Later: Feature expansion after hardening gates are met
+- Stability: 45%
+- Foundation: 35%
+- Feature/Fun: 20%
 
----
+### Track 1 - Stability (45%)
 
-## Now - Complete Phase 0.5 Baseline (in progress)
+- [done] Zero-warning lint baseline with CI ratchet (`npm run lint:ratchet`).
+- [done] App journey gate in CI (`npm run test:app` before coverage).
+- [done] No-skipped-tests gate is enforced (`npm run test:no-skips`).
+- [planned] Keep offline retry/recovery flows green on every PR.
+- [done] Resolve remaining user-facing text encoding regressions in app copy (`js/app.js`).
+- [deferred] Expand cross-browser matrix beyond current manual checks.
 
-Goal: Finish Firebase optimization baseline and keep product development stable.
+### Track 2 - Foundation (35%)
 
-### Workstreams
+- [done] Publish versioned Firestore data contract documentation (`docs/firestore-data-contract.md`).
+- [done] Define migration rules for legacy Spanish field names and backward compatibility.
+- [done] Document compatibility boundaries for session/version/offline serialization paths.
+- [deferred] Begin schema expansion for nutrition and goal domains (after this cycle).
 
-1. Maintain cache-first reads for routines, history, calendar, and progress.
-2. Keep Firebase usage instrumentation active for key read/write paths.
-3. Ensure cache invalidation remains correct after session and routine writes.
-4. Keep app journey tests passing on pull requests.
+### Track 3 - Feature/Fun (20%)
 
-### Exit Criteria
+- [planned] Prioritize "Quick Log + Daily Hub" as the first feature/fun slice after hard gates stay green.
+- [planned] Define acceptance criteria and rollout readiness for this slice during the 6-week window.
+- [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
-- App journey tests pass in CI.
-- No regressions in offline retry/recovery flows.
-- Firebase usage telemetry remains visible in Settings.
+## Weekly Milestones and Quality Gates
 
----
+### Week 1 (March 30 to April 5)
 
-## Next - Phase 0.6 Hardening (in progress)
+- Lock documentation baseline across roadmap and testing policy.
+- Confirm all hard gates are green in CI and locally.
+- Go/No-Go: no feature implementation starts if any hard gate is red.
 
-Goal: Introduce a stability-first hardening phase before major lifestyle features.
+### Week 2 (April 6 to April 12)
 
-Target window: start no earlier than April 2026, after current Phase 0.5 work is closed.
+- Coverage gate target: >= 64%.
+- Keep zero-warning lint and app journey gates green.
+- Go/No-Go: if coverage or hard gates fail, freeze feature lane and run stabilization only.
 
-### 0.6A: Planning and Reliability Foundations
+### Week 3 (April 13 to April 19)
 
-Milestone update (March 24, 2026):
+- Deliver data contract draft and migration rule draft for review.
+- Keep hard gates green.
+- Go/No-Go: no schema-expansion work without approved draft artifacts.
 
-- Major reliability milestone reached:
-  - Session restore contract fixed and made backward-compatible.
-  - Durable offline queue support implemented for serializable operations.
-  - Settings text encoding issues fixed for Firebase usage labels.
-  - Regression tests added for restore flow and persisted offline queue replay.
-  - Unit test suites unskipped and stabilized for:
-    - Pagination module (`tests/unit/pagination.test.js`)
-    - History manager module (`tests/unit/history-manager.test.js`)
-    - Session manager module (`tests/unit/session-manager.test.js`)
-    - Settings module (`tests/unit/settings.test.js`)
-    - Calendar module (`tests/unit/calendar.test.js`)
-  - Full local validation run is green via `npm run test:all`:
-    - `lint:errors` passed
-    - unit and integration suites passed
-    - app journey suites passed
-    - coverage reached 61.80% (above 60% Phase 0.6A gate)
-  - Lint debt cleanup milestone reached:
-    - warnings reduced from 4962 to 0 (`npm run lint`)
-    - strict warning ratchet added via `npm run lint:ratchet` (`--max-warnings 0`)
-    - lint CI workflow now enforces the zero-warning budget
+### Week 4 (April 20 to April 26)
 
-#### Roadmap cleanup
+- Coverage gate target: >= 67%.
+- Revalidate backward-compatibility assumptions in docs.
+- Go/No-Go: feature lane stays frozen until gates recover.
 
-1. Keep this roadmap synchronized with implementation status.
-2. Use explicit "done / planned / deferred" tags on each major item.
-3. Keep a single source of truth for current priorities.
+### Week 5 (April 27 to May 3)
 
-#### Reliability fixes
+- Finalize Quick Log + Daily Hub implementation readiness checklist.
+- Confirm no contradictions between completed and planned hardening items.
+- Go/No-Go: if any gate is red, continue hardening only.
 
-1. Fix version/session restore contract mismatch in version/session flows.
-2. Move offline queued operations to a durable queue (IndexedDB-backed), not memory-only.
-3. Fix user-facing encoding/text corruption in settings labels and messages.
+### Week 6 (May 4 to May 10)
 
-#### Public interfaces and data contract
+- Coverage gate target: >= 70%.
+- Final readiness review for post-cycle implementation.
+- Go/No-Go: proceed to implementation phase only if all exit criteria are met.
 
-1. Add a versioned Firestore data contract document before schema expansion.
-2. Keep exported session APIs backward-compatible while fixing restore behavior.
-3. Define migration rules for existing Spanish field names vs new schema additions.
+## Hard Exit Criteria for Post-Cycle Implementation
 
-#### Test plan
+All criteria are required:
 
-1. [done] Add regression tests for version upgrade + session restore.
-2. [done] Add regression tests for offline queue persistence across reload.
-3. [done] Unskip and stabilize tests for: history manager, pagination, session manager, settings, calendar.
-4. [done] History manager and pagination suites are now unskipped and stable.
-5. [done] Session manager, settings, and calendar suites are now unskipped and stable.
-6. [done] Logger production-mode cases are now unskipped and stable; unit suites currently have no skipped tests.
+1. `npm run lint:ratchet` remains green.
+2. `npm run test:app` remains green.
+3. Coverage reaches and holds >= 70% at end of Week 6.
+4. Data contract and migration rules are documented and approved.
+5. No unresolved contradiction remains between `done`, `planned`, and `deferred` items.
 
-#### Quality gates
+## Freeze Rule (applies to whole cycle)
 
-1. [done] Reduce lint warnings in a controlled pass and establish a ratchet policy.
-2. [done] Raise total coverage from current baseline (about 51.57%) to at least 60% (currently 61.80%).
-3. [done] Keep app-level journey tests as required CI gates.
+If any hard quality gate fails on PR or `main`:
 
-### 0.6B: Quality Ratchet and Readiness Gate
-
-#### Quality gates
-
-1. Maintain zero-warning lint baseline and keep CI ratchet strict.
-2. Raise total coverage from 60% to at least 70%.
-3. Keep all newly unskipped critical suites green.
-
-#### Go/No-Go Criteria for Phase 1
-
-Phase 1 starts only when:
-
-1. 0.6A and 0.6B exit criteria are met.
-2. Offline queue durability is verified by automated tests.
-3. Data contract documentation is approved for schema expansion.
-
----
-
-## Later - Feature Expansion (after 0.6 gate)
-
-## Phase 1: Mobile-First UX and Lifestyle Core
-
-Goal: Daily dashboard, quick logging flows, and workout UX improvements.
-
-Planned capabilities:
-
-1. Daily dashboard and quick actions.
-2. Weight logging and calorie logging.
-3. Goal progress indicators and reminders.
-4. Quick start workout mode and improved set input UX.
-
-## Phase 2: Integrated Progress Analytics
-
-Goal: Connect training, nutrition, and body-composition trends.
-
-Planned capabilities:
-
-1. Integrated progress dashboard.
-2. Exercise-level trend history and PR highlights.
-3. Better filtering and cross-domain insights.
-
-## Phase 3: Smart Insights and Automation
-
-Goal: Deliver actionable, rule-based recommendations.
-
-Planned capabilities:
-
-1. Goal trajectory projections.
-2. Nutrition/training alignment insights.
-3. Recovery and plateau detection suggestions.
-
-## Phase 4: Optional Social Layer
-
-Goal: Add opt-in sharing and community features.
-
-Planned capabilities:
-
-1. Workout sharing.
-2. Friend following.
-3. Community challenges and leaderboards.
-
----
-
-## Delivery Principles
-
-1. Stability before scale: do not add high-data features before hardening is complete.
-2. Mobile-first interaction quality: optimize daily logging speed and one-handed use.
-3. Incremental quality ratchet: improve lint and coverage by staged gates, not one-time big-bang changes.
-4. Backward compatibility first: preserve existing data and flows during migrations.
+1. Pause feature/fun lane merges.
+2. Allow only stabilization and test/doc recovery work.
+3. Resume feature/fun lane only after hard gates return green.

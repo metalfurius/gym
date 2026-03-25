@@ -309,11 +309,11 @@ function setupManageRoutinesViewListeners() {
         addViewListener('manageRoutines', manageRoutinesElements.exportRoutinesBtn, 'click', async () => {
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesiÃ³n para realizar esta acciÃ³n.');
+                toast.error('Debes iniciar sesión para realizar esta acción.');
                 return;
             }
 
-            if (!confirm('Â¿Deseas exportar todas tus rutinas al portapapeles? Se copiarÃ¡ un JSON con todas tus rutinas.')) {
+            if (!confirm('¿Deseas exportar todas tus rutinas al portapapeles? Se copiará un JSON con todas tus rutinas.')) {
                 return;
             }
 
@@ -359,7 +359,7 @@ function setupManageRoutinesViewListeners() {
         addViewListener('manageRoutines', manageRoutinesElements.deleteAllRoutinesBtn, 'click', async () => {
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesiÃ³n para realizar esta acciÃ³n.');
+                toast.error('Debes iniciar sesión para realizar esta acción.');
                 return;
             }
 
@@ -374,7 +374,7 @@ function setupManageRoutinesViewListeners() {
                 return;
             }
 
-            const finalConfirm = prompt('Para confirmar, escribe "BORRAR TODO" (en mayÃºsculas):');
+            const finalConfirm = prompt('Para confirmar, escribe "BORRAR TODO" (en mayúsculas):');
             if (finalConfirm !== 'BORRAR TODO') {
                 toast.info('Cancelado. No se borraron las rutinas.');
                 return;
@@ -430,14 +430,14 @@ function setupRoutineEditorViewListeners() {
             event.preventDefault();
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesiÃ³n para guardar rutinas.');
+                toast.error('Debes iniciar sesión para guardar rutinas.');
                 return;
             }
 
             const routineId = routineEditorElements.routineIdInput.value;
             const routineName = routineEditorElements.routineNameInput.value.trim();
             if (!routineName) {
-                toast.warning('El nombre de la rutina no puede estar vacÃ­o.');
+                toast.warning('El nombre de la rutina no puede estar vacío.');
                 return;
             }
 
@@ -461,7 +461,7 @@ function setupRoutineEditorViewListeners() {
             });
 
             if (exercises.length === 0) {
-                toast.warning('Debes aÃ±adir al menos un ejercicio a la rutina.');
+                toast.warning('Debes añadir al menos un ejercicio a la rutina.');
                 return;
             }
 
@@ -481,7 +481,7 @@ function setupRoutineEditorViewListeners() {
                     await addDoc(collection(db, 'users', user.uid, 'routines'), routineData);
                     firebaseUsageTracker.trackWrite(1, 'routines.create');
                 }
-                toast.success('Rutina guardada con Ã©xito!');
+                toast.success('Rutina guardada con éxito!');
                 await fetchUserRoutines(user, { forceRefresh: true });
                 showView('manageRoutines');
                 renderManageRoutinesView(currentUserRoutines);
@@ -499,7 +499,7 @@ function setupRoutineEditorViewListeners() {
 
     if (routineEditorElements.cancelEditRoutineBtn) {
         addViewListener('routineEditor', routineEditorElements.cancelEditRoutineBtn, 'click', () => {
-            if (confirm('Â¿Cancelar ediciÃ³n? Los cambios no guardados se perderÃ¡n.')) {
+            if (confirm('¿Cancelar edición? Los cambios no guardados se perderán.')) {
                 showView('manageRoutines');
             }
         });
@@ -517,12 +517,12 @@ function setupRoutineEditorViewListeners() {
                 return;
             }
 
-            if (confirm(`Â¿EstÃ¡s seguro de que quieres eliminar la rutina "${routineToDelete.name}"? Esta acciÃ³n no se puede deshacer.`)) {
+            if (confirm(`¿Estás seguro de que quieres eliminar la rutina "${routineToDelete.name}"? Esta acción no se puede deshacer.`)) {
                 showLoading(routineEditorElements.deleteRoutineBtn, 'Eliminando...');
                 try {
                     await deleteDoc(doc(db, 'users', user.uid, 'routines', routineId));
                     firebaseUsageTracker.trackWrite(1, 'routines.deleteOne');
-                    toast.success('Rutina eliminada con Ã©xito.');
+                    toast.success('Rutina eliminada con éxito.');
                     await fetchUserRoutines(user, { forceRefresh: true });
                     showView('manageRoutines');
                     renderManageRoutinesView(currentUserRoutines);
@@ -689,7 +689,7 @@ if (versionInfoElement) {
 
 if (forceUpdateBtn) {
     forceUpdateBtn.addEventListener('click', async () => {
-        if (confirm('Â¿EstÃ¡s seguro de que quieres forzar la actualizaciÃ³n de la aplicaciÃ³n? Esto limpiarÃ¡ el cachÃ© y recargarÃ¡ la pÃ¡gina.')) {
+        if (confirm('¿Estás seguro de que quieres forzar la actualización de la aplicación? Esto limpiará el caché y recargará la página.')) {
             await forceAppUpdate();
         }
     });

@@ -19,7 +19,13 @@ export default {
         '!js/firebase-diagnostics.js',
     ],
     coverageDirectory: 'coverage',
-    coverageReporters: ['text', 'lcov', 'html'],
+    coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+    coverageThreshold: {
+        global: {
+            statements: 60,
+            lines: 60
+        }
+    },
     reporters: [
         'default',
         ['jest-junit', {

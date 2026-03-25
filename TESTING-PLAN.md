@@ -1,66 +1,61 @@
-# Testing Plan
+# Testing Policy and Enforcement Plan
 
-This file maps each testing layer to concrete files in this repository.
+Last updated: March 25, 2026
 
-## 1) Unit Tests (fast, isolated)
+## Purpose
 
-- Location: `tests/unit/*.test.js`
-- Coverage target: pure logic, utilities, module-level behavior.
-- Main setup: `tests/setup.js`
+This document defines testing policy and enforcement rules for the 6-week stabilization cycle (March 30, 2026 to May 10, 2026).
+It is policy-first by design; detailed test inventory remains in `tests/README.md`.
 
-## 2) Integration Tests (cross-module workflows)
+## Hard Quality Gates
 
-- Location: `tests/integration/*.test.js`
-- Existing workflow checks:
-  - `tests/integration/app-workflow.test.js`
-  - `tests/integration/firebase-integration.test.js`
+These gates are required for both PR and `main` validation:
 
-## 3) App-Level Journey Test (real UI flow, automated)
+1. `npm run lint:ratchet` (zero warnings)
+2. `npm run test:app` (lint errors gate + app journeys)
+3. `npm run test:coverage:gate` meeting the active staged threshold
+4. No new skipped tests (`.skip`, `xit`, `xdescribe`)
 
-- Primary file: `tests/integration/app-user-journey.test.js`
-- Secondary file: `tests/integration/app-auth-navigation.test.js`
-- Offline recovery file: `tests/integration/app-offline-recovery.test.js`
-- Offline retry file: `tests/integration/app-offline-retry.test.js`
-- What it validates:
-  - signup/login transition from auth view to dashboard
-  - routine creation and edit through the real routine editor form
-  - in-progress session resume behavior from dashboard
-  - session start and save from dashboard/session views
-  - history rendering with the saved workout
-  - routine deletion regression behavior
-  - logout/login persistence and multi-routine switching behavior
-  - offline queueing and automatic persistence after reconnect
-  - retry flow when the first reconnect attempt fails
+## Staged Coverage Thresholds
 
-## 4) Firebase Runtime Mocks for App-Level Tests
+- Week 1 (March 30 to April 5): baseline tracking, no new threshold
+- Week 2 (April 6 to April 12): >= 64%
+- Week 3 (April 13 to April 19): >= 64% (hold)
+- Week 4 (April 20 to April 26): >= 67%
+- Week 5 (April 27 to May 3): >= 67% (hold)
+- Week 6 (May 4 to May 10): >= 70%
 
-- `tests/mocks/firebase-app.js`
-- `tests/mocks/firebase-auth.js`
-- `tests/mocks/firebase-firestore.js`
-- `tests/mocks/firebase-state.js`
+## Required Checks Per Pull Request
 
-These mock files are wired in `jest.config.js` through URL module mapping for:
+Every PR must meet all of the following:
 
-- `https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js`
-- `https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js`
-- `https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js`
+1. Hard quality gates are green.
+2. Tests are updated for changed behavior in touched areas.
+3. If session/version/offline flows are touched, related regression tests are included or updated.
+4. Documentation is kept consistent when plan or policy behavior changes.
 
-## 5) Manual Browser Validation
+## Required Checks Per Release Candidate
 
-- Location: `tests/manual/*`
+A release candidate requires:
 
-## Commands
+1. All PR-level requirements.
+2. `npm run test:all` passes in release validation.
+3. Coverage meets the active staged gate for the release week.
+4. No unresolved hard-gate failures in the current cycle.
 
-- `npm run test:unit`
-- `npm run test:integration`
-- `npm run test:app` (runs ESLint errors check first, then app journeys)
-- `npm run test:app:only` (app journeys only, no lint gate)
+## Freeze Rule
+
+If any hard quality gate fails on PR or `main`:
+
+1. Pause feature/fun lane merges.
+2. Allow only stabilization and test/doc recovery work.
+3. Resume feature/fun lane only after hard gates return green.
+
+## Command Reference
+
+- `npm run lint:ratchet`
+- `npm run test:app`
 - `npm run test:coverage`
-- `npm run lint`
-- `npm run lint:ratchet` (strict warning budget: 0)
-- `npm run lint:errors`
-
-## CI Enforcement
-
-- Workflow: `.github/workflows/test.yml`
-- PR and `main` pushes now run `npm run test:app` before coverage, making app-level journeys a required gate.
+- `npm run test:coverage:gate`
+- `npm run test:no-skips`
+- `npm run test:all`

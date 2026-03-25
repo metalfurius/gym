@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:all": "npm run lint:errors && npm run test:unit -- --runInBand && npm run test:integration -- --runInBand && npm run test:coverage -- --runInBand",
+    "test:all": "npm run lint:errors && npm run test:no-skips && npm run test:unit -- --runInBand && npm run test:integration -- --runInBand && npm run test:coverage -- --runInBand",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:no-skips": "node scripts/no-skipped-tests.mjs",
+    "coverage:gate": "node scripts/coverage-gate.mjs",
+    "test:coverage:gate": "npm run test:coverage -- --runInBand && npm run coverage:gate",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
     "test:app:only": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",

@@ -1,4 +1,4 @@
-﻿# My Workout Tracker
+# My Workout Tracker
 
 [![Tests](https://github.com/metalfurius/gym/actions/workflows/test.yml/badge.svg)](https://github.com/metalfurius/gym/actions/workflows/test.yml)
 [![Lint](https://github.com/metalfurius/gym/actions/workflows/lint.yml/badge.svg)](https://github.com/metalfurius/gym/actions/workflows/lint.yml)
@@ -35,31 +35,34 @@ A modern, responsive workout tracking web app with session management, routine c
 - Local-first cache layer (IndexedDB with localStorage fallback)
 - Firebase read/write telemetry in the Settings modal
 
-## Roadmap
+## Roadmap and Quality Policy
 
-See [UPGRADE-PLAN.md](UPGRADE-PLAN.md) for the full multi-phase roadmap.
+Planning docs:
 
-### Current Focus: Phase 0.6 Hardening
+- [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the 6-week roadmap
+- [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 
-- Reliability fixes for session restore and offline queued operations
-- Zero-warning ESLint baseline with CI ratchet (`npm run lint:ratchet`)
-- Coverage maintained above 60% with app journey suites as CI gates
+### Current Focus (March 30, 2026 to May 10, 2026)
 
-### Next Planned Phase (Future): Phase 1 Mobile-First UX and Lifestyle Core
+- Dual-track strategy with hard quality gates
+- Execution split: Stability 45%, Foundation 35%, Feature/Fun 20%
+- Feature/Fun priority for the cycle: Quick Log + Daily Hub readiness
 
-- Daily dashboard and faster quick logging flows
-- Weight and nutrition logging
-- Goal progress indicators and reminders
+### Hard Gates for This Cycle
 
-### Later
+- `npm run lint:ratchet` (zero-warning policy)
+- `npm run test:app` (app journeys required)
+- `npm run test:no-skips` (no `.skip` / `xit` / `xdescribe`)
+- Staged coverage ratchet in the roadmap: Week 2 >= 64%, Week 4 >= 67%, Week 6 >= 70%
+- Feature/fun lane freeze whenever a hard gate fails
 
-- Flexible workout mode (muscle-group first sessions)
-- Weight and nutrition logging
-- Goal tracking and integrated insights
+### Next Phase
+
+Implementation work starts after all Week 6 exit criteria in `UPGRADE-PLAN.md` are met.
 
 ## License and Copyright
 
-© [metalfurius] 2025. All Rights Reserved.
+(c) [metalfurius] 2025. All Rights Reserved.
 
 This project is licensed for personal and educational use only.
 
@@ -95,12 +98,12 @@ Commands:
 
 - `npm run test:unit`
 - `npm run test:integration`
-- `npm run test:app` (runs ESLint errors check first, then app journeys)
-- `npm run test:app:only` (app journeys only, no lint gate)
+- `npm run test:app`
+- `npm run test:app:only`
 - `npm run test:coverage`
+- `npm run test:coverage:gate`
+- `npm run test:no-skips`
+- `npm run test:all`
 - `npm run lint`
-- `npm run lint:ratchet` (fails if any warning is introduced)
-- `npm run lint:errors` (errors-only ESLint gate)
-
-CI (`.github/workflows/test.yml`) runs `npm run test:app` before coverage on PRs and `main` pushes.
-
+- `npm run lint:ratchet`
+- `npm run lint:errors`
