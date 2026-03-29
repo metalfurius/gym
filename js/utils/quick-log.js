@@ -129,12 +129,11 @@ export function buildQuickLogSessionModel(userId, normalizedPayload, timestampFa
     };
 }
 
-function toLocalDayKey(dateValue) {
+function toLocalMonthKey(dateValue) {
     const date = normalizeQuickLogDate(dateValue, new Date());
     return [
         date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, '0'),
-        String(date.getDate()).padStart(2, '0')
+        String(date.getMonth() + 1).padStart(2, '0')
     ].join('-');
 }
 
@@ -170,15 +169,15 @@ export function computeDailyHubState(input = {}) {
         : 0;
 
     let lastWorkoutDate = null;
-    let logsTodayCount = 0;
-    const todayKey = toLocalDayKey(now);
+    let logsMonthCount = 0;
+    const currentMonthKey = toLocalMonthKey(now);
 
     sessions.forEach((session) => {
         const sessionDate = resolveSessionDate(session);
         if (!sessionDate) return;
 
-        if (toLocalDayKey(sessionDate) === todayKey) {
-            logsTodayCount += 1;
+        if (toLocalMonthKey(sessionDate) === currentMonthKey) {
+            logsMonthCount += 1;
         }
 
         if (!lastWorkoutDate || sessionDate > lastWorkoutDate) {
@@ -202,7 +201,9 @@ export function computeDailyHubState(input = {}) {
     }
 
     return {
-        logsTodayCount,
+        logsMonthCount,
+        // Keep backward compatibility while callers/tests migrate naming.
+        logsTodayCount: logsMonthCount,
         lastWorkoutDate,
         lastWorkoutLabel: formatLastWorkoutLabel(lastWorkoutDate),
         routineShortcut,

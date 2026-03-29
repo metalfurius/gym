@@ -119,7 +119,7 @@ describe('App User Journey', () => {
 
         expect(isVisible('dashboard-view')).toBe(true);
         expect(document.getElementById('user-email').textContent).toContain(testEmail);
-        expect(document.getElementById('daily-hub-today-count').textContent).toBe('0');
+        expect(document.getElementById('daily-hub-month-count').textContent).toBe('0');
         expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(false);
 
         setField('#quick-log-label', 'Quick Morning');
@@ -138,7 +138,7 @@ describe('App User Journey', () => {
         expect(quickLogSessions).toHaveLength(1);
         expect(quickLogSessions[0].data.nombreEntrenamiento).toBe('Quick Morning');
         expect(quickLogSessions[0].data.quickLog.source).toBe('quick_log');
-        expect(document.getElementById('daily-hub-today-count').textContent).toBe('1');
+        expect(document.getElementById('daily-hub-month-count').textContent).toBe('1');
         expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(true);
 
         click('#nav-manage-routines');

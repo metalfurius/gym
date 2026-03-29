@@ -119,8 +119,8 @@
                 <h3 class="dashboard-panel-title">Resumen del Dia</h3>
                 <div class="daily-hub-grid">
                     <article class="daily-hub-card">
-                        <p class="daily-hub-label">Registros hoy</p>
-                        <p id="daily-hub-today-count" class="daily-hub-value">0</p>
+                        <p class="daily-hub-label">Sesiones del mes</p>
+                        <p id="daily-hub-month-count" class="daily-hub-value">0</p>
                     </article>
                     <article class="daily-hub-card">
                         <p class="daily-hub-label">Ultimo entrenamiento</p>
@@ -135,25 +135,33 @@
                         <p id="daily-hub-sync-status" class="daily-hub-value">En linea</p>
                     </article>
                 </div>
-                <p id="daily-hub-empty-state" class="daily-hub-empty hidden">Aun no tienes registros guardados hoy.</p>
+                <p id="daily-hub-empty-state" class="daily-hub-empty hidden">Aun no tienes sesiones guardadas este mes.</p>
             </div>
 
             <div class="quick-log-section dashboard-panel">
-                <h3 class="dashboard-panel-title">Quick Log (menos de 30s)</h3>
+                <h3 class="dashboard-panel-title">Quick Log</h3>
                 <form id="quick-log-form" class="quick-log-form">
-                    <label for="quick-log-label">Titulo</label>
-                    <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" value="Quick Log">
+                    <div class="quick-log-field quick-log-field-label">
+                        <label for="quick-log-label">Titulo</label>
+                        <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" value="Quick Log">
+                    </div>
 
-                    <label for="quick-log-datetime">Fecha y hora</label>
-                    <input id="quick-log-datetime" type="datetime-local">
+                    <div class="quick-log-field quick-log-field-datetime">
+                        <label for="quick-log-datetime">Fecha y hora</label>
+                        <input id="quick-log-datetime" type="datetime-local" step="60">
+                    </div>
 
-                    <label for="quick-log-notes">Notas de ejercicios (una por linea)</label>
-                    <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s"></textarea>
+                    <div class="quick-log-field quick-log-field-notes">
+                        <label for="quick-log-notes">Notas de ejercicios (una por linea)</label>
+                        <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s"></textarea>
+                    </div>
 
-                    <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
-                        <span class="btn-icon">&#9889;</span>
-                        <span class="btn-text">Guardar Quick Log</span>
-                    </button>
+                    <div class="quick-log-actions">
+                        <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
+                            <span class="btn-icon">&#9889;</span>
+                            <span class="btn-text">Guardar Quick Log</span>
+                        </button>
+                    </div>
                 </form>
             </div>
 

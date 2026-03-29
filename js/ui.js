@@ -98,7 +98,7 @@ export const dashboardElements = {
     resumeSessionInfo: document.getElementById('resume-session-info'),
     manageRoutinesLinkBtn: document.getElementById('manage-routines-link-btn'),
     debugCacheBtn: document.getElementById('debug-cache-btn'),
-    dailyHubTodayCount: document.getElementById('daily-hub-today-count'),
+    dailyHubMonthCount: document.getElementById('daily-hub-month-count'),
     dailyHubLastWorkout: document.getElementById('daily-hub-last-workout'),
     dailyHubRoutineShortcut: document.getElementById('daily-hub-routine-shortcut'),
     dailyHubSyncStatus: document.getElementById('daily-hub-sync-status'),

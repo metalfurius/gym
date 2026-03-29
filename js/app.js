@@ -65,7 +65,7 @@ let themeManager = null;
 // State
 let currentUserRoutines = [];
 const ROUTINES_CACHE_TTL_MS = 10 * 60 * 1000;
-const DAILY_HUB_SESSIONS_LIMIT = 25;
+const DAILY_HUB_SESSIONS_LIMIT = 40;
 const DAILY_HUB_CACHE_TTL_MS = 30 * 1000;
 let dailyHubSessionsCache = [];
 let dailyHubLastFetchTimestamp = 0;
@@ -86,8 +86,11 @@ function getQuickLogFormPayload() {
 }
 
 function applyDailyHubState(state) {
-    if (dashboardElements.dailyHubTodayCount) {
-        dashboardElements.dailyHubTodayCount.textContent = `${state.logsTodayCount}`;
+    if (dashboardElements.dailyHubMonthCount) {
+        const monthCount = Number.isFinite(state.logsMonthCount)
+            ? state.logsMonthCount
+            : (state.logsTodayCount || 0);
+        dashboardElements.dailyHubMonthCount.textContent = `${monthCount}`;
     }
 
     if (dashboardElements.dailyHubLastWorkout) {
@@ -175,7 +178,7 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
 
 async function refreshDailyHub(user, options = {}) {
     const hasDailyHubElements =
-        dashboardElements.dailyHubTodayCount
+        dashboardElements.dailyHubMonthCount
         && dashboardElements.dailyHubLastWorkout
         && dashboardElements.dailyHubRoutineShortcut
         && dashboardElements.dailyHubSyncStatus;

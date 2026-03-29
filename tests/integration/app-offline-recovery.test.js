@@ -151,7 +151,7 @@ describe('App Offline Recovery Journey', () => {
         await waitForUi(500);
 
         expect(isVisible('dashboard-view')).toBe(true);
-        expect(document.getElementById('daily-hub-today-count').textContent).toBe('0');
+        expect(document.getElementById('daily-hub-month-count').textContent).toBe('0');
 
         const quickLogDateInput = document.getElementById('quick-log-datetime');
         if (!quickLogDateInput.value) {

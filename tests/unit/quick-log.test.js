@@ -83,14 +83,14 @@ describe('quick-log utils', () => {
             pendingCount: 0
         });
 
-        expect(state.logsTodayCount).toBe(0);
+        expect(state.logsMonthCount).toBe(0);
         expect(state.lastWorkoutLabel).toBe('Sin registros');
         expect(state.routineShortcut).toBe('Sin rutina');
         expect(state.syncStatus).toBe('En linea');
         expect(state.isEmpty).toBe(true);
     });
 
-    it('computes daily hub state with sessions, selected routine and queued sync', () => {
+    it('computes daily hub monthly state with sessions, selected routine and queued sync', () => {
         const now = new Date(2026, 2, 29, 13, 0, 0);
         const todayMorning = new Date(2026, 2, 29, 8, 15, 0);
         const yesterday = new Date(2026, 2, 28, 20, 0, 0);
@@ -109,7 +109,7 @@ describe('quick-log utils', () => {
             pendingCount: 2
         });
 
-        expect(state.logsTodayCount).toBe(1);
+        expect(state.logsMonthCount).toBe(2);
         expect(state.routineShortcut).toBe('Leg Day');
         expect(state.syncStatus).toContain('2');
         expect(state.isEmpty).toBe(false);
