@@ -29,6 +29,18 @@ A modern, responsive workout tracking web app with session management, routine c
 4. Save the session.
 5. Review history and progress charts.
 
+## Local Preview
+
+Run a local static server from the project root:
+
+```bash
+npm run serve
+```
+
+Then open:
+
+- `http://localhost:8080`
+
 ## Technical Features
 
 - Firebase Authentication and Firestore database

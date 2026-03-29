@@ -17,7 +17,7 @@
     "test:app:only": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
     "test:app": "npm run lint:errors && npm run test:app:only",
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
-    "serve": "python3 -m http.server 8080",
+    "serve": "node scripts/serve-local.mjs",
     "lint": "eslint . --ext .js,.cjs",
     "lint:ratchet": "eslint . --ext .js,.cjs --max-warnings 0",
     "lint:errors": "eslint . --ext .js,.cjs --quiet",

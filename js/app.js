@@ -100,6 +100,17 @@ function applyDailyHubState(state) {
 
     if (dashboardElements.dailyHubSyncStatus) {
         dashboardElements.dailyHubSyncStatus.textContent = state.syncStatus;
+        const normalizedSyncStatus = (state.syncStatus || '').toLowerCase();
+        let syncClass = 'sync-online';
+
+        if (normalizedSyncStatus.includes('cola')) {
+            syncClass = 'sync-queued';
+        } else if (normalizedSyncStatus.includes('sin conexion')) {
+            syncClass = 'sync-offline';
+        }
+
+        dashboardElements.dailyHubSyncStatus.classList.remove('sync-online', 'sync-offline', 'sync-queued');
+        dashboardElements.dailyHubSyncStatus.classList.add(syncClass);
     }
 
     if (dashboardElements.dailyHubEmptyState) {

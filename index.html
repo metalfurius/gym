@@ -88,19 +88,19 @@
         <!-- Dashboard View -->
         <section id="dashboard-view" class="hidden">
             <h2>Dashboard</h2>
-            <div id="user-info" class="hidden" style="margin-bottom: 15px;">
+            <div id="user-info" class="hidden dashboard-user-info">
                 <p>Usuario: <span id="user-email"></span></p>
                 <p>Fecha: <span id="current-date"></span></p>
             </div>
-            <div id="resume-session-area" style="margin-bottom: 15px;">
-                <p id="resume-session-info" style="font-style: italic; color: #555;"></p>
-                <button id="resume-session-btn" class="ghost hidden" style="width:auto; margin-top:5px;">Continuar
-                    Sesión</button>
+            <div id="resume-session-area" class="dashboard-resume-area">
+                <p id="resume-session-info" class="dashboard-resume-info"></p>
+                <button id="resume-session-btn" class="ghost hidden dashboard-resume-btn">Continuar
+                    Sesion</button>
             </div>
 
             <!-- Sección principal de entrenamiento -->
             <div class="workout-section">
-                <h3 class="workout-section-title">🚀 Empezar Entrenamiento</h3>
+                <h3 class="workout-section-title">&#128640; Empezar Entrenamiento</h3>
                 <div class="workout-controls">
                     <div class="routine-selector-container">
                         <label for="day-select" class="routine-label">Elige una rutina para hoy:</label>
@@ -109,14 +109,14 @@
                         </select>
                     </div>
                     <button id="start-session-btn" class="primary-action-btn" disabled>
-                        <span class="btn-icon">💪</span>
-                        <span class="btn-text">Iniciar Nueva Sesión</span>
+                        <span class="btn-icon">&#128170;</span>
+                        <span class="btn-text">Iniciar Nueva Sesion</span>
                     </button>
                 </div>
             </div>
 
-            <div class="daily-hub-section">
-                <h3 class="workout-section-title">Resumen del Dia</h3>
+            <div class="daily-hub-section dashboard-panel">
+                <h3 class="dashboard-panel-title">Resumen del Dia</h3>
                 <div class="daily-hub-grid">
                     <article class="daily-hub-card">
                         <p class="daily-hub-label">Registros hoy</p>
@@ -138,8 +138,8 @@
                 <p id="daily-hub-empty-state" class="daily-hub-empty hidden">Aun no tienes registros guardados hoy.</p>
             </div>
 
-            <div class="quick-log-section">
-                <h3 class="workout-section-title">Quick Log (menos de 30s)</h3>
+            <div class="quick-log-section dashboard-panel">
+                <h3 class="dashboard-panel-title">Quick Log (menos de 30s)</h3>
                 <form id="quick-log-form" class="quick-log-form">
                     <label for="quick-log-label">Titulo</label>
                     <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" value="Quick Log">
@@ -151,14 +151,14 @@
                     <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s"></textarea>
 
                     <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
-                        <span class="btn-icon">âš¡</span>
+                        <span class="btn-icon">&#9889;</span>
                         <span class="btn-text">Guardar Quick Log</span>
                     </button>
                 </form>
             </div>
 
-            <div id="activity-calendar-container"> <!-- Eliminado style margin, ya lo maneja el CSS -->
-                <h3>Actividad del Mes</h3>
+            <div id="activity-calendar-container" class="dashboard-panel dashboard-calendar-panel"> <!-- Eliminado style margin, ya lo maneja el CSS -->
+                <h3 class="dashboard-panel-title">Actividad del Mes</h3>
                 <div class="calendar-controls"> <!-- Eliminado style margin, display, etc. ya lo maneja el CSS -->
                     <button id="prev-month-btn" title="Mes anterior"><</button>
                     <span id="current-month-display"></span>
@@ -176,25 +176,25 @@
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-1"></div>
-                            <span>💪 Solo fuerza</span>
+                            <span>&#128170; Solo fuerza</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-2"></div>
-                            <span>🔥 Mixto (fuerza + cardio)</span>
+                            <span>&#128293; Mixto (fuerza + cardio)</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-3"></div>
-                            <span>🏃 Solo cardio</span>
+                            <span>&#127939; Solo cardio</span>
                         </div>
                     </div>
                 </div>
-                <div id="calendar-loading-spinner" class="spinner hidden" style="margin-top:10px;"></div>
+                <div id="calendar-loading-spinner" class="spinner hidden dashboard-calendar-loading"></div>
             </div>
             
             <!-- Sección de acciones secundarias -->
             <div class="secondary-actions">
                 <button id="manage-routines-link-btn" class="secondary-action-btn">
-                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-icon">&#9881;</span>
                     <span class="btn-text">Gestionar Mis Rutinas</span>
                 </button>
             </div>
