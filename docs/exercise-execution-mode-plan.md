@@ -1,8 +1,8 @@
 # Exercise Execution Mode Plan
 
 Last updated: March 29, 2026
-Status: Planned (not implemented)
-Target window: Post-cycle implementation start (after May 10, 2026)
+Status: Implemented
+Implemented on: March 29, 2026
 
 ## Purpose
 
@@ -69,7 +69,6 @@ Out of scope:
    - `npm run test:coverage:gate`
    - `npm run test:no-skips`
 
-## Delivery Order
+## Delivery Note
 
-1. Quick Log + Daily Hub (already prioritized as first implementation slice).
-2. Exercise Execution Modes as the next focused feature PR.
+Implemented as a focused feature slice with no navigation expansion and no destructive migration.

@@ -3,6 +3,11 @@ import { resetTimerInitialization } from './timer.js';
 import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
 import { cleanupViewListeners } from './utils/event-manager.js';
+import {
+    normalizeExecutionMode,
+    resolveExerciseExecutionMode,
+    getExecutionModeLabel
+} from './utils/execution-mode.js';
 
 // View initializer registry (populated from app.js)
 const viewInitializers = new Map();
@@ -659,6 +664,21 @@ export function showSessionDetail(sessionData) {
             }
             
             exLi.appendChild(typeEl);
+
+            const hasExecutionMode =
+                ex.modoEjecucion !== undefined
+                || ex.executionMode !== undefined
+                || ex.execution_mode !== undefined
+                || ex.modo !== undefined;
+
+            if (ex.tipoEjercicio === 'strength' && hasExecutionMode) {
+                const executionMode = resolveExerciseExecutionMode(ex);
+                const modeEl = document.createElement('span');
+                modeEl.classList.add('exercise-execution-mode-badge');
+                modeEl.classList.add(`mode-${executionMode}`);
+                modeEl.textContent = `Modo: ${getExecutionModeLabel(executionMode)}`;
+                exLi.appendChild(modeEl);
+            }
             
             if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
                 const setsUl = document.createElement('ul');
@@ -803,6 +823,9 @@ export function addExerciseToEditorForm(exerciseData = null) {
     exerciseDiv.dataset.editorId = `exEditor-${exerciseEditorCounter}`;
 
     const exerciseType = exerciseData?.type || 'strength';
+    const exerciseExecutionMode = normalizeExecutionMode(
+        exerciseData?.executionMode ?? exerciseData?.modoEjecucion
+    );
 
     exerciseDiv.innerHTML = `
         <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="Eliminar ejercicio">×</button>
@@ -833,6 +856,16 @@ export function addExerciseToEditorForm(exerciseData = null) {
                 <div class="form-field">
                     <label for="ex-reps-${exerciseEditorCounter}">Reps/Objetivo:</label>
                     <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${escapeHtml(exerciseData?.reps || '')}" placeholder="8-12">
+                </div>
+                <div class="form-field">
+                    <label for="ex-execution-mode-${exerciseEditorCounter}">Modo de ejecucion:</label>
+                    <select id="ex-execution-mode-${exerciseEditorCounter}" name="ex-execution-mode">
+                        <option value="one_hand" ${exerciseExecutionMode === 'one_hand' ? 'selected' : ''}>Una mano</option>
+                        <option value="two_hand" ${exerciseExecutionMode === 'two_hand' ? 'selected' : ''}>Dos manos</option>
+                        <option value="machine" ${exerciseExecutionMode === 'machine' ? 'selected' : ''}>Maquina</option>
+                        <option value="pulley" ${exerciseExecutionMode === 'pulley' ? 'selected' : ''}>Polea</option>
+                        <option value="other" ${exerciseExecutionMode === 'other' ? 'selected' : ''}>Otro</option>
+                    </select>
                 </div>
             </div>
         </div>

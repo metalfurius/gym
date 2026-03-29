@@ -17,6 +17,7 @@ import { invalidateProgressCache } from '../progress.js';
 import { offlineManager } from '../utils/offline-manager.js';
 import { localFirstCache } from '../utils/local-first-cache.js';
 import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
+import { normalizeExecutionMode } from '../utils/execution-mode.js';
 
 // Constants
 const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
@@ -167,6 +168,7 @@ export function getSessionFormData() {
         };
 
         if (exerciseFromRoutine.type === 'strength') {
+            exerciseEntry.modoEjecucion = normalizeExecutionMode(exerciseFromRoutine.executionMode);
             const setRows = block.querySelectorAll('.set-row');
             setRows.forEach((row, setIndex) => {
                 const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);

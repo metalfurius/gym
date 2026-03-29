@@ -86,6 +86,7 @@ describe('firestore-serialization', () => {
         expect(normalized.ejercicios[0]).toEqual({
             nombreEjercicio: 'Bench Press',
             tipoEjercicio: 'strength',
+            modoEjecucion: 'other',
             objetivoSets: 4,
             objetivoReps: '8-10',
             objetivoDuracion: null,
@@ -105,6 +106,7 @@ describe('firestore-serialization', () => {
                 {
                     ejercicio: 'Rows',
                     tipo: 'strength',
+                    executionMode: 'machine',
                     targetSets: 3,
                     targetReps: '10',
                     notes: 'Keep form',
@@ -122,11 +124,35 @@ describe('firestore-serialization', () => {
         expect(wire.ejercicios[0]).toEqual({
             nombreEjercicio: 'Rows',
             tipoEjercicio: 'strength',
+            modoEjecucion: 'machine',
             objetivoSets: 3,
             objetivoReps: '10',
             objetivoDuracion: null,
             notasEjercicio: 'Keep form',
             sets: [{ peso: 60, reps: 10, tiempoDescanso: '01:00' }]
         });
+    });
+
+    it('normalizes execution mode fallback keys and ignores mode for non-strength exercises', () => {
+        const raw = {
+            ejercicios: [
+                {
+                    nombreEjercicio: 'Cable Curl',
+                    tipoEjercicio: 'strength',
+                    executionMode: 'pulley',
+                    sets: []
+                },
+                {
+                    nombreEjercicio: 'Running',
+                    tipoEjercicio: 'cardio',
+                    executionMode: 'machine',
+                    sets: []
+                }
+            ]
+        };
+
+        const normalized = fromDbToSessionModel(raw);
+        expect(normalized.ejercicios[0].modoEjecucion).toBe('pulley');
+        expect(normalized.ejercicios[1].modoEjecucion).toBeUndefined();
     });
 });

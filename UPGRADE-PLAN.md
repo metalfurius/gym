@@ -43,7 +43,7 @@ Execution split:
 
 - [done] Prioritize "Quick Log + Daily Hub" as the first feature/fun slice after hard gates stay green.
 - [done] Define acceptance criteria and rollout readiness for this slice (`docs/quick-log-daily-hub-readiness.md`).
-- [planned] Queue "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) as the next focused feature PR after Quick Log + Daily Hub (`docs/exercise-execution-mode-plan.md`).
+- [done] Implement "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) for strength exercises (`docs/exercise-execution-mode-plan.md`).
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
 ## Weekly Milestones and Quality Gates
@@ -82,16 +82,13 @@ Execution split:
 
 - Coverage gate target: >= 70%.
 - Final readiness review for post-cycle implementation.
-- Lock post-cycle feature order: Quick Log + Daily Hub first, then Exercise Execution Modes.
+- Lock post-cycle feature order for remaining feature work after implemented Execution Modes.
 - Go/No-Go: proceed to implementation phase only if all exit criteria are met.
 
 ## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
 
 1. Quick Log + Daily Hub implementation (as the first feature/fun delivery slice).
-2. Exercise Execution Modes for strength exercises:
-   - execution mode taxonomy: `one_hand`, `two_hand`, `machine`, `pulley`, `other`
-   - routine field: `executionMode` (optional)
-   - session field: `modoEjecucion` (optional, mirrored from routine defaults)
+2. Feature/Fun backlog refresh after Quick Log + Daily Hub readiness review.
 
 ## Hard Exit Criteria for Post-Cycle Implementation
 

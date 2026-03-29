@@ -1,3 +1,5 @@
+import { resolveExerciseExecutionMode } from './execution-mode.js';
+
 function extractIsoDate(value) {
     if (!value) return null;
 
@@ -109,21 +111,30 @@ export function fromDbToSessionModel(docData = {}) {
         userId: docData.userId ?? null,
         nombreEntrenamiento: docData.nombreEntrenamiento || docData.diaEntrenamiento || docData.dia || '',
         pesoUsuario: toNumberOrNull(docData.pesoUsuario ?? docData.userWeight),
-        ejercicios: rawExercises.map((exercise) => ({
-            nombreEjercicio: exercise.nombreEjercicio || exercise.name || exercise.ejercicio || '',
-            tipoEjercicio: exercise.tipoEjercicio || exercise.type || exercise.tipo || 'strength',
-            objetivoSets: exercise.objetivoSets ?? exercise.targetSets ?? null,
-            objetivoReps: exercise.objetivoReps ?? exercise.targetReps ?? null,
-            objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
-            notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
-            sets: Array.isArray(exercise.sets)
-                ? exercise.sets.map((set) => ({
-                    peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
-                    reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
-                    tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
-                }))
-                : []
-        }))
+        ejercicios: rawExercises.map((exercise) => {
+            const tipoEjercicio = exercise.tipoEjercicio || exercise.type || exercise.tipo || 'strength';
+            const mappedExercise = {
+                nombreEjercicio: exercise.nombreEjercicio || exercise.name || exercise.ejercicio || '',
+                tipoEjercicio,
+                objetivoSets: exercise.objetivoSets ?? exercise.targetSets ?? null,
+                objetivoReps: exercise.objetivoReps ?? exercise.targetReps ?? null,
+                objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
+                notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
+                sets: Array.isArray(exercise.sets)
+                    ? exercise.sets.map((set) => ({
+                        peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
+                        reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
+                        tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
+                    }))
+                    : []
+            };
+
+            if (tipoEjercicio === 'strength') {
+                mappedExercise.modoEjecucion = resolveExerciseExecutionMode(exercise);
+            }
+
+            return mappedExercise;
+        })
     };
 }
 
@@ -146,20 +157,29 @@ export function fromAppToSessionDbModel(model = {}, options = {}) {
         userId: model.userId ?? null,
         nombreEntrenamiento: model.nombreEntrenamiento || model.diaEntrenamiento || model.dia || '',
         pesoUsuario: toNumberOrNull(model.pesoUsuario),
-        ejercicios: rawExercises.map((exercise) => ({
-            nombreEjercicio: exercise.nombreEjercicio || exercise.name || exercise.ejercicio || '',
-            tipoEjercicio: exercise.tipoEjercicio || exercise.type || exercise.tipo || 'strength',
-            objetivoSets: exercise.objetivoSets ?? exercise.targetSets ?? null,
-            objetivoReps: exercise.objetivoReps ?? exercise.targetReps ?? null,
-            objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
-            notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
-            sets: Array.isArray(exercise.sets)
-                ? exercise.sets.map((set) => ({
-                    peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
-                    reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
-                    tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
-                }))
-                : []
-        }))
+        ejercicios: rawExercises.map((exercise) => {
+            const tipoEjercicio = exercise.tipoEjercicio || exercise.type || exercise.tipo || 'strength';
+            const mappedExercise = {
+                nombreEjercicio: exercise.nombreEjercicio || exercise.name || exercise.ejercicio || '',
+                tipoEjercicio,
+                objetivoSets: exercise.objetivoSets ?? exercise.targetSets ?? null,
+                objetivoReps: exercise.objetivoReps ?? exercise.targetReps ?? null,
+                objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
+                notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
+                sets: Array.isArray(exercise.sets)
+                    ? exercise.sets.map((set) => ({
+                        peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
+                        reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
+                        tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
+                    }))
+                    : []
+            };
+
+            if (tipoEjercicio === 'strength') {
+                mappedExercise.modoEjecucion = resolveExerciseExecutionMode(exercise);
+            }
+
+            return mappedExercise;
+        })
     };
 }

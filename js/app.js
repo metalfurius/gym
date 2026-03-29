@@ -25,6 +25,7 @@ import { offlineManager } from './utils/offline-manager.js';
 import { addViewListener, cleanupViewListeners } from './utils/event-manager.js';
 import { localFirstCache } from './utils/local-first-cache.js';
 import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
+import { normalizeExecutionMode } from './utils/execution-mode.js';
 import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
@@ -446,17 +447,24 @@ function setupRoutineEditorViewListeners() {
             exerciseEditors.forEach(editor => {
                 const name = editor.querySelector('input[name="ex-name"]').value.trim();
                 const type = editor.querySelector('select[name="ex-type"]').value;
+                const executionModeInput = editor.querySelector('select[name="ex-execution-mode"]');
                 const notes = editor.querySelector('textarea[name="ex-notes"]').value.trim();
                 let sets = '', reps = '', duration = '';
+                let executionMode = null;
 
                 if (type === 'strength') {
                     sets = parseInt(editor.querySelector('input[name="ex-sets"]').value) || 0;
                     reps = editor.querySelector('input[name="ex-reps"]').value.trim();
+                    executionMode = normalizeExecutionMode(executionModeInput?.value);
                 } else if (type === 'cardio') {
                     duration = editor.querySelector('input[name="ex-duration"]').value.trim();
                 }
                 if (name) {
-                    exercises.push({ name, type, sets, reps, duration, notes });
+                    const exerciseData = { name, type, sets, reps, duration, notes };
+                    if (type === 'strength') {
+                        exerciseData.executionMode = executionMode;
+                    }
+                    exercises.push(exerciseData);
                 }
             });
 

@@ -108,7 +108,7 @@ function setOnline(isOnline) {
     window.dispatchEvent(new Event(isOnline ? 'online' : 'offline'));
 }
 
-async function createRoutine({ name, exerciseName }) {
+async function createRoutine({ name, exerciseName, executionMode = 'one_hand' }) {
     click('#nav-manage-routines');
     await waitForUi(100);
     click('#add-new-routine-btn');
@@ -118,6 +118,7 @@ async function createRoutine({ name, exerciseName }) {
     setField('input[name="ex-name"]', exerciseName);
     setField('input[name="ex-sets"]', '3');
     setField('input[name="ex-reps"]', '8-10');
+    setField('select[name="ex-execution-mode"]', executionMode);
 
     document
         .getElementById('routine-editor-form')
@@ -150,7 +151,7 @@ describe('App Offline Recovery Journey', () => {
         await waitForUi(500);
 
         expect(isVisible('dashboard-view')).toBe(true);
-        await createRoutine({ name: 'Offline Test Routine', exerciseName: 'Bench Press' });
+        await createRoutine({ name: 'Offline Test Routine', exerciseName: 'Bench Press', executionMode: 'pulley' });
 
         click('#nav-dashboard');
         await waitForUi(200);
@@ -186,6 +187,7 @@ describe('App Offline Recovery Journey', () => {
         const savedAfterReconnect = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
         expect(savedAfterReconnect).toHaveLength(1);
         expect(savedAfterReconnect[0].data.nombreEntrenamiento).toBe('Offline Test Routine');
+        expect(savedAfterReconnect[0].data.ejercicios[0].modoEjecucion).toBe('pulley');
         expect(offlineManager.getPendingCount()).toBe(0);
 
         click('#nav-history');

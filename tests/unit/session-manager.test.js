@@ -160,7 +160,7 @@ describe('Session Manager', () => {
         id: 'routine-1',
         name: 'Push Day',
         exercises: [
-            { name: 'Bench Press', type: 'strength', sets: 3, reps: 8, duration: null }
+            { name: 'Bench Press', type: 'strength', sets: 3, reps: 8, duration: null, executionMode: 'one_hand' }
         ]
     };
 
@@ -224,6 +224,7 @@ describe('Session Manager', () => {
         expect(formData.ejercicios[0]).toMatchObject({
             nombreEjercicio: 'Bench Press',
             tipoEjercicio: 'strength',
+            modoEjecucion: 'one_hand',
             objetivoSets: 3,
             objetivoReps: 8,
             notasEjercicio: 'Buen set'
@@ -248,6 +249,7 @@ describe('Session Manager', () => {
         );
 
         expect(persisted).toHaveLength(1);
+        expect(persisted[0][1].ejercicios[0].modoEjecucion).toBe('one_hand');
         expect(mockExecuteWithOfflineHandling).toHaveBeenCalledWith(
             expect.any(Function),
             expect.stringContaining('Sin conexi'),

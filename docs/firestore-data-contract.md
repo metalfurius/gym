@@ -22,6 +22,7 @@ Current document shape:
     {
       "name": "Bench Press",
       "type": "strength",
+      "executionMode": "one_hand",
       "sets": 4,
       "reps": "8-10",
       "duration": "",
@@ -37,6 +38,10 @@ Required fields:
 
 - `name` (string)
 - `exercises` (array, can be empty for draft routines)
+
+Optional per-exercise fields:
+
+- `executionMode` for strength exercises
 
 Server-managed/client-set timestamps:
 
@@ -59,6 +64,7 @@ Current document shape:
     {
       "nombreEjercicio": "Bench Press",
       "tipoEjercicio": "strength",
+      "modoEjecucion": "one_hand",
       "objetivoSets": 4,
       "objetivoReps": "8-10",
       "objetivoDuracion": "",
@@ -89,6 +95,7 @@ Optional fields:
 - `pesoUsuario` (number or `null`)
 - `notasEjercicio` per exercise
 - `objetivo*` fields for session context
+- `modoEjecucion` for strength exercises
 
 ### 3) App backup data
 
@@ -146,11 +153,11 @@ Use this mapping when normalizing records for app use:
 - Canonical: `fecha` (`Timestamp`)
 - Offline queue payload fallback: `fechaIso` (ISO string, rehydrated to `Timestamp`)
 
-## Planned Post-Cycle Extension (Not Yet Implemented)
+## Implemented Extension: Execution Mode (March 29, 2026)
 
-Execution mode for strength exercises is planned for post-cycle delivery (after May 10, 2026):
+Execution mode for strength exercises is now implemented:
 
-1. Routine exercises (`users/{uid}/routines/{routineId}`): optional field `executionMode` with planned values `one_hand`, `two_hand`, `machine`, `pulley`, `other`.
+1. Routine exercises (`users/{uid}/routines/{routineId}`): optional field `executionMode` with values `one_hand`, `two_hand`, `machine`, `pulley`, `other`.
 2. Session exercises (`users/{uid}/sesiones_entrenamiento/{sessionId}`): optional field `modoEjecucion`, mirrored from routine `executionMode` defaults at save time.
 3. Backward compatibility rule: if execution mode is absent, consumers treat it as `other`; existing `type` / `tipoEjercicio` semantics remain unchanged.
 

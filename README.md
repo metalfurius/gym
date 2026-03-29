@@ -13,6 +13,7 @@ A modern, responsive workout tracking web app with session management, routine c
 - Multiple views: Dashboard, Session, History, Routine Management, Progress
 - Activity calendar for monthly workout consistency
 - Exercise progress charts with cached historical data
+- Strength exercise execution modes (`one_hand`, `two_hand`, `machine`, `pulley`, `other`)
 - User authentication with Firebase Auth
 - Responsive mobile-friendly interface
 - Session continuity for in-progress workouts
@@ -62,7 +63,7 @@ Planning docs:
 ### Next Phase
 
 Implementation work starts after all Week 6 exit criteria in `UPGRADE-PLAN.md` are met.
-Planned feature order: `Quick Log + Daily Hub` first, then `Exercise Execution Modes`.
+Current feature/fun implementation target: `Quick Log + Daily Hub` (execution modes are already implemented).
 
 ## License and Copyright
 
