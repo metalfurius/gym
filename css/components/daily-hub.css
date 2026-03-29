@@ -264,6 +264,18 @@
 
 #quick-log-datetime {
     font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    min-height: 46px;
+    background: linear-gradient(
+        180deg,
+        rgba(var(--primary-rgb), 0.04),
+        var(--input-bg)
+    );
+}
+
+#quick-log-datetime::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.85;
 }
 
 #quick-log-notes {

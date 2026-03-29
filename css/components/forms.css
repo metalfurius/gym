@@ -13,6 +13,9 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
 input[type="search"],
 textarea {
     width: 100%;
@@ -66,4 +69,17 @@ input[type="search"] {
     background-position: left 12px center;
     background-size: 1.2em;
     padding-left: 36px;
+}
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    color-scheme: light;
+    line-height: 1.2;
+}
+
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] input[type="datetime-local"] {
+    color-scheme: dark;
 }
