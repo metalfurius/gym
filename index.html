@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="css/components/exercise-cache.css">
     <link rel="stylesheet" href="css/components/progress.css">
     <link rel="stylesheet" href="css/components/timer.css">
+    <link rel="stylesheet" href="css/components/daily-hub.css">
     <link rel="stylesheet" href="css/components/responsive.css">
     
     <link rel="manifest" href="manifest.json">
@@ -112,6 +113,48 @@
                         <span class="btn-text">Iniciar Nueva Sesión</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="daily-hub-section">
+                <h3 class="workout-section-title">Resumen del Dia</h3>
+                <div class="daily-hub-grid">
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label">Registros hoy</p>
+                        <p id="daily-hub-today-count" class="daily-hub-value">0</p>
+                    </article>
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label">Ultimo entrenamiento</p>
+                        <p id="daily-hub-last-workout" class="daily-hub-value">Sin registros</p>
+                    </article>
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label">Rutina actual</p>
+                        <p id="daily-hub-routine-shortcut" class="daily-hub-value">Sin rutina</p>
+                    </article>
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label">Estado de sync</p>
+                        <p id="daily-hub-sync-status" class="daily-hub-value">En linea</p>
+                    </article>
+                </div>
+                <p id="daily-hub-empty-state" class="daily-hub-empty hidden">Aun no tienes registros guardados hoy.</p>
+            </div>
+
+            <div class="quick-log-section">
+                <h3 class="workout-section-title">Quick Log (menos de 30s)</h3>
+                <form id="quick-log-form" class="quick-log-form">
+                    <label for="quick-log-label">Titulo</label>
+                    <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" value="Quick Log">
+
+                    <label for="quick-log-datetime">Fecha y hora</label>
+                    <input id="quick-log-datetime" type="datetime-local">
+
+                    <label for="quick-log-notes">Notas de ejercicios (una por linea)</label>
+                    <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s"></textarea>
+
+                    <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
+                        <span class="btn-icon">âš¡</span>
+                        <span class="btn-text">Guardar Quick Log</span>
+                    </button>
+                </form>
             </div>
 
             <div id="activity-calendar-container"> <!-- Eliminado style margin, ya lo maneja el CSS -->

@@ -141,7 +141,7 @@ describe('App Offline Recovery Journey', () => {
         await waitForUi(50);
     });
 
-    it('queues session save offline and persists it after reconnecting', async () => {
+    it('queues quick-log and session saves offline, then replays both after reconnecting', async () => {
         const email = 'offline-journey@example.com';
         const password = 'password123';
 
@@ -151,6 +151,39 @@ describe('App Offline Recovery Journey', () => {
         await waitForUi(500);
 
         expect(isVisible('dashboard-view')).toBe(true);
+        expect(document.getElementById('daily-hub-today-count').textContent).toBe('0');
+
+        const quickLogDateInput = document.getElementById('quick-log-datetime');
+        if (!quickLogDateInput.value) {
+            quickLogDateInput.value = '2026-03-29T08:00';
+            quickLogDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            quickLogDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        setOnline(false);
+        await waitForUi(150);
+        setField('#quick-log-label', 'Offline Quick Log');
+        setField('#quick-log-notes', 'Movilidad 10m');
+        document
+            .getElementById('quick-log-form')
+            .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await waitForUi(400);
+
+        const quickLogSavedWhileOffline = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
+        expect(quickLogSavedWhileOffline).toHaveLength(0);
+        expect(offlineManager.getPendingCount()).toBe(1);
+        expect(document.getElementById('daily-hub-sync-status').textContent).toContain('cola');
+
+        setOnline(true);
+        await waitForUi(600);
+
+        const quickLogSavedAfterReconnect = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
+        expect(quickLogSavedAfterReconnect).toHaveLength(1);
+        expect(quickLogSavedAfterReconnect[0].data.nombreEntrenamiento).toBe('Offline Quick Log');
+        expect(quickLogSavedAfterReconnect[0].data.quickLog.source).toBe('quick_log');
+        expect(offlineManager.getPendingCount()).toBe(0);
+        expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En linea');
+
         await createRoutine({ name: 'Offline Test Routine', exerciseName: 'Bench Press', executionMode: 'pulley' });
 
         click('#nav-dashboard');
@@ -178,21 +211,24 @@ describe('App Offline Recovery Journey', () => {
         await waitForUi(400);
 
         const savedWhileOffline = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
-        expect(savedWhileOffline).toHaveLength(0);
+        expect(savedWhileOffline).toHaveLength(1);
         expect(offlineManager.getPendingCount()).toBe(1);
 
         setOnline(true);
         await waitForUi(500);
 
         const savedAfterReconnect = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
-        expect(savedAfterReconnect).toHaveLength(1);
-        expect(savedAfterReconnect[0].data.nombreEntrenamiento).toBe('Offline Test Routine');
-        expect(savedAfterReconnect[0].data.ejercicios[0].modoEjecucion).toBe('pulley');
+        expect(savedAfterReconnect).toHaveLength(2);
+        const routineSession = savedAfterReconnect.find((entry) => entry.data.nombreEntrenamiento === 'Offline Test Routine');
+        expect(routineSession).toBeDefined();
+        expect(routineSession.data.ejercicios[0].modoEjecucion).toBe('pulley');
         expect(offlineManager.getPendingCount()).toBe(0);
 
         click('#nav-history');
         await waitForUi(350);
-        expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBe(1);
+        expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBeGreaterThanOrEqual(2);
+        expect(document.getElementById('history-list').textContent).toContain('Offline Quick Log');
+        expect(document.getElementById('history-list').textContent).toContain('Offline Test Routine');
     }, 30000);
 
     afterAll(() => {

@@ -11,6 +11,8 @@ A modern, responsive workout tracking web app with session management, routine c
 
 - Comprehensive workout management (routines, sessions, history)
 - Multiple views: Dashboard, Session, History, Routine Management, Progress
+- Dashboard Daily Hub with quick today stats and sync status
+- Quick Log flow for sub-30s lightweight workout entries
 - Activity calendar for monthly workout consistency
 - Exercise progress charts with cached historical data
 - Strength exercise execution modes (`one_hand`, `two_hand`, `machine`, `pulley`, `other`)
@@ -50,7 +52,7 @@ Planning docs:
 
 - Dual-track strategy with hard quality gates
 - Execution split: Stability 45%, Foundation 35%, Feature/Fun 20%
-- Feature/Fun priority for the cycle: Quick Log + Daily Hub readiness
+- Feature/Fun milestone delivered: Quick Log + Daily Hub implementation
 
 ### Hard Gates for This Cycle
 
@@ -63,8 +65,8 @@ Planning docs:
 
 ### Next Phase
 
-Implementation work starts after all Week 6 exit criteria in `UPGRADE-PLAN.md` are met.
-Current feature/fun implementation target: `Quick Log + Daily Hub` (execution modes are already implemented).
+Current feature/fun implementation target is delivered: `Quick Log + Daily Hub`.
+Next target: Feature/Fun backlog refresh and prioritization after milestone validation.
 
 ## License and Copyright
 

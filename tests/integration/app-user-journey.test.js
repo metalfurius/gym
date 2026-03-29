@@ -109,7 +109,7 @@ describe('App User Journey', () => {
         await waitForUi(50);
     });
 
-    it('covers core flows: signup, routine create/edit/delete, session resume, save, and history', async () => {
+    it('covers core flows: signup, quick log + daily hub, routine create/edit/delete, session resume, save, and history', async () => {
         const testEmail = 'e2e-user@example.com';
 
         setField('#auth-email', testEmail);
@@ -119,6 +119,27 @@ describe('App User Journey', () => {
 
         expect(isVisible('dashboard-view')).toBe(true);
         expect(document.getElementById('user-email').textContent).toContain(testEmail);
+        expect(document.getElementById('daily-hub-today-count').textContent).toBe('0');
+        expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(false);
+
+        setField('#quick-log-label', 'Quick Morning');
+        const quickLogDateInput = document.getElementById('quick-log-datetime');
+        if (!quickLogDateInput.value) {
+            quickLogDateInput.value = '2026-03-29T08:30';
+            quickLogDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            quickLogDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        setField('#quick-log-notes', 'Movilidad 10m');
+        const quickLogForm = document.getElementById('quick-log-form');
+        quickLogForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await waitForUi(350);
+
+        const quickLogSessions = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
+        expect(quickLogSessions).toHaveLength(1);
+        expect(quickLogSessions[0].data.nombreEntrenamiento).toBe('Quick Morning');
+        expect(quickLogSessions[0].data.quickLog.source).toBe('quick_log');
+        expect(document.getElementById('daily-hub-today-count').textContent).toBe('1');
+        expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(true);
 
         click('#nav-manage-routines');
         await waitForUi(50);
@@ -194,13 +215,16 @@ describe('App User Journey', () => {
         expect(localStorage.getItem('gymTracker_inProgressSession')).toBeNull();
 
         const createdSessions = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
-        expect(createdSessions).toHaveLength(1);
-        expect(createdSessions[0].data.nombreEntrenamiento).toBe('Push Day Updated');
+        expect(createdSessions).toHaveLength(2);
+        const sessionNames = createdSessions.map((entry) => entry.data.nombreEntrenamiento);
+        expect(sessionNames).toContain('Quick Morning');
+        expect(sessionNames).toContain('Push Day Updated');
 
         click('#nav-history');
         await waitForUi(300);
 
-        expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBe(1);
+        expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBeGreaterThanOrEqual(2);
+        expect(document.getElementById('history-list').textContent).toContain('Quick Morning');
         expect(document.getElementById('history-list').textContent).toContain('Push Day Updated');
 
         click('#nav-manage-routines');

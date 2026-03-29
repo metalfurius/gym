@@ -24,6 +24,10 @@ import {
     saveLastKnownBodyweight,
     computeBodyweightTotalLoad
 } from '../utils/bodyweight.js';
+import {
+    normalizeQuickLogPayload,
+    buildQuickLogSessionModel
+} from '../utils/quick-log.js';
 
 // Constants
 const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
@@ -31,6 +35,7 @@ const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 // State
 let currentRoutineForSession = null;
 let isSavingSession = false;
+let isSavingQuickLog = false;
 
 function buildSessionQueuePayload(userId, sessionData) {
     const { fecha, ...rest } = sessionData;
@@ -58,6 +63,16 @@ function buildSessionFromQueuePayload(payload) {
     };
 }
 
+function invalidatePostSaveCaches(userId) {
+    Promise.all([
+        localFirstCache.clearByPrefix(`history:${userId}:`),
+        localFirstCache.clearByPrefix(`calendar:${userId}:`),
+        localFirstCache.clearByPrefix(`progress:sessions:${userId}`)
+    ]).catch((cacheError) => {
+        logger.warn('Could not invalidate local caches after save:', cacheError);
+    });
+}
+
 offlineManager.registerOperationHandler('session.save', async (payload) => {
     const hydratedSession = buildSessionFromQueuePayload(payload);
     if (!hydratedSession || !payload?.userId) {
@@ -67,6 +82,17 @@ offlineManager.registerOperationHandler('session.save', async (payload) => {
     const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
     await addDoc(userSessionsCollectionRef, hydratedSession);
     firebaseUsageTracker.trackWrite(1, 'session.save.replayed');
+});
+
+offlineManager.registerOperationHandler('quicklog.save', async (payload) => {
+    const hydratedSession = buildSessionFromQueuePayload(payload);
+    if (!hydratedSession || !payload?.userId) {
+        throw new Error('Invalid queued quick-log payload');
+    }
+
+    const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
+    await addDoc(userSessionsCollectionRef, hydratedSession);
+    firebaseUsageTracker.trackWrite(1, 'quicklog.save.replayed');
 });
 
 /**
@@ -291,13 +317,7 @@ export async function saveSessionData(onSuccess) {
             logger.warn('Error syncing exercise cache:', error);
         });
 
-        Promise.all([
-            localFirstCache.clearByPrefix(`history:${user.uid}:`),
-            localFirstCache.clearByPrefix(`calendar:${user.uid}:`),
-            localFirstCache.clearByPrefix(`progress:sessions:${user.uid}`)
-        ]).catch((cacheError) => {
-            logger.warn('Could not invalidate local caches after session save:', cacheError);
-        });
+        invalidatePostSaveCaches(user.uid);
         
         toast.success('¡Sesión guardada con éxito!');
         sessionElements.form.reset();
@@ -327,6 +347,97 @@ export async function saveSessionData(onSuccess) {
     } finally {
         hideLoading(sessionElements.saveBtn);
         isSavingSession = false;
+    }
+}
+
+/**
+ * Saves a quick-log entry to Firestore.
+ * @param {Object} quickLogInput - Input payload from dashboard quick-log form.
+ * @param {Function} onSuccess - Optional callback after successful online save.
+ * @param {Object} options - UI options.
+ * @param {HTMLElement|null} options.triggerButton - Optional button to show loading state.
+ * @returns {Promise<Object>} Result object with save status.
+ */
+export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options = {}) {
+    const user = getCurrentUser();
+    if (!user) {
+        toast.error('Debes iniciar sesion para guardar un Quick Log.');
+        return { ok: false, reason: 'unauthenticated' };
+    }
+
+    if (isSavingQuickLog) {
+        toast.info('Ya se esta guardando un Quick Log. Espera un momento.');
+        return { ok: false, reason: 'busy' };
+    }
+
+    const normalizedResult = normalizeQuickLogPayload(quickLogInput, { now: new Date() });
+    if (!normalizedResult.isValid || !normalizedResult.value) {
+        toast.warning('Agrega al menos una nota de ejercicio para guardar el Quick Log.');
+        return { ok: false, reason: 'validation' };
+    }
+
+    const finalQuickLogData = buildQuickLogSessionModel(user.uid, normalizedResult.value, Timestamp);
+    const triggerButton = options.triggerButton || null;
+
+    showLoading(triggerButton, 'Guardando...');
+    isSavingQuickLog = true;
+
+    try {
+        const saveOperation = async () => {
+            const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
+            await addDoc(userSessionsCollectionRef, finalQuickLogData);
+            firebaseUsageTracker.trackWrite(1, 'quicklog.save');
+        };
+
+        await offlineManager.executeWithOfflineHandling(
+            saveOperation,
+            'Sin conexion. El Quick Log se guardara al recuperar Internet.',
+            true,
+            {
+                type: 'quicklog.save',
+                payload: buildSessionQueuePayload(user.uid, finalQuickLogData)
+            }
+        );
+
+        invalidatePostSaveCaches(user.uid);
+        toast.success('Quick Log guardado con exito.');
+
+        if (typeof onSuccess === 'function') {
+            onSuccess(finalQuickLogData);
+        }
+
+        return {
+            ok: true,
+            queued: false,
+            data: finalQuickLogData
+        };
+    } catch (error) {
+        logger.error('Error saving quick log:', error);
+
+        if (error.message?.startsWith('Offline:')) {
+            toast.info('Quick Log en cola. Se guardara cuando vuelvas a estar en linea.');
+            return {
+                ok: true,
+                queued: true,
+                data: finalQuickLogData
+            };
+        }
+
+        toast.error('Error al guardar el Quick Log.');
+
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
+            const { loadFirebaseDiagnostics } = await import('../app.js');
+            loadFirebaseDiagnostics();
+        }
+
+        return {
+            ok: false,
+            reason: 'error',
+            error
+        };
+    } finally {
+        hideLoading(triggerButton);
+        isSavingQuickLog = false;
     }
 }
 
@@ -447,6 +558,7 @@ export default {
     setCurrentRoutineForSession,
     getSessionFormData,
     saveSessionData,
+    saveQuickLogEntry,
     checkAndOfferResumeSession,
     startSession,
     cancelSession,

@@ -4,7 +4,7 @@
  */
 
 import { db } from './firebase-config.js';
-import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, setDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, setDoc, deleteDoc, writeBatch, limit } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser, handleLogout } from './auth.js';
 import {
     showView, formatDate, populateDaySelector,
@@ -28,14 +28,23 @@ import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
 import { normalizeExecutionMode } from './utils/execution-mode.js';
 import { normalizeLoadType } from './utils/load-type.js';
 import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
+import {
+    computeDailyHubState,
+    toDatetimeLocalValue
+} from './utils/quick-log.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
 import { initCalendar, updateCalendarView, hideCalendar } from './modules/calendar.js';
 import { 
-    setCurrentRoutineForSession, saveSessionData, checkAndOfferResumeSession,
+    setCurrentRoutineForSession, saveSessionData, saveQuickLogEntry, checkAndOfferResumeSession,
     startSession, cancelSession, setupSessionAutoSave
 } from './modules/session-manager.js';
-import { initHistoryManager, fetchAndRenderHistory } from './modules/history-manager.js';
+import {
+    initHistoryManager,
+    fetchAndRenderHistory,
+    getSessionsCache,
+    invalidateHistoryCache
+} from './modules/history-manager.js';
 
 // Conditional loading of firebase diagnostics
 let diagnosticsLoaded = false;
@@ -56,6 +65,128 @@ let themeManager = null;
 // State
 let currentUserRoutines = [];
 const ROUTINES_CACHE_TTL_MS = 10 * 60 * 1000;
+const DAILY_HUB_SESSIONS_LIMIT = 25;
+const DAILY_HUB_CACHE_TTL_MS = 30 * 1000;
+let dailyHubSessionsCache = [];
+let dailyHubLastFetchTimestamp = 0;
+let dailyHubCacheUserId = null;
+
+function setQuickLogDateTimeToNow() {
+    if (dashboardElements.quickLogDateTimeInput) {
+        dashboardElements.quickLogDateTimeInput.value = toDatetimeLocalValue(new Date());
+    }
+}
+
+function getQuickLogFormPayload() {
+    return {
+        label: dashboardElements.quickLogLabelInput?.value || '',
+        dateTime: dashboardElements.quickLogDateTimeInput?.value || '',
+        notesText: dashboardElements.quickLogNotesInput?.value || ''
+    };
+}
+
+function applyDailyHubState(state) {
+    if (dashboardElements.dailyHubTodayCount) {
+        dashboardElements.dailyHubTodayCount.textContent = `${state.logsTodayCount}`;
+    }
+
+    if (dashboardElements.dailyHubLastWorkout) {
+        dashboardElements.dailyHubLastWorkout.textContent = state.lastWorkoutLabel;
+    }
+
+    if (dashboardElements.dailyHubRoutineShortcut) {
+        dashboardElements.dailyHubRoutineShortcut.textContent = state.routineShortcut;
+    }
+
+    if (dashboardElements.dailyHubSyncStatus) {
+        dashboardElements.dailyHubSyncStatus.textContent = state.syncStatus;
+    }
+
+    if (dashboardElements.dailyHubEmptyState) {
+        dashboardElements.dailyHubEmptyState.classList.toggle('hidden', !state.isEmpty);
+    }
+}
+
+async function fetchRecentSessionsForDailyHub(user, options = {}) {
+    if (!user) {
+        return [];
+    }
+
+    if (dailyHubCacheUserId !== user.uid) {
+        dailyHubCacheUserId = user.uid;
+        dailyHubSessionsCache = [];
+        dailyHubLastFetchTimestamp = 0;
+    }
+
+    const forceRefresh = options.forceRefresh === true;
+    const hasFreshCache = dailyHubSessionsCache.length > 0
+        && (Date.now() - dailyHubLastFetchTimestamp) <= DAILY_HUB_CACHE_TTL_MS;
+
+    if (!forceRefresh && hasFreshCache) {
+        return dailyHubSessionsCache;
+    }
+
+    const historySessionsCache = getSessionsCache();
+    if (!offlineManager.checkOnline()) {
+        if (historySessionsCache.length > 0) {
+            return historySessionsCache;
+        }
+
+        return dailyHubSessionsCache;
+    }
+
+    try {
+        const sessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
+        const dailyHubQuery = query(
+            sessionsCollectionRef,
+            orderBy('fecha', 'desc'),
+            limit(DAILY_HUB_SESSIONS_LIMIT)
+        );
+        const querySnapshot = await getDocs(dailyHubQuery);
+        firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'dashboard.dailyHub');
+
+        dailyHubSessionsCache = querySnapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data()
+        }));
+        dailyHubLastFetchTimestamp = Date.now();
+
+        return dailyHubSessionsCache;
+    } catch (error) {
+        logger.warn('Could not refresh daily hub sessions:', error);
+        if (historySessionsCache.length > 0) {
+            return historySessionsCache;
+        }
+
+        return dailyHubSessionsCache;
+    }
+}
+
+async function refreshDailyHub(user, options = {}) {
+    const hasDailyHubElements =
+        dashboardElements.dailyHubTodayCount
+        && dashboardElements.dailyHubLastWorkout
+        && dashboardElements.dailyHubRoutineShortcut
+        && dashboardElements.dailyHubSyncStatus;
+
+    if (!hasDailyHubElements) {
+        return;
+    }
+
+    const sessions = user
+        ? await fetchRecentSessionsForDailyHub(user, options)
+        : [];
+    const state = computeDailyHubState({
+        sessions,
+        routines: currentUserRoutines,
+        selectedRoutineId: dashboardElements.daySelect?.value || '',
+        now: new Date(),
+        isOnline: offlineManager.checkOnline(),
+        pendingCount: offlineManager.getPendingCount()
+    });
+
+    applyDailyHubState(state);
+}
 
 // --- App Initialization triggered by Auth ---
 export async function initializeAppAfterAuth(user) {
@@ -73,6 +204,8 @@ export async function initializeAppAfterAuth(user) {
         
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user);
+        setQuickLogDateTimeToNow();
+        await refreshDailyHub(user, { forceRefresh: true });
         
         // Initialize exercise cache
         await initializeExerciseCache(user);
@@ -100,6 +233,17 @@ export async function initializeAppAfterAuth(user) {
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
         manageRoutinesElements.list.innerHTML = '<li id="routines-loading">Cargando rutinas...</li>';
         hideCalendar();
+        dailyHubCacheUserId = null;
+        dailyHubSessionsCache = [];
+        dailyHubLastFetchTimestamp = 0;
+        setQuickLogDateTimeToNow();
+        applyDailyHubState(computeDailyHubState({
+            sessions: [],
+            routines: [],
+            now: new Date(),
+            isOnline: offlineManager.checkOnline(),
+            pendingCount: offlineManager.getPendingCount()
+        }));
     }
 }
 
@@ -185,6 +329,9 @@ async function fetchUserRoutines(user, options = {}) {
                 }
 
                 if (localFirstCache.isFresh(cachedEntry, ROUTINES_CACHE_TTL_MS)) {
+                    await refreshDailyHub(user).catch((refreshError) => {
+                        logger.warn('Could not refresh daily hub from cached routines:', refreshError);
+                    });
                     return;
                 }
             }
@@ -218,6 +365,10 @@ async function fetchUserRoutines(user, options = {}) {
             loadFirebaseDiagnostics();
         }
     }
+
+    await refreshDailyHub(user).catch((refreshError) => {
+        logger.warn('Could not refresh daily hub after routines fetch:', refreshError);
+    });
 }
 
 offlineManager.registerOperationHandler('routines.fetch', async (payload) => {
@@ -245,12 +396,19 @@ function setupDashboardViewListeners() {
 
     // Ensure calendar navigation handlers are attached for this view
     initCalendar();
+    if (dashboardElements.quickLogDateTimeInput && !dashboardElements.quickLogDateTimeInput.value) {
+        setQuickLogDateTimeToNow();
+    }
 
     if (dashboardElements.daySelect) {
         addViewListener('dashboard', dashboardElements.daySelect, 'change', () => {
             if (dashboardElements.startSessionBtn) {
                 dashboardElements.startSessionBtn.disabled = !dashboardElements.daySelect.value;
             }
+
+            refreshDailyHub(getCurrentUser()).catch((error) => {
+                logger.warn('Could not refresh daily hub after routine selection change:', error);
+            });
         });
     } else {
         logger.error('Dashboard day select element not found');
@@ -274,6 +432,36 @@ function setupDashboardViewListeners() {
     } else {
         logger.error('Start session button not found');
     }
+
+    if (dashboardElements.quickLogForm) {
+        addViewListener('dashboard', dashboardElements.quickLogForm, 'submit', async (event) => {
+            event.preventDefault();
+
+            const result = await saveQuickLogEntry(
+                getQuickLogFormPayload(),
+                () => {
+                    invalidateHistoryCache();
+                    fetchAndRenderHistory();
+                },
+                {
+                    triggerButton: dashboardElements.quickLogSaveBtn
+                }
+            );
+
+            if (result.ok && !result.queued && dashboardElements.quickLogNotesInput) {
+                dashboardElements.quickLogNotesInput.value = '';
+                setQuickLogDateTimeToNow();
+            }
+
+            await refreshDailyHub(getCurrentUser(), { forceRefresh: true });
+        });
+    } else {
+        logger.warn('Quick log form not found for dashboard listeners.');
+    }
+
+    refreshDailyHub(getCurrentUser()).catch((error) => {
+        logger.warn('Could not refresh daily hub while entering dashboard view:', error);
+    });
 }
 
 function setupSessionViewListeners() {
@@ -282,7 +470,11 @@ function setupSessionViewListeners() {
     if (sessionElements.saveBtn) {
         addViewListener('session', sessionElements.saveBtn, 'click', () => {
             saveSessionData(() => {
+                invalidateHistoryCache();
                 fetchAndRenderHistory();
+                refreshDailyHub(getCurrentUser(), { forceRefresh: true }).catch((error) => {
+                    logger.warn('Could not refresh daily hub after session save:', error);
+                });
             });
         });
     } else {
@@ -589,9 +781,13 @@ registerViewInitializer('progress', setupProgressViewListeners);
 // Navigation
 navButtons.dashboard.addEventListener('click', () => {
     showView('dashboard');
-    fetchUserRoutines(getCurrentUser());
+    const currentUser = getCurrentUser();
+    fetchUserRoutines(currentUser);
     checkAndOfferResumeSession(currentUserRoutines);
     updateCalendarView();
+    refreshDailyHub(currentUser, { forceRefresh: true }).catch((error) => {
+        logger.warn('Could not refresh daily hub on dashboard navigation:', error);
+    });
 });
 navButtons.manageRoutines.addEventListener('click', () => {
     showView('manageRoutines');
@@ -606,6 +802,12 @@ navButtons.progress.addEventListener('click', () => {
     loadProgressData();
 });
 navButtons.logout.addEventListener('click', handleLogout);
+
+offlineManager.addListener(() => {
+    refreshDailyHub(getCurrentUser(), { forceRefresh: true }).catch((error) => {
+        logger.warn('Could not refresh daily hub after connectivity change:', error);
+    });
+});
 
 // Set up auto-save for session form
 setupSessionAutoSave();

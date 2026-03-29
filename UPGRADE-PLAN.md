@@ -7,12 +7,12 @@ Last updated: March 29, 2026
 This file is the single source of truth for product and technical priorities.
 Execution has started. This document is kept synchronized with completed implementation milestones.
 
-## Current Baseline (verified March 25, 2026)
+## Current Baseline (verified March 29, 2026)
 
 - [done] `npm run lint:ratchet` passes (zero warnings).
 - [done] `npm run test:app` passes (app journey suites green).
 - [done] `npm run test:coverage:gate` passes at 67.50% statements coverage.
-- [done] 622 automated tests pass locally.
+- [done] 650 automated tests pass locally.
 - [done] Staged coverage ratchet is enforced by tooling (`scripts/coverage-gate.mjs` + CI workflow).
 
 ## Six-Week Strategy (March 30, 2026 to May 10, 2026)
@@ -43,6 +43,7 @@ Execution split:
 
 - [done] Prioritize "Quick Log + Daily Hub" as the first feature/fun slice after hard gates stay green.
 - [done] Define acceptance criteria and rollout readiness for this slice (`docs/quick-log-daily-hub-readiness.md`).
+- [done] Implement "Quick Log + Daily Hub" dashboard slice with offline replay and reliability coverage.
 - [done] Implement "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) for strength exercises (`docs/exercise-execution-mode-plan.md`).
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
@@ -87,8 +88,8 @@ Execution split:
 
 ## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
 
-1. Quick Log + Daily Hub implementation (as the first feature/fun delivery slice).
-2. Feature/Fun backlog refresh after Quick Log + Daily Hub readiness review.
+1. Feature/Fun backlog refresh after Quick Log + Daily Hub implementation review.
+2. Streaks/challenges/social mechanics discovery and sizing.
 
 ## Hard Exit Criteria for Post-Cycle Implementation
 

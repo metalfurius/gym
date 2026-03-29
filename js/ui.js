@@ -97,7 +97,17 @@ export const dashboardElements = {
     resumeSessionBtn: document.getElementById('resume-session-btn'),
     resumeSessionInfo: document.getElementById('resume-session-info'),
     manageRoutinesLinkBtn: document.getElementById('manage-routines-link-btn'),
-    debugCacheBtn: document.getElementById('debug-cache-btn')
+    debugCacheBtn: document.getElementById('debug-cache-btn'),
+    dailyHubTodayCount: document.getElementById('daily-hub-today-count'),
+    dailyHubLastWorkout: document.getElementById('daily-hub-last-workout'),
+    dailyHubRoutineShortcut: document.getElementById('daily-hub-routine-shortcut'),
+    dailyHubSyncStatus: document.getElementById('daily-hub-sync-status'),
+    dailyHubEmptyState: document.getElementById('daily-hub-empty-state'),
+    quickLogForm: document.getElementById('quick-log-form'),
+    quickLogLabelInput: document.getElementById('quick-log-label'),
+    quickLogDateTimeInput: document.getElementById('quick-log-datetime'),
+    quickLogNotesInput: document.getElementById('quick-log-notes'),
+    quickLogSaveBtn: document.getElementById('quick-log-save-btn')
 };
 
 export const sessionElements = {

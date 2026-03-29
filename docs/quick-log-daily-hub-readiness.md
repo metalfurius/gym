@@ -1,11 +1,11 @@
 # Quick Log + Daily Hub Readiness
 
-Last updated: March 25, 2026
-Status: Ready for implementation once hard gates remain green
+Last updated: March 29, 2026
+Status: Implemented and validated on March 29, 2026
 
 ## Purpose
 
-Define the first Feature/Fun slice (`Quick Log + Daily Hub`) with clear acceptance criteria, rollout guardrails, and go/no-go checks for implementation start.
+Define (and now record completion of) the first Feature/Fun slice (`Quick Log + Daily Hub`) with clear acceptance criteria, rollout guardrails, and go/no-go checks.
 
 ## Slice Scope
 
@@ -101,3 +101,12 @@ Ship gate is `No-Go` if any answer is negative:
 1. Existing Firestore/session compatibility contract in `docs/firestore-data-contract.md`.
 2. Current offline queue logic in `js/app.js` and `js/modules/session-manager.js`.
 3. App journey test harness and Firebase mocks under `tests/integration` and `tests/mocks`.
+
+## Delivery Note
+
+Implemented with:
+
+1. Dashboard Quick Log form (label + date/time default + note lines).
+2. Daily Hub cards (today count, last workout, routine shortcut, sync status).
+3. Offline durable queue + replay for quick-log saves.
+4. Integration coverage for quick-log create, offline recovery, and offline retry flows.

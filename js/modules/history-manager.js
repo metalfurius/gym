@@ -61,6 +61,10 @@ export function getSessionsCache() {
     return allSessionsCache;
 }
 
+export function invalidateHistoryCache() {
+    resetPaginationState();
+}
+
 function resetPaginationState() {
     historyPageLastDocSnapshot = null;
     historyPageDocSnapshotsStack = [];
@@ -387,6 +391,7 @@ export function getPageSize() {
 
 export default {
     fetchAndRenderHistory,
+    invalidateHistoryCache,
     getSessionsCache,
     getCurrentPageNumber,
     getPageSize,

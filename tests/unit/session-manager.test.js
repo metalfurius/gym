@@ -115,6 +115,7 @@ const {
     setCurrentRoutineForSession,
     getSessionFormData,
     saveSessionData,
+    saveQuickLogEntry,
     checkAndOfferResumeSession,
     setupSessionAutoSave
 } = sessionManagerModule;
@@ -279,6 +280,46 @@ describe('Session Manager', () => {
         expect(mockShowView).toHaveBeenCalledWith('dashboard');
         expect(mockClearTimerData).toHaveBeenCalled();
         expect(loadInProgressSession()).toBeNull();
+        expect(onSuccess).toHaveBeenCalled();
+        expect(mockShowLoading).toHaveBeenCalled();
+        expect(mockHideLoading).toHaveBeenCalled();
+    });
+
+    it('saveQuickLogEntry saves a quick log session and clears caches', async () => {
+        const onSuccess = jest.fn();
+        const result = await saveQuickLogEntry(
+            {
+                label: 'Quick Morning',
+                dateTime: '2026-03-29T08:30',
+                notesText: 'Movilidad 10m\nPlancha 45s'
+            },
+            onSuccess,
+            {
+                triggerButton: sessionElements.saveBtn
+            }
+        );
+
+        const persisted = Array.from(__firestoreState.documents.entries()).filter(([path]) =>
+            path.startsWith(`users/${user.uid}/sesiones_entrenamiento/`)
+        );
+
+        expect(result.ok).toBe(true);
+        expect(result.queued).toBe(false);
+        expect(persisted).toHaveLength(1);
+        expect(persisted[0][1].nombreEntrenamiento).toBe('Quick Morning');
+        expect(persisted[0][1].quickLog.source).toBe('quick_log');
+        expect(mockExecuteWithOfflineHandling).toHaveBeenCalledWith(
+            expect.any(Function),
+            expect.stringContaining('Quick Log'),
+            true,
+            expect.objectContaining({
+                type: 'quicklog.save',
+                payload: expect.objectContaining({ userId: user.uid })
+            })
+        );
+        expect(mockTrackWrite).toHaveBeenCalledWith(1, 'quicklog.save');
+        expect(mockClearByPrefix).toHaveBeenCalledWith(`history:${user.uid}:`);
+        expect(mockClearByPrefix).toHaveBeenCalledWith(`calendar:${user.uid}:`);
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();
