@@ -1,6 +1,6 @@
 {    "name": "My Workout Tracker",
     "short_name": "WorkoutApp",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "description": "Tu compañero de entrenamiento personal para registrar y personalizar tus progresos.",
     "start_url": "./index.html",
     "display": "standalone",
