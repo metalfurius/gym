@@ -177,6 +177,11 @@ npm run serve              # Start server for manual tests
    ```
 3. **Session Preservation**: Version updates preserve in-progress workout sessions
 4. **Cache Management**: Old service worker caches are automatically cleaned
+5. **Commit Keyword Bump Rules** (used by `.github/workflows/version-bump.yml` on push to `main`):
+   - Include `[major]` in commit message for breaking changes
+   - Include `[minor]` in commit message for backward-compatible features
+   - Include `[patch]` in commit message for fixes/maintenance
+   - If no keyword is present, workflow defaults to `patch`
 
 ## Storage and Data Persistence
 

@@ -18,7 +18,9 @@
 ## Version Bump
 
 <!-- Select the appropriate version bump type (default is patch) -->
-<!-- Add the corresponding label: version:patch, version:minor, or version:major -->
+<!-- IMPORTANT: the version workflow uses commit message keywords, not PR labels. -->
+<!-- Include one keyword in the merge/squash commit title/message: [patch], [minor], or [major]. -->
+<!-- If omitted, it defaults to patch. -->
 
 - [ ] Patch (bug fixes, minor changes) - default
 - [ ] Minor (new features, backward compatible)

@@ -44,6 +44,7 @@ Planning docs:
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 - [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
 - [docs/exercise-execution-mode-plan.md](docs/exercise-execution-mode-plan.md) - post-cycle plan for one-hand/two-hand/machine/pulley execution modes
+- [docs/commit-versioning.md](docs/commit-versioning.md) - commit keyword rules that drive automatic `major` / `minor` / `patch` bumps
 
 ### Current Focus (March 30, 2026 to May 10, 2026)
 
