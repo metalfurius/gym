@@ -41,6 +41,8 @@ Planning docs:
 
 - [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the 6-week roadmap
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
+- [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
+- [docs/exercise-execution-mode-plan.md](docs/exercise-execution-mode-plan.md) - post-cycle plan for one-hand/two-hand/machine/pulley execution modes
 
 ### Current Focus (March 30, 2026 to May 10, 2026)
 
@@ -52,6 +54,7 @@ Planning docs:
 
 - `npm run lint:ratchet` (zero-warning policy)
 - `npm run test:app` (app journeys required)
+- `npm run test:app:offline` (offline recovery/retry required)
 - `npm run test:no-skips` (no `.skip` / `xit` / `xdescribe`)
 - Staged coverage ratchet in the roadmap: Week 2 >= 64%, Week 4 >= 67%, Week 6 >= 70%
 - Feature/fun lane freeze whenever a hard gate fails
@@ -59,6 +62,7 @@ Planning docs:
 ### Next Phase
 
 Implementation work starts after all Week 6 exit criteria in `UPGRADE-PLAN.md` are met.
+Planned feature order: `Quick Log + Daily Hub` first, then `Exercise Execution Modes`.
 
 ## License and Copyright
 
@@ -99,6 +103,7 @@ Commands:
 - `npm run test:unit`
 - `npm run test:integration`
 - `npm run test:app`
+- `npm run test:app:offline`
 - `npm run test:app:only`
 - `npm run test:coverage`
 - `npm run test:coverage:gate`

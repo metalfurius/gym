@@ -32,6 +32,9 @@ jobs:
       - name: Run app journey tests
         run: npm run test:app
 
+      - name: Run offline recovery/retry gate
+        run: npm run test:app:offline
+
       - name: Fail on skipped tests
         run: npm run test:no-skips
 

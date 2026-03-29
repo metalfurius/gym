@@ -1,6 +1,6 @@
 # Firestore Data Contract (Draft)
 
-Last updated: March 25, 2026
+Last updated: March 29, 2026
 Status: Draft for review
 
 ## Purpose
@@ -146,6 +146,14 @@ Use this mapping when normalizing records for app use:
 - Canonical: `fecha` (`Timestamp`)
 - Offline queue payload fallback: `fechaIso` (ISO string, rehydrated to `Timestamp`)
 
+## Planned Post-Cycle Extension (Not Yet Implemented)
+
+Execution mode for strength exercises is planned for post-cycle delivery (after May 10, 2026):
+
+1. Routine exercises (`users/{uid}/routines/{routineId}`): optional field `executionMode` with planned values `one_hand`, `two_hand`, `machine`, `pulley`, `other`.
+2. Session exercises (`users/{uid}/sesiones_entrenamiento/{sessionId}`): optional field `modoEjecucion`, mirrored from routine `executionMode` defaults at save time.
+3. Backward compatibility rule: if execution mode is absent, consumers treat it as `other`; existing `type` / `tipoEjercicio` semantics remain unchanged.
+
 ## Compatibility and Migration Constraints
 
 1. No destructive migration in place for this cycle.
@@ -155,4 +163,3 @@ Use this mapping when normalizing records for app use:
 - `js/modules/session-manager.js`
 - `js/progress.js`
 - `js/utils/firestore-serialization.js`
-

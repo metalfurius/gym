@@ -33,6 +33,7 @@ npm run test:app
 ```
 
 `npm run test:app` now runs ESLint in errors-only mode first. Use `npm run test:app:only` to run just the app journey tests.
+Use `npm run test:app:offline` to run only offline recovery/retry reliability journeys.
 
 ## Test Structure
 
@@ -75,6 +76,9 @@ npm run test:integration
 
 # Run app-level user journeys only
 npm run test:app
+
+# Run only offline recovery/retry journeys
+npm run test:app:offline
 
 # Run with coverage report
 npm run test:coverage

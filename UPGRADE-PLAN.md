@@ -1,6 +1,6 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: March 25, 2026
+Last updated: March 29, 2026
 
 ## Purpose
 
@@ -28,7 +28,7 @@ Execution split:
 - [done] Zero-warning lint baseline with CI ratchet (`npm run lint:ratchet`).
 - [done] App journey gate in CI (`npm run test:app` before coverage).
 - [done] No-skipped-tests gate is enforced (`npm run test:no-skips`).
-- [planned] Keep offline retry/recovery flows green on every PR.
+- [done] Keep offline retry/recovery flows green on every PR (`npm run test:app:offline` in CI).
 - [done] Resolve remaining user-facing text encoding regressions in app copy (`js/app.js`).
 - [deferred] Expand cross-browser matrix beyond current manual checks.
 
@@ -41,8 +41,9 @@ Execution split:
 
 ### Track 3 - Feature/Fun (20%)
 
-- [planned] Prioritize "Quick Log + Daily Hub" as the first feature/fun slice after hard gates stay green.
-- [planned] Define acceptance criteria and rollout readiness for this slice during the 6-week window.
+- [done] Prioritize "Quick Log + Daily Hub" as the first feature/fun slice after hard gates stay green.
+- [done] Define acceptance criteria and rollout readiness for this slice (`docs/quick-log-daily-hub-readiness.md`).
+- [planned] Queue "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) as the next focused feature PR after Quick Log + Daily Hub (`docs/exercise-execution-mode-plan.md`).
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
 ## Weekly Milestones and Quality Gates
@@ -73,7 +74,7 @@ Execution split:
 
 ### Week 5 (April 27 to May 3)
 
-- Finalize Quick Log + Daily Hub implementation readiness checklist.
+- Finalize Quick Log + Daily Hub implementation readiness checklist (completed early on March 25, 2026; see `docs/quick-log-daily-hub-readiness.md`).
 - Confirm no contradictions between completed and planned hardening items.
 - Go/No-Go: if any gate is red, continue hardening only.
 
@@ -81,7 +82,16 @@ Execution split:
 
 - Coverage gate target: >= 70%.
 - Final readiness review for post-cycle implementation.
+- Lock post-cycle feature order: Quick Log + Daily Hub first, then Exercise Execution Modes.
 - Go/No-Go: proceed to implementation phase only if all exit criteria are met.
+
+## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
+
+1. Quick Log + Daily Hub implementation (as the first feature/fun delivery slice).
+2. Exercise Execution Modes for strength exercises:
+   - execution mode taxonomy: `one_hand`, `two_hand`, `machine`, `pulley`, `other`
+   - routine field: `executionMode` (optional)
+   - session field: `modoEjecucion` (optional, mirrored from routine defaults)
 
 ## Hard Exit Criteria for Post-Cycle Implementation
 
