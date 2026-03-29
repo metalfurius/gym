@@ -58,6 +58,7 @@ Planning docs:
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 - [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
 - [docs/exercise-execution-mode-plan.md](docs/exercise-execution-mode-plan.md) - post-cycle plan for one-hand/two-hand/machine/pulley execution modes
+- [docs/session-variants-i18n-plan.md](docs/session-variants-i18n-plan.md) - planned spec for per-session mode/load overrides plus ES/EN language system
 - [docs/commit-versioning.md](docs/commit-versioning.md) - commit keyword rules that drive automatic `major` / `minor` / `patch` bumps
 
 ### Current Focus (March 30, 2026 to May 10, 2026)
@@ -65,6 +66,7 @@ Planning docs:
 - Dual-track strategy with hard quality gates
 - Execution split: Stability 45%, Foundation 35%, Feature/Fun 20%
 - Feature/Fun milestone delivered: Quick Log + Daily Hub implementation
+- Feature/Fun milestone pending: Session-Time Exercise Variants + ES/EN Language System (planning completed, implementation pending)
 
 ### Hard Gates for This Cycle
 
@@ -77,8 +79,8 @@ Planning docs:
 
 ### Next Phase
 
-Current feature/fun implementation target is delivered: `Quick Log + Daily Hub`.
-Next target: Feature/Fun backlog refresh and prioritization after milestone validation.
+Current feature/fun implementation targets delivered: `Quick Log + Daily Hub`, `Exercise Execution Modes`.
+Next target (pending): `Session-Time Exercise Variants + ES/EN Language System`.
 
 ## License and Copyright
 

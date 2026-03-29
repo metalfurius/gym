@@ -65,6 +65,7 @@ Current document shape:
       "nombreEjercicio": "Bench Press",
       "tipoEjercicio": "strength",
       "modoEjecucion": "one_hand",
+      "tipoCarga": "external",
       "objetivoSets": 4,
       "objetivoReps": "8-10",
       "objetivoDuracion": "",
@@ -96,6 +97,7 @@ Optional fields:
 - `notasEjercicio` per exercise
 - `objetivo*` fields for session context
 - `modoEjecucion` for strength exercises
+- `tipoCarga` for strength exercises (`external`, `bodyweight`)
 
 ### 3) App backup data
 
@@ -158,8 +160,16 @@ Use this mapping when normalizing records for app use:
 Execution mode for strength exercises is now implemented:
 
 1. Routine exercises (`users/{uid}/routines/{routineId}`): optional field `executionMode` with values `one_hand`, `two_hand`, `machine`, `pulley`, `other`.
-2. Session exercises (`users/{uid}/sesiones_entrenamiento/{sessionId}`): optional field `modoEjecucion`, mirrored from routine `executionMode` defaults at save time.
+2. Session exercises (`users/{uid}/sesiones_entrenamiento/{sessionId}`): optional field `modoEjecucion` (currently mirrored from routine defaults).
 3. Backward compatibility rule: if execution mode is absent, consumers treat it as `other`; existing `type` / `tipoEjercicio` semantics remain unchanged.
+
+## Planned Milestone Alignment: Session-Time Variants + ES/EN (Documentation)
+
+This milestone is planning-only at this stage. Contract implications are already locked:
+
+1. No Firestore schema changes are required for the milestone.
+2. Session fields `modoEjecucion` and `tipoCarga` remain the canonical descriptors for how an exercise was effectively performed in a saved session.
+3. Remembered per-routine/per-exercise variant preferences are local device state and remain outside Firestore contract scope.
 
 ## Compatibility and Migration Constraints
 

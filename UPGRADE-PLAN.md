@@ -45,6 +45,8 @@ Execution split:
 - [done] Define acceptance criteria and rollout readiness for this slice (`docs/quick-log-daily-hub-readiness.md`).
 - [done] Implement "Quick Log + Daily Hub" dashboard slice with offline replay and reliability coverage.
 - [done] Implement "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) for strength exercises (`docs/exercise-execution-mode-plan.md`).
+- [planned] Prioritize "Session-Time Exercise Variants + ES/EN Language System" as the next feature/fun milestone (`docs/session-variants-i18n-plan.md`).
+  Exit criteria: mode/load overrides editable per session exercise, local memory by user+routine+exercise, ES/EN selector in header, and unified UI + runtime copy.
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
 ## Weekly Milestones and Quality Gates
@@ -88,8 +90,9 @@ Execution split:
 
 ## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
 
-1. Feature/Fun backlog refresh after Quick Log + Daily Hub implementation review.
-2. Streaks/challenges/social mechanics discovery and sizing.
+1. Session-Time Exercise Variants + ES/EN Language System implementation.
+2. Feature/Fun backlog refresh after the new milestone validation.
+3. Streaks/challenges/social mechanics discovery and sizing.
 
 ## Hard Exit Criteria for Post-Cycle Implementation
 
