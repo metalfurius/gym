@@ -160,7 +160,15 @@ describe('Session Manager', () => {
         id: 'routine-1',
         name: 'Push Day',
         exercises: [
-            { name: 'Bench Press', type: 'strength', sets: 3, reps: 8, duration: null, executionMode: 'one_hand' }
+            {
+                name: 'Bench Press',
+                type: 'strength',
+                sets: 3,
+                reps: 8,
+                duration: null,
+                executionMode: 'one_hand',
+                loadType: 'external'
+            }
         ]
     };
 
@@ -225,6 +233,7 @@ describe('Session Manager', () => {
             nombreEjercicio: 'Bench Press',
             tipoEjercicio: 'strength',
             modoEjecucion: 'one_hand',
+            tipoCarga: 'external',
             objetivoSets: 3,
             objetivoReps: 8,
             notasEjercicio: 'Buen set'
@@ -250,6 +259,7 @@ describe('Session Manager', () => {
 
         expect(persisted).toHaveLength(1);
         expect(persisted[0][1].ejercicios[0].modoEjecucion).toBe('one_hand');
+        expect(persisted[0][1].ejercicios[0].tipoCarga).toBe('external');
         expect(mockExecuteWithOfflineHandling).toHaveBeenCalledWith(
             expect.any(Function),
             expect.stringContaining('Sin conexi'),
@@ -272,6 +282,33 @@ describe('Session Manager', () => {
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();
+    });
+
+    it('computes bodyweight total load with last known bodyweight fallback', () => {
+        localStorage.setItem('gym-tracker:last-known-bodyweight:session-user-1', '78');
+        setCurrentRoutineForSession({
+            id: 'routine-bw',
+            name: 'Pull Day',
+            exercises: [
+                { name: 'Dominadas', type: 'strength', sets: 1, reps: 8, executionMode: 'two_hand', loadType: 'bodyweight' }
+            ]
+        });
+
+        sessionElements.exerciseList.innerHTML = `
+            <div class="exercise-block" data-exercise-index="0">
+                <div class="set-row">
+                    <input name="weight-0-0" value="-15" />
+                    <input name="reps-0-0" value="8" />
+                    <span id="timer-display-0-0">01:00</span>
+                </div>
+                <textarea name="notes-0"></textarea>
+            </div>
+        `;
+
+        const formData = getSessionFormData();
+        expect(formData.ejercicios[0].tipoCarga).toBe('bodyweight');
+        expect(formData.ejercicios[0].sets[0].peso).toBe(-15);
+        expect(formData.ejercicios[0].sets[0].pesoTotal).toBe(63);
     });
 
     it('saveSessionData shows warning when there are no exercises to save', async () => {

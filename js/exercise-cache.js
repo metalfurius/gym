@@ -3,6 +3,16 @@
 
 import { logger } from './utils/logger.js';
 import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
+import {
+    DEFAULT_EXECUTION_MODE,
+    normalizeExecutionMode,
+    resolveExerciseExecutionMode
+} from './utils/execution-mode.js';
+import {
+    DEFAULT_LOAD_TYPE,
+    normalizeLoadType,
+    resolveExerciseLoadType
+} from './utils/load-type.js';
 
 export class ExerciseCacheManager {
     constructor() {
@@ -45,58 +55,117 @@ export class ExerciseCacheManager {
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Array} Array con el historial del ejercicio (más reciente primero)
      */
-    getExerciseHistory(exerciseName) {
+    getExerciseHistory(
+        exerciseName,
+        executionMode = DEFAULT_EXECUTION_MODE,
+        loadType = DEFAULT_LOAD_TYPE
+    ) {
         const cache = this.getFullCache();
-        const normalizedName = this.normalizeExerciseName(exerciseName);
-        
-        if (!cache[normalizedName]) {
-            return [];
+        const normalizedMode = normalizeExecutionMode(executionMode);
+        const normalizedExerciseName = this.normalizeExerciseName(exerciseName);
+        const cacheKey = this.buildExerciseCacheKey(exerciseName, executionMode, loadType);
+
+        if (cache[cacheKey]) {
+            return cache[cacheKey].history || [];
         }
 
-        const history = cache[normalizedName].history || [];
-        return history;
-    }    /**
+        const fallbackKeys = this.buildFallbackCacheKeys(exerciseName, executionMode, loadType);
+        for (const fallbackKey of fallbackKeys) {
+            const fallbackEntry = cache[fallbackKey];
+            if (!fallbackEntry) {
+                continue;
+            }
+
+            if (normalizedMode === 'other' && fallbackKey === normalizedExerciseName) {
+                const fallbackMode = fallbackEntry.executionMode
+                    ? normalizeExecutionMode(fallbackEntry.executionMode)
+                    : 'other';
+
+                if (fallbackMode !== 'other') {
+                    continue;
+                }
+            }
+
+            return fallbackEntry.history || [];
+        }
+
+        return [];
+    }
+
+    /**
      * Obtiene los datos más recientes de un ejercicio
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Object|null} Datos más recientes o null si no hay historial
      */
-    getLastExerciseData(exerciseName) {
-        const history = this.getExerciseHistory(exerciseName);
+    getLastExerciseData(
+        exerciseName,
+        executionMode = DEFAULT_EXECUTION_MODE,
+        loadType = DEFAULT_LOAD_TYPE
+    ) {
+        const history = this.getExerciseHistory(exerciseName, executionMode, loadType);
         const result = history.length > 0 ? history[0] : null;
         return result;
-    }    /**
+    }
+
+    /**
      * Añade datos de ejercicio al cache
      * @param {string} exerciseName - Nombre del ejercicio
      * @param {Array} sets - Array de sets con peso y reps
      * @param {Date} sessionDate - Fecha de la sesión
      */
-    addExerciseData(exerciseName, sets, sessionDate = new Date()) {
+    addExerciseData(
+        exerciseName,
+        sets,
+        sessionDate = new Date(),
+        executionMode = DEFAULT_EXECUTION_MODE,
+        loadType = DEFAULT_LOAD_TYPE
+    ) {
         if (!exerciseName || !sets || sets.length === 0) {
             return;
         }
 
         const cache = this.getFullCache();
-        const normalizedName = this.normalizeExerciseName(exerciseName);
+        const normalizedMode = normalizeExecutionMode(executionMode);
+        const normalizedLoadType = normalizeLoadType(loadType);
+        const cacheKey = this.buildExerciseCacheKey(exerciseName, normalizedMode, normalizedLoadType);
         
-        if (!cache[normalizedName]) {
-            cache[normalizedName] = {
+        if (!cache[cacheKey]) {
+            cache[cacheKey] = {
                 originalName: exerciseName,
+                executionMode: normalizedMode,
+                loadType: normalizedLoadType,
                 history: []
             };
+        } else {
+            if (!cache[cacheKey].executionMode) {
+                cache[cacheKey].executionMode = normalizedMode;
+            }
+            if (!cache[cacheKey].loadType) {
+                cache[cacheKey].loadType = normalizedLoadType;
+            }
         }
 
         // Crear entrada de historial
         const historyEntry = {
             date: sessionDate.toISOString(),
             timestamp: sessionDate.getTime(),
-            sets: sets.map(set => ({
-                peso: parseFloat(set.peso) || 0,
-                reps: parseInt(set.reps) || 0
-            }))
+            sets: sets.map((set) => {
+                const parsedSet = {
+                    peso: parseFloat(set.peso) || 0,
+                    reps: parseInt(set.reps) || 0
+                };
+
+                const totalLoad = Number(set.pesoTotal ?? set.totalWeight);
+                if (Number.isFinite(totalLoad)) {
+                    parsedSet.pesoTotal = totalLoad;
+                }
+
+                return parsedSet;
+            })
         };
 
         // Añadir al principio del array (más reciente primero)
-        cache[normalizedName].history.unshift(historyEntry);
+        cache[cacheKey].history.unshift(historyEntry);
 
         // No limitar el historial - necesitamos todos los datos para gráficos de progreso. El historial se limpará automáticamente por edad usando cleanOldEntries()
 
@@ -108,8 +177,12 @@ export class ExerciseCacheManager {
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Object} Sugerencias de peso y reps
      */
-    getExerciseSuggestions(exerciseName) {
-        const lastData = this.getLastExerciseData(exerciseName);
+    getExerciseSuggestions(
+        exerciseName,
+        executionMode = DEFAULT_EXECUTION_MODE,
+        loadType = DEFAULT_LOAD_TYPE
+    ) {
+        const lastData = this.getLastExerciseData(exerciseName, executionMode, loadType);
         
         if (!lastData) {
             return {
@@ -153,7 +226,9 @@ export class ExerciseCacheManager {
 
         sessionData.ejercicios.forEach((ejercicio) => {
             if (ejercicio.tipoEjercicio === 'strength' && ejercicio.sets && ejercicio.sets.length > 0) {
-                this.addExerciseData(ejercicio.nombreEjercicio, ejercicio.sets, sessionDate);
+                const executionMode = resolveExerciseExecutionMode(ejercicio);
+                const loadType = resolveExerciseLoadType(ejercicio);
+                this.addExerciseData(ejercicio.nombreEjercicio, ejercicio.sets, sessionDate, executionMode, loadType);
             }
         });
     }
@@ -304,6 +379,61 @@ export class ExerciseCacheManager {
     }
 
     /**
+     * Construye la clave de cache para separar por ejercicio + modo de ejecuciÃ³n.
+     * `other` se mantiene sin sufijo para compatibilidad con cache legado.
+     * @param {string} exerciseName - Nombre original del ejercicio
+     * @param {string} executionMode - Modo de ejecuciÃ³n
+     * @returns {string} Clave normalizada para el cache
+     */
+    buildExerciseCacheKey(
+        exerciseName,
+        executionMode = DEFAULT_EXECUTION_MODE,
+        loadType = DEFAULT_LOAD_TYPE
+    ) {
+        const normalizedName = this.normalizeExerciseName(exerciseName);
+        const normalizedMode = normalizeExecutionMode(executionMode);
+        const normalizedLoadType = normalizeLoadType(loadType);
+
+        if (normalizedMode === DEFAULT_EXECUTION_MODE && normalizedLoadType === DEFAULT_LOAD_TYPE) {
+            return normalizedName;
+        }
+
+        if (normalizedLoadType === DEFAULT_LOAD_TYPE) {
+            return `${normalizedName}__${normalizedMode}`;
+        }
+
+        return `${normalizedName}__${normalizedMode}__${normalizedLoadType}`;
+    }
+
+    buildFallbackCacheKeys(
+        exerciseName,
+        executionMode = DEFAULT_EXECUTION_MODE,
+        loadType = DEFAULT_LOAD_TYPE
+    ) {
+        const normalizedName = this.normalizeExerciseName(exerciseName);
+        const normalizedMode = normalizeExecutionMode(executionMode);
+        const normalizedLoadType = normalizeLoadType(loadType);
+        const fallbackKeys = new Set();
+
+        if (normalizedMode === DEFAULT_EXECUTION_MODE && normalizedLoadType === DEFAULT_LOAD_TYPE) {
+            // Compatibility with cache entries written before default switched to two_hand.
+            fallbackKeys.add(`${normalizedName}__${DEFAULT_EXECUTION_MODE}`);
+        }
+
+        if (normalizedMode === 'other' && normalizedLoadType === DEFAULT_LOAD_TYPE) {
+            // Legacy "other" mode used to be stored without suffix.
+            fallbackKeys.add(normalizedName);
+        }
+
+        if (normalizedLoadType !== DEFAULT_LOAD_TYPE) {
+            // Safety fallback if older clients persisted bodyweight without explicit loadType suffix.
+            fallbackKeys.add(`${normalizedName}__${normalizedMode}`);
+        }
+
+        return Array.from(fallbackKeys);
+    }
+
+    /**
      * Limpia entradas antiguas del cache
      */
     cleanOldEntries() {
@@ -407,7 +537,9 @@ export class ExerciseCacheManager {
                 if (sessionData.ejercicios) {
                     for (const ejercicio of sessionData.ejercicios) {
                         if (ejercicio.tipoEjercicio === 'strength' && ejercicio.sets && ejercicio.sets.length > 0) {
-                            const history = this.getExerciseHistory(ejercicio.nombreEjercicio);
+                            const executionMode = resolveExerciseExecutionMode(ejercicio);
+                            const loadType = resolveExerciseLoadType(ejercicio);
+                            const history = this.getExerciseHistory(ejercicio.nombreEjercicio, executionMode, loadType);
                             
                             // Si encontramos un ejercicio sin historial, o con historial muy limitado
                             // comparado con las sesiones disponibles, necesitamos reconstruir

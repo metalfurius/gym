@@ -18,6 +18,12 @@ import { offlineManager } from '../utils/offline-manager.js';
 import { localFirstCache } from '../utils/local-first-cache.js';
 import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 import { normalizeExecutionMode } from '../utils/execution-mode.js';
+import { normalizeLoadType, resolveExerciseLoadType } from '../utils/load-type.js';
+import {
+    getLastKnownBodyweight,
+    saveLastKnownBodyweight,
+    computeBodyweightTotalLoad
+} from '../utils/bodyweight.js';
 
 // Constants
 const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
@@ -151,6 +157,10 @@ export function getSessionFormData() {
         ejercicios: [],
         pesoUsuario: pesoUsuario
     };
+
+    const currentUser = getCurrentUser();
+    const fallbackBodyweight = getLastKnownBodyweight(currentUser?.uid);
+    const effectiveBodyweight = pesoUsuario ?? fallbackBodyweight;
     
     const exerciseBlocks = sessionElements.exerciseList.querySelectorAll('.exercise-block');
     exerciseBlocks.forEach(block => {
@@ -169,6 +179,7 @@ export function getSessionFormData() {
 
         if (exerciseFromRoutine.type === 'strength') {
             exerciseEntry.modoEjecucion = normalizeExecutionMode(exerciseFromRoutine.executionMode);
+            exerciseEntry.tipoCarga = normalizeLoadType(resolveExerciseLoadType(exerciseFromRoutine));
             const setRows = block.querySelectorAll('.set-row');
             setRows.forEach((row, setIndex) => {
                 const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
@@ -181,15 +192,27 @@ export function getSessionFormData() {
                         const normalizedWeight = weightInput.value.replace(',', '.');
                         const parsedWeight = parseFloat(normalizedWeight);
                         if (!isNaN(parsedWeight)) {
-                            peso = Math.round(parsedWeight * 10) / 10;
+                            const roundedWeight = Math.round(parsedWeight * 10) / 10;
+                            peso = exerciseEntry.tipoCarga === 'bodyweight'
+                                ? roundedWeight
+                                : Math.max(0, roundedWeight);
                         }
                     }
-                    
-                    exerciseEntry.sets.push({
+
+                    const setEntry = {
                         peso: peso,
                         reps: parseInt(repsInput?.value, 10) || 0,
                         tiempoDescanso: document.getElementById(`timer-display-${exerciseIndex}-${setIndex}`)?.textContent || '00:00'
-                    });
+                    };
+
+                    if (exerciseEntry.tipoCarga === 'bodyweight') {
+                        const totalLoad = computeBodyweightTotalLoad(setEntry.peso, effectiveBodyweight);
+                        if (totalLoad !== null) {
+                            setEntry.pesoTotal = totalLoad;
+                        }
+                    }
+
+                    exerciseEntry.sets.push(setEntry);
                 }
             });
         }
@@ -253,6 +276,8 @@ export async function saveSessionData(onSuccess) {
                 payload: buildSessionQueuePayload(user.uid, finalSessionData)
             }
         );
+
+        saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
         
         // Update exercise cache with new session data
         const { exerciseCache } = await import('../exercise-cache.js');

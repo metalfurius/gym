@@ -4,10 +4,18 @@ import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
 import { cleanupViewListeners } from './utils/event-manager.js';
 import {
+    DEFAULT_EXECUTION_MODE,
     normalizeExecutionMode,
     resolveExerciseExecutionMode,
     getExecutionModeLabel
 } from './utils/execution-mode.js';
+import {
+    DEFAULT_LOAD_TYPE,
+    normalizeLoadType,
+    resolveExerciseLoadType,
+    getLoadTypeLabel
+} from './utils/load-type.js';
+import { getLastKnownBodyweight } from './utils/bodyweight.js';
 
 // View initializer registry (populated from app.js)
 const viewInitializers = new Map();
@@ -38,6 +46,19 @@ export function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function formatSignedWeight(value) {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+        return '0';
+    }
+
+    if (numericValue > 0) {
+        return `+${numericValue}`;
+    }
+
+    return `${numericValue}`;
 }
 
 export const views = {
@@ -315,6 +336,12 @@ export async function renderSessionView(routine, inProgressData = null) {
     
     if (inProgressData?.pesoUsuario) {
         userWeightInput.value = inProgressData.pesoUsuario;
+    } else {
+        const { getCurrentUser } = await import('./auth.js');
+        const lastKnownBodyweight = getLastKnownBodyweight(getCurrentUser()?.uid);
+        if (lastKnownBodyweight !== null) {
+            userWeightInput.value = lastKnownBodyweight;
+        }
     }
     userWeightDiv.appendChild(userWeightInput);
     sessionElements.exerciseList.appendChild(userWeightDiv);
@@ -346,32 +373,51 @@ export async function renderSessionView(routine, inProgressData = null) {
         
         // Inputs for sets
         if (exercise.type === 'strength') {
-            // Get suggestions from cache for this exercise
+            const executionMode = normalizeExecutionMode(exercise.executionMode);
+            const loadType = normalizeLoadType(exercise.loadType ?? exercise.tipoCarga);
+            const executionModeLabel = getExecutionModeLabel(executionMode);
+            const loadTypeLabel = getLoadTypeLabel(loadType);
+            const allowsSignedLoad = loadType === 'bodyweight';
+            const variantLabels = [];
+
+            if (executionMode !== DEFAULT_EXECUTION_MODE) {
+                variantLabels.push(executionModeLabel);
+            }
+            if (loadType !== DEFAULT_LOAD_TYPE) {
+                variantLabels.push(loadTypeLabel);
+            }
+
+            const variantSuffix = variantLabels.length > 0 ? ` (${variantLabels.join(', ')})` : '';
+
+            // Get suggestions from cache for this exercise + variant
             const { exerciseCache } = await import('./exercise-cache.js');
-            const suggestions = exerciseCache.getExerciseSuggestions(exercise.name);
-            
+            const suggestions = exerciseCache.getExerciseSuggestions(exercise.name, executionMode, loadType);
+
             // Show last workout info if available
             if (suggestions.hasHistory) {
                 const lastWorkoutInfo = document.createElement('div');
                 lastWorkoutInfo.className = 'last-workout-info';
-                
+
                 const daysAgo = suggestions.daysSinceLastSession;
-                const timeText = daysAgo === 0 ? 'hoy' : 
-                    daysAgo === 1 ? 'ayer' : 
-                        `hace ${daysAgo} días`;
-                
+                const timeText = daysAgo === 0 ? 'hoy'
+                    : daysAgo === 1 ? 'ayer'
+                        : `hace ${daysAgo} días`;
+
                 lastWorkoutInfo.innerHTML = `
                     <div class="last-workout-header">
-                        <span class="last-workout-title">Último entrenamiento</span>
+                        <span class="last-workout-title">Último entrenamiento${escapeHtml(variantSuffix)}</span>
                         <span class="workout-time-ago">${escapeHtml(timeText)}</span>
                     </div>
                     <div class="last-workout-details">
-                        ${suggestions.suggestions.lastSets.map((set, idx) => 
-        `<span class="last-set">S${idx + 1}: ${escapeHtml(set.peso)}kg × ${escapeHtml(set.reps)}</span>`
-    ).join('')}
+                        ${suggestions.suggestions.lastSets.map((set, idx) => {
+        const loadValue = allowsSignedLoad
+            ? `${formatSignedWeight(set.peso)}kg extra`
+            : `${set.peso}kg`;
+        return `<span class="last-set">S${idx + 1}: ${escapeHtml(loadValue)} × ${escapeHtml(set.reps)}</span>`;
+    }).join('')}
                     </div>
                 `;
-                
+
                 // Add button to use previous values
                 if (!inProgressData?.ejercicios[exerciseIndex]) {
                     const useLastBtn = document.createElement('button');
@@ -384,7 +430,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                     });
                     lastWorkoutInfo.appendChild(useLastBtn);
                 }
-                
+
                 exerciseBlock.appendChild(lastWorkoutInfo);
             } else {
                 // Show message when no history
@@ -393,6 +439,37 @@ export async function renderSessionView(routine, inProgressData = null) {
                 noHistoryInfo.textContent = '💡 Primera vez haciendo este ejercicio. ¡Registra tus datos para futuras referencias!';
                 exerciseBlock.appendChild(noHistoryInfo);
             }
+
+            if (allowsSignedLoad) {
+                const bodyweightInfo = document.createElement('p');
+                bodyweightInfo.className = 'target-info';
+                bodyweightInfo.textContent = 'Carga de peso corporal: usa negativo para asistido y positivo para lastre.';
+                exerciseBlock.appendChild(bodyweightInfo);
+            }
+
+            const sanitizeWeightInputValue = (rawValue) => {
+                let value = (rawValue || '').replace(',', '.');
+
+                if (allowsSignedLoad) {
+                    value = value.replace(/[^0-9.+-]/g, '');
+                    const sign = value.startsWith('-')
+                        ? '-'
+                        : value.startsWith('+')
+                            ? '+'
+                            : '';
+                    const numericSection = value.replace(/[+-]/g, '');
+                    const numericParts = numericSection.split('.');
+                    const integerPart = numericParts.shift() || '';
+                    const decimalPart = numericParts.join('').substring(0, 2);
+                    return `${sign}${integerPart}${decimalPart ? `.${decimalPart}` : ''}`;
+                }
+
+                value = value.replace(/[^0-9.]/g, '');
+                const parts = value.split('.');
+                const integerPart = parts.shift() || '';
+                const decimalPart = parts.join('').substring(0, 2);
+                return `${integerPart}${decimalPart ? `.${decimalPart}` : ''}`;
+            };
 
             const numberOfSets = parseInt(exercise.sets) || 0;
             for (let i = 0; i < numberOfSets; i++) {
@@ -409,57 +486,65 @@ export async function renderSessionView(routine, inProgressData = null) {
                 weightInput.type = 'text';
                 weightInput.id = `weight-${exerciseIndex}-${i}`;
                 weightInput.name = `weight-${exerciseIndex}-${i}`;
-                
+
                 // Use cache suggestion if available
-                let placeholderText = 'Peso (kg)';
+                let placeholderText = allowsSignedLoad ? 'Carga extra (kg, +/-)' : 'Peso (kg)';
                 if (suggestions.hasHistory && suggestions.suggestions.lastSets[i]) {
                     const lastSet = suggestions.suggestions.lastSets[i];
-                    if (lastSet && lastSet.peso > 0) {
-                        placeholderText = `Último: ${lastSet.peso}kg`;
+                    if (lastSet && Number.isFinite(Number(lastSet.peso))) {
+                        placeholderText = allowsSignedLoad
+                            ? `Último extra: ${formatSignedWeight(lastSet.peso)}kg`
+                            : `Último: ${lastSet.peso}kg`;
                         weightInput.dataset.suggestion = lastSet.peso;
                     }
-                } else if (suggestions.hasHistory && suggestions.suggestions.peso > 0) {
-                    placeholderText = `Sugerido: ${suggestions.suggestions.peso}kg`;
+                } else if (suggestions.hasHistory && Number.isFinite(Number(suggestions.suggestions.peso))) {
+                    placeholderText = allowsSignedLoad
+                        ? `Extra sugerido: ${formatSignedWeight(suggestions.suggestions.peso)}kg`
+                        : `Sugerido: ${suggestions.suggestions.peso}kg`;
                     weightInput.dataset.suggestion = suggestions.suggestions.peso;
                 }
                 weightInput.placeholder = placeholderText;
                 weightInput.inputMode = 'decimal';
-                weightInput.pattern = '[0-9]*[.,]?[0-9]*';
-                
+                weightInput.pattern = allowsSignedLoad
+                    ? '[+-]?[0-9]*[.,]?[0-9]*'
+                    : '[0-9]*[.,]?[0-9]*';
+
                 // Replace comma with period and validate format
                 weightInput.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    value = value.replace(',', '.');
-                    value = value.replace(/[^0-9.]/g, '');
-                    const parts = value.split('.');
-                    if (parts.length > 2) {
-                        value = parts[0] + '.' + parts.slice(1).join('');
-                    }
-                    if (parts[1] && parts[1].length > 2) {
-                        value = parts[0] + '.' + parts[1].substring(0, 2);
-                    }
-                    e.target.value = value;
+                    e.target.value = sanitizeWeightInputValue(e.target.value);
                 });
-                
+
                 // Round to 1 decimal on blur
                 weightInput.addEventListener('blur', function(e) {
-                    const value = e.target.value.replace(',', '.');
-                    if (value && !isNaN(value)) {
-                        const rounded = Math.round(parseFloat(value) * 10) / 10;
-                        e.target.value = rounded;
+                    const sanitizedValue = sanitizeWeightInputValue(e.target.value);
+                    if (!sanitizedValue || sanitizedValue === '+' || sanitizedValue === '-') {
+                        e.target.value = '';
+                        return;
                     }
+
+                    const parsed = parseFloat(sanitizedValue);
+                    if (!Number.isFinite(parsed)) {
+                        e.target.value = '';
+                        return;
+                    }
+
+                    const minValue = allowsSignedLoad ? -500 : 0;
+                    const maxValue = 500;
+                    const bounded = Math.min(maxValue, Math.max(minValue, parsed));
+                    const rounded = Math.round(bounded * 10) / 10;
+                    e.target.value = rounded;
                 });
-                
+
                 if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]) {
                     weightInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].peso || '';
                 }
                 setRow.appendChild(weightInput);
-                
+
                 const repsInput = document.createElement('input');
                 repsInput.type = 'number';
                 repsInput.id = `reps-${exerciseIndex}-${i}`;
                 repsInput.name = `reps-${exerciseIndex}-${i}`;
-                
+
                 // Use cache suggestion if available
                 let repsPlaceholder = 'Reps';
                 if (suggestions.hasHistory && suggestions.suggestions.lastSets[i]) {
@@ -478,7 +563,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                     repsInput.value = inProgressData.ejercicios[exerciseIndex].sets[i].reps || '';
                 }
                 setRow.appendChild(repsInput);
-                
+
                 // If we have saved rest time data, restore it
                 if (inProgressData?.ejercicios[exerciseIndex]?.sets[i]?.tiempoDescanso) {
                     const timerDisplay = setRow.querySelector(`#timer-display-${exerciseIndex}-${i}`);
@@ -486,18 +571,18 @@ export async function renderSessionView(routine, inProgressData = null) {
                         timerDisplay.textContent = inProgressData.ejercicios[exerciseIndex].sets[i].tiempoDescanso;
                     }
                 }
-                
+
                 // Add the set timer
                 const timerContainer = document.createElement('div');
                 timerContainer.className = 'set-timer';
                 timerContainer.dataset.timerId = `${exerciseIndex}-${i}`;
-                
+
                 const timerDisplay = document.createElement('div');
                 timerDisplay.id = `timer-display-${exerciseIndex}-${i}`;
                 timerDisplay.className = 'timer-display';
                 timerDisplay.textContent = '00:00';
                 timerContainer.appendChild(timerDisplay);
-                
+
                 const timerButton = document.createElement('button');
                 timerButton.id = `timer-button-${exerciseIndex}-${i}`;
                 timerButton.className = 'timer-button';
@@ -505,7 +590,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                 timerButton.dataset.timerId = `${exerciseIndex}-${i}`;
                 timerButton.textContent = 'Iniciar';
                 timerContainer.appendChild(timerButton);
-                
+
                 setRow.appendChild(timerContainer);
                 exerciseBlock.appendChild(setRow);
             }
@@ -671,6 +756,12 @@ export function showSessionDetail(sessionData) {
                 || ex.execution_mode !== undefined
                 || ex.modo !== undefined;
 
+            const hasLoadType =
+                ex.tipoCarga !== undefined
+                || ex.loadType !== undefined
+                || ex.load_type !== undefined
+                || ex.tipo_carga !== undefined;
+
             if (ex.tipoEjercicio === 'strength' && hasExecutionMode) {
                 const executionMode = resolveExerciseExecutionMode(ex);
                 const modeEl = document.createElement('span');
@@ -679,14 +770,42 @@ export function showSessionDetail(sessionData) {
                 modeEl.textContent = `Modo: ${getExecutionModeLabel(executionMode)}`;
                 exLi.appendChild(modeEl);
             }
+
+            if (ex.tipoEjercicio === 'strength' && hasLoadType) {
+                const loadType = resolveExerciseLoadType(ex);
+                const loadTypeEl = document.createElement('span');
+                loadTypeEl.classList.add('exercise-execution-mode-badge');
+                loadTypeEl.classList.add(`load-${loadType}`);
+                loadTypeEl.textContent = `Carga: ${getLoadTypeLabel(loadType)}`;
+                exLi.appendChild(loadTypeEl);
+            }
             
             if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
+                const loadType = resolveExerciseLoadType(ex);
+                const isBodyweightExercise = loadType === 'bodyweight';
                 const setsUl = document.createElement('ul');
                 setsUl.classList.add('sets-list');
                 
                 ex.sets.forEach((set, index) => {
                     const setLi = document.createElement('li');
-                    let setContent = `Serie ${index + 1}: ${escapeHtml(set.peso)} kg × ${escapeHtml(set.reps)} repeticiones`;
+                    let setContent = '';
+
+                    if (isBodyweightExercise) {
+                        const extraLoad = Number(set.peso);
+                        const extraLoadText = Number.isFinite(extraLoad)
+                            ? `${formatSignedWeight(extraLoad)}`
+                            : escapeHtml(set.peso);
+                        setContent = `Serie ${index + 1}: ${extraLoadText} kg extra`;
+
+                        const totalLoad = Number(set.pesoTotal ?? set.totalWeight);
+                        if (Number.isFinite(totalLoad)) {
+                            setContent += ` (total ${totalLoad} kg)`;
+                        }
+
+                        setContent += ` × ${escapeHtml(set.reps)} repeticiones`;
+                    } else {
+                        setContent = `Serie ${index + 1}: ${escapeHtml(set.peso)} kg × ${escapeHtml(set.reps)} repeticiones`;
+                    }
                     
                     if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
                         setContent += ` <span class="rest-time-badge">⏱️ ${escapeHtml(set.tiempoDescanso)}</span>`;
@@ -698,7 +817,6 @@ export function showSessionDetail(sessionData) {
                 
                 exLi.appendChild(setsUl);
             }
-            
             if (ex.notasEjercicio) {
                 const notesEl = document.createElement('p');
                 notesEl.classList.add('exercise-notes');
@@ -826,6 +944,9 @@ export function addExerciseToEditorForm(exerciseData = null) {
     const exerciseExecutionMode = normalizeExecutionMode(
         exerciseData?.executionMode ?? exerciseData?.modoEjecucion
     );
+    const exerciseLoadType = normalizeLoadType(
+        exerciseData?.loadType ?? exerciseData?.tipoCarga
+    );
 
     exerciseDiv.innerHTML = `
         <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="Eliminar ejercicio">×</button>
@@ -865,6 +986,13 @@ export function addExerciseToEditorForm(exerciseData = null) {
                         <option value="machine" ${exerciseExecutionMode === 'machine' ? 'selected' : ''}>Maquina</option>
                         <option value="pulley" ${exerciseExecutionMode === 'pulley' ? 'selected' : ''}>Polea</option>
                         <option value="other" ${exerciseExecutionMode === 'other' ? 'selected' : ''}>Otro</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="ex-load-type-${exerciseEditorCounter}">Tipo de carga:</label>
+                    <select id="ex-load-type-${exerciseEditorCounter}" name="ex-load-type">
+                        <option value="external" ${exerciseLoadType === 'external' ? 'selected' : ''}>Carga externa</option>
+                        <option value="bodyweight" ${exerciseLoadType === 'bodyweight' ? 'selected' : ''}>Peso corporal (+/-)</option>
                     </select>
                 </div>
             </div>
@@ -999,7 +1127,7 @@ function fillExerciseWithLastValues(exerciseIndex, lastSets) {
         const weightInput = exerciseBlock.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
         const repsInput = exerciseBlock.querySelector(`input[name="reps-${exerciseIndex}-${setIndex}"]`);
         
-        if (weightInput && set.peso > 0) {
+        if (weightInput && Number.isFinite(Number(set.peso))) {
             weightInput.value = set.peso;
             weightInput.style.background = 'rgba(67, 97, 238, 0.05)';
             weightInput.style.borderColor = 'var(--accent-color)';

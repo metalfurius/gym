@@ -7,6 +7,10 @@ import {
 } from '../../js/utils/execution-mode.js';
 
 describe('execution-mode utils', () => {
+    it('uses two_hand as default mode', () => {
+        expect(DEFAULT_EXECUTION_MODE).toBe('two_hand');
+    });
+
     it('normalizes supported values and falls back to default for unknown values', () => {
         expect(normalizeExecutionMode('one_hand')).toBe('one_hand');
         expect(normalizeExecutionMode('MACHINE')).toBe('machine');

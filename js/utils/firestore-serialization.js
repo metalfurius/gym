@@ -1,4 +1,5 @@
 import { resolveExerciseExecutionMode } from './execution-mode.js';
+import { resolveExerciseLoadType } from './load-type.js';
 
 function extractIsoDate(value) {
     if (!value) return null;
@@ -121,16 +122,26 @@ export function fromDbToSessionModel(docData = {}) {
                 objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
                 notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
                 sets: Array.isArray(exercise.sets)
-                    ? exercise.sets.map((set) => ({
-                        peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
-                        reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
-                        tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
-                    }))
+                    ? exercise.sets.map((set) => {
+                        const mappedSet = {
+                            peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
+                            reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
+                            tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
+                        };
+
+                        const totalWeight = toNumberOrNull(set.pesoTotal ?? set.totalWeight ?? set.total_load);
+                        if (totalWeight !== null) {
+                            mappedSet.pesoTotal = totalWeight;
+                        }
+
+                        return mappedSet;
+                    })
                     : []
             };
 
             if (tipoEjercicio === 'strength') {
                 mappedExercise.modoEjecucion = resolveExerciseExecutionMode(exercise);
+                mappedExercise.tipoCarga = resolveExerciseLoadType(exercise);
             }
 
             return mappedExercise;
@@ -167,16 +178,26 @@ export function fromAppToSessionDbModel(model = {}, options = {}) {
                 objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
                 notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
                 sets: Array.isArray(exercise.sets)
-                    ? exercise.sets.map((set) => ({
-                        peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
-                        reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
-                        tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
-                    }))
+                    ? exercise.sets.map((set) => {
+                        const mappedSet = {
+                            peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
+                            reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
+                            tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
+                        };
+
+                        const totalWeight = toNumberOrNull(set.pesoTotal ?? set.totalWeight ?? set.total_load);
+                        if (totalWeight !== null) {
+                            mappedSet.pesoTotal = totalWeight;
+                        }
+
+                        return mappedSet;
+                    })
                     : []
             };
 
             if (tipoEjercicio === 'strength') {
                 mappedExercise.modoEjecucion = resolveExerciseExecutionMode(exercise);
+                mappedExercise.tipoCarga = resolveExerciseLoadType(exercise);
             }
 
             return mappedExercise;

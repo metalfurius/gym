@@ -63,6 +63,47 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
             expect(history[0].sets[0].peso).toBe(70); // Most recent should be first
             expect(history[1].sets[0].peso).toBe(60);
         });
+
+        it('should separate history by execution mode for the same exercise name', () => {
+            cacheManager.addExerciseData('Bench Press', [{ peso: 50, reps: 12 }], new Date(), 'one_hand');
+            cacheManager.addExerciseData('Bench Press', [{ peso: 75, reps: 8 }], new Date(), 'two_hand');
+
+            const oneHandHistory = cacheManager.getExerciseHistory('Bench Press', 'one_hand');
+            const twoHandHistory = cacheManager.getExerciseHistory('Bench Press', 'two_hand');
+            const otherHistory = cacheManager.getExerciseHistory('Bench Press', 'other');
+
+            expect(oneHandHistory).toHaveLength(1);
+            expect(oneHandHistory[0].sets[0].peso).toBe(50);
+            expect(twoHandHistory).toHaveLength(1);
+            expect(twoHandHistory[0].sets[0].peso).toBe(75);
+            expect(otherHistory).toHaveLength(0);
+        });
+
+        it('should separate history by load type and persist total load for bodyweight sets', () => {
+            cacheManager.addExerciseData(
+                'Pull Up',
+                [{ peso: -12, reps: 8, pesoTotal: 63 }],
+                new Date(),
+                'two_hand',
+                'bodyweight'
+            );
+            cacheManager.addExerciseData(
+                'Pull Up',
+                [{ peso: 20, reps: 8 }],
+                new Date(),
+                'two_hand',
+                'external'
+            );
+
+            const bodyweightHistory = cacheManager.getExerciseHistory('Pull Up', 'two_hand', 'bodyweight');
+            const externalHistory = cacheManager.getExerciseHistory('Pull Up', 'two_hand', 'external');
+
+            expect(bodyweightHistory).toHaveLength(1);
+            expect(bodyweightHistory[0].sets[0].peso).toBe(-12);
+            expect(bodyweightHistory[0].sets[0].pesoTotal).toBe(63);
+            expect(externalHistory).toHaveLength(1);
+            expect(externalHistory[0].sets[0].peso).toBe(20);
+        });
     });
 
     describe('getExerciseSuggestions', () => {
@@ -117,6 +158,19 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
 
             expect(suggestions.suggestions.reps).toBe(10); // (12+10+8)/3 = 10
         });
+
+        it('should return mode-specific suggestions for the same exercise', () => {
+            cacheManager.addExerciseData('Lateral Raise', [{ peso: 12, reps: 12 }], new Date(), 'one_hand');
+            cacheManager.addExerciseData('Lateral Raise', [{ peso: 20, reps: 10 }], new Date(), 'machine');
+
+            const oneHandSuggestions = cacheManager.getExerciseSuggestions('Lateral Raise', 'one_hand');
+            const machineSuggestions = cacheManager.getExerciseSuggestions('Lateral Raise', 'machine');
+
+            expect(oneHandSuggestions.hasHistory).toBe(true);
+            expect(oneHandSuggestions.suggestions.peso).toBe(12);
+            expect(machineSuggestions.hasHistory).toBe(true);
+            expect(machineSuggestions.suggestions.peso).toBe(20);
+        });
     });
 
     describe('normalizeExerciseName', () => {
@@ -148,13 +202,18 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
                 ejercicios: [
                     {
                         nombreEjercicio: 'Bench Press',
-                        sets: [{ peso: 60, reps: 10 }]
+                        tipoEjercicio: 'strength',
+                        modoEjecucion: 'pulley',
+                        tipoCarga: 'bodyweight',
+                        sets: [{ peso: -10, reps: 10, pesoTotal: 68 }]
                     }
                 ]
             };
 
-            // This should not throw
             expect(() => cacheManager.processCompletedSession(sessionData)).not.toThrow();
+            const history = cacheManager.getExerciseHistory('Bench Press', 'pulley', 'bodyweight');
+            expect(history).toHaveLength(1);
+            expect(history[0].sets[0].pesoTotal).toBe(68);
         });
 
         it('should handle session without ejercicios', () => {

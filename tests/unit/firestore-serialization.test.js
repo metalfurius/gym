@@ -86,7 +86,8 @@ describe('firestore-serialization', () => {
         expect(normalized.ejercicios[0]).toEqual({
             nombreEjercicio: 'Bench Press',
             tipoEjercicio: 'strength',
-            modoEjecucion: 'other',
+            modoEjecucion: 'two_hand',
+            tipoCarga: 'external',
             objetivoSets: 4,
             objetivoReps: '8-10',
             objetivoDuracion: null,
@@ -125,12 +126,34 @@ describe('firestore-serialization', () => {
             nombreEjercicio: 'Rows',
             tipoEjercicio: 'strength',
             modoEjecucion: 'machine',
+            tipoCarga: 'external',
             objetivoSets: 3,
             objetivoReps: '10',
             objetivoDuracion: null,
             notasEjercicio: 'Keep form',
             sets: [{ peso: 60, reps: 10, tiempoDescanso: '01:00' }]
         });
+    });
+
+    it('preserves bodyweight load type and total set weight across normalization', () => {
+        const raw = {
+            ejercicios: [
+                {
+                    nombreEjercicio: 'Dominadas',
+                    tipoEjercicio: 'strength',
+                    tipoCarga: 'bodyweight',
+                    sets: [{ peso: -12, reps: 8, pesoTotal: 63 }]
+                }
+            ]
+        };
+
+        const normalized = fromDbToSessionModel(raw);
+        expect(normalized.ejercicios[0].tipoCarga).toBe('bodyweight');
+        expect(normalized.ejercicios[0].sets[0].pesoTotal).toBe(63);
+
+        const wire = fromAppToSessionDbModel(normalized);
+        expect(wire.ejercicios[0].tipoCarga).toBe('bodyweight');
+        expect(wire.ejercicios[0].sets[0].pesoTotal).toBe(63);
     });
 
     it('normalizes execution mode fallback keys and ignores mode for non-strength exercises', () => {

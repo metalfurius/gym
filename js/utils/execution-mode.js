@@ -1,11 +1,11 @@
-export const DEFAULT_EXECUTION_MODE = 'other';
+export const DEFAULT_EXECUTION_MODE = 'two_hand';
 
 export const EXECUTION_MODE_VALUES = [
     'one_hand',
     'two_hand',
     'machine',
     'pulley',
-    DEFAULT_EXECUTION_MODE
+    'other'
 ];
 
 export const EXECUTION_MODE_LABELS = {

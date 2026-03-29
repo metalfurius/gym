@@ -141,6 +141,20 @@ describe('ExerciseCacheManager', () => {
 
             expect(normalized).toBe('barbell_benchpress_wide');
         });
+
+        it('should build cache keys by mode and load type while keeping default key compact', () => {
+            const defaultKey = cacheManager.buildExerciseCacheKey('Bench Press');
+            const oneHandKey = cacheManager.buildExerciseCacheKey('Bench Press', 'one_hand');
+            const machineKey = cacheManager.buildExerciseCacheKey('Bench Press', 'machine');
+            const otherKey = cacheManager.buildExerciseCacheKey('Bench Press', 'other');
+            const bodyweightKey = cacheManager.buildExerciseCacheKey('Bench Press', 'two_hand', 'bodyweight');
+
+            expect(defaultKey).toBe('bench_press');
+            expect(oneHandKey).toBe('bench_press__one_hand');
+            expect(machineKey).toBe('bench_press__machine');
+            expect(otherKey).toBe('bench_press__other');
+            expect(bodyweightKey).toBe('bench_press__two_hand__bodyweight');
+        });
     });
 
     describe('cache age validation', () => {

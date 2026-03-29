@@ -137,6 +137,8 @@ describe('App User Journey', () => {
         const createdRoutines = __getMockCollectionDocuments('users/mock-user-1/routines');
         expect(createdRoutines).toHaveLength(1);
         expect(createdRoutines[0].data.name).toBe('Push Day');
+        expect(createdRoutines[0].data.exercises[0].executionMode).toBe('two_hand');
+        expect(createdRoutines[0].data.exercises[0].loadType).toBe('external');
 
         click('#routine-list .routine-action-btn.edit');
         await waitForUi(150);

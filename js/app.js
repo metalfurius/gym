@@ -26,6 +26,7 @@ import { addViewListener, cleanupViewListeners } from './utils/event-manager.js'
 import { localFirstCache } from './utils/local-first-cache.js';
 import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
 import { normalizeExecutionMode } from './utils/execution-mode.js';
+import { normalizeLoadType } from './utils/load-type.js';
 import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
@@ -448,14 +449,17 @@ function setupRoutineEditorViewListeners() {
                 const name = editor.querySelector('input[name="ex-name"]').value.trim();
                 const type = editor.querySelector('select[name="ex-type"]').value;
                 const executionModeInput = editor.querySelector('select[name="ex-execution-mode"]');
+                const loadTypeInput = editor.querySelector('select[name="ex-load-type"]');
                 const notes = editor.querySelector('textarea[name="ex-notes"]').value.trim();
                 let sets = '', reps = '', duration = '';
                 let executionMode = null;
+                let loadType = null;
 
                 if (type === 'strength') {
                     sets = parseInt(editor.querySelector('input[name="ex-sets"]').value) || 0;
                     reps = editor.querySelector('input[name="ex-reps"]').value.trim();
                     executionMode = normalizeExecutionMode(executionModeInput?.value);
+                    loadType = normalizeLoadType(loadTypeInput?.value);
                 } else if (type === 'cardio') {
                     duration = editor.querySelector('input[name="ex-duration"]').value.trim();
                 }
@@ -463,6 +467,7 @@ function setupRoutineEditorViewListeners() {
                     const exerciseData = { name, type, sets, reps, duration, notes };
                     if (type === 'strength') {
                         exerciseData.executionMode = executionMode;
+                        exerciseData.loadType = loadType;
                     }
                     exercises.push(exerciseData);
                 }
