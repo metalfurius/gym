@@ -65,6 +65,32 @@ function formatSignedWeight(value) {
     return `${numericValue}`;
 }
 
+function normalizeExerciseIdentity(exerciseName = '') {
+    return String(exerciseName || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+}
+
+function resolveInProgressExercise(inProgressData, exerciseIndex, exerciseName) {
+    const inProgressExercises = Array.isArray(inProgressData?.ejercicios)
+        ? inProgressData.ejercicios
+        : [];
+    const indexedExercise = inProgressExercises[exerciseIndex];
+    if (indexedExercise && typeof indexedExercise === 'object') {
+        return indexedExercise;
+    }
+
+    const normalizedExerciseName = normalizeExerciseIdentity(exerciseName);
+    if (!normalizedExerciseName) {
+        return null;
+    }
+
+    return inProgressExercises.find((exerciseEntry) =>
+        normalizeExerciseIdentity(exerciseEntry?.nombreEjercicio) === normalizedExerciseName
+    ) || null;
+}
+
 export const views = {
     auth: document.getElementById('auth-view'),
     dashboard: document.getElementById('dashboard-view'),
@@ -362,6 +388,7 @@ export async function renderSessionView(routine, inProgressData = null) {
 
     for (let exerciseIndex = 0; exerciseIndex < routine.exercises.length; exerciseIndex++) {
         const exercise = routine.exercises[exerciseIndex];
+        const inProgressExercise = resolveInProgressExercise(inProgressData, exerciseIndex, exercise.name);
         const exerciseBlock = document.createElement('div');
         exerciseBlock.className = 'exercise-block';
         exerciseBlock.dataset.exerciseIndex = exerciseIndex;
@@ -386,7 +413,6 @@ export async function renderSessionView(routine, inProgressData = null) {
         exerciseBlock.appendChild(target);
 
         if (exercise.type === 'strength') {
-            const inProgressExercise = inProgressData?.ejercicios?.[exerciseIndex] || null;
             const localOverride = getSessionVariantOverride(currentUserId, routine.id, exercise.name);
             const selectedVariant = resolveSessionVariantSelection({
                 inProgressExercise,
@@ -699,8 +725,8 @@ export async function renderSessionView(routine, inProgressData = null) {
             : 'Añade notas sobre este ejercicio...';
         notesTextarea.className = 'exercise-notes';
 
-        if (inProgressData?.ejercicios?.[exerciseIndex]?.notasEjercicio) {
-            notesTextarea.value = inProgressData.ejercicios[exerciseIndex].notasEjercicio;
+        if (inProgressExercise?.notasEjercicio) {
+            notesTextarea.value = inProgressExercise.notasEjercicio;
         } else if (exercise.notes) {
             notesTextarea.value = exercise.notes;
         }

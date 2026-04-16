@@ -206,9 +206,15 @@ export function setCurrentRoutineForSession(routine) {
 
 /**
  * Collects form data from the current session
+ * @param {Object} options - Collection options.
+ * @param {boolean} [options.includeEmptyExercises=false] - Include exercises even when they have no sets/notes.
  * @returns {Object} The session data from the form
  */
-export function getSessionFormData() {
+export function getSessionFormData(options = {}) {
+    const {
+        includeEmptyExercises = false
+    } = options;
+
     if (!currentRoutineForSession) return {};
     
     // Get and normalize user weight
@@ -235,8 +241,15 @@ export function getSessionFormData() {
     
     const exerciseBlocks = sessionElements.exerciseList.querySelectorAll('.exercise-block');
     exerciseBlocks.forEach(block => {
-        const exerciseIndex = parseInt(block.dataset.exerciseIndex);
-        const exerciseFromRoutine = currentRoutineForSession.exercises[exerciseIndex];
+        const exerciseIndex = parseInt(block.dataset.exerciseIndex, 10);
+        if (Number.isNaN(exerciseIndex)) {
+            return;
+        }
+
+        const exerciseFromRoutine = currentRoutineForSession.exercises?.[exerciseIndex];
+        if (!exerciseFromRoutine) {
+            return;
+        }
         
         const exerciseEntry = {
             nombreEjercicio: exerciseFromRoutine.name,
@@ -247,6 +260,8 @@ export function getSessionFormData() {
             sets: [],
             notasEjercicio: block.querySelector(`textarea[name="notes-${exerciseIndex}"]`)?.value.trim() || ''
         };
+
+        let shouldIncludeExercise = exerciseEntry.notasEjercicio.length > 0;
 
         if (exerciseFromRoutine.type === 'strength') {
             const executionModeInput = block.querySelector('select[name="session-execution-mode"]');
@@ -297,10 +312,11 @@ export function getSessionFormData() {
                     exerciseEntry.sets.push(setEntry);
                 }
             });
+
+            shouldIncludeExercise = shouldIncludeExercise || exerciseEntry.sets.length > 0;
         }
 
-        // Only add exercise if it has sets (for strength) or notes
-        if ((exerciseFromRoutine.type === 'strength' && exerciseEntry.sets.length > 0) || exerciseEntry.notasEjercicio) {
+        if (includeEmptyExercises || shouldIncludeExercise) {
             sessionData.ejercicios.push(exerciseEntry);
         }
     });
@@ -344,6 +360,12 @@ export async function saveSessionData(onSuccess) {
     isSavingSession = true;
     
     try {
+        try {
+            saveSessionVariantOverrides(user.uid, sessionVariantOverrides);
+        } catch (overridesError) {
+            logger.warn('Could not persist session variant overrides:', overridesError);
+        }
+
         const saveOperation = async () => {
             const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
             await addDoc(userSessionsCollectionRef, finalSessionData);
@@ -360,7 +382,6 @@ export async function saveSessionData(onSuccess) {
             }
         );
 
-        saveSessionVariantOverrides(user.uid, sessionVariantOverrides);
         saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
         
         // Update exercise cache with new session data
@@ -591,7 +612,7 @@ export function setupSessionAutoSave() {
     
     const persistCurrentSnapshot = () => {
         if (!currentRoutineForSession) return;
-        const formData = getSessionFormData();
+        const formData = getSessionFormData({ includeEmptyExercises: true });
         saveInProgressSession(currentRoutineForSession.id, formData);
     };
 
