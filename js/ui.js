@@ -18,6 +18,7 @@ import {
 import { getLastKnownBodyweight } from './utils/bodyweight.js';
 import {
     getSessionVariantOverride,
+    normalizeExerciseIdentity,
     resolveSessionVariantSelection
 } from './utils/session-variant-overrides.js';
 
@@ -63,13 +64,6 @@ function formatSignedWeight(value) {
     }
 
     return `${numericValue}`;
-}
-
-function normalizeExerciseIdentity(exerciseName = '') {
-    return String(exerciseName || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, ' ');
 }
 
 function resolveInProgressExercise(inProgressData, exerciseIndex, exerciseName) {
@@ -425,22 +419,9 @@ export async function renderSessionView(routine, inProgressData = null) {
 
             const initialExecutionMode = selectedVariant.executionMode;
             const initialLoadType = selectedVariant.loadType;
-            const executionModeLabel = getExecutionModeLabel(initialExecutionMode);
-            const loadTypeLabel = getLoadTypeLabel(initialLoadType);
-            const allowsSignedLoadInSuggestion = initialLoadType === 'bodyweight';
 
             exerciseBlock.dataset.executionMode = initialExecutionMode;
             exerciseBlock.dataset.loadType = initialLoadType;
-
-            const variantLabels = [];
-            if (initialExecutionMode !== DEFAULT_EXECUTION_MODE) {
-                variantLabels.push(executionModeLabel);
-            }
-            if (initialLoadType !== DEFAULT_LOAD_TYPE) {
-                variantLabels.push(loadTypeLabel);
-            }
-
-            const variantSuffix = variantLabels.length > 0 ? ` (${variantLabels.join(', ')})` : '';
 
             const variantControls = document.createElement('div');
             variantControls.className = 'session-variant-controls';
@@ -487,55 +468,85 @@ export async function renderSessionView(routine, inProgressData = null) {
             exerciseBlock.appendChild(variantControls);
 
             const { exerciseCache } = await import('./exercise-cache.js');
-            const suggestions = exerciseCache.getExerciseSuggestions(
-                exercise.name,
-                initialExecutionMode,
-                initialLoadType
-            );
-
-            if (suggestions.hasHistory) {
-                const lastWorkoutInfo = document.createElement('div');
-                lastWorkoutInfo.className = 'last-workout-info';
-
-                const daysAgo = suggestions.daysSinceLastSession;
-                const timeText = daysAgo === 0 ? 'hoy'
-                    : daysAgo === 1 ? 'ayer'
-                        : `hace ${daysAgo} días`;
-
-                lastWorkoutInfo.innerHTML = `
-                    <div class="last-workout-header">
-                        <span class="last-workout-title">Último entrenamiento${escapeHtml(variantSuffix)}</span>
-                        <span class="workout-time-ago">${escapeHtml(timeText)}</span>
-                    </div>
-                    <div class="last-workout-details">
-                        ${suggestions.suggestions.lastSets.map((set, idx) => {
-        const loadValue = allowsSignedLoadInSuggestion
-            ? `${formatSignedWeight(set.peso)}kg extra`
-            : `${set.peso}kg`;
-        return `<span class="last-set">S${idx + 1}: ${escapeHtml(loadValue)} × ${escapeHtml(set.reps)}</span>`;
-    }).join('')}
-                    </div>
-                `;
-
-                if (!inProgressExercise) {
-                    const useLastBtn = document.createElement('button');
-                    useLastBtn.type = 'button';
-                    useLastBtn.className = 'btn btn-secondary btn-sm';
-                    useLastBtn.textContent = '📋 Usar valores anteriores';
-                    useLastBtn.style.marginTop = '8px';
-                    useLastBtn.addEventListener('click', () => {
-                        fillExerciseWithLastValues(exerciseIndex, suggestions.suggestions.lastSets);
-                    });
-                    lastWorkoutInfo.appendChild(useLastBtn);
+            const buildVariantSuffix = (executionMode, loadType) => {
+                const variantLabels = [];
+                if (executionMode !== DEFAULT_EXECUTION_MODE) {
+                    variantLabels.push(getExecutionModeLabel(executionMode));
+                }
+                if (loadType !== DEFAULT_LOAD_TYPE) {
+                    variantLabels.push(getLoadTypeLabel(loadType));
                 }
 
-                exerciseBlock.appendChild(lastWorkoutInfo);
-            } else {
+                return variantLabels.length > 0 ? ' (' + variantLabels.join(', ') + ')' : '';
+            };
+            const getSuggestionsForVariant = (executionMode, loadType) => exerciseCache.getExerciseSuggestions(
+                exercise.name,
+                executionMode,
+                loadType
+            );
+            let suggestions = getSuggestionsForVariant(initialExecutionMode, initialLoadType);
+            const historyInfoContainer = document.createElement('div');
+            exerciseBlock.appendChild(historyInfoContainer);
+
+            const renderHistoryInfo = (suggestionsData, allowSignedLoad, variantSuffix) => {
+                historyInfoContainer.innerHTML = '';
+
+                if (suggestionsData.hasHistory) {
+                    const lastWorkoutInfo = document.createElement('div');
+                    lastWorkoutInfo.className = 'last-workout-info';
+
+                    const daysAgo = suggestionsData.daysSinceLastSession;
+                    const timeText = daysAgo === 0 ? 'hoy'
+                        : daysAgo === 1 ? 'ayer'
+                            : 'hace ' + daysAgo + ' d\u00EDas';
+
+                    const header = document.createElement('div');
+                    header.className = 'last-workout-header';
+                    const titleElement = document.createElement('span');
+                    titleElement.className = 'last-workout-title';
+                    titleElement.textContent = '\u00DAltimo entrenamiento' + variantSuffix;
+                    const timeElement = document.createElement('span');
+                    timeElement.className = 'workout-time-ago';
+                    timeElement.textContent = timeText;
+                    header.appendChild(titleElement);
+                    header.appendChild(timeElement);
+
+                    const details = document.createElement('div');
+                    details.className = 'last-workout-details';
+                    suggestionsData.suggestions.lastSets.forEach((set, idx) => {
+                        const loadValue = allowSignedLoad
+                            ? formatSignedWeight(set.peso) + 'kg extra'
+                            : set.peso + 'kg';
+                        const detail = document.createElement('span');
+                        detail.className = 'last-set';
+                        detail.textContent = 'S' + (idx + 1) + ': ' + loadValue + ' \u00D7 ' + set.reps;
+                        details.appendChild(detail);
+                    });
+
+                    lastWorkoutInfo.appendChild(header);
+                    lastWorkoutInfo.appendChild(details);
+
+                    if (!inProgressExercise) {
+                        const useLastBtn = document.createElement('button');
+                        useLastBtn.type = 'button';
+                        useLastBtn.className = 'btn btn-secondary btn-sm';
+                        useLastBtn.textContent = '\uD83D\uDCCB Usar valores anteriores';
+                        useLastBtn.style.marginTop = '8px';
+                        useLastBtn.addEventListener('click', () => {
+                            fillExerciseWithLastValues(exerciseIndex, suggestionsData.suggestions.lastSets);
+                        });
+                        lastWorkoutInfo.appendChild(useLastBtn);
+                    }
+
+                    historyInfoContainer.appendChild(lastWorkoutInfo);
+                    return;
+                }
+
                 const noHistoryInfo = document.createElement('div');
                 noHistoryInfo.className = 'no-exercise-history';
-                noHistoryInfo.textContent = '💡 Primera vez haciendo este ejercicio. ¡Registra tus datos para futuras referencias!';
-                exerciseBlock.appendChild(noHistoryInfo);
-            }
+                noHistoryInfo.textContent = '\uD83D\uDCA1 Primera vez haciendo este ejercicio. \u00A1Registra tus datos para futuras referencias!';
+                historyInfoContainer.appendChild(noHistoryInfo);
+            };
 
             const bodyweightInfo = document.createElement('p');
             bodyweightInfo.className = 'target-info session-bodyweight-hint';
@@ -622,7 +633,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                 weightInput.placeholder = formatWeightSuggestionPlaceholder(
                     suggestionWeight,
                     placeholderType,
-                    allowsSignedLoadInSuggestion
+                    initialLoadType === 'bodyweight'
                 );
                 weightInput.inputMode = 'decimal';
                 weightInput.pattern = initialLoadType === 'bodyweight'
@@ -709,25 +720,69 @@ export async function renderSessionView(routine, inProgressData = null) {
                 const selectedLoadType = normalizeLoadType(loadTypeSelect.value);
                 exerciseBlock.dataset.executionMode = selectedExecutionMode;
                 exerciseBlock.dataset.loadType = selectedLoadType;
+                const allowSignedLoad = selectedLoadType === 'bodyweight';
+                suggestions = getSuggestionsForVariant(selectedExecutionMode, selectedLoadType);
+                renderHistoryInfo(
+                    suggestions,
+                    allowSignedLoad,
+                    buildVariantSuffix(selectedExecutionMode, selectedLoadType)
+                );
 
-                if (selectedLoadType === 'bodyweight') {
+                if (allowSignedLoad) {
                     bodyweightInfo.classList.remove('hidden');
                 } else {
                     bodyweightInfo.classList.add('hidden');
                 }
 
                 const weightInputs = exerciseBlock.querySelectorAll('input[name^="weight-"]');
-                weightInputs.forEach((weightInput) => {
-                    const allowSignedLoad = selectedLoadType === 'bodyweight';
+                weightInputs.forEach((weightInput, setIndex) => {
+                    let placeholderType = 'default';
+                    let suggestionWeight = null;
+                    const lastSetSuggestion = suggestions.hasHistory
+                        ? suggestions.suggestions.lastSets[setIndex]
+                        : null;
+
+                    if (lastSetSuggestion && Number.isFinite(Number(lastSetSuggestion.peso))) {
+                        placeholderType = 'last';
+                        suggestionWeight = Number(lastSetSuggestion.peso);
+                    } else if (suggestions.hasHistory && Number.isFinite(Number(suggestions.suggestions.peso))) {
+                        placeholderType = 'suggested';
+                        suggestionWeight = Number(suggestions.suggestions.peso);
+                    }
+
+                    if (Number.isFinite(suggestionWeight)) {
+                        weightInput.dataset.suggestion = String(suggestionWeight);
+                    } else {
+                        delete weightInput.dataset.suggestion;
+                    }
+                    weightInput.dataset.placeholderType = placeholderType;
                     weightInput.pattern = allowSignedLoad
                         ? '[+-]?[0-9]*[.,]?[0-9]*'
                         : '[0-9]*[.,]?[0-9]*';
                     weightInput.placeholder = formatWeightSuggestionPlaceholder(
-                        weightInput.dataset.suggestion,
-                        weightInput.dataset.placeholderType,
+                        suggestionWeight,
+                        placeholderType,
                         allowSignedLoad
                     );
                     weightInput.value = sanitizeWeightInputValue(weightInput.value, allowSignedLoad);
+                });
+
+                const repsInputs = exerciseBlock.querySelectorAll('input[name^="reps-"]');
+                repsInputs.forEach((repsInput, setIndex) => {
+                    let repsPlaceholder = 'Reps';
+                    delete repsInput.dataset.suggestion;
+                    const lastSetSuggestion = suggestions.hasHistory
+                        ? suggestions.suggestions.lastSets[setIndex]
+                        : null;
+
+                    if (lastSetSuggestion && lastSetSuggestion.reps > 0) {
+                        repsPlaceholder = `\u00DAltimo: ${lastSetSuggestion.reps}`;
+                        repsInput.dataset.suggestion = String(lastSetSuggestion.reps);
+                    } else if (suggestions.hasHistory && suggestions.suggestions.reps > 0) {
+                        repsPlaceholder = `Sugerido: ${suggestions.suggestions.reps}`;
+                        repsInput.dataset.suggestion = String(suggestions.suggestions.reps);
+                    }
+                    repsInput.placeholder = repsPlaceholder;
                 });
             };
 

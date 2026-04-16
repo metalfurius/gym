@@ -553,4 +553,26 @@ describe('Session Manager', () => {
         });
         expect(stored.data.ejercicios[0].sets).toHaveLength(0);
     });
+
+    it('setupSessionAutoSave keeps variant-only snapshot when timer auto-save runs', async () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormVariantOnlyValues({
+            executionMode: 'machine',
+            loadType: 'bodyweight'
+        });
+        setupSessionAutoSave();
+
+        const timerButton = sessionElements.exerciseList.querySelector('.timer-button');
+        timerButton.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        const stored = JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY));
+        expect(stored.routineId).toBe('routine-1');
+        expect(stored.data.ejercicios).toHaveLength(1);
+        expect(stored.data.ejercicios[0]).toMatchObject({
+            nombreEjercicio: 'Bench Press',
+            modoEjecucion: 'machine',
+            tipoCarga: 'bodyweight'
+        });
+    });
 });

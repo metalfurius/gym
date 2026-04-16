@@ -4,7 +4,7 @@ import { normalizeLoadType } from './load-type.js';
 const STORAGE_PREFIX = 'gym-tracker:session-variant-overrides:';
 const KEY_SEPARATOR = '::';
 
-function normalizeExerciseIdentity(exerciseName = '') {
+export function normalizeExerciseIdentity(exerciseName = '') {
     return String(exerciseName || '')
         .trim()
         .toLowerCase()

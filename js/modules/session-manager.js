@@ -625,7 +625,7 @@ export function setupSessionAutoSave() {
         if (e.target.classList.contains('timer-button') && currentRoutineForSession) {
             // Add a small delay to let the timer update
             setTimeout(() => {
-                const formData = getSessionFormData();
+                const formData = getSessionFormData({ includeEmptyExercises: true });
                 saveInProgressSession(currentRoutineForSession.id, formData);
             }, 100);
         }
