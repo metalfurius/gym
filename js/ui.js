@@ -76,12 +76,15 @@ function resolveInProgressExercise(inProgressData, exerciseIndex, exerciseName) 
     const inProgressExercises = Array.isArray(inProgressData?.ejercicios)
         ? inProgressData.ejercicios
         : [];
+    const normalizedExerciseName = normalizeExerciseIdentity(exerciseName);
     const indexedExercise = inProgressExercises[exerciseIndex];
     if (indexedExercise && typeof indexedExercise === 'object') {
-        return indexedExercise;
+        const normalizedIndexedName = normalizeExerciseIdentity(indexedExercise?.nombreEjercicio);
+        if (!normalizedExerciseName || normalizedIndexedName === normalizedExerciseName) {
+            return indexedExercise;
+        }
     }
 
-    const normalizedExerciseName = normalizeExerciseIdentity(exerciseName);
     if (!normalizedExerciseName) {
         return null;
     }
@@ -565,6 +568,25 @@ export async function renderSessionView(routine, inProgressData = null) {
                 return `${integerPart}${decimalPart ? `.${decimalPart}` : ''}`;
             };
 
+            const formatWeightSuggestionPlaceholder = (rawWeight, placeholderType, allowSignedLoad) => {
+                const normalizedPlaceholderType = placeholderType || '';
+                const numericWeight = Number(rawWeight);
+
+                if (Number.isFinite(numericWeight) && normalizedPlaceholderType === 'last') {
+                    return allowSignedLoad
+                        ? `Último extra: ${formatSignedWeight(numericWeight)}kg`
+                        : `Último: ${numericWeight}kg`;
+                }
+
+                if (Number.isFinite(numericWeight) && normalizedPlaceholderType === 'suggested') {
+                    return allowSignedLoad
+                        ? `Extra sugerido: ${formatSignedWeight(numericWeight)}kg`
+                        : `Sugerido: ${numericWeight}kg`;
+                }
+
+                return allowSignedLoad ? 'Carga extra (kg, +/-)' : 'Peso (kg)';
+            };
+
             const numberOfSets = parseInt(exercise.sets, 10) || 0;
             for (let i = 0; i < numberOfSets; i++) {
                 const setRow = document.createElement('div');
@@ -581,23 +603,27 @@ export async function renderSessionView(routine, inProgressData = null) {
                 weightInput.id = `weight-${exerciseIndex}-${i}`;
                 weightInput.name = `weight-${exerciseIndex}-${i}`;
 
-                let placeholderText = allowsSignedLoadInSuggestion ? 'Carga extra (kg, +/-)' : 'Peso (kg)';
+                let placeholderType = 'default';
+                let suggestionWeight = null;
                 if (suggestions.hasHistory && suggestions.suggestions.lastSets[i]) {
                     const lastSet = suggestions.suggestions.lastSets[i];
                     if (lastSet && Number.isFinite(Number(lastSet.peso))) {
-                        placeholderText = allowsSignedLoadInSuggestion
-                            ? `Último extra: ${formatSignedWeight(lastSet.peso)}kg`
-                            : `Último: ${lastSet.peso}kg`;
-                        weightInput.dataset.suggestion = lastSet.peso;
+                        placeholderType = 'last';
+                        suggestionWeight = Number(lastSet.peso);
+                        weightInput.dataset.suggestion = String(suggestionWeight);
                     }
                 } else if (suggestions.hasHistory && Number.isFinite(Number(suggestions.suggestions.peso))) {
-                    placeholderText = allowsSignedLoadInSuggestion
-                        ? `Extra sugerido: ${formatSignedWeight(suggestions.suggestions.peso)}kg`
-                        : `Sugerido: ${suggestions.suggestions.peso}kg`;
-                    weightInput.dataset.suggestion = suggestions.suggestions.peso;
+                    placeholderType = 'suggested';
+                    suggestionWeight = Number(suggestions.suggestions.peso);
+                    weightInput.dataset.suggestion = String(suggestionWeight);
                 }
 
-                weightInput.placeholder = placeholderText;
+                weightInput.dataset.placeholderType = placeholderType;
+                weightInput.placeholder = formatWeightSuggestionPlaceholder(
+                    suggestionWeight,
+                    placeholderType,
+                    allowsSignedLoadInSuggestion
+                );
                 weightInput.inputMode = 'decimal';
                 weightInput.pattern = initialLoadType === 'bodyweight'
                     ? '[+-]?[0-9]*[.,]?[0-9]*'
@@ -696,6 +722,11 @@ export async function renderSessionView(routine, inProgressData = null) {
                     weightInput.pattern = allowSignedLoad
                         ? '[+-]?[0-9]*[.,]?[0-9]*'
                         : '[0-9]*[.,]?[0-9]*';
+                    weightInput.placeholder = formatWeightSuggestionPlaceholder(
+                        weightInput.dataset.suggestion,
+                        weightInput.dataset.placeholderType,
+                        allowSignedLoad
+                    );
                     weightInput.value = sanitizeWeightInputValue(weightInput.value, allowSignedLoad);
                 });
             };

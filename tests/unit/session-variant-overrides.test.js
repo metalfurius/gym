@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import {
     buildSessionVariantOverridesStorageKey,
     buildSessionVariantOverrideMapKey,
@@ -124,5 +124,33 @@ describe('session-variant-overrides utils', () => {
             executionMode: 'two_hand',
             loadType: 'external'
         });
+    });
+
+    it('returns an empty map when localStorage read fails', () => {
+        const getItemSpy = jest
+            .spyOn(Storage.prototype, 'getItem')
+            .mockImplementation(() => {
+                throw new Error('Storage blocked');
+            });
+
+        expect(readSessionVariantOverrides('user-1')).toEqual({});
+        expect(getSessionVariantOverride('user-1', 'routine-1', 'Bench Press')).toBeNull();
+
+        getItemSpy.mockRestore();
+    });
+
+    it('does not throw when localStorage write fails', () => {
+        const setItemSpy = jest
+            .spyOn(Storage.prototype, 'setItem')
+            .mockImplementation(() => {
+                throw new Error('Quota exceeded');
+            });
+
+        expect(() => saveSessionVariantOverride('user-1', 'routine-1', 'Bench Press', {
+            executionMode: 'machine',
+            loadType: 'external'
+        })).not.toThrow();
+
+        setItemSpy.mockRestore();
     });
 });

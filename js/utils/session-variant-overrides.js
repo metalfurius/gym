@@ -34,7 +34,11 @@ function writeSessionVariantOverrides(userId, overridesMap) {
         return;
     }
 
-    storage.setItem(storageKey, JSON.stringify(overridesMap));
+    try {
+        storage.setItem(storageKey, JSON.stringify(overridesMap));
+    } catch {
+        // Ignore storage write failures (e.g. quota/privacy mode) to avoid blocking session flows.
+    }
 }
 
 export function buildSessionVariantOverridesStorageKey(userId) {
@@ -65,7 +69,13 @@ export function readSessionVariantOverrides(userId) {
         return {};
     }
 
-    const raw = storage.getItem(storageKey);
+    let raw = null;
+    try {
+        raw = storage.getItem(storageKey);
+    } catch {
+        return {};
+    }
+
     if (!raw) {
         return {};
     }
