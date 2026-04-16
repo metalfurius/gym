@@ -1,5 +1,24 @@
 /* Exercise Cache Components */
 
+.session-variant-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.session-variant-field label {
+    margin-bottom: 4px;
+}
+
+.session-variant-field select {
+    margin-bottom: 0;
+}
+
+.session-bodyweight-hint {
+    margin-top: 6px;
+}
+
 /* Last workout information display */
 .last-workout-info {
     background: var(--card-bg);

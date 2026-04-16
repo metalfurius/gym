@@ -54,6 +54,7 @@ Then open:
 
 Planning docs:
 
+- [CONTRIBUTING.md](CONTRIBUTING.md) - PR-first contribution workflow and major-feature lifecycle policy
 - [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the 6-week roadmap
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 - [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
@@ -81,6 +82,13 @@ Planning docs:
 
 Current feature/fun implementation targets delivered: `Quick Log + Daily Hub`, `Exercise Execution Modes`.
 Next target (pending): `Session-Time Exercise Variants + ES/EN Language System`.
+
+### How We Ship Major Features
+
+- Use one long-lived draft PR per major feature until merge-safe.
+- Track PR stage as `Draft` -> `In Progress` -> `Merge Candidate`.
+- Keep dependency/maintenance PRs separate from major feature PRs.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for full workflow and gate rules.
 
 ## License and Copyright
 

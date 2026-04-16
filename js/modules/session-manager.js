@@ -19,6 +19,7 @@ import { localFirstCache } from '../utils/local-first-cache.js';
 import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 import { normalizeExecutionMode } from '../utils/execution-mode.js';
 import { normalizeLoadType, resolveExerciseLoadType } from '../utils/load-type.js';
+import { saveSessionVariantOverrides } from '../utils/session-variant-overrides.js';
 import {
     getLastKnownBodyweight,
     saveLastKnownBodyweight,
@@ -36,6 +37,50 @@ const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 let currentRoutineForSession = null;
 let isSavingSession = false;
 let isSavingQuickLog = false;
+
+function collectSessionVariantOverridesFromDom(
+    routine = currentRoutineForSession,
+    exerciseListRoot = sessionElements.exerciseList
+) {
+    if (!routine?.id || !exerciseListRoot) {
+        return [];
+    }
+
+    const overrides = [];
+    const exerciseBlocks = exerciseListRoot.querySelectorAll('.exercise-block');
+
+    exerciseBlocks.forEach((block) => {
+        const exerciseIndex = parseInt(block.dataset.exerciseIndex, 10);
+        if (Number.isNaN(exerciseIndex)) {
+            return;
+        }
+
+        const routineExercise = routine.exercises?.[exerciseIndex];
+        if (!routineExercise || routineExercise.type !== 'strength') {
+            return;
+        }
+
+        const executionModeInput = block.querySelector('select[name="session-execution-mode"]');
+        const loadTypeInput = block.querySelector('select[name="session-load-type"]');
+
+        overrides.push({
+            routineId: routine.id,
+            exerciseName: routineExercise.name,
+            executionMode: normalizeExecutionMode(
+                executionModeInput?.value
+                ?? block.dataset.executionMode
+                ?? routineExercise.executionMode
+            ),
+            loadType: normalizeLoadType(
+                loadTypeInput?.value
+                ?? block.dataset.loadType
+                ?? resolveExerciseLoadType(routineExercise)
+            )
+        });
+    });
+
+    return overrides;
+}
 
 function buildSessionQueuePayload(userId, sessionData) {
     const { fecha, ...rest } = sessionData;
@@ -161,9 +206,15 @@ export function setCurrentRoutineForSession(routine) {
 
 /**
  * Collects form data from the current session
+ * @param {Object} options - Collection options.
+ * @param {boolean} [options.includeEmptyExercises=false] - Include exercises even when they have no sets/notes.
  * @returns {Object} The session data from the form
  */
-export function getSessionFormData() {
+export function getSessionFormData(options = {}) {
+    const {
+        includeEmptyExercises = false
+    } = options;
+
     if (!currentRoutineForSession) return {};
     
     // Get and normalize user weight
@@ -190,8 +241,15 @@ export function getSessionFormData() {
     
     const exerciseBlocks = sessionElements.exerciseList.querySelectorAll('.exercise-block');
     exerciseBlocks.forEach(block => {
-        const exerciseIndex = parseInt(block.dataset.exerciseIndex);
-        const exerciseFromRoutine = currentRoutineForSession.exercises[exerciseIndex];
+        const exerciseIndex = parseInt(block.dataset.exerciseIndex, 10);
+        if (Number.isNaN(exerciseIndex)) {
+            return;
+        }
+
+        const exerciseFromRoutine = currentRoutineForSession.exercises?.[exerciseIndex];
+        if (!exerciseFromRoutine) {
+            return;
+        }
         
         const exerciseEntry = {
             nombreEjercicio: exerciseFromRoutine.name,
@@ -203,9 +261,22 @@ export function getSessionFormData() {
             notasEjercicio: block.querySelector(`textarea[name="notes-${exerciseIndex}"]`)?.value.trim() || ''
         };
 
+        let shouldIncludeExercise = exerciseEntry.notasEjercicio.length > 0;
+
         if (exerciseFromRoutine.type === 'strength') {
-            exerciseEntry.modoEjecucion = normalizeExecutionMode(exerciseFromRoutine.executionMode);
-            exerciseEntry.tipoCarga = normalizeLoadType(resolveExerciseLoadType(exerciseFromRoutine));
+            const executionModeInput = block.querySelector('select[name="session-execution-mode"]');
+            const loadTypeInput = block.querySelector('select[name="session-load-type"]');
+
+            exerciseEntry.modoEjecucion = normalizeExecutionMode(
+                executionModeInput?.value
+                ?? block.dataset.executionMode
+                ?? exerciseFromRoutine.executionMode
+            );
+            exerciseEntry.tipoCarga = normalizeLoadType(
+                loadTypeInput?.value
+                ?? block.dataset.loadType
+                ?? resolveExerciseLoadType(exerciseFromRoutine)
+            );
             const setRows = block.querySelectorAll('.set-row');
             setRows.forEach((row, setIndex) => {
                 const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
@@ -241,10 +312,11 @@ export function getSessionFormData() {
                     exerciseEntry.sets.push(setEntry);
                 }
             });
+
+            shouldIncludeExercise = shouldIncludeExercise || exerciseEntry.sets.length > 0;
         }
 
-        // Only add exercise if it has sets (for strength) or notes
-        if ((exerciseFromRoutine.type === 'strength' && exerciseEntry.sets.length > 0) || exerciseEntry.notasEjercicio) {
+        if (includeEmptyExercises || shouldIncludeExercise) {
             sessionData.ejercicios.push(exerciseEntry);
         }
     });
@@ -274,6 +346,7 @@ export async function saveSessionData(onSuccess) {
         return;
     }
     
+    const sessionVariantOverrides = collectSessionVariantOverridesFromDom(currentRoutineForSession);
     const finalSessionData = {
         fecha: Timestamp.now(),
         routineId: currentRoutineForSession.id,
@@ -287,6 +360,12 @@ export async function saveSessionData(onSuccess) {
     isSavingSession = true;
     
     try {
+        try {
+            saveSessionVariantOverrides(user.uid, sessionVariantOverrides);
+        } catch (overridesError) {
+            logger.warn('Could not persist session variant overrides:', overridesError);
+        }
+
         const saveOperation = async () => {
             const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
             await addDoc(userSessionsCollectionRef, finalSessionData);
@@ -531,19 +610,22 @@ export function setupSessionAutoSave() {
         return;
     }
     
-    // Listen for input events to save form data
-    sessionElements.exerciseList.addEventListener('input', () => {
+    const persistCurrentSnapshot = () => {
         if (!currentRoutineForSession) return;
-        const formData = getSessionFormData();
+        const formData = getSessionFormData({ includeEmptyExercises: true });
         saveInProgressSession(currentRoutineForSession.id, formData);
-    });
+    };
+
+    // Listen for input/change events to save form data.
+    sessionElements.exerciseList.addEventListener('input', persistCurrentSnapshot);
+    sessionElements.exerciseList.addEventListener('change', persistCurrentSnapshot);
     
     // Listen for timer events to save timer data
     sessionElements.exerciseList.addEventListener('click', (e) => {
         if (e.target.classList.contains('timer-button') && currentRoutineForSession) {
             // Add a small delay to let the timer update
             setTimeout(() => {
-                const formData = getSessionFormData();
+                const formData = getSessionFormData({ includeEmptyExercises: true });
                 saveInProgressSession(currentRoutineForSession.id, formData);
             }, 100);
         }

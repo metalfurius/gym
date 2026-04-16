@@ -201,6 +201,8 @@ describe('App Offline Recovery Journey', () => {
         await waitForUi(250);
 
         expect(isVisible('session-view')).toBe(true);
+        setField('select[name="session-execution-mode"]', 'machine');
+        setField('select[name="session-load-type"]', 'bodyweight');
         setField('input[name="weight-0-0"]', '65');
         setField('input[name="reps-0-0"]', '8');
         await waitForUi(150);
@@ -221,7 +223,8 @@ describe('App Offline Recovery Journey', () => {
         expect(savedAfterReconnect).toHaveLength(2);
         const routineSession = savedAfterReconnect.find((entry) => entry.data.nombreEntrenamiento === 'Offline Test Routine');
         expect(routineSession).toBeDefined();
-        expect(routineSession.data.ejercicios[0].modoEjecucion).toBe('pulley');
+        expect(routineSession.data.ejercicios[0].modoEjecucion).toBe('machine');
+        expect(routineSession.data.ejercicios[0].tipoCarga).toBe('bodyweight');
         expect(offlineManager.getPendingCount()).toBe(0);
 
         click('#nav-history');

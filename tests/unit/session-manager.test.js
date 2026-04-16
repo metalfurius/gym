@@ -155,6 +155,70 @@ function setupRoutineFormValues() {
     `;
 }
 
+function setupRoutineFormValuesWithSessionVariants({
+    executionMode = 'machine',
+    loadType = 'bodyweight',
+    weight = '-10',
+    reps = '8'
+} = {}) {
+    sessionElements.exerciseList.innerHTML = `
+        <div class="exercise-block" data-exercise-index="0">
+            <select name="session-execution-mode">
+                <option value="one_hand">Una mano</option>
+                <option value="two_hand">Dos manos</option>
+                <option value="machine">Maquina</option>
+                <option value="pulley">Polea</option>
+                <option value="other">Otro</option>
+            </select>
+            <select name="session-load-type">
+                <option value="external">Carga externa</option>
+                <option value="bodyweight">Peso corporal (+/-)</option>
+            </select>
+            <div class="set-row">
+                <input name="weight-0-0" value="${weight}" />
+                <input name="reps-0-0" value="${reps}" />
+                <span id="timer-display-0-0">01:30</span>
+                <button class="timer-button" type="button">Timer</button>
+            </div>
+            <textarea name="notes-0">Con variantes</textarea>
+        </div>
+    `;
+
+    sessionElements.exerciseList.querySelector('select[name="session-execution-mode"]').value = executionMode;
+    sessionElements.exerciseList.querySelector('select[name="session-load-type"]').value = loadType;
+}
+
+function setupRoutineFormVariantOnlyValues({
+    executionMode = 'machine',
+    loadType = 'bodyweight'
+} = {}) {
+    sessionElements.exerciseList.innerHTML = `
+        <div class="exercise-block" data-exercise-index="0">
+            <select name="session-execution-mode">
+                <option value="one_hand">Una mano</option>
+                <option value="two_hand">Dos manos</option>
+                <option value="machine">Maquina</option>
+                <option value="pulley">Polea</option>
+                <option value="other">Otro</option>
+            </select>
+            <select name="session-load-type">
+                <option value="external">Carga externa</option>
+                <option value="bodyweight">Peso corporal (+/-)</option>
+            </select>
+            <div class="set-row">
+                <input name="weight-0-0" value="" />
+                <input name="reps-0-0" value="" />
+                <span id="timer-display-0-0">00:00</span>
+                <button class="timer-button" type="button">Timer</button>
+            </div>
+            <textarea name="notes-0"></textarea>
+        </div>
+    `;
+
+    sessionElements.exerciseList.querySelector('select[name="session-execution-mode"]').value = executionMode;
+    sessionElements.exerciseList.querySelector('select[name="session-load-type"]').value = loadType;
+}
+
 describe('Session Manager', () => {
     const user = { uid: 'session-user-1' };
     const routine = {
@@ -246,6 +310,21 @@ describe('Session Manager', () => {
         });
     });
 
+    it('getSessionFormData uses selected session variants over routine defaults', () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            executionMode: 'machine',
+            loadType: 'bodyweight',
+            weight: '-12',
+            reps: '6'
+        });
+
+        const formData = getSessionFormData();
+        expect(formData.ejercicios[0].modoEjecucion).toBe('machine');
+        expect(formData.ejercicios[0].tipoCarga).toBe('bodyweight');
+        expect(formData.ejercicios[0].sets[0].peso).toBe(-12);
+    });
+
     it('saveSessionData saves to Firestore, clears state and calls success callback', async () => {
         setCurrentRoutineForSession(routine);
         document.getElementById('user-weight').value = '74,9';
@@ -283,6 +362,53 @@ describe('Session Manager', () => {
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();
+    });
+
+    it('saveSessionData remembers selected variants in local override storage', async () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            executionMode: 'pulley',
+            loadType: 'bodyweight',
+            weight: '10',
+            reps: '8'
+        });
+
+        await saveSessionData();
+
+        const savedOverrides = JSON.parse(
+            localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`)
+        );
+
+        expect(savedOverrides['routine-1::bench press']).toEqual({
+            executionMode: 'pulley',
+            loadType: 'bodyweight'
+        });
+    });
+
+    it('saveSessionData remembers selected variants even when session save is queued offline', async () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            executionMode: 'machine',
+            loadType: 'bodyweight',
+            weight: '8',
+            reps: '8'
+        });
+        mockExecuteWithOfflineHandling.mockImplementation(async () => {
+            throw new Error('Offline: queued');
+        });
+
+        await saveSessionData();
+
+        const savedOverrides = JSON.parse(
+            localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`)
+        );
+
+        expect(savedOverrides['routine-1::bench press']).toEqual({
+            executionMode: 'machine',
+            loadType: 'bodyweight'
+        });
+        expect(mockToastInfo).toHaveBeenCalled();
+        expect(__firestoreState.documents.size).toBe(0);
     });
 
     it('saveQuickLogEntry saves a quick log session and clears caches', async () => {
@@ -405,5 +531,48 @@ describe('Session Manager', () => {
         const stored = JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY));
         expect(stored.routineId).toBe('routine-1');
         expect(stored.data.ejercicios).toHaveLength(1);
+    });
+
+    it('setupSessionAutoSave preserves variant-only changes in in-progress snapshots', () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormVariantOnlyValues({
+            executionMode: 'pulley',
+            loadType: 'bodyweight'
+        });
+        setupSessionAutoSave();
+
+        sessionElements.exerciseList.dispatchEvent(new Event('change', { bubbles: true }));
+
+        const stored = JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY));
+        expect(stored.routineId).toBe('routine-1');
+        expect(stored.data.ejercicios).toHaveLength(1);
+        expect(stored.data.ejercicios[0]).toMatchObject({
+            nombreEjercicio: 'Bench Press',
+            modoEjecucion: 'pulley',
+            tipoCarga: 'bodyweight'
+        });
+        expect(stored.data.ejercicios[0].sets).toHaveLength(0);
+    });
+
+    it('setupSessionAutoSave keeps variant-only snapshot when timer auto-save runs', async () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormVariantOnlyValues({
+            executionMode: 'machine',
+            loadType: 'bodyweight'
+        });
+        setupSessionAutoSave();
+
+        const timerButton = sessionElements.exerciseList.querySelector('.timer-button');
+        timerButton.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        const stored = JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY));
+        expect(stored.routineId).toBe('routine-1');
+        expect(stored.data.ejercicios).toHaveLength(1);
+        expect(stored.data.ejercicios[0]).toMatchObject({
+            nombreEjercicio: 'Bench Press',
+            modoEjecucion: 'machine',
+            tipoCarga: 'bodyweight'
+        });
     });
 });
