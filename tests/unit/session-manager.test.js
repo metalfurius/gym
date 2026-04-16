@@ -155,6 +155,39 @@ function setupRoutineFormValues() {
     `;
 }
 
+function setupRoutineFormValuesWithSessionVariants({
+    executionMode = 'machine',
+    loadType = 'bodyweight',
+    weight = '-10',
+    reps = '8'
+} = {}) {
+    sessionElements.exerciseList.innerHTML = `
+        <div class="exercise-block" data-exercise-index="0">
+            <select name="session-execution-mode">
+                <option value="one_hand">Una mano</option>
+                <option value="two_hand">Dos manos</option>
+                <option value="machine">Maquina</option>
+                <option value="pulley">Polea</option>
+                <option value="other">Otro</option>
+            </select>
+            <select name="session-load-type">
+                <option value="external">Carga externa</option>
+                <option value="bodyweight">Peso corporal (+/-)</option>
+            </select>
+            <div class="set-row">
+                <input name="weight-0-0" value="${weight}" />
+                <input name="reps-0-0" value="${reps}" />
+                <span id="timer-display-0-0">01:30</span>
+                <button class="timer-button" type="button">Timer</button>
+            </div>
+            <textarea name="notes-0">Con variantes</textarea>
+        </div>
+    `;
+
+    sessionElements.exerciseList.querySelector('select[name="session-execution-mode"]').value = executionMode;
+    sessionElements.exerciseList.querySelector('select[name="session-load-type"]').value = loadType;
+}
+
 describe('Session Manager', () => {
     const user = { uid: 'session-user-1' };
     const routine = {
@@ -246,6 +279,21 @@ describe('Session Manager', () => {
         });
     });
 
+    it('getSessionFormData uses selected session variants over routine defaults', () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            executionMode: 'machine',
+            loadType: 'bodyweight',
+            weight: '-12',
+            reps: '6'
+        });
+
+        const formData = getSessionFormData();
+        expect(formData.ejercicios[0].modoEjecucion).toBe('machine');
+        expect(formData.ejercicios[0].tipoCarga).toBe('bodyweight');
+        expect(formData.ejercicios[0].sets[0].peso).toBe(-12);
+    });
+
     it('saveSessionData saves to Firestore, clears state and calls success callback', async () => {
         setCurrentRoutineForSession(routine);
         document.getElementById('user-weight').value = '74,9';
@@ -283,6 +331,27 @@ describe('Session Manager', () => {
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();
+    });
+
+    it('saveSessionData remembers selected variants in local override storage', async () => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            executionMode: 'pulley',
+            loadType: 'bodyweight',
+            weight: '10',
+            reps: '8'
+        });
+
+        await saveSessionData();
+
+        const savedOverrides = JSON.parse(
+            localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`)
+        );
+
+        expect(savedOverrides['routine-1::bench press']).toEqual({
+            executionMode: 'pulley',
+            loadType: 'bodyweight'
+        });
     });
 
     it('saveQuickLogEntry saves a quick log session and clears caches', async () => {

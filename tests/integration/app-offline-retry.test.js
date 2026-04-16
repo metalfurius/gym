@@ -206,6 +206,8 @@ describe('App Offline Retry Journey', () => {
         click('#start-session-btn');
         await waitForUi(200);
 
+        setField('select[name="session-execution-mode"]', 'one_hand');
+        setField('select[name="session-load-type"]', 'bodyweight');
         setField('input[name="weight-0-0"]', '67.5');
         setField('input[name="reps-0-0"]', '7');
         await waitForUi(100);
@@ -234,7 +236,8 @@ describe('App Offline Retry Journey', () => {
         expect(savedSessions).toHaveLength(2);
         const sessionEntry = savedSessions.find((entry) => entry.data.nombreEntrenamiento === 'Retry Routine');
         expect(sessionEntry).toBeDefined();
-        expect(sessionEntry.data.ejercicios[0].modoEjecucion).toBe('two_hand');
+        expect(sessionEntry.data.ejercicios[0].modoEjecucion).toBe('one_hand');
+        expect(sessionEntry.data.ejercicios[0].tipoCarga).toBe('bodyweight');
         expect(offlineManager.getPendingCount()).toBe(0);
     }, 45000);
 
