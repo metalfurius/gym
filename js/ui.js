@@ -400,7 +400,11 @@ export async function renderSessionView(routine, inProgressData = null) {
         target.classList.add('target-info');
 
         if (exercise.type === 'strength') {
-            const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} series` : exercise.sets;
+            const numericSets = Number(exercise.sets);
+            const hasNumericSets =
+                (typeof exercise.sets === 'number' && Number.isFinite(exercise.sets))
+                || (typeof exercise.sets === 'string' && exercise.sets.trim() !== '' && Number.isFinite(numericSets));
+            const setsDisplay = hasNumericSets ? `${exercise.sets} ${t('session.series_unit')}` : exercise.sets;
             target.textContent = t('session.target', { target: `${setsDisplay} x ${exercise.reps} ${t('session.reps_label')}` });
         } else if (exercise.type === 'cardio') {
             target.textContent = t('session.target', { target: exercise.duration || t('session.target_time_distance') });

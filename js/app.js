@@ -159,6 +159,22 @@ function refreshRoutineEditorForLanguage() {
 
 async function refreshVisibleViewForLanguage(user) {
     if (!views.dashboard.classList.contains('hidden')) {
+        const selectedRoutineId = dashboardElements.daySelect?.value || '';
+        populateDaySelector(currentUserRoutines);
+
+        const hasSelectedRoutine = Boolean(selectedRoutineId)
+            && Array.from(dashboardElements.daySelect?.options || [])
+                .some((option) => option.value === selectedRoutineId);
+
+        if (hasSelectedRoutine && dashboardElements.daySelect) {
+            dashboardElements.daySelect.value = selectedRoutineId;
+            if (dashboardElements.startSessionBtn) {
+                dashboardElements.startSessionBtn.disabled = false;
+            }
+        }
+
+        checkAndOfferResumeSession(currentUserRoutines);
+
         await refreshDailyHub(user).catch((error) => {
             logger.warn('Could not refresh daily hub after language change:', error);
         });

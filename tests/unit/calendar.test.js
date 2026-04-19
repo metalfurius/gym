@@ -102,6 +102,15 @@ function getDateString(date) {
     return `${year}-${month}-${day}`;
 }
 
+function findCalendarCellByDay(dayNumber, titleIncludes = '') {
+    return Array.from(document.querySelectorAll('.day-cell')).find((cell) => {
+        if (cell.textContent !== String(dayNumber)) {
+            return false;
+        }
+        return !titleIncludes || cell.title.includes(titleIncludes);
+    }) || null;
+}
+
 async function flushDebounce() {
     jest.advanceTimersByTime(350);
     for (let i = 0; i < 10; i++) {
@@ -162,10 +171,11 @@ describe('Calendar module', () => {
         updateCalendarView();
         await flushDebounce();
 
-        const cell = document.querySelector(`.day-cell[title^="${dateString}"]`);
+        const cell = findCalendarCellByDay(sessionDate.getDate(), 'fuerza');
         expect(cell).not.toBeNull();
         expect(cell.classList.contains('level-1')).toBe(true);
         expect(cell.title).toContain('fuerza');
+        expect(cell.title).not.toContain(`${dateString}:`);
         expect(mockTrackRead).toHaveBeenCalled();
         expect(document.getElementById('activity-calendar-container').classList.contains('hidden')).toBe(false);
     });
@@ -194,11 +204,12 @@ describe('Calendar module', () => {
         updateCalendarView();
         await flushDebounce();
 
-        const cell = document.querySelector(`.day-cell[title^="${dateString}"]`);
+        const cell = findCalendarCellByDay(sessionDate.getDate(), 'mixto');
         expect(cell).not.toBeNull();
         expect(cell.classList.contains('level-2')).toBe(true);
         expect(cell.title).toContain('mixto');
         expect(cell.title).toContain('2 sesiones');
+        expect(cell.title).not.toContain(`${dateString}:`);
     });
 
     it('uses cached monthly activity when cache is fresh', async () => {
@@ -216,9 +227,10 @@ describe('Calendar module', () => {
         resetToCurrentMonth();
         await flushDebounce();
 
-        const cell = document.querySelector(`.day-cell[title^="${dateString}"]`);
+        const cell = findCalendarCellByDay(sessionDate.getDate(), 'cardio');
         expect(cell).not.toBeNull();
         expect(cell.classList.contains('level-3')).toBe(true);
+        expect(cell.title).not.toContain(`${dateString}:`);
         expect(mockDeserializeActivityMap).toHaveBeenCalled();
         expect(mockTrackRead).not.toHaveBeenCalled();
     });

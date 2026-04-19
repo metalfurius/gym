@@ -280,9 +280,14 @@ function renderActivityCalendar(year, month, activityData) {
         cell.classList.add(`level-${activityLevel}`);
         
         // Create informative tooltip
+        const localizedDate = new Date(year, month, day).toLocaleDateString(getLocale(), {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
         const tooltipText = activityInfo.count > 1
-            ? t('calendar.tooltip_multiple', { date: dateString, activity: activityTypeText, count: activityInfo.count })
-            : t('calendar.tooltip_single', { date: dateString, activity: activityTypeText });
+            ? t('calendar.tooltip_multiple', { date: localizedDate, activity: activityTypeText, count: activityInfo.count })
+            : t('calendar.tooltip_single', { date: localizedDate, activity: activityTypeText });
         cell.title = tooltipText;
         
         // Show day number in each cell
