@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
 import { __resetMockFirebase } from '../mocks/firebase-state.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -48,17 +48,25 @@ function setupDomAndBrowserShims() {
     });
 }
 
+async function bootApplication({ resetModules = false } = {}) {
+    setupDomAndBrowserShims();
+
+    if (resetModules) {
+        jest.resetModules();
+    }
+
+    await import('../../js/app.js');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    window.dispatchEvent(new Event('load'));
+    await waitForUi(100);
+}
+
 describe('App language switch integration', () => {
     beforeAll(async () => {
         __resetMockFirebase();
         localStorage.clear();
         sessionStorage.clear();
-        setupDomAndBrowserShims();
-
-        await import('../../js/app.js');
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-        window.dispatchEvent(new Event('load'));
-        await waitForUi(100);
+        await bootApplication({ resetModules: true });
     });
 
     it('switches ES -> EN immediately and keeps preference after reload', async () => {
@@ -76,11 +84,8 @@ describe('App language switch integration', () => {
         expect(loginBtn.textContent.toLowerCase()).toContain('sign in');
         expect(localStorage.getItem('gym-tracker-language')).toBe('en');
 
-        // Simulate page reload.
-        setupDomAndBrowserShims();
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-        window.dispatchEvent(new Event('load'));
-        await waitForUi(100);
+        // Simulate page reload with a fresh module graph.
+        await bootApplication({ resetModules: true });
 
         const languageSelectAfterReload = document.getElementById('language-select');
         const loginBtnAfterReload = document.getElementById('login-email-btn');

@@ -10,7 +10,6 @@ import { localFirstCache } from './local-first-cache.js';
 import { t } from '../i18n.js';
 
 const PERSISTED_QUEUE_KEY = 'offline:pending-operations:v1';
-const DEFAULT_ERROR_MESSAGE = t('offline.default_error');
 
 function createQueueId() {
     return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -236,21 +235,23 @@ class OfflineManager {
      * @param {Object|null} queueDescriptor - Serializable descriptor for durable queue.
      * @returns {Promise<*>}
      */
-    async executeWithOfflineHandling(operation, errorMessage = DEFAULT_ERROR_MESSAGE, queueIfOffline = false, queueDescriptor = null) {
+    async executeWithOfflineHandling(operation, errorMessage = undefined, queueIfOffline = false, queueDescriptor = null) {
         if (typeof operation !== 'function') {
             throw new Error('Operation must be a function');
         }
 
+        const resolvedErrorMessage = errorMessage ?? t('offline.default_error');
+
         if (!this.checkOnline()) {
             logger.warn('Operation attempted while offline');
             try {
-                toast.error(errorMessage, { duration: 4000 });
+                toast.error(resolvedErrorMessage, { duration: 4000 });
             } catch (e) {
                 logger.debug('Toast not available', e);
             }
 
             if (queueIfOffline) {
-                this.queueOperation(operation, errorMessage, { descriptor: queueDescriptor });
+                this.queueOperation(operation, resolvedErrorMessage, { descriptor: queueDescriptor });
                 try {
                     toast.info(t('offline.queued_when_online'), { duration: 3000 });
                 } catch (e) {
@@ -258,7 +259,7 @@ class OfflineManager {
                 }
             }
 
-            throw new Error(`Offline: ${errorMessage}`);
+            throw new Error(`Offline: ${resolvedErrorMessage}`);
         }
 
         try {
@@ -273,7 +274,7 @@ class OfflineManager {
                 }
 
                 if (queueIfOffline) {
-                    this.queueOperation(operation, errorMessage, { descriptor: queueDescriptor });
+                    this.queueOperation(operation, resolvedErrorMessage, { descriptor: queueDescriptor });
                 }
             }
             throw error;

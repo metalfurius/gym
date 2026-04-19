@@ -808,11 +808,6 @@ function applyTranslationToElement(element) {
         element.textContent = t(textKey);
     }
 
-    const htmlKey = element.getAttribute('data-i18n-html');
-    if (htmlKey) {
-        element.innerHTML = t(htmlKey);
-    }
-
     const placeholderKey = element.getAttribute('data-i18n-placeholder');
     if (placeholderKey) {
         element.placeholder = t(placeholderKey);
@@ -877,7 +872,7 @@ export function applyTranslations(root = document) {
         applyTranslationToElement(root);
     }
 
-    root.querySelectorAll('[data-i18n], [data-i18n-html], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label], [data-i18n-value]')
+    root.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label], [data-i18n-value]')
         .forEach((element) => {
             applyTranslationToElement(element);
         });
