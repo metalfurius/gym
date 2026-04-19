@@ -1,6 +1,7 @@
 /**
  * Sistema de gestión de temas para My Workout Tracker
  */
+import { t, onLanguageChange } from './i18n.js';
 
 class ThemeManager {
     constructor() {
@@ -33,6 +34,7 @@ class ThemeManager {
         };
         
         this.currentTheme = this.loadTheme();
+        this.unsubscribeLanguageChange = null;
         this.init();
     }
 
@@ -40,6 +42,17 @@ class ThemeManager {
         this.applyTheme(this.currentTheme);
         this.setupEventListeners();
         this.updateThemeDisplay();
+
+        if (!this.unsubscribeLanguageChange) {
+            this.unsubscribeLanguageChange = onLanguageChange(() => {
+                this.updateThemeDisplay();
+                const openModal = document.querySelector('.theme-modal');
+                if (openModal) {
+                    openModal.parentNode?.removeChild(openModal);
+                    this.showThemeSelector();
+                }
+            });
+        }
     }    setupEventListeners() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
@@ -101,7 +114,7 @@ class ThemeManager {
         modal.innerHTML = `
             <div class="theme-modal-content">
                 <div class="theme-modal-header">
-                    <h3>Elegir Tema</h3>
+                    <h3>${t('theme.modal_title')}</h3>
                     <button class="theme-modal-close">&times;</button>
                 </div>
                 <div class="theme-modal-body">
@@ -118,8 +131,8 @@ class ThemeManager {
                                 </div>
                                 <div class="theme-info">
                                     <div class="theme-icon">${theme.icon}</div>
-                                    <h4>${theme.name}</h4>
-                                    <p>${theme.description}</p>
+                                    <h4>${this.getThemeName(key)}</h4>
+                                    <p>${this.getThemeDescription(key)}</p>
                                 </div>
                             </div>
                         `).join('')}
@@ -154,6 +167,10 @@ class ThemeManager {
         if (themeToggle && this.handleThemeToggleClick) {
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
         }
+        if (typeof this.unsubscribeLanguageChange === 'function') {
+            this.unsubscribeLanguageChange();
+            this.unsubscribeLanguageChange = null;
+        }
     }
 
     setTheme(themeKey) {
@@ -165,7 +182,7 @@ class ThemeManager {
             
             // Disparar evento personalizado para que otros componentes puedan reaccionar
             window.dispatchEvent(new CustomEvent('themeChanged', { 
-                detail: { theme: themeKey, themeName: this.themes[themeKey].name }
+                detail: { theme: themeKey, themeName: this.getThemeName(themeKey) }
             }));
         }
     }
@@ -192,7 +209,7 @@ class ThemeManager {
         const themeIconElement = document.querySelector('.theme-icon');
         
         if (themeNameElement) {
-            themeNameElement.textContent = this.themes[this.currentTheme].name;
+            themeNameElement.textContent = this.getThemeName(this.currentTheme);
         }
         
         if (themeIconElement) {
@@ -216,6 +233,18 @@ class ThemeManager {
     getThemeInfo(themeKey = null) {
         const key = themeKey || this.currentTheme;
         return this.themes[key];
+    }
+
+    getThemeName(themeKey) {
+        return t(`theme.${themeKey}_name`, {
+            default: this.themes[themeKey]?.name || ''
+        });
+    }
+
+    getThemeDescription(themeKey) {
+        return t(`theme.${themeKey}_description`, {
+            default: this.themes[themeKey]?.description || ''
+        });
     }
 }
 

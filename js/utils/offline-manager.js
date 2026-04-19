@@ -7,9 +7,10 @@
 import { logger } from './logger.js';
 import { toast } from './notifications.js';
 import { localFirstCache } from './local-first-cache.js';
+import { t } from '../i18n.js';
 
 const PERSISTED_QUEUE_KEY = 'offline:pending-operations:v1';
-const DEFAULT_ERROR_MESSAGE = 'Esta operacion requiere conexion a Internet';
+const DEFAULT_ERROR_MESSAGE = t('offline.default_error');
 
 function createQueueId() {
     return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -134,7 +135,7 @@ class OfflineManager {
                 this.pendingOperations.push({
                     id: persistedItem.id,
                     operation: null,
-                    description: persistedItem.description || 'Operacion en cola',
+                    description: persistedItem.description || t('offline.queued_when_online'),
                     timestamp: persistedItem.timestamp || Date.now(),
                     descriptor: persistedItem.descriptor
                 });
@@ -186,7 +187,7 @@ class OfflineManager {
         this.isOnline = false;
         logger.warn('App is now offline');
         try {
-            toast.warning('Sin conexion a Internet. Algunas funciones estaran limitadas.', { duration: 5000 });
+            toast.warning(t('offline.limited_features'), { duration: 5000 });
         } catch (e) {
             logger.debug('Toast not available', e);
         }
@@ -201,7 +202,7 @@ class OfflineManager {
         this.isOnline = true;
         logger.info('App is now online');
         try {
-            toast.success('Conexion restablecida', { duration: 3000 });
+            toast.success(t('offline.connection_restored'), { duration: 3000 });
         } catch (e) {
             logger.debug('Toast not available', e);
         }
@@ -251,7 +252,7 @@ class OfflineManager {
             if (queueIfOffline) {
                 this.queueOperation(operation, errorMessage, { descriptor: queueDescriptor });
                 try {
-                    toast.info('La operacion se guardara para cuando haya conexion', { duration: 3000 });
+                    toast.info(t('offline.queued_when_online'), { duration: 3000 });
                 } catch (e) {
                     logger.debug('Toast not available', e);
                 }
@@ -266,7 +267,7 @@ class OfflineManager {
             if (this.isNetworkError(error)) {
                 logger.error('Network error during operation:', error);
                 try {
-                    toast.error('Error de conexion. Verifica tu Internet e intenta de nuevo.', { duration: 5000 });
+                    toast.error(t('offline.connection_error_retry'), { duration: 5000 });
                 } catch (e) {
                     logger.debug('Toast not available', e);
                 }
@@ -395,7 +396,7 @@ class OfflineManager {
 
             if (successCount > 0) {
                 try {
-                    toast.success(`${successCount} operacion(es) completada(s)`, { duration: 3000 });
+                    toast.success(t('offline.operations_completed', { count: successCount }), { duration: 3000 });
                 } catch (e) {
                     logger.debug('Toast not available', e);
                 }
@@ -403,7 +404,7 @@ class OfflineManager {
 
             if (failureCount > 0) {
                 try {
-                    toast.warning(`${failureCount} operacion(es) fallida(s)`, { duration: 4000 });
+                    toast.warning(t('offline.operations_failed', { count: failureCount }), { duration: 4000 });
                 } catch (e) {
                     logger.debug('Toast not available', e);
                 }

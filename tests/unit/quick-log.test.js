@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import {
     QUICK_LOG_DEFAULT_LABEL,
     splitQuickLogNotes,
@@ -8,8 +8,13 @@ import {
     computeDailyHubState,
     toDatetimeLocalValue
 } from '../../js/utils/quick-log.js';
+import { setLanguage } from '../../js/i18n.js';
 
 describe('quick-log utils', () => {
+    beforeEach(() => {
+        setLanguage('es', { persist: false, apply: false });
+    });
+
     it('splits and trims multiline notes', () => {
         const notes = splitQuickLogNotes('  press banca  \n\ndominadas\n ');
         expect(notes).toEqual(['press banca', 'dominadas']);
@@ -127,6 +132,21 @@ describe('quick-log utils', () => {
 
         expect(state.syncStatus).toContain('Sin conexion');
         expect(state.syncStatus).toContain('3');
+    });
+
+    it('updates computed labels after switching to English', () => {
+        setLanguage('en', { persist: false, apply: false });
+        const state = computeDailyHubState({
+            sessions: [],
+            routines: [],
+            now: new Date(2026, 2, 29, 9, 0, 0),
+            isOnline: true,
+            pendingCount: 2
+        });
+
+        expect(state.syncStatus).toContain('Online');
+        expect(state.syncStatus).toContain('2');
+        expect(state.routineShortcut).toBe('No routine');
     });
 
     it('returns datetime-local formatted value', () => {

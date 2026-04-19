@@ -1,14 +1,11 @@
+import { t } from '../i18n.js';
+
 export const DEFAULT_LOAD_TYPE = 'external';
 
 export const LOAD_TYPE_VALUES = [
     DEFAULT_LOAD_TYPE,
     'bodyweight'
 ];
-
-export const LOAD_TYPE_LABELS = {
-    external: 'Carga externa',
-    bodyweight: 'Peso corporal'
-};
 
 export function normalizeLoadType(value) {
     const normalized = (value || '').toString().trim().toLowerCase();
@@ -26,5 +23,10 @@ export function resolveExerciseLoadType(exercise = {}) {
 
 export function getLoadTypeLabel(value) {
     const loadType = normalizeLoadType(value);
-    return LOAD_TYPE_LABELS[loadType] || LOAD_TYPE_LABELS.external;
+    const keyByLoadType = {
+        external: 'load_type.external',
+        bodyweight: 'load_type.bodyweight'
+    };
+    const key = keyByLoadType[loadType] || keyByLoadType.external;
+    return t(key);
 }

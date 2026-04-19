@@ -1,5 +1,6 @@
 import { saveInProgressSession, loadInProgressSession } from './modules/session-manager.js';
 import { logger } from './utils/logger.js';
+import { t } from './i18n.js';
 
 const VERSION_KEY = 'gym-tracker-version';
 const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
@@ -142,10 +143,10 @@ function showUpdateNotification(oldVersion, newVersion) {
 
     notification.innerHTML = `
         <div style="margin-bottom: 8px;">
-            <strong>Aplicacion actualizada</strong>
+            <strong>${t('version.updated_title')}</strong>
         </div>
         <div style="font-size: 0.9em; opacity: 0.9;">
-            Version ${newVersion} instalada correctamente
+            ${t('version.updated_message', { version: newVersion, oldVersion })}
         </div>
     `;
 
@@ -197,7 +198,7 @@ export async function forceAppUpdate() {
     try {
         if (forceUpdateBtn) {
             forceUpdateBtn.classList.add('updating');
-            forceUpdateBtn.innerHTML = 'Actualizando...';
+            forceUpdateBtn.innerHTML = t('version.force_update_loading');
             forceUpdateBtn.disabled = true;
         }
 
@@ -211,7 +212,7 @@ export async function forceAppUpdate() {
         if (forceUpdateBtn) {
             forceUpdateBtn.classList.remove('updating');
             forceUpdateBtn.classList.add('success');
-            forceUpdateBtn.innerHTML = 'Listo';
+            forceUpdateBtn.innerHTML = t('version.force_update_done');
         }
 
         await new Promise((resolve) => setTimeout(resolve, 800));
@@ -224,12 +225,12 @@ export async function forceAppUpdate() {
         if (forceUpdateBtn) {
             forceUpdateBtn.classList.remove('updating', 'success');
             forceUpdateBtn.classList.add('error');
-            forceUpdateBtn.innerHTML = 'Error';
+            forceUpdateBtn.innerHTML = t('version.force_update_error');
             forceUpdateBtn.disabled = false;
 
             setTimeout(() => {
                 forceUpdateBtn.classList.remove('error');
-                forceUpdateBtn.innerHTML = 'Actualizar';
+                forceUpdateBtn.innerHTML = t('version.force_update');
             }, 3000);
         }
 
@@ -265,4 +266,3 @@ export function checkForBackupSession() {
         return false;
     }
 }
-

@@ -17,6 +17,7 @@ import {
     resolveExerciseLoadType,
     getLoadTypeLabel
 } from './utils/load-type.js';
+import { t, getLocale } from './i18n.js';
 
 let progressChart = null;
 const exerciseDataCache = new Map();
@@ -216,10 +217,10 @@ export async function initializeProgressView() {
 function populateExerciseSelector(exercises, fromCache = false, exercisesWithCount = null) {
     if (!progressElements.exerciseSelect) return;
 
-    progressElements.exerciseSelect.innerHTML = '<option value="">-- Selecciona un ejercicio --</option>';
+    progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.select_placeholder')}</option>`;
 
     if (exercises.length === 0) {
-        progressElements.exerciseSelect.innerHTML = '<option value="">No hay ejercicios en el historial</option>';
+        progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.no_history')}</option>`;
         showNoDataMessage();
         return;
     }
@@ -238,7 +239,7 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
 
         if (exercisesWithCount) {
             const info = exercisesWithCount.find((exercise) => exercise.value === descriptor.value);
-            option.textContent = `${descriptor.label} (${info ? info.sessionCount : 0} sesiones)`;
+            option.textContent = `${descriptor.label} (${t('progress.sessions_suffix', { count: info ? info.sessionCount : 0 })})`;
         } else {
             option.textContent = descriptor.label;
         }
@@ -257,7 +258,7 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
 
 function showCacheIndicator() {
     const indicator = document.createElement('div');
-    indicator.textContent = 'Cargado desde cache';
+    indicator.textContent = t('progress.cache_loaded');
     indicator.style.cssText = `
         position: fixed;
         top: 20px;
@@ -352,7 +353,7 @@ export async function loadExerciseList() {
         }
     } catch (error) {
         logger.error('Error loading exercise list:', error);
-        progressElements.exerciseSelect.innerHTML = '<option value="">Error cargando ejercicios</option>';
+        progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.loading_error')}</option>`;
         hideProgressLoading();
     }
 }
@@ -697,7 +698,7 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
         }
 
         if (progressElements.chart?.parentElement) {
-            progressElements.chart.parentElement.innerHTML = '<p class="error-message">Error: No se pudo cargar el sistema de gráficos</p>';
+            progressElements.chart.parentElement.innerHTML = `<p class="error-message">${t('progress.chart_error')}</p>`;
         }
         return;
     }
@@ -710,9 +711,9 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
     }
 
     const metricLabels = {
-        weight: 'Peso (kg)',
-        reps: 'Repeticiones',
-        volume: 'Volumen (kg)'
+        weight: `${t('progress.metric_weight')} (${t('progress.unit_weight')})`,
+        reps: t('progress.metric_reps'),
+        volume: `${t('progress.metric_volume')} (${t('progress.unit_volume')})`
     };
 
     progressChart = new Chart(ctx, {
@@ -720,7 +721,7 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
         data: {
             labels: chartData.labels,
             datasets: [{
-                label: metricLabels[metric] || 'Valor',
+                label: metricLabels[metric] || t('progress.value'),
                 data: chartData.data,
                 borderColor: 'rgb(102, 126, 234)',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
@@ -739,7 +740,7 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
             plugins: {
                 title: {
                     display: true,
-                    text: `Progreso de ${exerciseName} - ${metricLabels[metric]}`,
+                    text: t('progress.chart_title', { exercise: exerciseName, metric: metricLabels[metric] }),
                     font: {
                         size: 16,
                         weight: 'bold'
@@ -803,9 +804,9 @@ function updateProgressStats(exerciseData, metric) {
     const sessionCount = uniqueDates.size;
 
     const units = {
-        weight: 'kg',
-        reps: 'reps',
-        volume: 'kg'
+        weight: t('progress.unit_weight'),
+        reps: t('progress.unit_reps'),
+        volume: t('progress.unit_volume')
     };
 
     progressElements.bestRecord.textContent = `${bestRecord.toFixed(1)} ${units[metric]}`;
@@ -825,14 +826,14 @@ function updateProgressStats(exerciseData, metric) {
     progressElements.totalProgress.textContent = progressText;
     progressElements.trendIndicator.className = trendClass;
     progressElements.trendIndicator.textContent = trendClass === 'trend-up'
-        ? 'Mejorando'
+        ? t('progress.trend_up')
         : trendClass === 'trend-down'
-            ? 'Descendiendo'
-            : 'Estable';
+            ? t('progress.trend_down')
+            : t('progress.trend_stable');
 }
 
 function formatDateForChart(date) {
-    return date.toLocaleDateString('es-ES', {
+    return date.toLocaleDateString(getLocale(), {
         day: '2-digit',
         month: 'short'
     });
@@ -905,7 +906,7 @@ export function resetProgressView() {
     clearExerciseCache();
 
     if (progressElements.exerciseSelect) {
-        progressElements.exerciseSelect.innerHTML = '<option value="">-- Cargando ejercicios... --</option>';
+        progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.loading_exercises')}</option>`;
     }
 }
 

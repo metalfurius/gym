@@ -1,6 +1,7 @@
 // timer.js - Handles set rest timer functionality
 
 import { logger } from './utils/logger.js';
+import { t } from './i18n.js';
 
 // Store active timers by ID to access them easily
 const activeTimers = {};
@@ -117,7 +118,7 @@ function startTimer(timerId) {
     };
     
     // Update the button
-    timerButton.textContent = 'Pausar';
+    timerButton.textContent = t('session.timer_pause');
     timerButton.classList.add('running');
     
     // Save initial timer state
@@ -137,7 +138,7 @@ function pauseTimer(timerId) {
         activeTimers[timerId].isRunning = false;
         
         // Update the button
-        timerButton.textContent = 'Iniciar';
+        timerButton.textContent = t('session.timer_start');
         timerButton.classList.remove('running');
         
         // Save the timer state as paused
@@ -231,7 +232,7 @@ export function createTimerHTML(exerciseIndex, setIndex) {
     return `
         <div class="set-timer" data-timer-id="${timerId}">
             <div id="timer-display-${timerId}" class="timer-display">00:00</div>
-            <button id="timer-button-${timerId}" class="timer-button" type="button" data-timer-id="${timerId}">Iniciar</button>
+            <button id="timer-button-${timerId}" class="timer-button" type="button" data-timer-id="${timerId}">${t('session.timer_start')}</button>
         </div>
     `;
 }

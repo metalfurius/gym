@@ -1,12 +1,17 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import {
     DEFAULT_LOAD_TYPE,
     normalizeLoadType,
     resolveExerciseLoadType,
     getLoadTypeLabel
 } from '../../js/utils/load-type.js';
+import { setLanguage } from '../../js/i18n.js';
 
 describe('load-type utils', () => {
+    beforeEach(() => {
+        setLanguage('es', { persist: false, apply: false });
+    });
+
     it('uses external as default load type', () => {
         expect(DEFAULT_LOAD_TYPE).toBe('external');
     });
@@ -29,5 +34,11 @@ describe('load-type utils', () => {
     it('returns Spanish-first labels', () => {
         expect(getLoadTypeLabel('external')).toBe('Carga externa');
         expect(getLoadTypeLabel('bodyweight')).toBe('Peso corporal');
+    });
+
+    it('returns English labels after language switch', () => {
+        setLanguage('en', { persist: false, apply: false });
+        expect(getLoadTypeLabel('external')).toBe('External load');
+        expect(getLoadTypeLabel('bodyweight')).toBe('Bodyweight');
     });
 });

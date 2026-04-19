@@ -2,6 +2,7 @@
  * Toast notification system
  * Provides user-friendly notifications to replace alert() calls
  */
+import { t } from '../i18n.js';
 
 // Notification types
 export const NOTIFICATION_TYPES = {
@@ -19,12 +20,12 @@ const DEFAULT_DURATIONS = {
     [NOTIFICATION_TYPES.INFO]: 3000
 };
 
-// Icons for each notification type
+// Keep icons ASCII-safe to avoid encoding artifacts in different runtimes.
 const NOTIFICATION_ICONS = {
-    [NOTIFICATION_TYPES.SUCCESS]: '✅',
-    [NOTIFICATION_TYPES.ERROR]: '❌',
-    [NOTIFICATION_TYPES.WARNING]: '⚠️',
-    [NOTIFICATION_TYPES.INFO]: 'ℹ️'
+    [NOTIFICATION_TYPES.SUCCESS]: '[OK]',
+    [NOTIFICATION_TYPES.ERROR]: '[X]',
+    [NOTIFICATION_TYPES.WARNING]: '[!]',
+    [NOTIFICATION_TYPES.INFO]: '[i]'
 };
 
 let notificationContainer = null;
@@ -42,7 +43,7 @@ function ensureContainer() {
     notificationContainer.className = 'notification-container';
     notificationContainer.setAttribute('aria-live', 'polite');
     notificationContainer.setAttribute('aria-atomic', 'true');
-    
+
     // Add styles if not already present
     if (!document.getElementById('notification-styles')) {
         const styles = document.createElement('style');
@@ -59,7 +60,7 @@ function ensureContainer() {
                 max-width: 400px;
                 pointer-events: none;
             }
-            
+
             .notification {
                 display: flex;
                 align-items: flex-start;
@@ -76,31 +77,34 @@ function ensureContainer() {
                 opacity: 0;
                 transition: transform 0.3s ease, opacity 0.3s ease;
             }
-            
+
             .notification.show {
                 transform: translateX(0);
                 opacity: 1;
             }
-            
+
             .notification.hiding {
                 transform: translateX(120%);
                 opacity: 0;
             }
-            
+
             .notification-icon {
-                font-size: 18px;
+                font-size: 12px;
+                line-height: 1.5;
                 flex-shrink: 0;
+                font-weight: 700;
+                font-family: monospace;
             }
-            
+
             .notification-content {
                 flex: 1;
             }
-            
+
             .notification-message {
                 margin: 0;
                 word-wrap: break-word;
             }
-            
+
             .notification-close {
                 background: none;
                 border: none;
@@ -112,31 +116,31 @@ function ensureContainer() {
                 transition: opacity 0.2s;
                 color: inherit;
             }
-            
+
             .notification-close:hover {
                 opacity: 1;
             }
-            
+
             .notification.success {
                 border-left: 4px solid #10b981;
                 background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, var(--card-bg, #ffffff) 100%);
             }
-            
+
             .notification.error {
                 border-left: 4px solid #ef4444;
                 background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, var(--card-bg, #ffffff) 100%);
             }
-            
+
             .notification.warning {
                 border-left: 4px solid #f59e0b;
                 background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, var(--card-bg, #ffffff) 100%);
             }
-            
+
             .notification.info {
                 border-left: 4px solid #3b82f6;
                 background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, var(--card-bg, #ffffff) 100%);
             }
-            
+
             @media (max-width: 480px) {
                 .notification-container {
                     top: 10px;
@@ -173,24 +177,24 @@ export function showNotification(message, type = NOTIFICATION_TYPES.INFO, option
 
     const icon = document.createElement('span');
     icon.className = 'notification-icon';
-    icon.textContent = NOTIFICATION_ICONS[type] || 'ℹ️';
+    icon.textContent = NOTIFICATION_ICONS[type] || '[i]';
     notification.appendChild(icon);
 
     const content = document.createElement('div');
     content.className = 'notification-content';
-    
+
     const messageEl = document.createElement('p');
     messageEl.className = 'notification-message';
     messageEl.textContent = message;
     content.appendChild(messageEl);
-    
+
     notification.appendChild(content);
 
     if (closable) {
         const closeBtn = document.createElement('button');
         closeBtn.className = 'notification-close';
-        closeBtn.innerHTML = '×';
-        closeBtn.setAttribute('aria-label', 'Cerrar notificación');
+        closeBtn.innerHTML = 'x';
+        closeBtn.setAttribute('aria-label', t('notifications.close'));
         closeBtn.addEventListener('click', () => hideNotification(notification));
         notification.appendChild(closeBtn);
     }
@@ -233,47 +237,20 @@ export function hideNotification(notification) {
 export function clearAllNotifications() {
     if (notificationContainer) {
         const notifications = notificationContainer.querySelectorAll('.notification');
-        notifications.forEach(n => hideNotification(n));
+        notifications.forEach((notification) => hideNotification(notification));
     }
 }
 
 // Convenience methods
 export const toast = {
-    /**
-     * Show a success notification
-     * @param {string} message - The message to display
-     * @param {Object} options - Additional options
-     */
-    success: (message, options = {}) => 
+    success: (message, options = {}) =>
         showNotification(message, NOTIFICATION_TYPES.SUCCESS, options),
-
-    /**
-     * Show an error notification
-     * @param {string} message - The message to display
-     * @param {Object} options - Additional options
-     */
-    error: (message, options = {}) => 
+    error: (message, options = {}) =>
         showNotification(message, NOTIFICATION_TYPES.ERROR, options),
-
-    /**
-     * Show a warning notification
-     * @param {string} message - The message to display
-     * @param {Object} options - Additional options
-     */
-    warning: (message, options = {}) => 
+    warning: (message, options = {}) =>
         showNotification(message, NOTIFICATION_TYPES.WARNING, options),
-
-    /**
-     * Show an info notification
-     * @param {string} message - The message to display
-     * @param {Object} options - Additional options
-     */
-    info: (message, options = {}) => 
+    info: (message, options = {}) =>
         showNotification(message, NOTIFICATION_TYPES.INFO, options),
-
-    /**
-     * Clear all notifications
-     */
     clear: clearAllNotifications
 };
 

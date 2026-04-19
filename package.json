@@ -14,7 +14,7 @@
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
     "test:app:offline": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
-    "test:app:only": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
+    "test:app:only": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-language-switch.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
     "test:app": "npm run lint:errors && npm run test:app:only",
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
     "serve": "node scripts/serve-local.mjs",

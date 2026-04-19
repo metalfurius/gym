@@ -45,41 +45,48 @@
     <header>
         <div class="header-content">
             <div class="header-brand">
-                <div class="header-logo">💪</div>
-                <h1>My Workout Tracker</h1>
+                <div class="header-logo">�x�</div>
+                <h1 data-i18n="app.name">My Workout Tracker</h1>
             </div>
             
             <div class="header-controls">
+                <div class="language-selector">
+                    <label for="language-select" class="sr-only" data-i18n="header.language_label">Idioma</label>
+                    <select id="language-select" class="language-select" aria-label="Language selector">
+                        <option value="es" data-i18n="header.language_option_es">ES</option>
+                        <option value="en" data-i18n="header.language_option_en">EN</option>
+                    </select>
+                </div>
                 <div class="theme-selector">
-                    <button id="theme-toggle" class="theme-toggle" title="Cambiar tema">
-                        <span class="theme-icon">🎨</span>
+                    <button id="theme-toggle" class="theme-toggle" title="Cambiar tema" data-i18n-title="header.theme_toggle_title">
+                        <span class="theme-icon">�x}�</span>
                         <span id="theme-name">Moderno</span>
                     </button>
                 </div>
             </div>
             
             <nav>
-                <button id="nav-dashboard" class="hidden">Dashboard</button>
-                <button id="nav-manage-routines" class="hidden">Mis Rutinas</button>
-                <button id="nav-history" class="hidden">Historial</button>
-                <button id="nav-progress" class="hidden">Progreso</button>
-                <button id="logout-btn" class="hidden secondary">Cerrar Sesión</button>
+                <button id="nav-dashboard" class="hidden" data-i18n="nav.dashboard">Dashboard</button>
+                <button id="nav-manage-routines" class="hidden" data-i18n="nav.manage_routines">Mis Rutinas</button>
+                <button id="nav-history" class="hidden" data-i18n="nav.history">Historial</button>
+                <button id="nav-progress" class="hidden" data-i18n="nav.progress">Progreso</button>
+                <button id="logout-btn" class="hidden secondary" data-i18n="nav.logout">Cerrar Sesión</button>
             </nav>
         </div>
     </header>
 
     <main>        <!-- Auth View -->
         <section id="auth-view">
-            <h2>¡Bienvenido!</h2>
+            <h2 data-i18n="auth.welcome">Bienvenido</h2>
             <form id="auth-form">
-                <h3>Accede con tu cuenta</h3>
-                <label for="auth-email">Correo electrónico</label>
+                <h3 data-i18n="auth.access_account">Accede con tu cuenta</h3>
+                <label for="auth-email" data-i18n="auth.email">Correo electrónico</label>
                 <input type="email" id="auth-email" required autocomplete="email" placeholder="tu@email.com">
-                <label for="auth-password">Contraseña</label>
-                <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="••••••••">
+                <label for="auth-password" data-i18n="auth.password">Contraseña</label>
+                <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="⬢⬢⬢⬢⬢⬢⬢⬢">
                 <div class="auth-buttons">
-                    <button type="submit" id="login-email-btn">Iniciar Sesión</button>
-                    <button type="submit" id="signup-email-btn">Crear Cuenta Nueva</button>
+                    <button type="submit" id="login-email-btn" data-i18n="auth.login">Iniciar Sesión</button>
+                    <button type="submit" id="signup-email-btn" data-i18n="auth.signup">Crear Cuenta Nueva</button>
                 </div>
                 <p id="auth-error" class="error-message"></p>
             </form>
@@ -87,112 +94,112 @@
 
         <!-- Dashboard View -->
         <section id="dashboard-view" class="hidden">
-            <h2>Dashboard</h2>
+            <h2 data-i18n="dashboard.title">Dashboard</h2>
             <div id="user-info" class="hidden dashboard-user-info">
-                <p>Usuario: <span id="user-email"></span></p>
-                <p>Fecha: <span id="current-date"></span></p>
+                <p><span data-i18n="dashboard.user_label">Usuario:</span> <span id="user-email"></span></p>
+                <p><span data-i18n="dashboard.date_label">Fecha:</span> <span id="current-date"></span></p>
             </div>
             <div id="resume-session-area" class="dashboard-resume-area">
                 <p id="resume-session-info" class="dashboard-resume-info"></p>
-                <button id="resume-session-btn" class="ghost hidden dashboard-resume-btn">Continuar
+                <button id="resume-session-btn" class="ghost hidden dashboard-resume-btn" data-i18n="dashboard.resume_button">Continuar
                     Sesion</button>
             </div>
 
             <!-- Sección principal de entrenamiento -->
             <div class="workout-section">
-                <h3 class="workout-section-title">&#128640; Empezar Entrenamiento</h3>
+                <h3 class="workout-section-title">&#128640; <span data-i18n="dashboard.start_workout">Empezar Entrenamiento</span></h3>
                 <div class="workout-controls">
                     <div class="routine-selector-container">
-                        <label for="day-select" class="routine-label">Elige una rutina para hoy:</label>
+                        <label for="day-select" class="routine-label" data-i18n="dashboard.select_routine_today">Elige una rutina para hoy:</label>
                         <select id="day-select" class="routine-select">
-                            <option value="">-- Cargando rutinas... --</option>
+                            <option value="" data-i18n="dashboard.loading_routines">-- Cargando rutinas... --</option>
                         </select>
                     </div>
                     <button id="start-session-btn" class="primary-action-btn" disabled>
                         <span class="btn-icon">&#128170;</span>
-                        <span class="btn-text">Iniciar Nueva Sesion</span>
+                        <span class="btn-text" data-i18n="dashboard.start_new_session">Iniciar Nueva Sesion</span>
                     </button>
                 </div>
             </div>
 
             <div class="daily-hub-section dashboard-panel">
-                <h3 class="dashboard-panel-title">Resumen del Dia</h3>
+                <h3 class="dashboard-panel-title" data-i18n="dashboard.daily_hub_title">Resumen del Dia</h3>
                 <div class="daily-hub-grid">
                     <article class="daily-hub-card">
-                        <p class="daily-hub-label">Sesiones del mes</p>
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_month_count">Sesiones del mes</p>
                         <p id="daily-hub-month-count" class="daily-hub-value">0</p>
                     </article>
                     <article class="daily-hub-card">
-                        <p class="daily-hub-label">Ultimo entrenamiento</p>
-                        <p id="daily-hub-last-workout" class="daily-hub-value">Sin registros</p>
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_last_workout">Ultimo entrenamiento</p>
+                        <p id="daily-hub-last-workout" class="daily-hub-value" data-i18n="dashboard.last_workout_none">Sin registros</p>
                     </article>
                     <article class="daily-hub-card">
-                        <p class="daily-hub-label">Rutina actual</p>
-                        <p id="daily-hub-routine-shortcut" class="daily-hub-value">Sin rutina</p>
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_current_routine">Rutina actual</p>
+                        <p id="daily-hub-routine-shortcut" class="daily-hub-value" data-i18n="dashboard.routine_none">Sin rutina</p>
                     </article>
                     <article class="daily-hub-card">
-                        <p class="daily-hub-label">Estado de sync</p>
-                        <p id="daily-hub-sync-status" class="daily-hub-value">En linea</p>
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_sync_status">Estado de sync</p>
+                        <p id="daily-hub-sync-status" class="daily-hub-value" data-i18n="dashboard.sync_online">En linea</p>
                     </article>
                 </div>
-                <p id="daily-hub-empty-state" class="daily-hub-empty hidden">Aun no tienes sesiones guardadas este mes.</p>
+                <p id="daily-hub-empty-state" class="daily-hub-empty hidden" data-i18n="dashboard.daily_hub_empty">Aun no tienes sesiones guardadas este mes.</p>
             </div>
 
             <div class="quick-log-section dashboard-panel">
-                <h3 class="dashboard-panel-title">Quick Log</h3>
+                <h3 class="dashboard-panel-title" data-i18n="dashboard.quick_log_title">Quick Log</h3>
                 <form id="quick-log-form" class="quick-log-form">
                     <div class="quick-log-field quick-log-field-label">
-                        <label for="quick-log-label">Titulo</label>
-                        <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" value="Quick Log">
+                        <label for="quick-log-label" data-i18n="dashboard.quick_log_label">Titulo</label>
+                        <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" data-i18n-placeholder="dashboard.quick_log_label_placeholder" value="Quick Log">
                     </div>
 
                     <div class="quick-log-field quick-log-field-datetime">
-                        <label for="quick-log-datetime">Fecha y hora</label>
+                        <label for="quick-log-datetime" data-i18n="dashboard.quick_log_datetime">Fecha y hora</label>
                         <input id="quick-log-datetime" type="datetime-local" step="60">
                     </div>
 
                     <div class="quick-log-field quick-log-field-notes">
-                        <label for="quick-log-notes">Notas de ejercicios (una por linea)</label>
-                        <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s"></textarea>
+                        <label for="quick-log-notes" data-i18n="dashboard.quick_log_notes">Notas de ejercicios (una por linea)</label>
+                        <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s" data-i18n-placeholder="dashboard.quick_log_notes_placeholder"></textarea>
                     </div>
 
                     <div class="quick-log-actions">
                         <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
                             <span class="btn-icon">&#9889;</span>
-                            <span class="btn-text">Guardar Quick Log</span>
+                            <span class="btn-text" data-i18n="dashboard.quick_log_save">Guardar Quick Log</span>
                         </button>
                     </div>
                 </form>
             </div>
 
             <div id="activity-calendar-container" class="dashboard-panel dashboard-calendar-panel"> <!-- Eliminado style margin, ya lo maneja el CSS -->
-                <h3 class="dashboard-panel-title">Actividad del Mes</h3>
+                <h3 class="dashboard-panel-title" data-i18n="dashboard.activity_month_title">Actividad del Mes</h3>
                 <div class="calendar-controls"> <!-- Eliminado style margin, display, etc. ya lo maneja el CSS -->
-                    <button id="prev-month-btn" title="Mes anterior"><</button>
+                    <button id="prev-month-btn" title="Mes anterior" data-i18n-title="dashboard.prev_month"><</button>
                     <span id="current-month-display"></span>
-                    <button id="next-month-btn" title="Mes siguiente">></button>
+                    <button id="next-month-btn" title="Mes siguiente" data-i18n-title="dashboard.next_month">></button>
                 </div>
                 <div id="activity-calendar"> <!-- Eliminado style, ya lo maneja el CSS -->
                     <!-- Las celdas del calendario se generarán aquí -->
                 </div>
                 <div class="calendar-legend">
-                    <h4>Tipos de entrenamiento:</h4>
+                    <h4 data-i18n="dashboard.calendar_legend_title">Tipos de entrenamiento:</h4>
                     <div class="legend-items">
                         <div class="legend-item">
                             <div class="legend-color level-0"></div>
-                            <span>Sin actividad</span>
+                            <span data-i18n="dashboard.legend_none">Sin actividad</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-1"></div>
-                            <span>&#128170; Solo fuerza</span>
+                            <span data-i18n="dashboard.legend_strength">&#128170; Solo fuerza</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-2"></div>
-                            <span>&#128293; Mixto (fuerza + cardio)</span>
+                            <span data-i18n="dashboard.legend_mixed">&#128293; Mixto (fuerza + cardio)</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-3"></div>
-                            <span>&#127939; Solo cardio</span>
+                            <span data-i18n="dashboard.legend_cardio">&#127939; Solo cardio</span>
                         </div>
                     </div>
                 </div>
@@ -203,7 +210,7 @@
             <div class="secondary-actions">
                 <button id="manage-routines-link-btn" class="secondary-action-btn">
                     <span class="btn-icon">&#9881;</span>
-                    <span class="btn-text">Gestionar Mis Rutinas</span>
+                    <span class="btn-text" data-i18n="dashboard.manage_routines_cta">Gestionar Mis Rutinas</span>
                 </button>
             </div>
         </section><!-- Session View -->
@@ -211,19 +218,19 @@
             <h2 id="session-title"></h2>
             <form id="session-form">
                 <div id="exercise-list"></div>
-                <button type="button" id="save-session-btn">Guardar Sesión</button>
-                <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;">Cancelar
+                <button type="button" id="save-session-btn" data-i18n="session.save">Guardar Sesión</button>
+                <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;" data-i18n="session.cancel">Cancelar
                     Sesión</button>            </form>
         </section>
         
         <!-- History View -->
         <section id="history-view" class="hidden">
-            <h2>Historial de Sesiones</h2>
+            <h2 data-i18n="history.title">Historial de Sesiones</h2>
             
             <!-- Nuevos controles de filtrado mejorados -->
             <div class="history-controls">
                 <div class="search-container">
-                    <input type="search" id="history-search" placeholder="Buscar en sesiones cargadas...">
+                    <input type="search" id="history-search" placeholder="Buscar en sesiones cargadas..." data-i18n-placeholder="history.search_placeholder">
                 </div>
             </div>
             
@@ -231,56 +238,56 @@
             <ul id="history-list">
                 <!-- Las sesiones se generarán dinámicamente aquí -->
             </ul>            <div id="history-pagination-controls" class="pagination-controls hidden">
-                 <button id="history-prev-page-btn" class="ghost" data-direction="prev" disabled>Anterior</button>
+                 <button id="history-prev-page-btn" class="ghost" data-direction="prev" disabled data-i18n="history.prev">Anterior</button>
                  <span id="history-page-info"></span>
-                 <button id="history-next-page-btn" class="ghost" data-direction="next" disabled>Siguiente</button>
+                 <button id="history-next-page-btn" class="ghost" data-direction="next" disabled data-i18n="history.next">Siguiente</button>
             </div>
         </section>        <!-- Manage Routines View -->
         <section id="manage-routines-view" class="hidden">
-            <h2>Gestionar Mis Rutinas</h2>
-            <button id="add-new-routine-btn">Crear Nueva Rutina</button>
+            <h2 data-i18n="routines.title">Gestionar Mis Rutinas</h2>
+            <button id="add-new-routine-btn" data-i18n="routines.add">Crear Nueva Rutina</button>
             <div id="routines-loading" class="spinner"></div>
             <ul id="routine-list">            <!-- User routines will be listed here by JS -->
             </ul>
             <div class="routine-actions">
                 <button type="button" id="export-routines-btn" class="routine-action-btn primary">
-                    📋 Exportar Todas las Rutinas
+                    <span data-i18n="routines.export_all">�x9 Exportar Todas las Rutinas</span>
                 </button>
                 <button type="button" id="delete-all-routines-btn" class="routine-action-btn secondary">
-                    🗑️ Borrar Todas las Rutinas
+                    <span data-i18n="routines.delete_all">�x️ Borrar Todas las Rutinas</span>
                 </button>
             </div>
         </section>
 
         <!-- Progress View -->
         <section id="progress-view" class="hidden">
-            <h2>📊 Progreso de Ejercicios</h2>
+            <h2 data-i18n="progress.title">�x` Progreso de Ejercicios</h2>
             
             <div class="progress-controls">
                 <div class="progress-selector-container">
-                    <label for="exercise-select" class="progress-label">Selecciona un ejercicio:</label>
+                    <label for="exercise-select" class="progress-label" data-i18n="progress.select_exercise">Selecciona un ejercicio:</label>
                     <select id="exercise-select" class="progress-select">
-                        <option value="">-- Cargando ejercicios... --</option>
+                        <option value="" data-i18n="progress.loading_exercises">-- Cargando ejercicios... --</option>
                     </select>
                 </div>
                 
                 <div class="progress-options">
                     <div class="metric-selector">
-                        <label for="metric-select">Métrica:</label>
+                        <label for="metric-select" data-i18n="progress.metric">Métrica:</label>
                         <select id="metric-select">
-                            <option value="weight">Peso máximo</option>
-                            <option value="volume">Volumen total</option>
-                            <option value="reps">Repeticiones máximas</option>
+                            <option value="weight" data-i18n="progress.metric_weight">Peso máximo</option>
+                            <option value="volume" data-i18n="progress.metric_volume">Volumen total</option>
+                            <option value="reps" data-i18n="progress.metric_reps">Repeticiones máximas</option>
                         </select>
                     </div>
                     
                     <div class="period-selector">
-                        <label for="period-select">Período:</label>
+                        <label for="period-select" data-i18n="progress.period">Período:</label>
                         <select id="period-select">
-                            <option value="all">Todo el historial</option>
-                            <option value="1y">Último año</option>
-                            <option value="6m">Últimos 6 meses</option>
-                            <option value="3m">Últimos 3 meses</option>
+                            <option value="all" data-i18n="progress.period_all">Todo el historial</option>
+                            <option value="1y" data-i18n="progress.period_1y">�altimo año</option>
+                            <option value="6m" data-i18n="progress.period_6m">�altimos 6 meses</option>
+                            <option value="3m" data-i18n="progress.period_3m">�altimos 3 meses</option>
                         </select>
                     </div>
                 </div>
@@ -293,82 +300,82 @@
                 </div>
                 <div id="progress-stats" class="progress-stats hidden">
                     <div class="stat-card">
-                        <h4>Mejor marca</h4>
+                        <h4 data-i18n="progress.best_record">Mejor marca</h4>
                         <span id="best-record">--</span>
                     </div>
                     <div class="stat-card">
-                        <h4>Progreso total</h4>
+                        <h4 data-i18n="progress.total_progress">Progreso total</h4>
                         <span id="total-progress">--</span>
                     </div>
                     <div class="stat-card">
-                        <h4>Sesiones registradas</h4>
+                        <h4 data-i18n="progress.session_count">Sesiones registradas</h4>
                         <span id="session-count">--</span>
                     </div>
                     <div class="stat-card">
-                        <h4>Tendencia</h4>
+                        <h4 data-i18n="progress.trend">Tendencia</h4>
                         <span id="trend-indicator">--</span>
                     </div>
                 </div>
                 <div id="progress-no-data" class="no-data-message hidden">
-                    <div class="no-data-icon">📈</div>
-                    <h3>Datos insuficientes</h3>
-                    <p>Selecciona un ejercicio con al menos 3 entrenamientos registrados para ver tu progreso.</p>
+                    <div class="no-data-icon">�x�</div>
+                    <h3 data-i18n="progress.no_data_title">Datos insuficientes</h3>
+                    <p data-i18n="progress.no_data_message">Selecciona un ejercicio con al menos 3 entrenamientos registrados para ver tu progreso.</p>
                 </div>
             </div>
         </section>
 
         <!-- Routine Editor View -->
         <section id="routine-editor-view" class="hidden">
-            <h2 id="routine-editor-title">Editar Rutina</h2>
+            <h2 id="routine-editor-title" data-i18n="routines.editor_edit_title">Editar Rutina</h2>
             <form id="routine-editor-form">
                 <input type="hidden" id="routine-id" name="routine-id">
 
-                <label for="routine-name">Nombre de la Rutina:</label>
+                <label for="routine-name" data-i18n="routines.editor_name">Nombre de la Rutina:</label>
                 <input type="text" id="routine-name" name="routine-name" required>
 
                 <fieldset>
-                    <legend>Ejercicios</legend>
+                    <legend data-i18n="routines.editor_exercises">Ejercicios</legend>
                     <div id="routine-exercises-container">
                         <!-- Exercise editor blocks will be added here by JS -->
                     </div>
-                    <button type="button" id="add-exercise-to-routine-btn" class="ghost" style="width: auto;">+ Añadir
+                    <button type="button" id="add-exercise-to-routine-btn" class="ghost" style="width: auto;" data-i18n="routines.editor_add_exercise">+ Añadir
                         Ejercicio</button>
                 </fieldset>
 
                 <div class="form-buttons-group"> <!-- Clase para responsive.css -->
-                    <button type="submit" id="save-routine-btn">Guardar Rutina</button>
-                    <button type="button" id="cancel-edit-routine-btn" class="ghost">Cancelar</button>
+                    <button type="submit" id="save-routine-btn" data-i18n="routines.editor_save">Guardar Rutina</button>
+                    <button type="button" id="cancel-edit-routine-btn" class="ghost" data-i18n="routines.editor_cancel">Cancelar</button>
                 </div>
-                <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;">Eliminar
+                <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;" data-i18n="routines.editor_delete">Eliminar
                     Rutina</button>
             </form>
         </section>        <!-- Session Detail Modal -->
         <div id="session-detail-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <span class="modal-close">×</span>
-                    <h3 id="session-detail-title">Detalle de Sesión</h3>
+                    <span class="modal-close">�</span>
+                    <h3 id="session-detail-title" data-i18n="history.detail_title">Detalle de Sesión</h3>
                     <p id="session-detail-date"></p>
                 </div>
                 <div class="modal-body">
                     <div class="session-detail-summary">
-                        <h4>Ejercicios Realizados</h4>
+                        <h4 data-i18n="history.detail_exercises_done">Ejercicios Realizados</h4>
                     </div>
                     <ul id="session-detail-exercises"></ul>
                 </div>
             </div>
         </div>    </main>    <footer>
-        <p>© 2025 My Workout Tracker. Hecho con 💪 para mantenerte en forma.</p>
+        <p data-i18n="footer.copyright">© 2025 My Workout Tracker. Hecho con �x� para mantenerte en forma.</p>
         <div class="footer-contact">
-            <p>Para sugerencias o errores: <a href="mailto:contact@codeoverdose.es">contact@codeoverdose.es</a></p>
+            <p><span data-i18n="footer.contact">Para sugerencias o errores:</span> <a href="mailto:contact@codeoverdose.es">contact@codeoverdose.es</a></p>
         </div>
         <div class="footer-version-info">
             <span id="app-version-info">v...</span>
-            <button id="force-update-btn" title="Forzar actualización de la aplicación">
-                🔄 Actualizar
+            <button id="force-update-btn" title="Forzar actualización de la aplicación" data-i18n-title="version.force_update">
+                <span data-i18n="version.force_update">�x Actualizar</span>
             </button>
-            <button id="settings-btn" title="Ajustes de la aplicación">
-                ⚙️ Ajustes
+            <button id="settings-btn" title="Ajustes de la aplicación" data-i18n-title="settings.title">
+                <span data-i18n="settings.title">�a"️ Ajustes</span>
             </button>
         </div>
     </footer>
@@ -377,28 +384,28 @@
     <div id="settings-modal" class="modal">
         <div class="modal-content settings-modal-content">
             <div class="modal-header">
-                <span class="modal-close settings-modal-close">×</span>
-                <h3>⚙️ Ajustes</h3>
+                <span class="modal-close settings-modal-close">�</span>
+                <h3 data-i18n="settings.title">�a"️ Ajustes</h3>
             </div>
             <div class="modal-body">
                 <div class="settings-section">
-                    <h4>📊 Información del Caché</h4>
+                    <h4 data-i18n="settings.cache_info_title">�x` Información del Caché</h4>
                     <div id="cache-info-container" class="cache-info-container">
-                        <p>Cargando información del caché...</p>
+                        <p data-i18n="settings.cache_info_loading">Cargando información del caché...</p>
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h4>🗑️ Gestión del Caché</h4>
-                    <p class="settings-warning">Eliminar el caché borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.</p>
+                    <h4 data-i18n="settings.cache_manage_title">�x️ Gestión del Caché</h4>
+                    <p class="settings-warning" data-i18n="settings.cache_warning">Eliminar el caché borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.</p>
                     <button id="clear-cache-btn" class="btn btn-danger">
-                        🗑️ Eliminar Caché Local
+                        <span data-i18n="settings.cache_delete_btn">�x️ Eliminar Caché Local</span>
                     </button>
                 </div>
                 <div class="settings-section">
-                    <h4>🔥 Uso de Firebase</h4>
-                    <p class="settings-warning">Estas métricas muestran el uso estimado de la sesión actual para identificar lecturas y escrituras costosas.</p>
+                    <h4 data-i18n="settings.firebase_usage_title">�x� Uso de Firebase</h4>
+                    <p class="settings-warning" data-i18n="settings.firebase_usage_warning">Estas métricas muestran el uso estimado de la sesión actual para identificar lecturas y escrituras costosas.</p>
                     <button id="reset-firebase-usage-btn" class="btn btn-secondary">
-                        Reiniciar Métricas Firebase
+                        <span data-i18n="settings.firebase_usage_reset_btn">Reiniciar Métricas Firebase</span>
                     </button>
                 </div>
             </div>
@@ -413,3 +420,4 @@
 </body>
 
 </html>
+

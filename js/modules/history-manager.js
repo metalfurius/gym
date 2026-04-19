@@ -24,6 +24,7 @@ import { offlineManager } from '../utils/offline-manager.js';
 import { localFirstCache } from '../utils/local-first-cache.js';
 import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 import { serializeSessionsForCache, deserializeSessionsFromCache } from '../utils/firestore-serialization.js';
+import { t } from '../i18n.js';
 
 const HISTORY_PAGE_SIZE = 10;
 const HISTORY_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -83,14 +84,14 @@ function updatePaginationButtons(queryResultsLength) {
     }
 
     if (historyElements.pageInfo) {
-        historyElements.pageInfo.textContent = `Pág. ${currentHistoryPageNumber}`;
+        historyElements.pageInfo.textContent = t('history.page', { page: currentHistoryPageNumber });
     }
 }
 
 export async function fetchAndRenderHistory(direction = 'initial') {
     const user = getCurrentUser();
     if (!user) {
-        historyElements.list.innerHTML = '<li>Debes iniciar sesión para ver tu historial.</li>';
+        historyElements.list.innerHTML = `<li>${t('history.login_required')}</li>`;
         historyElements.loadingSpinner.classList.add('hidden');
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
         return;
@@ -114,17 +115,17 @@ export async function fetchAndRenderHistory(direction = 'initial') {
                 if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
                 if (historyElements.prevPageBtn) historyElements.prevPageBtn.disabled = true;
                 if (historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = !cached.hasNext;
-                if (historyElements.pageInfo) historyElements.pageInfo.textContent = 'Pág. 1 (cache)';
+                if (historyElements.pageInfo) historyElements.pageInfo.textContent = t('history.page_cached', { page: 1 });
                 historyElements.loadingSpinner.classList.add('hidden');
-                toast.info('Mostrando historial desde caché local.');
+                toast.info(t('history.cache_notice'));
                 return;
             }
         }
 
-        historyElements.list.innerHTML = '<li>Sin conexión. No se puede cargar el historial.</li>';
+        historyElements.list.innerHTML = `<li>${t('history.no_connection')}</li>`;
         historyElements.loadingSpinner.classList.add('hidden');
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
-        toast.warning('Estás sin conexión. No se pudo cargar el historial.');
+        toast.warning(t('history.no_connection_warning'));
         return;
     }
 
@@ -211,7 +212,7 @@ export async function fetchAndRenderHistory(direction = 'initial') {
         }
     } catch (error) {
         logger.error('Error fetching history:', error);
-        historyElements.list.innerHTML = '<li>Error al cargar el historial.</li>';
+        historyElements.list.innerHTML = `<li>${t('history.load_error')}</li>`;
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
 
         if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
@@ -228,13 +229,13 @@ async function deleteSession(sessionId, targetButton) {
     if (!user) return;
 
     const sessionFromCache = allSessionsCache.find((session) => session.id === sessionId);
-    const sessionName = sessionFromCache ? (sessionFromCache.nombreEntrenamiento || 'esta sesión') : 'esta sesión';
+    const sessionName = sessionFromCache ? (sessionFromCache.nombreEntrenamiento || t('history.this_session')) : t('history.this_session');
 
-    if (!confirm(`¿Estás seguro de que quieres eliminar "${sessionName}"? Esta acción no se puede deshacer.`)) {
+    if (!confirm(t('history.delete_confirm', { name: sessionName }))) {
         return;
     }
 
-    showLoading(targetButton, 'Eliminando...');
+    showLoading(targetButton, t('routines.delete_loading'));
 
     try {
         const sessionDocRef = doc(db, 'users', user.uid, 'sesiones_entrenamiento', sessionId);
@@ -251,10 +252,10 @@ async function deleteSession(sessionId, targetButton) {
             await reloadCurrentPage(user);
         }
 
-        toast.success('Sesión eliminada correctamente');
+        toast.success(t('history.delete_success'));
     } catch (error) {
         logger.error('Error deleting session:', error);
-        toast.error('Error al eliminar la sesión.');
+        toast.error(t('history.delete_error'));
         hideLoading(targetButton);
 
         if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
@@ -323,12 +324,12 @@ async function viewSessionDetails(sessionId) {
             if (docSnap.exists()) {
                 sessionData = { id: docSnap.id, ...docSnap.data() };
             } else {
-                toast.error('No se encontraron los detalles.');
+                toast.error(t('history.details_not_found'));
                 return;
             }
         } catch (error) {
             logger.error('Error fetching session detail:', error);
-            toast.error('Error al cargar detalles.');
+            toast.error(t('history.details_error'));
             return;
         } finally {
             historyElements.loadingSpinner.classList.add('hidden');
@@ -398,3 +399,4 @@ export default {
     init: initHistoryManager,
     destroy: destroyHistoryManager
 };
+
