@@ -101,6 +101,62 @@ function setupLanguageSelector() {
     });
 }
 
+function getRoutineEditorDraftSnapshot() {
+    const routineId = routineEditorElements.routineIdInput?.value || '';
+    const routineName = routineEditorElements.routineNameInput?.value || '';
+    const exerciseEditors = routineEditorElements.exercisesContainer?.querySelectorAll('.routine-exercise-editor') || [];
+
+    const exercises = Array.from(exerciseEditors).map((editor) => {
+        const type = editor.querySelector('select[name="ex-type"]')?.value || 'strength';
+        const draft = {
+            name: editor.querySelector('input[name="ex-name"]')?.value || '',
+            type,
+            notes: editor.querySelector('textarea[name="ex-notes"]')?.value || ''
+        };
+
+        if (type === 'strength') {
+            draft.sets = editor.querySelector('input[name="ex-sets"]')?.value || '';
+            draft.reps = editor.querySelector('input[name="ex-reps"]')?.value || '';
+            draft.executionMode = normalizeExecutionMode(
+                editor.querySelector('select[name="ex-execution-mode"]')?.value
+            );
+            draft.loadType = normalizeLoadType(
+                editor.querySelector('select[name="ex-load-type"]')?.value
+            );
+        } else {
+            draft.duration = editor.querySelector('input[name="ex-duration"]')?.value || '';
+        }
+
+        return draft;
+    });
+
+    return {
+        routineId,
+        routineName,
+        exercises
+    };
+}
+
+function refreshRoutineEditorForLanguage() {
+    const draftSnapshot = getRoutineEditorDraftSnapshot();
+    const isEditingExistingRoutine = Boolean(draftSnapshot.routineId);
+
+    renderRoutineEditor({
+        id: isEditingExistingRoutine ? draftSnapshot.routineId : '__draft__',
+        name: draftSnapshot.routineName,
+        exercises: draftSnapshot.exercises
+    });
+
+    if (!isEditingExistingRoutine) {
+        routineEditorElements.title.textContent = t('routines.editor_create_title');
+        routineEditorElements.routineIdInput.value = '';
+        routineEditorElements.deleteRoutineBtn.classList.add('hidden');
+        delete routineEditorElements.deleteRoutineBtn.dataset.routineId;
+    }
+
+    routineEditorElements.routineNameInput.value = draftSnapshot.routineName;
+}
+
 async function refreshVisibleViewForLanguage(user) {
     if (!views.dashboard.classList.contains('hidden')) {
         await refreshDailyHub(user).catch((error) => {
@@ -127,6 +183,10 @@ async function refreshVisibleViewForLanguage(user) {
             const snapshot = getSessionFormData({ includeEmptyExercises: true });
             await renderSessionView(routine, snapshot);
         }
+    }
+
+    if (!views.routineEditor.classList.contains('hidden')) {
+        refreshRoutineEditorForLanguage();
     }
 }
 

@@ -216,7 +216,7 @@ describe('OfflineManager', () => {
             setLanguage('es', { persist: false, apply: false });
             await expect(
                 offlineManager.executeWithOfflineHandling(async () => 'success')
-            ).rejects.toThrow('Offline: Esta operacion requiere conexion a Internet');
+            ).rejects.toThrow('Offline: Esta operación requiere conexión a Internet');
         });
 
         it('should not queue operation when queueIfOffline is false', async () => {

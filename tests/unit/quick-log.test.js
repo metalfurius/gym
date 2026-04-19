@@ -91,7 +91,7 @@ describe('quick-log utils', () => {
         expect(state.logsMonthCount).toBe(0);
         expect(state.lastWorkoutLabel).toBe('Sin registros');
         expect(state.routineShortcut).toBe('Sin rutina');
-        expect(state.syncStatus).toBe('En linea');
+        expect(state.syncStatus).toBe('En línea');
         expect(state.isEmpty).toBe(true);
     });
 
@@ -130,7 +130,7 @@ describe('quick-log utils', () => {
             pendingCount: 3
         });
 
-        expect(state.syncStatus).toContain('Sin conexion');
+        expect(state.syncStatus).toContain('Sin conexión');
         expect(state.syncStatus).toContain('3');
     });
 

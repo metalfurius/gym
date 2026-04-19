@@ -915,7 +915,7 @@ export function showSessionDetail(sessionData) {
     if (sessionData.pesoUsuario) {
         const weightBadge = document.createElement('span');
         weightBadge.classList.add('user-weight-badge');
-        weightBadge.textContent = `Peso: ${sessionData.pesoUsuario} kg`;
+        weightBadge.textContent = t('history.weight_badge', { weight: sessionData.pesoUsuario });
         sessionDetailModal.date.appendChild(weightBadge);
     }
     
@@ -1008,7 +1008,7 @@ export function showSessionDetail(sessionData) {
                     }
                     
                     if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
-                        setContent += ` <span class="rest-time-badge">Descanso: ${escapeHtml(set.tiempoDescanso)}</span>`;
+                        setContent += ` <span class="rest-time-badge">${t('history.rest_badge', { rest: escapeHtml(set.tiempoDescanso) })}</span>`;
                     }
                     
                     setLi.innerHTML = setContent;
