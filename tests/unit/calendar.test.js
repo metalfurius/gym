@@ -257,26 +257,56 @@ describe('Calendar module', () => {
         expect(mockTrackRead).toHaveBeenCalledTimes(1);
     });
 
-    it('navigates months and clamps at minimum calendar year', async () => {
+    it('navigates months and clamps at earliest activity month', async () => {
+        const today = new Date();
+        const earliestActivityDate = new Date(today.getFullYear(), today.getMonth(), 10);
+        earliestActivityDate.setMonth(earliestActivityDate.getMonth() - 2);
+
+        seedSession({
+            userId: user.uid,
+            id: 'session-earliest-1',
+            date: earliestActivityDate,
+            tipos: ['strength']
+        });
+
         initCalendar();
         resetToCurrentMonth();
         await flushDebounce();
 
         for (let i = 0; i < 60; i++) {
             const state = getCalendarState();
-            if (state.year === MIN_CALENDAR_YEAR && state.month === 0) break;
+            if (
+                state.year === earliestActivityDate.getFullYear()
+                && state.month === earliestActivityDate.getMonth()
+            ) {
+                break;
+            }
             clickCalendarNav('prev-month-btn');
             await flushDebounce();
         }
 
         const minimumState = getCalendarState();
-        expect(minimumState.year).toBe(MIN_CALENDAR_YEAR);
-        expect(minimumState.month).toBe(0);
+        expect(minimumState.year).toBe(earliestActivityDate.getFullYear());
+        expect(minimumState.month).toBe(earliestActivityDate.getMonth());
         expect(document.getElementById('prev-month-btn').disabled).toBe(true);
 
         clickCalendarNav('prev-month-btn');
         await flushDebounce();
         expect(getCalendarState()).toEqual(minimumState);
+    });
+
+    it('uses current month as lower bound when user has no sessions', async () => {
+        initCalendar();
+        resetToCurrentMonth();
+        await flushDebounce();
+
+        const stateBefore = getCalendarState();
+        expect(document.getElementById('prev-month-btn').disabled).toBe(true);
+
+        clickCalendarNav('prev-month-btn');
+        await flushDebounce();
+
+        expect(getCalendarState()).toEqual(stateBefore);
     });
 
     it('does not navigate beyond current month when pressing next', async () => {
