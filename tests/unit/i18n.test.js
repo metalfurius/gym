@@ -39,7 +39,7 @@ describe('i18n module', () => {
 
     it('resolves keys and interpolates params', () => {
         setLanguage('es', { persist: false, apply: false });
-        expect(t('history.page', { page: 3 })).toBe('Pag. 3');
+        expect(t('history.page', { page: 3 })).toBe('Pág. 3');
     });
 
     it('returns key for unknown translation keys', () => {

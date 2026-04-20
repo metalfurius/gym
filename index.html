@@ -191,15 +191,18 @@
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-1"></div>
-                            <span data-i18n="dashboard.legend_strength">&#128170; Solo fuerza</span>
+                            <span aria-hidden="true">&#128170;</span>
+                            <span data-i18n="dashboard.legend_strength">Solo fuerza</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-2"></div>
-                            <span data-i18n="dashboard.legend_mixed">&#128293; Mixto (fuerza + cardio)</span>
+                            <span aria-hidden="true">&#128293;</span>
+                            <span data-i18n="dashboard.legend_mixed">Mixto (fuerza + cardio)</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color level-3"></div>
-                            <span data-i18n="dashboard.legend_cardio">&#127939; Solo cardio</span>
+                            <span aria-hidden="true">&#127939;</span>
+                            <span data-i18n="dashboard.legend_cardio">Solo cardio</span>
                         </div>
                     </div>
                 </div>
@@ -251,17 +254,22 @@
             </ul>
             <div class="routine-actions">
                 <button type="button" id="export-routines-btn" class="routine-action-btn primary">
-                    <span data-i18n="routines.export_all">&#128203; Exportar Todas las Rutinas</span>
+                    <span aria-hidden="true">&#128203;</span>
+                    <span data-i18n="routines.export_all">Exportar Todas las Rutinas</span>
                 </button>
                 <button type="button" id="delete-all-routines-btn" class="routine-action-btn secondary">
-                    <span data-i18n="routines.delete_all">&#128465;&#65039; Borrar Todas las Rutinas</span>
+                    <span aria-hidden="true">&#128465;&#65039;</span>
+                    <span data-i18n="routines.delete_all">Borrar Todas las Rutinas</span>
                 </button>
             </div>
         </section>
 
         <!-- Progress View -->
         <section id="progress-view" class="hidden">
-            <h2 data-i18n="progress.title">&#128202; Progreso de Ejercicios</h2>
+            <h2>
+                <span aria-hidden="true">&#128202;</span>
+                <span data-i18n="progress.title">Progreso de Ejercicios</span>
+            </h2>
             
             <div class="progress-controls">
                 <div class="progress-selector-container">
@@ -365,17 +373,22 @@
                 </div>
             </div>
         </div>    </main>    <footer>
-        <p data-i18n="footer.copyright">&copy; 2025 My Workout Tracker. Hecho con &#128170; para mantenerte en forma.</p>
+        <p>
+            <span data-i18n="footer.copyright">&copy; 2025 My Workout Tracker. Hecho para mantenerte en forma.</span>
+            <span aria-hidden="true">&#128170;</span>
+        </p>
         <div class="footer-contact">
             <p><span data-i18n="footer.contact">Para sugerencias o errores:</span> <a href="mailto:contact@codeoverdose.es">contact@codeoverdose.es</a></p>
         </div>
         <div class="footer-version-info">
             <span id="app-version-info">v...</span>
             <button id="force-update-btn" title="Forzar actualización de la aplicación" data-i18n-title="version.force_update">
-                <span data-i18n="version.force_update">&#128260; Actualizar</span>
+                <span aria-hidden="true">&#128260;</span>
+                <span data-i18n="version.force_update">Actualizar</span>
             </button>
             <button id="settings-btn" title="Ajustes de la aplicación" data-i18n-title="settings.title">
-                <span data-i18n="settings.title">&#9881;&#65039; Ajustes</span>
+                <span aria-hidden="true">&#9881;&#65039;</span>
+                <span data-i18n="settings.title">Ajustes</span>
             </button>
         </div>
     </footer>
@@ -385,24 +398,37 @@
         <div class="modal-content settings-modal-content">
             <div class="modal-header">
                 <span class="modal-close settings-modal-close">&times;</span>
-                <h3 data-i18n="settings.title">&#9881;&#65039; Ajustes</h3>
+                <h3>
+                    <span aria-hidden="true">&#9881;&#65039;</span>
+                    <span data-i18n="settings.title">Ajustes</span>
+                </h3>
             </div>
             <div class="modal-body">
                 <div class="settings-section">
-                    <h4 data-i18n="settings.cache_info_title">&#128202; Informaci&oacute;n del Cach&eacute;</h4>
+                    <h4>
+                        <span aria-hidden="true">&#128202;</span>
+                        <span data-i18n="settings.cache_info_title">Informaci&oacute;n del Cach&eacute;</span>
+                    </h4>
                     <div id="cache-info-container" class="cache-info-container">
                         <p data-i18n="settings.cache_info_loading">Cargando información del caché...</p>
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h4 data-i18n="settings.cache_manage_title">&#128465;&#65039; Gesti&oacute;n del Cach&eacute;</h4>
+                    <h4>
+                        <span aria-hidden="true">&#128465;&#65039;</span>
+                        <span data-i18n="settings.cache_manage_title">Gesti&oacute;n del Cach&eacute;</span>
+                    </h4>
                     <p class="settings-warning" data-i18n="settings.cache_warning">Eliminar el caché borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.</p>
                     <button id="clear-cache-btn" class="btn btn-danger">
-                        <span data-i18n="settings.cache_delete_btn">&#128465;&#65039; Eliminar Cach&eacute; Local</span>
+                        <span aria-hidden="true">&#128465;&#65039;</span>
+                        <span data-i18n="settings.cache_delete_btn">Eliminar Cach&eacute; Local</span>
                     </button>
                 </div>
                 <div class="settings-section">
-                    <h4 data-i18n="settings.firebase_usage_title">&#128293; Uso de Firebase</h4>
+                    <h4>
+                        <span aria-hidden="true">&#128293;</span>
+                        <span data-i18n="settings.firebase_usage_title">Uso de Firebase</span>
+                    </h4>
                     <p class="settings-warning" data-i18n="settings.firebase_usage_warning">Estas métricas muestran el uso estimado de la sesión actual para identificar lecturas y escrituras costosas.</p>
                     <button id="reset-firebase-usage-btn" class="btn btn-secondary">
                         <span data-i18n="settings.firebase_usage_reset_btn">Reiniciar Métricas Firebase</span>

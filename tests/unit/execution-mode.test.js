@@ -33,7 +33,7 @@ describe('execution-mode utils', () => {
     it('returns Spanish-first labels', () => {
         expect(getExecutionModeLabel('one_hand')).toBe('Una mano');
         expect(getExecutionModeLabel('two_hand')).toBe('Dos manos');
-        expect(getExecutionModeLabel('machine')).toBe('Maquina');
+        expect(getExecutionModeLabel('machine')).toBe('Máquina');
         expect(getExecutionModeLabel('pulley')).toBe('Polea');
         expect(getExecutionModeLabel('other')).toBe('Otro');
     });

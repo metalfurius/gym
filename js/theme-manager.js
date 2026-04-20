@@ -1,5 +1,5 @@
 ﻿/**
- * Sistema de gestiÃ³n de temas para My Workout Tracker
+ * Theme management system for My Workout Tracker
  */
 import { t, onLanguageChange } from './i18n.js';
 
@@ -60,10 +60,10 @@ class ThemeManager {
     setupEventListeners() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
-            // Remover event listener existente si lo hay
+            // Remove existing event listener if present
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
             
-            // Crear funciÃ³n bound para poder removerla despuÃ©s
+            // Create bound handler so it can be removed later
             this.handleThemeToggleClick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -75,25 +75,25 @@ class ThemeManager {
     }
 
     showThemeSelector() {
-        // Verificar si ya hay un modal abierto
+        // Avoid opening duplicate theme modals
         const existingModal = document.querySelector('.theme-modal');
         if (existingModal) {
-            return; // No crear otro modal si ya hay uno
+            return;
         }
         
-        // Crear modal de selecciÃ³n de temas
+        // Build and mount theme selector modal
         const modal = this.createThemeModal();
         this.activeThemeModal = modal;
         document.body.appendChild(modal);
         
-        // Agregar event listener para cerrar solo en el overlay y botÃ³n close
+        // Close only on overlay click (or close button)
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 this.closeThemeModal(modal);
             }
         });
 
-        // Event listener especÃ­fico para el botÃ³n de cerrar
+        // Explicit close button handler
         const closeBtn = modal.querySelector('.theme-modal-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', (e) => {
@@ -110,7 +110,7 @@ class ThemeManager {
         };
         document.addEventListener('keydown', this.escapeKeyHandler);
 
-        // Mostrar modal con animaciÃ³n
+        // Animate modal entrance
         requestAnimationFrame(() => {
             modal.classList.add('show');
         });
@@ -195,7 +195,7 @@ class ThemeManager {
         }, 300);
     }
 
-    // MÃ©todo para limpiar event listeners
+    // Cleanup listeners and open modal artifacts
     cleanup() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle && this.handleThemeToggleClick) {
