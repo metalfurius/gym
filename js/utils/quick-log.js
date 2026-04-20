@@ -1,3 +1,4 @@
+import { t, getLocale } from '../i18n.js';
 export const QUICK_LOG_DEFAULT_LABEL = 'Quick Log';
 export const QUICK_LOG_DEFAULT_NOTE_TITLE_PREFIX = 'Nota';
 
@@ -63,9 +64,10 @@ export function splitQuickLogNotes(value) {
 
 export function normalizeQuickLogPayload(input = {}, options = {}) {
     const now = normalizeQuickLogDate(options.now || new Date(), new Date());
-    const label = normalizeText(input.label) || QUICK_LOG_DEFAULT_LABEL;
+    const label = normalizeText(input.label) || t('quicklog.default_label');
     const notes = splitQuickLogNotes(input.notes ?? input.notesText ?? input.exerciseNotes);
     const entryDate = normalizeQuickLogDate(input.dateTime ?? input.fechaIso ?? input.fecha, now);
+    const noteTitlePrefix = t('quicklog.default_note_prefix');
 
     if (notes.length === 0) {
         return {
@@ -82,7 +84,7 @@ export function normalizeQuickLogPayload(input = {}, options = {}) {
             nombreEntrenamiento: label,
             fechaIso: entryDate.toISOString(),
             ejercicios: notes.map((note, index) => ({
-                nombreEjercicio: `${QUICK_LOG_DEFAULT_NOTE_TITLE_PREFIX} ${index + 1}`,
+                nombreEjercicio: `${noteTitlePrefix} ${index + 1}`,
                 tipoEjercicio: 'other',
                 objetivoSets: null,
                 objetivoReps: null,
@@ -118,7 +120,7 @@ export function buildQuickLogSessionModel(userId, normalizedPayload, timestampFa
     return {
         fecha: timestamp,
         routineId: null,
-        nombreEntrenamiento: normalizedPayload.nombreEntrenamiento || QUICK_LOG_DEFAULT_LABEL,
+        nombreEntrenamiento: normalizedPayload.nombreEntrenamiento || t('quicklog.default_label'),
         userId,
         ejercicios: normalizedPayload.ejercicios,
         pesoUsuario: null,
@@ -146,10 +148,10 @@ function resolveSessionDate(session = {}) {
 
 function formatLastWorkoutLabel(lastWorkoutDate) {
     if (!isValidDate(lastWorkoutDate)) {
-        return 'Sin registros';
+        return t('dashboard.last_workout_none');
     }
 
-    return lastWorkoutDate.toLocaleString('es-ES', {
+    return lastWorkoutDate.toLocaleString(getLocale(), {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -189,15 +191,19 @@ export function computeDailyHubState(input = {}) {
         ? routines.find((routine) => normalizeText(routine?.id) === selectedRoutineId)
         : null;
     const fallbackRoutine = selectedRoutine || routines[0] || null;
-    const routineShortcut = normalizeText(fallbackRoutine?.name) || 'Sin rutina';
+    const routineShortcut = normalizeText(fallbackRoutine?.name) || t('dashboard.routine_none');
 
-    let syncStatus = 'En linea';
+    let syncStatus = t('dashboard.sync_online');
+    let syncClass = 'sync-online';
     if (!isOnline && pendingCount > 0) {
-        syncStatus = `Sin conexion (${pendingCount} en cola)`;
+        syncStatus = t('dashboard.sync_offline_queued', { count: pendingCount });
+        syncClass = 'sync-offline';
     } else if (!isOnline) {
-        syncStatus = 'Sin conexion';
+        syncStatus = t('dashboard.sync_offline');
+        syncClass = 'sync-offline';
     } else if (pendingCount > 0) {
-        syncStatus = `En linea (${pendingCount} en cola)`;
+        syncStatus = t('dashboard.sync_online_queued', { count: pendingCount });
+        syncClass = 'sync-queued';
     }
 
     return {
@@ -208,6 +214,7 @@ export function computeDailyHubState(input = {}) {
         lastWorkoutLabel: formatLastWorkoutLabel(lastWorkoutDate),
         routineShortcut,
         syncStatus,
+        syncClass,
         isEmpty: sessions.length === 0
     };
 }

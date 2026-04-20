@@ -1,38 +1,42 @@
-/**
- * Sistema de gestión de temas para My Workout Tracker
+﻿/**
+ * Theme management system for My Workout Tracker
  */
+import { t, onLanguageChange } from './i18n.js';
 
 class ThemeManager {
     constructor() {
         this.themes = {
-            'default': { 
-                name: 'Moderno', 
-                icon: '🎨',
+            'default': {
+                name: 'Moderno',
+                icon: '\uD83C\uDFA8',
                 description: 'Tema azul moderno y elegante'
             },
-            'dark': { 
-                name: 'Oscuro', 
-                icon: '🌙',
+            'dark': {
+                name: 'Oscuro',
+                icon: '\uD83C\uDF19',
                 description: 'Tema oscuro para usar de noche'
             },
-            'nature': { 
-                name: 'Natural', 
-                icon: '🌿',
+            'nature': {
+                name: 'Natural',
+                icon: '\uD83C\uDF3F',
                 description: 'Tema verde inspirado en la naturaleza'
             },
-            'sunset': { 
-                name: 'Atardecer', 
-                icon: '🌅',
-                description: 'Colores cálidos del atardecer'
+            'sunset': {
+                name: 'Atardecer',
+                icon: '\uD83C\uDF05',
+                description: 'Colores c\u00e1lidos del atardecer'
             },
-            'ocean': { 
-                name: 'Océano', 
-                icon: '🌊',
-                description: 'Azules profundos del océano'
+            'ocean': {
+                name: 'Oc\u00e9ano',
+                icon: '\uD83C\uDF0A',
+                description: 'Azules profundos del oc\u00e9ano'
             }
         };
         
         this.currentTheme = this.loadTheme();
+        this.unsubscribeLanguageChange = null;
+        this.escapeKeyHandler = null;
+        this.activeThemeModal = null;
         this.init();
     }
 
@@ -40,13 +44,26 @@ class ThemeManager {
         this.applyTheme(this.currentTheme);
         this.setupEventListeners();
         this.updateThemeDisplay();
-    }    setupEventListeners() {
+
+        if (!this.unsubscribeLanguageChange) {
+            this.unsubscribeLanguageChange = onLanguageChange(() => {
+                this.updateThemeDisplay();
+                const openModal = document.querySelector('.theme-modal');
+                if (openModal) {
+                    this.closeThemeModal(openModal, { immediate: true });
+                    this.showThemeSelector();
+                }
+            });
+        }
+    }
+
+    setupEventListeners() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
-            // Remover event listener existente si lo hay
+            // Remove existing event listener if present
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
             
-            // Crear función bound para poder removerla después
+            // Create bound handler so it can be removed later
             this.handleThemeToggleClick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -55,23 +72,28 @@ class ThemeManager {
             
             themeToggle.addEventListener('click', this.handleThemeToggleClick);
         }
-    }showThemeSelector() {
-        // Verificar si ya hay un modal abierto
+    }
+
+    showThemeSelector() {
+        // Avoid opening duplicate theme modals
         const existingModal = document.querySelector('.theme-modal');
         if (existingModal) {
-            return; // No crear otro modal si ya hay uno
+            return;
         }
         
-        // Crear modal de selección de temas
+        // Build and mount theme selector modal
         const modal = this.createThemeModal();
+        this.activeThemeModal = modal;
         document.body.appendChild(modal);
         
-        // Agregar event listener para cerrar solo en el overlay y botón close
+        // Close only on overlay click (or close button)
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 this.closeThemeModal(modal);
             }
-        });        // Event listener específico para el botón de cerrar
+        });
+
+        // Explicit close button handler
         const closeBtn = modal.querySelector('.theme-modal-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', (e) => {
@@ -81,15 +103,14 @@ class ThemeManager {
         }
 
         // Agregar soporte para cerrar con Escape
-        const handleEscapeKey = (e) => {
+        this.escapeKeyHandler = (e) => {
             if (e.key === 'Escape') {
                 this.closeThemeModal(modal);
-                document.removeEventListener('keydown', handleEscapeKey);
             }
         };
-        document.addEventListener('keydown', handleEscapeKey);
+        document.addEventListener('keydown', this.escapeKeyHandler);
 
-        // Mostrar modal con animación
+        // Animate modal entrance
         requestAnimationFrame(() => {
             modal.classList.add('show');
         });
@@ -101,7 +122,7 @@ class ThemeManager {
         modal.innerHTML = `
             <div class="theme-modal-content">
                 <div class="theme-modal-header">
-                    <h3>Elegir Tema</h3>
+                    <h3>${t('theme.modal_title')}</h3>
                     <button class="theme-modal-close">&times;</button>
                 </div>
                 <div class="theme-modal-body">
@@ -118,15 +139,17 @@ class ThemeManager {
                                 </div>
                                 <div class="theme-info">
                                     <div class="theme-icon">${theme.icon}</div>
-                                    <h4>${theme.name}</h4>
-                                    <p>${theme.description}</p>
+                                    <h4>${this.getThemeName(key)}</h4>
+                                    <p>${this.getThemeDescription(key)}</p>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
             </div>
-        `;        // Agregar event listeners a las opciones de tema
+        `;
+
+        // Agregar event listeners a las opciones de tema
         modal.querySelectorAll('.theme-option').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevenir que el evento se propague al modal
@@ -139,7 +162,31 @@ class ThemeManager {
         return modal;
     }
 
-    closeThemeModal(modal) {
+    closeThemeModal(modal, options = {}) {
+        if (!modal) {
+            return;
+        }
+
+        if (typeof this.escapeKeyHandler === 'function') {
+            document.removeEventListener('keydown', this.escapeKeyHandler);
+            this.escapeKeyHandler = null;
+        }
+
+        if (this.activeThemeModal === modal) {
+            this.activeThemeModal = null;
+        }
+
+        if (options.immediate) {
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+            return;
+        }
+
+        if (modal.classList.contains('closing')) {
+            return;
+        }
+
         modal.classList.add('closing');
         setTimeout(() => {
             if (modal.parentNode) {
@@ -148,11 +195,16 @@ class ThemeManager {
         }, 300);
     }
 
-    // Método para limpiar event listeners
+    // Cleanup listeners and open modal artifacts
     cleanup() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle && this.handleThemeToggleClick) {
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
+        }
+        this.closeThemeModal(this.activeThemeModal, { immediate: true });
+        if (typeof this.unsubscribeLanguageChange === 'function') {
+            this.unsubscribeLanguageChange();
+            this.unsubscribeLanguageChange = null;
         }
     }
 
@@ -165,7 +217,7 @@ class ThemeManager {
             
             // Disparar evento personalizado para que otros componentes puedan reaccionar
             window.dispatchEvent(new CustomEvent('themeChanged', { 
-                detail: { theme: themeKey, themeName: this.themes[themeKey].name }
+                detail: { theme: themeKey, themeName: this.getThemeName(themeKey) }
             }));
         }
     }
@@ -192,7 +244,7 @@ class ThemeManager {
         const themeIconElement = document.querySelector('.theme-icon');
         
         if (themeNameElement) {
-            themeNameElement.textContent = this.themes[this.currentTheme].name;
+            themeNameElement.textContent = this.getThemeName(this.currentTheme);
         }
         
         if (themeIconElement) {
@@ -216,6 +268,18 @@ class ThemeManager {
     getThemeInfo(themeKey = null) {
         const key = themeKey || this.currentTheme;
         return this.themes[key];
+    }
+
+    getThemeName(themeKey) {
+        return t(`theme.${themeKey}_name`, {
+            default: this.themes[themeKey]?.name || ''
+        });
+    }
+
+    getThemeDescription(themeKey) {
+        return t(`theme.${themeKey}_description`, {
+            default: this.themes[themeKey]?.description || ''
+        });
     }
 }
 
@@ -424,3 +488,4 @@ if (!document.getElementById('theme-modal-styles')) {
 
 // Exportar para uso en app.js
 export default ThemeManager;
+

@@ -12,6 +12,7 @@ import { addViewListener } from '../utils/event-manager.js';
 import { localFirstCache } from '../utils/local-first-cache.js';
 import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 import { serializeActivityMap, deserializeActivityMap } from '../utils/firestore-serialization.js';
+import { t, getLocale } from '../i18n.js';
 
 // Constants
 const MIN_CALENDAR_YEAR = 2025;
@@ -179,7 +180,7 @@ async function getMonthlyActivity(userId, year, month) {
         }
 
         if (calendarView) {
-            calendarView.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">Error al cargar la actividad del mes</div>';
+            calendarView.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">${t('calendar.error_month_load')}</div>`;
         }
     } finally {
         if (loadingSpinner) loadingSpinner.classList.add('hidden');
@@ -209,13 +210,21 @@ function renderActivityCalendar(year, month, activityData) {
     
     calendarView.innerHTML = ''; // Clear previous calendar
     
-    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    
-    currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
+    currentMonthDisplay.textContent = new Date(year, month, 1).toLocaleDateString(getLocale(), {
+        month: 'long',
+        year: 'numeric'
+    });
 
     // Add day headers
-    const dayHeaders = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    const dayHeaders = [
+        t('calendar.day_mon'),
+        t('calendar.day_tue'),
+        t('calendar.day_wed'),
+        t('calendar.day_thu'),
+        t('calendar.day_fri'),
+        t('calendar.day_sat'),
+        t('calendar.day_sun')
+    ];
     dayHeaders.forEach(dayHeader => {
         const headerCell = document.createElement('div');
         headerCell.classList.add('day-header');
@@ -246,34 +255,39 @@ function renderActivityCalendar(year, month, activityData) {
 
         const activityInfo = activityData.get(dateString) || { count: 0, type: 'none' };
         let activityLevel = 0;
-        let activityTypeText = 'Sin actividad';
+        let activityTypeText = t('calendar.activity_none');
         
         if (activityInfo.count > 0) {
             switch (activityInfo.type) {
                 case 'strength':
                     activityLevel = 1;
-                    activityTypeText = 'Entrenamiento de fuerza';
+                    activityTypeText = t('calendar.activity_strength');
                     break;
                 case 'cardio':
                     activityLevel = 3;
-                    activityTypeText = 'Entrenamiento de cardio';
+                    activityTypeText = t('calendar.activity_cardio');
                     break;
                 case 'mixed':
                     activityLevel = 2;
-                    activityTypeText = 'Entrenamiento mixto (fuerza + cardio)';
+                    activityTypeText = t('calendar.activity_mixed');
                     break;
                 default:
                     activityLevel = 1;
-                    activityTypeText = 'Entrenamiento';
+                    activityTypeText = t('calendar.activity_generic');
             }
         }
 
         cell.classList.add(`level-${activityLevel}`);
         
         // Create informative tooltip
-        const tooltipText = activityInfo.count > 0 
-            ? `${dateString}: ${activityTypeText}${activityInfo.count > 1 ? ` (${activityInfo.count} sesiones)` : ''}`
-            : `${dateString}: ${activityTypeText}`;
+        const localizedDate = new Date(year, month, day).toLocaleDateString(getLocale(), {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        const tooltipText = activityInfo.count > 1
+            ? t('calendar.tooltip_multiple', { date: localizedDate, activity: activityTypeText, count: activityInfo.count })
+            : t('calendar.tooltip_single', { date: localizedDate, activity: activityTypeText });
         cell.title = tooltipText;
         
         // Show day number in each cell
@@ -311,7 +325,7 @@ function renderActivityCalendar(year, month, activityData) {
             border-radius: 6px; 
             margin-top: 10px;
         `;
-        motivationalMessage.textContent = '¡Comienza tu primer entrenamiento este mes! 💪';
+        motivationalMessage.textContent = t('calendar.motivation_first_workout');
         calendarView.appendChild(motivationalMessage);
     }
 }

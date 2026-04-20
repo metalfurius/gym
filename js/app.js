@@ -8,7 +8,7 @@ import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, setDoc, de
 import { getCurrentUser, handleLogout } from './auth.js';
 import {
     showView, formatDate, populateDaySelector,
-    renderManageRoutinesView, renderRoutineEditor, addExerciseToEditorForm,
+    renderManageRoutinesView, renderRoutineEditor, renderSessionView, addExerciseToEditorForm,
     views, navButtons, dashboardElements, sessionElements, historyElements, sessionDetailModal,
     manageRoutinesElements, routineEditorElements, progressElements, showLoading, hideLoading,
     hideSessionDetail, registerViewInitializer
@@ -17,6 +17,13 @@ import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
 import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, handleExerciseChange } from './progress.js';
+import {
+    initI18n,
+    setLanguage,
+    getLanguage,
+    onLanguageChange,
+    t
+} from './i18n.js';
 
 // Import new modules
 import { logger } from './utils/logger.js';
@@ -36,8 +43,15 @@ import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
 import { initCalendar, updateCalendarView, hideCalendar } from './modules/calendar.js';
 import { 
-    setCurrentRoutineForSession, saveSessionData, saveQuickLogEntry, checkAndOfferResumeSession,
-    startSession, cancelSession, setupSessionAutoSave
+    setCurrentRoutineForSession,
+    saveSessionData,
+    saveQuickLogEntry,
+    checkAndOfferResumeSession,
+    startSession,
+    cancelSession,
+    setupSessionAutoSave,
+    getCurrentRoutineForSession,
+    getSessionFormData
 } from './modules/session-manager.js';
 import {
     initHistoryManager,
@@ -71,6 +85,126 @@ let dailyHubSessionsCache = [];
 let dailyHubLastFetchTimestamp = 0;
 let dailyHubCacheUserId = null;
 
+function getLanguageSelectElement() {
+    return document.getElementById('language-select');
+}
+
+function setupLanguageSelector() {
+    const languageSelectElement = getLanguageSelectElement();
+    if (!languageSelectElement) return;
+
+    languageSelectElement.value = getLanguage();
+    languageSelectElement.addEventListener('change', (event) => {
+        const selectedLanguage = event.target?.value || 'es';
+        setLanguage(selectedLanguage);
+    });
+}
+
+function getRoutineEditorDraftSnapshot() {
+    const routineId = routineEditorElements.routineIdInput?.value || '';
+    const routineName = routineEditorElements.routineNameInput?.value || '';
+    const exerciseEditors = routineEditorElements.exercisesContainer?.querySelectorAll('.routine-exercise-editor') || [];
+
+    const exercises = Array.from(exerciseEditors).map((editor) => {
+        const type = editor.querySelector('select[name="ex-type"]')?.value || 'strength';
+        const draft = {
+            name: editor.querySelector('input[name="ex-name"]')?.value || '',
+            type,
+            notes: editor.querySelector('textarea[name="ex-notes"]')?.value || ''
+        };
+
+        if (type === 'strength') {
+            draft.sets = editor.querySelector('input[name="ex-sets"]')?.value || '';
+            draft.reps = editor.querySelector('input[name="ex-reps"]')?.value || '';
+            draft.executionMode = normalizeExecutionMode(
+                editor.querySelector('select[name="ex-execution-mode"]')?.value
+            );
+            draft.loadType = normalizeLoadType(
+                editor.querySelector('select[name="ex-load-type"]')?.value
+            );
+        } else {
+            draft.duration = editor.querySelector('input[name="ex-duration"]')?.value || '';
+        }
+
+        return draft;
+    });
+
+    return {
+        routineId,
+        routineName,
+        exercises
+    };
+}
+
+function refreshRoutineEditorForLanguage() {
+    const draftSnapshot = getRoutineEditorDraftSnapshot();
+    const isEditingExistingRoutine = Boolean(draftSnapshot.routineId);
+
+    renderRoutineEditor({
+        id: isEditingExistingRoutine ? draftSnapshot.routineId : '__draft__',
+        name: draftSnapshot.routineName,
+        exercises: draftSnapshot.exercises
+    });
+
+    if (!isEditingExistingRoutine) {
+        routineEditorElements.title.textContent = t('routines.editor_create_title');
+        routineEditorElements.routineIdInput.value = '';
+        routineEditorElements.deleteRoutineBtn.classList.add('hidden');
+        delete routineEditorElements.deleteRoutineBtn.dataset.routineId;
+    }
+
+    routineEditorElements.routineNameInput.value = draftSnapshot.routineName;
+}
+
+async function refreshVisibleViewForLanguage(user) {
+    if (!views.dashboard.classList.contains('hidden')) {
+        const selectedRoutineId = dashboardElements.daySelect?.value || '';
+        populateDaySelector(currentUserRoutines);
+
+        const hasSelectedRoutine = Boolean(selectedRoutineId)
+            && Array.from(dashboardElements.daySelect?.options || [])
+                .some((option) => option.value === selectedRoutineId);
+
+        if (hasSelectedRoutine && dashboardElements.daySelect) {
+            dashboardElements.daySelect.value = selectedRoutineId;
+            if (dashboardElements.startSessionBtn) {
+                dashboardElements.startSessionBtn.disabled = false;
+            }
+        }
+
+        checkAndOfferResumeSession(currentUserRoutines);
+
+        await refreshDailyHub(user).catch((error) => {
+            logger.warn('Could not refresh daily hub after language change:', error);
+        });
+    }
+
+    if (!views.manageRoutines.classList.contains('hidden')) {
+        renderManageRoutinesView(currentUserRoutines);
+    }
+
+    if (!views.history.classList.contains('hidden')) {
+        await fetchAndRenderHistory();
+    }
+
+    if (!views.progress.classList.contains('hidden')) {
+        await loadExerciseList();
+        await updateChart();
+    }
+
+    if (!views.session.classList.contains('hidden')) {
+        const routine = getCurrentRoutineForSession();
+        if (routine) {
+            const snapshot = getSessionFormData({ includeEmptyExercises: true });
+            await renderSessionView(routine, snapshot);
+        }
+    }
+
+    if (!views.routineEditor.classList.contains('hidden')) {
+        refreshRoutineEditorForLanguage();
+    }
+}
+
 function setQuickLogDateTimeToNow() {
     if (dashboardElements.quickLogDateTimeInput) {
         dashboardElements.quickLogDateTimeInput.value = toDatetimeLocalValue(new Date());
@@ -103,14 +237,7 @@ function applyDailyHubState(state) {
 
     if (dashboardElements.dailyHubSyncStatus) {
         dashboardElements.dailyHubSyncStatus.textContent = state.syncStatus;
-        const normalizedSyncStatus = (state.syncStatus || '').toLowerCase();
-        let syncClass = 'sync-online';
-
-        if (normalizedSyncStatus.includes('cola')) {
-            syncClass = 'sync-queued';
-        } else if (normalizedSyncStatus.includes('sin conexion')) {
-            syncClass = 'sync-offline';
-        }
+        const syncClass = state.syncClass || 'sync-online';
 
         dashboardElements.dailyHubSyncStatus.classList.remove('sync-online', 'sync-offline', 'sync-queued');
         dashboardElements.dailyHubSyncStatus.classList.add(syncClass);
@@ -243,9 +370,9 @@ export async function initializeAppAfterAuth(user) {
         currentUserRoutines = [];
         populateDaySelector([]);
         sessionElements.form.reset();
-        historyElements.list.innerHTML = '<li id="history-loading">Cargando historial...</li>';
+        historyElements.list.innerHTML = `<li id="history-loading">${t('history.loading', { default: t('common.loading') })}</li>`;
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
-        manageRoutinesElements.list.innerHTML = '<li id="routines-loading">Cargando rutinas...</li>';
+        manageRoutinesElements.list.innerHTML = `<li id="routines-loading">${t('routines.loading', { default: t('common.loading') })}</li>`;
         hideCalendar();
         dailyHubCacheUserId = null;
         dailyHubSessionsCache = [];
@@ -357,7 +484,7 @@ async function fetchUserRoutines(user, options = {}) {
     try {
         await offlineManager.executeWithOfflineHandling(
             async () => refreshUserRoutinesFromFirestore(user),
-            'No se pueden cargar las rutinas sin conexion. Se reintentara cuando vuelvas a estar en linea.',
+            t('routines.fetch_offline'),
             true,
             {
                 type: 'routines.fetch',
@@ -517,18 +644,18 @@ function setupManageRoutinesViewListeners() {
         addViewListener('manageRoutines', manageRoutinesElements.exportRoutinesBtn, 'click', async () => {
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesión para realizar esta acción.');
+                toast.error(t('routines.action_requires_login'));
                 return;
             }
 
-            if (!confirm('¿Deseas exportar todas tus rutinas al portapapeles? Se copiará un JSON con todas tus rutinas.')) {
+            if (!confirm(t('routines.export_confirm'))) {
                 return;
             }
 
-            showLoading(manageRoutinesElements.exportRoutinesBtn, 'Exportando...');
+            showLoading(manageRoutinesElements.exportRoutinesBtn, t('routines.export_loading'));
             try {
                 if (currentUserRoutines.length === 0) {
-                    toast.warning('No tienes rutinas para exportar.');
+                    toast.warning(t('routines.export_empty'));
                     return;
                 }
 
@@ -546,14 +673,14 @@ function setupManageRoutinesViewListeners() {
 
                 const jsonString = JSON.stringify(exportData, null, 2);
                 await navigator.clipboard.writeText(jsonString);
-                toast.success(`${currentUserRoutines.length} rutina(s) exportadas al portapapeles exitosamente!`);
+                toast.success(t('routines.export_success', { count: currentUserRoutines.length }));
                 
             } catch (error) {
                 logger.error('Error exporting routines:', error);
                 if (error.name === 'NotAllowedError') {
-                    toast.error('Error: No se pudo acceder al portapapeles. Verifica los permisos del navegador.');
+                    toast.error(t('routines.export_error_clipboard'));
                 } else {
-                    toast.error('Error al exportar las rutinas.');
+                    toast.error(t('routines.export_error'));
                 }
             } finally {
                 hideLoading(manageRoutinesElements.exportRoutinesBtn);
@@ -567,28 +694,29 @@ function setupManageRoutinesViewListeners() {
         addViewListener('manageRoutines', manageRoutinesElements.deleteAllRoutinesBtn, 'click', async () => {
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesión para realizar esta acción.');
+                toast.error(t('routines.action_requires_login'));
                 return;
             }
 
             if (currentUserRoutines.length === 0) {
-                toast.warning('No tienes rutinas para borrar.');
+                toast.warning(t('routines.delete_all_empty'));
                 return;
             }
 
-            const confirmMessage = `ATENCION: Vas a borrar TODAS tus ${currentUserRoutines.length} rutina(s) permanentemente.\n\nEstas completamente seguro? Esta accion NO se puede deshacer.`;
+            const confirmMessage = t('routines.delete_all_confirm', { count: currentUserRoutines.length });
             
             if (!confirm(confirmMessage)) {
                 return;
             }
 
-            const finalConfirm = prompt('Para confirmar, escribe "BORRAR TODO" (en mayúsculas):');
-            if (finalConfirm !== 'BORRAR TODO') {
-                toast.info('Cancelado. No se borraron las rutinas.');
+            const expectedKeyword = t('routines.delete_all_prompt_keyword');
+            const finalConfirm = prompt(t('routines.delete_all_prompt'));
+            if (finalConfirm !== expectedKeyword) {
+                toast.info(t('routines.delete_all_cancelled'));
                 return;
             }
 
-            showLoading(manageRoutinesElements.deleteAllRoutinesBtn, 'Borrando...');
+            showLoading(manageRoutinesElements.deleteAllRoutinesBtn, t('routines.delete_all_loading'));
             try {
                 const batch = writeBatch(db);
                 let routinesDeletedCount = 0;
@@ -602,7 +730,7 @@ function setupManageRoutinesViewListeners() {
                 if (routinesDeletedCount > 0) {
                     await batch.commit();
                     firebaseUsageTracker.trackWrite(routinesDeletedCount, 'routines.deleteAll');
-                    toast.success(`${routinesDeletedCount} rutina(s) borradas exitosamente.`);
+                    toast.success(t('routines.delete_all_success', { count: routinesDeletedCount }));
                     
                     await fetchUserRoutines(user, { forceRefresh: true });
                     if (!views.manageRoutines.classList.contains('hidden')) {
@@ -611,7 +739,7 @@ function setupManageRoutinesViewListeners() {
                 }
             } catch (error) {
                 logger.error('Error deleting all routines:', error);
-                toast.error('Error al borrar las rutinas.');
+                toast.error(t('routines.delete_all_error'));
                 if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
                     loadFirebaseDiagnostics();
                 }
@@ -638,14 +766,14 @@ function setupRoutineEditorViewListeners() {
             event.preventDefault();
             const user = getCurrentUser();
             if (!user) {
-                toast.error('Debes iniciar sesión para guardar rutinas.');
+                toast.error(t('routines.save_requires_login'));
                 return;
             }
 
             const routineId = routineEditorElements.routineIdInput.value;
             const routineName = routineEditorElements.routineNameInput.value.trim();
             if (!routineName) {
-                toast.warning('El nombre de la rutina no puede estar vacío.');
+                toast.warning(t('routines.name_required'));
                 return;
             }
 
@@ -680,7 +808,7 @@ function setupRoutineEditorViewListeners() {
             });
 
             if (exercises.length === 0) {
-                toast.warning('Debes añadir al menos un ejercicio a la rutina.');
+                toast.warning(t('routines.exercises_required'));
                 return;
             }
 
@@ -690,7 +818,7 @@ function setupRoutineEditorViewListeners() {
                 updatedAt: Timestamp.now()
             };
 
-            showLoading(routineEditorElements.saveRoutineBtn, 'Guardando rutina...');
+            showLoading(routineEditorElements.saveRoutineBtn, t('routines.save_loading'));
             try {
                 if (routineId) {
                     await setDoc(doc(db, 'users', user.uid, 'routines', routineId), routineData, { merge: true });
@@ -700,13 +828,13 @@ function setupRoutineEditorViewListeners() {
                     await addDoc(collection(db, 'users', user.uid, 'routines'), routineData);
                     firebaseUsageTracker.trackWrite(1, 'routines.create');
                 }
-                toast.success('Rutina guardada con éxito!');
+                toast.success(t('routines.save_success'));
                 await fetchUserRoutines(user, { forceRefresh: true });
                 showView('manageRoutines');
                 renderManageRoutinesView(currentUserRoutines);
             } catch (error) {
                 logger.error('Error saving routine:', error);
-                toast.error('Error al guardar la rutina.');
+                toast.error(t('routines.save_error'));
                 if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
                     loadFirebaseDiagnostics();
                 }
@@ -718,7 +846,7 @@ function setupRoutineEditorViewListeners() {
 
     if (routineEditorElements.cancelEditRoutineBtn) {
         addViewListener('routineEditor', routineEditorElements.cancelEditRoutineBtn, 'click', () => {
-            if (confirm('¿Cancelar edición? Los cambios no guardados se perderán.')) {
+            if (confirm(t('routines.cancel_edit_confirm'))) {
                 showView('manageRoutines');
             }
         });
@@ -732,22 +860,22 @@ function setupRoutineEditorViewListeners() {
 
             const routineToDelete = currentUserRoutines.find(r => r.id === routineId);
             if (!routineToDelete) {
-                toast.error('Rutina no encontrada para eliminar.');
+                toast.error(t('routines.not_found'));
                 return;
             }
 
-            if (confirm(`¿Estás seguro de que quieres eliminar la rutina "${routineToDelete.name}"? Esta acción no se puede deshacer.`)) {
-                showLoading(routineEditorElements.deleteRoutineBtn, 'Eliminando...');
+            if (confirm(t('routines.delete_confirm', { name: routineToDelete.name }))) {
+                showLoading(routineEditorElements.deleteRoutineBtn, t('routines.delete_loading'));
                 try {
                     await deleteDoc(doc(db, 'users', user.uid, 'routines', routineId));
                     firebaseUsageTracker.trackWrite(1, 'routines.deleteOne');
-                    toast.success('Rutina eliminada con éxito.');
+                    toast.success(t('routines.delete_success'));
                     await fetchUserRoutines(user, { forceRefresh: true });
                     showView('manageRoutines');
                     renderManageRoutinesView(currentUserRoutines);
                 } catch (error) {
                     logger.error('Error deleting routine:', error);
-                    toast.error('Error al eliminar la rutina.');
+                    toast.error(t('routines.delete_error'));
                     if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
                         loadFirebaseDiagnostics();
                     }
@@ -848,7 +976,7 @@ document.addEventListener('editRoutineClicked', (event) => {
     if (routineToEdit) {
         renderRoutineEditor(routineToEdit);
     } else {
-        toast.error('No se pudo encontrar la rutina para editar.');
+        toast.error(t('routines.edit_not_found'));
     }
 });
 
@@ -918,7 +1046,7 @@ if (versionInfoElement) {
 
 if (forceUpdateBtn) {
     forceUpdateBtn.addEventListener('click', async () => {
-        if (confirm('¿Estás seguro de que quieres forzar la actualización de la aplicación? Esto limpiará el caché y recargará la página.')) {
+        if (confirm(t('version.force_update_confirm'))) {
             await forceAppUpdate();
         }
     });
@@ -926,6 +1054,25 @@ if (forceUpdateBtn) {
 
 // SINGLE POINT OF INITIALIZATION for ThemeManager
 document.addEventListener('DOMContentLoaded', () => {
+    initI18n({ persist: true, apply: true });
+    setupLanguageSelector();
+
+    onLanguageChange(() => {
+        const languageSelectElement = getLanguageSelectElement();
+        if (languageSelectElement) {
+            languageSelectElement.value = getLanguage();
+        }
+
+        const currentUser = getCurrentUser();
+        if (currentUser && dashboardElements.currentDate) {
+            dashboardElements.currentDate.textContent = formatDate(new Date());
+        }
+
+        refreshVisibleViewForLanguage(currentUser).catch((error) => {
+            logger.warn('Could not refresh visible views after language change:', error);
+        });
+    });
+
     if (!themeManager) {
         try {
             themeManager = new ThemeManager();

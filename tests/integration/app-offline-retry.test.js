@@ -189,7 +189,7 @@ describe('App Offline Retry Journey', () => {
         expect(quickLogEntry).toBeDefined();
         expect(quickLogEntry.data.quickLog.source).toBe('quick_log');
         expect(offlineManager.getPendingCount()).toBe(0);
-        expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En linea');
+        expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En línea');
 
         await createRoutine({ name: 'Retry Routine', exerciseName: 'Bench Press', executionMode: 'two_hand' });
 

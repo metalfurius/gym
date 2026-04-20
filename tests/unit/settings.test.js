@@ -141,7 +141,7 @@ describe('Settings module', () => {
             expect(html).toContain('Ejercicios en cache');
             expect(html).toContain('Total de registros');
             expect(html).toContain('Almacenamiento usado');
-            expect(html).toContain('Lecturas Firebase (sesion)');
+            expect(html).toContain('Lecturas Firebase (sesión)');
             expect(html).toContain('history.pageFetch');
             expect(html).toContain('$0.0123');
         });
@@ -154,7 +154,7 @@ describe('Settings module', () => {
             await loadCacheInfo();
 
             const html = document.getElementById('cache-info-container').innerHTML;
-            expect(html).toContain('Error al cargar la informacion del cache');
+            expect(html).toContain('Error al cargar la información del cache');
             expect(mockLoggerError).toHaveBeenCalled();
         });
     });
@@ -277,7 +277,7 @@ describe('Settings module', () => {
             resetFirebaseUsageMetrics();
 
             expect(mockResetUsage).toHaveBeenCalled();
-            expect(mockToastSuccess).toHaveBeenCalledWith('Metricas de Firebase reiniciadas');
+            expect(mockToastSuccess).toHaveBeenCalledWith('Métricas de Firebase reiniciadas');
         });
 
         it('showSettingsModal and hideSettingsModal are safe without DOM references', () => {

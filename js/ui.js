@@ -21,6 +21,7 @@ import {
     normalizeExerciseIdentity,
     resolveSessionVariantSelection
 } from './utils/session-variant-overrides.js';
+import { t, getLocale } from './i18n.js';
 
 // View initializer registry (populated from app.js)
 const viewInitializers = new Map();
@@ -273,12 +274,12 @@ export function clearAuthMessages() {
 }
 
 export function formatDate(date) {
-    if (!date) return 'N/A';
-    return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    if (!date) return t('common.na');
+    return date.toLocaleDateString(getLocale(), { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 export function formatDateShort(date) {
-    if (!date) return 'N/A';
-    return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+    if (!date) return t('common.na');
+    return date.toLocaleDateString(getLocale(), { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 // Populates the day selector on the dashboard with the user's routines
@@ -288,7 +289,7 @@ export function populateDaySelector(userRoutines) {
         return;
     }
     
-    dashboardElements.daySelect.innerHTML = '<option value="">-- Elige una rutina --</option>';
+    dashboardElements.daySelect.innerHTML = `<option value="">${t('dashboard.day_selector_choose')}</option>`;
     if (userRoutines && userRoutines.length > 0) {
         userRoutines.forEach(routine => {
             const option = document.createElement('option');
@@ -299,7 +300,7 @@ export function populateDaySelector(userRoutines) {
     } else {
         const option = document.createElement('option');
         option.value = '';
-        option.textContent = 'No tienes rutinas. ¡Crea una!';
+        option.textContent = t('dashboard.day_selector_empty');
         option.disabled = true;
         dashboardElements.daySelect.appendChild(option);
     }
@@ -315,7 +316,7 @@ export function populateDaySelector(userRoutines) {
 export async function renderSessionView(routine, inProgressData = null) {
     if (!routine || !routine.exercises) {
         logger.error('Routine data is invalid for session view:', routine);
-        toast.error('Error: Datos de la rutina no válidos.');
+        toast.error(t('session.invalid_routine_data'));
         showView('dashboard');
         return;
     }
@@ -330,7 +331,7 @@ export async function renderSessionView(routine, inProgressData = null) {
     userWeightDiv.className = 'user-weight-input';
 
     const userWeightLabel = document.createElement('label');
-    userWeightLabel.textContent = 'Tu peso hoy (kg):';
+    userWeightLabel.textContent = t('session.user_weight');
     userWeightLabel.htmlFor = 'user-weight';
     userWeightDiv.appendChild(userWeightLabel);
 
@@ -338,7 +339,7 @@ export async function renderSessionView(routine, inProgressData = null) {
     userWeightInput.type = 'text';
     userWeightInput.id = 'user-weight';
     userWeightInput.name = 'user-weight';
-    userWeightInput.placeholder = 'Introduce tu peso (kg)';
+    userWeightInput.placeholder = t('session.user_weight_placeholder');
     userWeightInput.inputMode = 'decimal';
     userWeightInput.pattern = '[0-9]*[.,]?[0-9]*';
 
@@ -399,12 +400,16 @@ export async function renderSessionView(routine, inProgressData = null) {
         target.classList.add('target-info');
 
         if (exercise.type === 'strength') {
-            const setsDisplay = typeof exercise.sets === 'number' ? `${exercise.sets} series` : exercise.sets;
-            target.textContent = `Objetivo: ${setsDisplay} x ${exercise.reps} reps`;
+            const numericSets = Number(exercise.sets);
+            const hasNumericSets =
+                (typeof exercise.sets === 'number' && Number.isFinite(exercise.sets))
+                || (typeof exercise.sets === 'string' && exercise.sets.trim() !== '' && Number.isFinite(numericSets));
+            const setsDisplay = hasNumericSets ? `${exercise.sets} ${t('session.series_unit')}` : exercise.sets;
+            target.textContent = t('session.target', { target: `${setsDisplay} x ${exercise.reps} ${t('session.reps_label')}` });
         } else if (exercise.type === 'cardio') {
-            target.textContent = `Objetivo: ${exercise.duration || 'Tiempo/Distancia'}`;
+            target.textContent = t('session.target', { target: exercise.duration || t('session.target_time_distance') });
         } else {
-            target.textContent = `Objetivo: ${exercise.reps || 'Completar'}`;
+            target.textContent = t('session.target', { target: exercise.reps || t('session.target_complete') });
         }
 
         exerciseBlock.appendChild(target);
@@ -430,18 +435,18 @@ export async function renderSessionView(routine, inProgressData = null) {
             executionModeField.className = 'session-variant-field';
             const executionModeLabelElement = document.createElement('label');
             executionModeLabelElement.htmlFor = `session-execution-mode-${exerciseIndex}`;
-            executionModeLabelElement.textContent = 'Modo de ejecucion:';
+            executionModeLabelElement.textContent = t('session.execution_mode');
             executionModeField.appendChild(executionModeLabelElement);
 
             const executionModeSelect = document.createElement('select');
             executionModeSelect.id = `session-execution-mode-${exerciseIndex}`;
             executionModeSelect.name = 'session-execution-mode';
             executionModeSelect.innerHTML = `
-                <option value="one_hand">Una mano</option>
-                <option value="two_hand">Dos manos</option>
-                <option value="machine">Maquina</option>
-                <option value="pulley">Polea</option>
-                <option value="other">Otro</option>
+                <option value="one_hand">${t('execution_mode.one_hand')}</option>
+                <option value="two_hand">${t('execution_mode.two_hand')}</option>
+                <option value="machine">${t('execution_mode.machine')}</option>
+                <option value="pulley">${t('execution_mode.pulley')}</option>
+                <option value="other">${t('execution_mode.other')}</option>
             `;
             executionModeSelect.value = initialExecutionMode;
             executionModeField.appendChild(executionModeSelect);
@@ -451,15 +456,15 @@ export async function renderSessionView(routine, inProgressData = null) {
             loadTypeField.className = 'session-variant-field';
             const loadTypeLabelElement = document.createElement('label');
             loadTypeLabelElement.htmlFor = `session-load-type-${exerciseIndex}`;
-            loadTypeLabelElement.textContent = 'Tipo de carga:';
+            loadTypeLabelElement.textContent = t('session.load_type');
             loadTypeField.appendChild(loadTypeLabelElement);
 
             const loadTypeSelect = document.createElement('select');
             loadTypeSelect.id = `session-load-type-${exerciseIndex}`;
             loadTypeSelect.name = 'session-load-type';
             loadTypeSelect.innerHTML = `
-                <option value="external">Carga externa</option>
-                <option value="bodyweight">Peso corporal (+/-)</option>
+                <option value="external">${t('load_type.external')}</option>
+                <option value="bodyweight">${t('load_type.bodyweight_with_sign')}</option>
             `;
             loadTypeSelect.value = initialLoadType;
             loadTypeField.appendChild(loadTypeSelect);
@@ -496,15 +501,15 @@ export async function renderSessionView(routine, inProgressData = null) {
                     lastWorkoutInfo.className = 'last-workout-info';
 
                     const daysAgo = suggestionsData.daysSinceLastSession;
-                    const timeText = daysAgo === 0 ? 'hoy'
-                        : daysAgo === 1 ? 'ayer'
-                            : 'hace ' + daysAgo + ' d\u00EDas';
+                    const timeText = daysAgo === 0 ? t('session.time_today')
+                        : daysAgo === 1 ? t('session.time_yesterday')
+                            : t('session.time_days_ago', { days: daysAgo });
 
                     const header = document.createElement('div');
                     header.className = 'last-workout-header';
                     const titleElement = document.createElement('span');
                     titleElement.className = 'last-workout-title';
-                    titleElement.textContent = '\u00DAltimo entrenamiento' + variantSuffix;
+                    titleElement.textContent = `${t('session.last_workout')}${variantSuffix}`;
                     const timeElement = document.createElement('span');
                     timeElement.className = 'workout-time-ago';
                     timeElement.textContent = timeText;
@@ -515,11 +520,11 @@ export async function renderSessionView(routine, inProgressData = null) {
                     details.className = 'last-workout-details';
                     suggestionsData.suggestions.lastSets.forEach((set, idx) => {
                         const loadValue = allowSignedLoad
-                            ? formatSignedWeight(set.peso) + 'kg extra'
-                            : set.peso + 'kg';
+                            ? `${formatSignedWeight(set.peso)}kg ${t('session.extra_load')}`
+                            : `${set.peso}kg`;
                         const detail = document.createElement('span');
                         detail.className = 'last-set';
-                        detail.textContent = 'S' + (idx + 1) + ': ' + loadValue + ' \u00D7 ' + set.reps;
+                        detail.textContent = `${t('session.set_short')}${idx + 1}: ${loadValue} x ${set.reps}`;
                         details.appendChild(detail);
                     });
 
@@ -530,7 +535,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                         const useLastBtn = document.createElement('button');
                         useLastBtn.type = 'button';
                         useLastBtn.className = 'btn btn-secondary btn-sm';
-                        useLastBtn.textContent = '\uD83D\uDCCB Usar valores anteriores';
+                        useLastBtn.textContent = `\uD83D\uDCCB ${t('session.use_last_values')}`;
                         useLastBtn.style.marginTop = '8px';
                         useLastBtn.addEventListener('click', () => {
                             fillExerciseWithLastValues(exerciseIndex, suggestionsData.suggestions.lastSets);
@@ -544,13 +549,13 @@ export async function renderSessionView(routine, inProgressData = null) {
 
                 const noHistoryInfo = document.createElement('div');
                 noHistoryInfo.className = 'no-exercise-history';
-                noHistoryInfo.textContent = '\uD83D\uDCA1 Primera vez haciendo este ejercicio. \u00A1Registra tus datos para futuras referencias!';
+                noHistoryInfo.textContent = `\uD83D\uDCA1 ${t('session.first_time_exercise')}`;
                 historyInfoContainer.appendChild(noHistoryInfo);
             };
 
             const bodyweightInfo = document.createElement('p');
             bodyweightInfo.className = 'target-info session-bodyweight-hint';
-            bodyweightInfo.textContent = 'Carga de peso corporal: usa negativo para asistido y positivo para lastre.';
+            bodyweightInfo.textContent = t('session.bodyweight_hint');
             exerciseBlock.appendChild(bodyweightInfo);
 
             const isBodyweightSelected = () => normalizeLoadType(loadTypeSelect.value) === 'bodyweight';
@@ -585,17 +590,17 @@ export async function renderSessionView(routine, inProgressData = null) {
 
                 if (Number.isFinite(numericWeight) && normalizedPlaceholderType === 'last') {
                     return allowSignedLoad
-                        ? `Último extra: ${formatSignedWeight(numericWeight)}kg`
-                        : `Último: ${numericWeight}kg`;
+                        ? t('session.last_extra', { value: `${formatSignedWeight(numericWeight)}kg` })
+                        : t('session.last_value', { value: `${numericWeight}kg` });
                 }
 
                 if (Number.isFinite(numericWeight) && normalizedPlaceholderType === 'suggested') {
                     return allowSignedLoad
-                        ? `Extra sugerido: ${formatSignedWeight(numericWeight)}kg`
-                        : `Sugerido: ${numericWeight}kg`;
+                        ? t('session.suggested_extra', { value: `${formatSignedWeight(numericWeight)}kg` })
+                        : t('session.suggested_value', { value: `${numericWeight}kg` });
                 }
 
-                return allowSignedLoad ? 'Carga extra (kg, +/-)' : 'Peso (kg)';
+                return allowSignedLoad ? t('session.weight_placeholder_signed') : t('session.weight_placeholder_default');
             };
 
             const numberOfSets = parseInt(exercise.sets, 10) || 0;
@@ -605,7 +610,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                 setRow.dataset.setIndex = i;
 
                 const setLabel = document.createElement('label');
-                setLabel.textContent = `Serie ${i + 1}:`;
+                setLabel.textContent = t('session.set_label', { index: i + 1 });
                 setLabel.htmlFor = `weight-${exerciseIndex}-${i}`;
                 setRow.appendChild(setLabel);
 
@@ -675,15 +680,15 @@ export async function renderSessionView(routine, inProgressData = null) {
                 repsInput.id = `reps-${exerciseIndex}-${i}`;
                 repsInput.name = `reps-${exerciseIndex}-${i}`;
 
-                let repsPlaceholder = 'Reps';
+                let repsPlaceholder = t('session.reps_placeholder');
                 if (suggestions.hasHistory && suggestions.suggestions.lastSets[i]) {
                     const lastSet = suggestions.suggestions.lastSets[i];
                     if (lastSet && lastSet.reps > 0) {
-                        repsPlaceholder = `Último: ${lastSet.reps}`;
+                        repsPlaceholder = t('session.last_value', { value: lastSet.reps });
                         repsInput.dataset.suggestion = lastSet.reps;
                     }
                 } else if (suggestions.hasHistory && suggestions.suggestions.reps > 0) {
-                    repsPlaceholder = `Sugerido: ${suggestions.suggestions.reps}`;
+                    repsPlaceholder = t('session.suggested_value', { value: suggestions.suggestions.reps });
                     repsInput.dataset.suggestion = suggestions.suggestions.reps;
                 }
                 repsInput.placeholder = repsPlaceholder;
@@ -708,7 +713,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                 timerButton.className = 'timer-button';
                 timerButton.type = 'button';
                 timerButton.dataset.timerId = `${exerciseIndex}-${i}`;
-                timerButton.textContent = 'Iniciar';
+                timerButton.textContent = t('session.timer_start');
                 timerContainer.appendChild(timerButton);
 
                 setRow.appendChild(timerContainer);
@@ -769,17 +774,17 @@ export async function renderSessionView(routine, inProgressData = null) {
 
                 const repsInputs = exerciseBlock.querySelectorAll('input[name^="reps-"]');
                 repsInputs.forEach((repsInput, setIndex) => {
-                    let repsPlaceholder = 'Reps';
+                    let repsPlaceholder = t('session.reps_placeholder');
                     delete repsInput.dataset.suggestion;
                     const lastSetSuggestion = suggestions.hasHistory
                         ? suggestions.suggestions.lastSets[setIndex]
                         : null;
 
                     if (lastSetSuggestion && lastSetSuggestion.reps > 0) {
-                        repsPlaceholder = `\u00DAltimo: ${lastSetSuggestion.reps}`;
+                        repsPlaceholder = t('session.last_value', { value: lastSetSuggestion.reps });
                         repsInput.dataset.suggestion = String(lastSetSuggestion.reps);
                     } else if (suggestions.hasHistory && suggestions.suggestions.reps > 0) {
-                        repsPlaceholder = `Sugerido: ${suggestions.suggestions.reps}`;
+                        repsPlaceholder = t('session.suggested_value', { value: suggestions.suggestions.reps });
                         repsInput.dataset.suggestion = String(suggestions.suggestions.reps);
                     }
                     repsInput.placeholder = repsPlaceholder;
@@ -791,14 +796,14 @@ export async function renderSessionView(routine, inProgressData = null) {
             syncVariantState();
         } else if (exercise.type === 'cardio') {
             const infoPara = document.createElement('p');
-            infoPara.textContent = 'Registra los detalles en las notas.';
+            infoPara.textContent = t('session.cardio_info');
             infoPara.style.fontSize = '0.9em';
             infoPara.style.color = '#666';
             exerciseBlock.appendChild(infoPara);
         }
 
         const notesLabel = document.createElement('label');
-        notesLabel.textContent = 'Notas de la sesión:';
+        notesLabel.textContent = t('session.notes_label');
         notesLabel.htmlFor = `notes-${exerciseIndex}`;
         notesLabel.style.marginTop = '10px';
         exerciseBlock.appendChild(notesLabel);
@@ -807,8 +812,8 @@ export async function renderSessionView(routine, inProgressData = null) {
         notesTextarea.id = `notes-${exerciseIndex}`;
         notesTextarea.name = `notes-${exerciseIndex}`;
         notesTextarea.placeholder = exercise.type === 'cardio'
-            ? 'Ej: 20 min a 140bpm, o 5km en 25 min...'
-            : 'Añade notas sobre este ejercicio...';
+            ? t('session.notes_placeholder_cardio')
+            : t('session.notes_placeholder_other');
         notesTextarea.className = 'exercise-notes';
 
         if (inProgressExercise?.notasEjercicio) {
@@ -833,7 +838,7 @@ export function renderHistoryList(sessions) {
 
     if (!sessions || sessions.length === 0) {
         const li = document.createElement('li');
-        li.textContent = 'No hay sesiones guardadas todavía. ¡Empieza a entrenar para registrar tu progreso!';
+        li.textContent = t('history.empty');
         historyElements.list.appendChild(li);
         return;
     }
@@ -853,7 +858,7 @@ export function renderHistoryList(sessions) {
         
         const dateEl = document.createElement('div');
         dateEl.classList.add('session-date');
-        dateEl.textContent = session.fecha && session.fecha.toDate ? formatDateShort(session.fecha.toDate()) : 'Fecha no disponible';
+        dateEl.textContent = session.fecha && session.fecha.toDate ? formatDateShort(session.fecha.toDate()) : t('history.date_unavailable');
         inlineInfoEl.appendChild(dateEl);
         
         if (session.pesoUsuario) {
@@ -868,7 +873,7 @@ export function renderHistoryList(sessions) {
         if (session.ejercicios && session.ejercicios.length > 0) {
             const summaryEl = document.createElement('div');
             summaryEl.classList.add('session-summary');
-            summaryEl.textContent = `${session.ejercicios.length} ejercicios realizados`;
+            summaryEl.textContent = t('history.exercises_done_count', { count: session.ejercicios.length });
             li.appendChild(summaryEl);
         }
         
@@ -876,13 +881,13 @@ export function renderHistoryList(sessions) {
         actionsEl.classList.add('session-actions');
         
         const viewBtn = document.createElement('button');
-        viewBtn.textContent = 'Ver detalles';
+        viewBtn.textContent = t('history.view_details');
         viewBtn.classList.add('session-action-btn', 'view');
         viewBtn.dataset.action = 'view-session';
         actionsEl.appendChild(viewBtn);
         
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Eliminar';
+        deleteBtn.textContent = t('history.delete');
         deleteBtn.classList.add('session-action-btn', 'delete');
         deleteBtn.dataset.action = 'delete-session';
         deleteBtn.dataset.sessionId = session.id;
@@ -906,7 +911,7 @@ export function renderHistoryList(sessions) {
 export function showSessionDetail(sessionData) {
     if (!sessionData) return;
     
-    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || 'Detalle de Sesión';
+    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || t('history.detail_title');
     
     const dateInfo = `${formatDate(sessionData.fecha.toDate())}`;
     sessionDetailModal.date.textContent = dateInfo;
@@ -914,7 +919,7 @@ export function showSessionDetail(sessionData) {
     if (sessionData.pesoUsuario) {
         const weightBadge = document.createElement('span');
         weightBadge.classList.add('user-weight-badge');
-        weightBadge.textContent = `⚖️ ${sessionData.pesoUsuario} kg`;
+        weightBadge.textContent = t('history.weight_badge', { weight: sessionData.pesoUsuario });
         sessionDetailModal.date.appendChild(weightBadge);
     }
     
@@ -934,13 +939,13 @@ export function showSessionDetail(sessionData) {
             
             if (ex.tipoEjercicio === 'strength') {
                 typeEl.classList.add('strength');
-                typeEl.textContent = '💪 Fuerza';
+                typeEl.textContent = t('history.type_strength');
             } else if (ex.tipoEjercicio === 'cardio') {
                 typeEl.classList.add('cardio');
-                typeEl.textContent = '🏃 Cardio';
+                typeEl.textContent = t('history.type_cardio');
             } else {
                 typeEl.classList.add('other');
-                typeEl.textContent = '🏋️ ' + (ex.tipoEjercicio || 'Otro');
+                typeEl.textContent = ex.tipoEjercicio || t('history.type_other');
             }
             
             exLi.appendChild(typeEl);
@@ -962,7 +967,7 @@ export function showSessionDetail(sessionData) {
                 const modeEl = document.createElement('span');
                 modeEl.classList.add('exercise-execution-mode-badge');
                 modeEl.classList.add(`mode-${executionMode}`);
-                modeEl.textContent = `Modo: ${getExecutionModeLabel(executionMode)}`;
+                modeEl.textContent = t('history.execution_mode', { value: getExecutionModeLabel(executionMode) });
                 exLi.appendChild(modeEl);
             }
 
@@ -971,7 +976,7 @@ export function showSessionDetail(sessionData) {
                 const loadTypeEl = document.createElement('span');
                 loadTypeEl.classList.add('exercise-execution-mode-badge');
                 loadTypeEl.classList.add(`load-${loadType}`);
-                loadTypeEl.textContent = `Carga: ${getLoadTypeLabel(loadType)}`;
+                loadTypeEl.textContent = t('history.load_type', { value: getLoadTypeLabel(loadType) });
                 exLi.appendChild(loadTypeEl);
             }
             
@@ -990,20 +995,24 @@ export function showSessionDetail(sessionData) {
                         const extraLoadText = Number.isFinite(extraLoad)
                             ? `${formatSignedWeight(extraLoad)}`
                             : escapeHtml(set.peso);
-                        setContent = `Serie ${index + 1}: ${extraLoadText} kg extra`;
+                        setContent = t('history.series_bodyweight', { index: index + 1, extraLoad: `${extraLoadText}` });
 
                         const totalLoad = Number(set.pesoTotal ?? set.totalWeight);
                         if (Number.isFinite(totalLoad)) {
-                            setContent += ` (total ${totalLoad} kg)`;
+                            setContent += t('history.total_weight', { total: totalLoad });
                         }
 
-                        setContent += ` × ${escapeHtml(set.reps)} repeticiones`;
+                        setContent += t('history.reps_suffix', { reps: escapeHtml(set.reps) });
                     } else {
-                        setContent = `Serie ${index + 1}: ${escapeHtml(set.peso)} kg × ${escapeHtml(set.reps)} repeticiones`;
+                        setContent = t('history.series_line', {
+                            index: index + 1,
+                            weight: escapeHtml(set.peso),
+                            reps: escapeHtml(set.reps)
+                        });
                     }
                     
                     if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
-                        setContent += ` <span class="rest-time-badge">⏱️ ${escapeHtml(set.tiempoDescanso)}</span>`;
+                        setContent += ` <span class="rest-time-badge">${t('history.rest_badge', { rest: escapeHtml(set.tiempoDescanso) })}</span>`;
                     }
                     
                     setLi.innerHTML = setContent;
@@ -1015,7 +1024,7 @@ export function showSessionDetail(sessionData) {
             if (ex.notasEjercicio) {
                 const notesEl = document.createElement('p');
                 notesEl.classList.add('exercise-notes');
-                notesEl.innerHTML = `<em>Notas: ${escapeHtml(ex.notasEjercicio)}</em>`;
+                notesEl.innerHTML = `<em>${t('history.notes_prefix')}: ${escapeHtml(ex.notasEjercicio)}</em>`;
                 exLi.appendChild(notesEl);
             }
             
@@ -1023,7 +1032,7 @@ export function showSessionDetail(sessionData) {
         });
     } else {
         const noExercisesEl = document.createElement('p');
-        noExercisesEl.textContent = 'No hay ejercicios registrados en esta sesión.';
+        noExercisesEl.textContent = t('history.exercise_none');
         sessionDetailModal.exercises.appendChild(noExercisesEl);
     }
     
@@ -1043,8 +1052,8 @@ export function renderManageRoutinesView(routines) {
         li.className = 'routine-card empty-state';
         li.innerHTML = `
             <div class="routine-info">
-                <div class="routine-name">Sin rutinas personalizadas</div>
-                <div class="routine-description">¡Crea una rutina nueva o prueba nuestras rutinas de muestra!</div>
+                <div class="routine-name">${t('routines.empty_title')}</div>
+                <div class="routine-description">${t('routines.empty_description')}</div>
             </div>
         `;
         manageRoutinesElements.list.appendChild(li);
@@ -1071,7 +1080,7 @@ export function renderManageRoutinesView(routines) {
         const description = document.createElement('div');
         description.className = 'routine-description';
         const exerciseCount = routine.exercises ? routine.exercises.length : 0;
-        description.textContent = `${exerciseCount} ejercicio${exerciseCount !== 1 ? 's' : ''}`;
+        description.textContent = t('routines.exercise_count', { count: exerciseCount });
         routineInfo.appendChild(description);
 
         li.appendChild(routineInfo);
@@ -1080,7 +1089,7 @@ export function renderManageRoutinesView(routines) {
         actionsDiv.className = 'routine-actions';
 
         const editBtn = document.createElement('button');
-        editBtn.textContent = 'Editar';
+        editBtn.textContent = t('routines.edit');
         editBtn.className = 'routine-action-btn edit';
         editBtn.dataset.routineId = routine.id;
         editBtn.addEventListener('click', (e) => {
@@ -1112,7 +1121,7 @@ export function renderRoutineEditor(routine = null) {
     exerciseEditorCounter = 0;
 
     if (routine) {
-        routineEditorElements.title.textContent = 'Editar Rutina';
+        routineEditorElements.title.textContent = t('routines.editor_edit_title');
         routineEditorElements.routineIdInput.value = routine.id;
         routineEditorElements.routineNameInput.value = routine.name;
         routineEditorElements.deleteRoutineBtn.classList.remove('hidden');
@@ -1120,7 +1129,7 @@ export function renderRoutineEditor(routine = null) {
 
         routine.exercises.forEach(ex => addExerciseToEditorForm(ex));
     } else {
-        routineEditorElements.title.textContent = 'Crear Nueva Rutina';
+        routineEditorElements.title.textContent = t('routines.editor_create_title');
         routineEditorElements.routineIdInput.value = '';
         routineEditorElements.deleteRoutineBtn.classList.add('hidden');
         addExerciseToEditorForm();
@@ -1144,50 +1153,50 @@ export function addExerciseToEditorForm(exerciseData = null) {
     );
 
     exerciseDiv.innerHTML = `
-        <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="Eliminar ejercicio">×</button>
+        <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="${t('routines.editor_remove_exercise_title')}">x</button>
         
         <div class="exercise-header">
-            <label for="ex-name-${exerciseEditorCounter}">Nombre del Ejercicio:</label>
-            <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${escapeHtml(exerciseData?.name || '')}" required placeholder="Ej: Press de banca, Sentadillas...">
+            <label for="ex-name-${exerciseEditorCounter}">${t('routines.editor_exercise_name')}</label>
+            <input type="text" id="ex-name-${exerciseEditorCounter}" name="ex-name" value="${escapeHtml(exerciseData?.name || '')}" required placeholder="${t('routines.editor_exercise_name_placeholder')}">
         </div>
 
         <div class="exercise-type-selector">
-            <label for="ex-type-${exerciseEditorCounter}">Tipo de Ejercicio:</label>
+            <label for="ex-type-${exerciseEditorCounter}">${t('routines.editor_exercise_type')}</label>
             <select id="ex-type-${exerciseEditorCounter}" name="ex-type">
-                <option value="strength" ${exerciseType === 'strength' ? 'selected' : ''}>💪 Fuerza (Series/Reps)</option>
-                <option value="cardio" ${exerciseType === 'cardio' ? 'selected' : ''}>🏃 Cardio (Duración)</option>
+                <option value="strength" ${exerciseType === 'strength' ? 'selected' : ''}>${t('routines.editor_type_strength')}</option>
+                <option value="cardio" ${exerciseType === 'cardio' ? 'selected' : ''}>${t('routines.editor_type_cardio')}</option>
             </select>
         </div>
 
         <div class="strength-fields exercise-fields" style="display: ${exerciseType === 'strength' ? 'block' : 'none'};">
             <div class="field-group-header">
-                <span class="field-group-icon">🏋️</span>
-                <span class="field-group-title">Configuración de Fuerza</span>
+                <span class="field-group-icon">[S]</span>
+                <span class="field-group-title">${t('routines.editor_strength_config')}</span>
             </div>
             <div class="form-grid">
                 <div class="form-field">
-                    <label for="ex-sets-${exerciseEditorCounter}">Series:</label>
+                    <label for="ex-sets-${exerciseEditorCounter}">${t('routines.editor_sets')}</label>
                     <input type="number" id="ex-sets-${exerciseEditorCounter}" name="ex-sets" min="0" value="${escapeHtml(exerciseData?.sets || '')}" placeholder="3">
                 </div>
                 <div class="form-field">
-                    <label for="ex-reps-${exerciseEditorCounter}">Reps/Objetivo:</label>
+                    <label for="ex-reps-${exerciseEditorCounter}">${t('routines.editor_reps')}</label>
                     <input type="text" id="ex-reps-${exerciseEditorCounter}" name="ex-reps" value="${escapeHtml(exerciseData?.reps || '')}" placeholder="8-12">
                 </div>
                 <div class="form-field">
-                    <label for="ex-execution-mode-${exerciseEditorCounter}">Modo de ejecucion:</label>
+                    <label for="ex-execution-mode-${exerciseEditorCounter}">${t('routines.editor_execution_mode')}</label>
                     <select id="ex-execution-mode-${exerciseEditorCounter}" name="ex-execution-mode">
-                        <option value="one_hand" ${exerciseExecutionMode === 'one_hand' ? 'selected' : ''}>Una mano</option>
-                        <option value="two_hand" ${exerciseExecutionMode === 'two_hand' ? 'selected' : ''}>Dos manos</option>
-                        <option value="machine" ${exerciseExecutionMode === 'machine' ? 'selected' : ''}>Maquina</option>
-                        <option value="pulley" ${exerciseExecutionMode === 'pulley' ? 'selected' : ''}>Polea</option>
-                        <option value="other" ${exerciseExecutionMode === 'other' ? 'selected' : ''}>Otro</option>
+                        <option value="one_hand" ${exerciseExecutionMode === 'one_hand' ? 'selected' : ''}>${t('execution_mode.one_hand')}</option>
+                        <option value="two_hand" ${exerciseExecutionMode === 'two_hand' ? 'selected' : ''}>${t('execution_mode.two_hand')}</option>
+                        <option value="machine" ${exerciseExecutionMode === 'machine' ? 'selected' : ''}>${t('execution_mode.machine')}</option>
+                        <option value="pulley" ${exerciseExecutionMode === 'pulley' ? 'selected' : ''}>${t('execution_mode.pulley')}</option>
+                        <option value="other" ${exerciseExecutionMode === 'other' ? 'selected' : ''}>${t('execution_mode.other')}</option>
                     </select>
                 </div>
                 <div class="form-field">
-                    <label for="ex-load-type-${exerciseEditorCounter}">Tipo de carga:</label>
+                    <label for="ex-load-type-${exerciseEditorCounter}">${t('routines.editor_load_type')}</label>
                     <select id="ex-load-type-${exerciseEditorCounter}" name="ex-load-type">
-                        <option value="external" ${exerciseLoadType === 'external' ? 'selected' : ''}>Carga externa</option>
-                        <option value="bodyweight" ${exerciseLoadType === 'bodyweight' ? 'selected' : ''}>Peso corporal (+/-)</option>
+                        <option value="external" ${exerciseLoadType === 'external' ? 'selected' : ''}>${t('load_type.external')}</option>
+                        <option value="bodyweight" ${exerciseLoadType === 'bodyweight' ? 'selected' : ''}>${t('load_type.bodyweight_with_sign')}</option>
                     </select>
                 </div>
             </div>
@@ -1195,18 +1204,18 @@ export function addExerciseToEditorForm(exerciseData = null) {
         
         <div class="cardio-fields exercise-fields" style="display: ${exerciseType === 'cardio' ? 'block' : 'none'};">
             <div class="field-group-header">
-                <span class="field-group-icon">⏱️</span>
-                <span class="field-group-title">Configuración de Cardio</span>
+                <span class="field-group-icon">[C]</span>
+                <span class="field-group-title">${t('routines.editor_cardio_config')}</span>
             </div>
             <div class="form-field">
-                <label for="ex-duration-${exerciseEditorCounter}">Duración/Objetivo:</label>
+                <label for="ex-duration-${exerciseEditorCounter}">${t('routines.editor_duration')}</label>
                 <input type="text" id="ex-duration-${exerciseEditorCounter}" name="ex-duration" value="${escapeHtml(exerciseData?.duration || '')}" placeholder="30 min, 5km, etc.">
             </div>
         </div>
         
         <div class="exercise-notes">
-            <label for="ex-notes-${exerciseEditorCounter}">Notas Adicionales (opcional):</label>
-            <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="${exerciseType === 'strength' ? 'Ej: usar agarre supino, aumentar peso la próxima vez, tempo 3-1-2...' : 'Ej: mantener ritmo constante, controlar frecuencia cardíaca...'}">${escapeHtml(exerciseData?.notes || '')}</textarea>
+            <label for="ex-notes-${exerciseEditorCounter}">${t('routines.editor_notes')}</label>
+            <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="${exerciseType === 'strength' ? t('session.notes_placeholder_strength') : t('session.notes_placeholder_cardio')}">${escapeHtml(exerciseData?.notes || '')}</textarea>
         </div>
     `;
     
@@ -1222,11 +1231,11 @@ export function addExerciseToEditorForm(exerciseData = null) {
         if (e.target.value === 'strength') {
             strengthFields.style.display = 'block';
             cardioFields.style.display = 'none';
-            notesTextarea.placeholder = 'Ej: usar agarre supino, aumentar peso la próxima vez, tempo 3-1-2...';
+            notesTextarea.placeholder = t('session.notes_placeholder_strength');
         } else {
             strengthFields.style.display = 'none';
             cardioFields.style.display = 'block';
-            notesTextarea.placeholder = 'Ej: mantener ritmo constante, controlar frecuencia cardíaca...';
+            notesTextarea.placeholder = t('session.notes_placeholder_cardio');
         }
     });
 
@@ -1242,7 +1251,7 @@ export function addExerciseToEditorForm(exerciseData = null) {
 }
 
 
-export function showLoading(buttonElement, text = 'Cargando...') {
+export function showLoading(buttonElement, text = t('common.loading')) {
     if (buttonElement) {
         buttonElement.disabled = true;
         buttonElement.dataset.originalText = buttonElement.textContent;
@@ -1336,5 +1345,7 @@ function fillExerciseWithLastValues(exerciseIndex, lastSets) {
     });
     
     // Show feedback message using toast notification
-    toast.success('Valores del último entrenamiento aplicados');
+    toast.success(t('session.last_values_applied'));
 }
+
+

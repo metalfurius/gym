@@ -1,12 +1,17 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import {
     DEFAULT_EXECUTION_MODE,
     normalizeExecutionMode,
     resolveExerciseExecutionMode,
     getExecutionModeLabel
 } from '../../js/utils/execution-mode.js';
+import { setLanguage } from '../../js/i18n.js';
 
 describe('execution-mode utils', () => {
+    beforeEach(() => {
+        setLanguage('es', { persist: false, apply: false });
+    });
+
     it('uses two_hand as default mode', () => {
         expect(DEFAULT_EXECUTION_MODE).toBe('two_hand');
     });
@@ -28,8 +33,17 @@ describe('execution-mode utils', () => {
     it('returns Spanish-first labels', () => {
         expect(getExecutionModeLabel('one_hand')).toBe('Una mano');
         expect(getExecutionModeLabel('two_hand')).toBe('Dos manos');
-        expect(getExecutionModeLabel('machine')).toBe('Maquina');
+        expect(getExecutionModeLabel('machine')).toBe('Máquina');
         expect(getExecutionModeLabel('pulley')).toBe('Polea');
         expect(getExecutionModeLabel('other')).toBe('Otro');
+    });
+
+    it('returns English labels after language switch', () => {
+        setLanguage('en', { persist: false, apply: false });
+        expect(getExecutionModeLabel('one_hand')).toBe('One hand');
+        expect(getExecutionModeLabel('two_hand')).toBe('Two hands');
+        expect(getExecutionModeLabel('machine')).toBe('Machine');
+        expect(getExecutionModeLabel('pulley')).toBe('Pulley');
+        expect(getExecutionModeLabel('other')).toBe('Other');
     });
 });

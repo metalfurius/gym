@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { offlineManager } from '../../js/utils/offline-manager.js';
 import { localFirstCache } from '../../js/utils/local-first-cache.js';
+import { setLanguage } from '../../js/i18n.js';
 
 describe('OfflineManager', () => {
     let originalOnLine;
@@ -32,6 +33,7 @@ describe('OfflineManager', () => {
         offlineManager.isOnline = true;
         offlineManager.initialized = false;
         offlineManager.clearPending();
+        setLanguage('es', { persist: false, apply: false });
         await localFirstCache.clearAll();
     });
 
@@ -198,6 +200,23 @@ describe('OfflineManager', () => {
             }
 
             expect(offlineManager.getPendingCount()).toBe(1);
+        });
+
+        it('should resolve the default offline message using the current language at call time', async () => {
+            Object.defineProperty(Navigator.prototype, 'onLine', {
+                configurable: true,
+                get: () => false
+            });
+
+            setLanguage('en', { persist: false, apply: false });
+            await expect(
+                offlineManager.executeWithOfflineHandling(async () => 'success')
+            ).rejects.toThrow('Offline: This operation requires an Internet connection');
+
+            setLanguage('es', { persist: false, apply: false });
+            await expect(
+                offlineManager.executeWithOfflineHandling(async () => 'success')
+            ).rejects.toThrow('Offline: Esta operación requiere conexión a Internet');
         });
 
         it('should not queue operation when queueIfOffline is false', async () => {

@@ -182,7 +182,7 @@ describe('App Offline Recovery Journey', () => {
         expect(quickLogSavedAfterReconnect[0].data.nombreEntrenamiento).toBe('Offline Quick Log');
         expect(quickLogSavedAfterReconnect[0].data.quickLog.source).toBe('quick_log');
         expect(offlineManager.getPendingCount()).toBe(0);
-        expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En linea');
+        expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En línea');
 
         await createRoutine({ name: 'Offline Test Routine', exerciseName: 'Bench Press', executionMode: 'pulley' });
 

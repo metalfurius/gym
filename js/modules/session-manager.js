@@ -29,6 +29,7 @@ import {
     normalizeQuickLogPayload,
     buildQuickLogSessionModel
 } from '../utils/quick-log.js';
+import { t } from '../i18n.js';
 
 // Constants
 const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
@@ -331,18 +332,18 @@ export function getSessionFormData(options = {}) {
 export async function saveSessionData(onSuccess) {
     const user = getCurrentUser();
     if (!currentRoutineForSession || !user) {
-        toast.error('Error: No hay rutina activa o no has iniciado sesión.');
+        toast.error(t('session.no_active_routine'));
         return;
     }
 
     if (isSavingSession) {
-        toast.info('Ya se está guardando la sesión. Espera un momento.');
+        toast.info(t('session.saved_busy'));
         return;
     }
     
     const sessionDataFromForm = getSessionFormData();
     if (sessionDataFromForm.ejercicios.length === 0) {
-        toast.warning('No se registraron datos para ningún ejercicio. Introduce datos o notas para guardar la sesión.');
+        toast.warning(t('session.save_no_data'));
         return;
     }
     
@@ -356,7 +357,7 @@ export async function saveSessionData(onSuccess) {
         pesoUsuario: sessionDataFromForm.pesoUsuario ? parseFloat(sessionDataFromForm.pesoUsuario) : null
     };
     
-    showLoading(sessionElements.saveBtn, 'Guardando...');
+    showLoading(sessionElements.saveBtn, t('common.saving'));
     isSavingSession = true;
     
     try {
@@ -374,7 +375,7 @@ export async function saveSessionData(onSuccess) {
 
         await offlineManager.executeWithOfflineHandling(
             saveOperation,
-            'Sin conexión. La sesión se guardará automáticamente al recuperar Internet.',
+            t('session.saved_when_online'),
             true,
             {
                 type: 'session.save',
@@ -398,7 +399,7 @@ export async function saveSessionData(onSuccess) {
 
         invalidatePostSaveCaches(user.uid);
         
-        toast.success('¡Sesión guardada con éxito!');
+        toast.success(t('session.saved_success'));
         sessionElements.form.reset();
         clearInProgressSession();
         clearTimerData();
@@ -413,9 +414,9 @@ export async function saveSessionData(onSuccess) {
         logger.error('Error adding document:', error);
 
         if (error.message?.startsWith('Offline:')) {
-            toast.info('Sesión en cola. Se guardará cuando vuelvas a estar en línea.');
+            toast.info(t('session.saved_queued'));
         } else {
-            toast.error('Error al guardar la sesión.');
+            toast.error(t('session.save_error'));
             
             // Load diagnostics on Firestore errors
             if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
@@ -440,25 +441,25 @@ export async function saveSessionData(onSuccess) {
 export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options = {}) {
     const user = getCurrentUser();
     if (!user) {
-        toast.error('Debes iniciar sesion para guardar un Quick Log.');
+        toast.error(t('quicklog.must_login'));
         return { ok: false, reason: 'unauthenticated' };
     }
 
     if (isSavingQuickLog) {
-        toast.info('Ya se esta guardando un Quick Log. Espera un momento.');
+        toast.info(t('quicklog.busy'));
         return { ok: false, reason: 'busy' };
     }
 
     const normalizedResult = normalizeQuickLogPayload(quickLogInput, { now: new Date() });
     if (!normalizedResult.isValid || !normalizedResult.value) {
-        toast.warning('Agrega al menos una nota de ejercicio para guardar el Quick Log.');
+        toast.warning(t('quicklog.validation_notes'));
         return { ok: false, reason: 'validation' };
     }
 
     const finalQuickLogData = buildQuickLogSessionModel(user.uid, normalizedResult.value, Timestamp);
     const triggerButton = options.triggerButton || null;
 
-    showLoading(triggerButton, 'Guardando...');
+    showLoading(triggerButton, t('common.saving'));
     isSavingQuickLog = true;
 
     try {
@@ -470,7 +471,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
 
         await offlineManager.executeWithOfflineHandling(
             saveOperation,
-            'Sin conexion. El Quick Log se guardara al recuperar Internet.',
+            t('quicklog.saved_when_online'),
             true,
             {
                 type: 'quicklog.save',
@@ -479,7 +480,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
         );
 
         invalidatePostSaveCaches(user.uid);
-        toast.success('Quick Log guardado con exito.');
+        toast.success(t('quicklog.saved_success'));
 
         if (typeof onSuccess === 'function') {
             onSuccess(finalQuickLogData);
@@ -494,7 +495,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
         logger.error('Error saving quick log:', error);
 
         if (error.message?.startsWith('Offline:')) {
-            toast.info('Quick Log en cola. Se guardara cuando vuelvas a estar en linea.');
+            toast.info(t('quicklog.saved_queued'));
             return {
                 ok: true,
                 queued: true,
@@ -502,7 +503,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             };
         }
 
-        toast.error('Error al guardar el Quick Log.');
+        toast.error(t('quicklog.save_error'));
 
         if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
             const { loadFirebaseDiagnostics } = await import('../app.js');
@@ -534,7 +535,7 @@ export function checkAndOfferResumeSession(userRoutines) {
         const routine = userRoutines.find(r => r.id === inProgress.routineId);
         
         if (routine) {
-            dashboardElements.resumeSessionInfo.textContent = `Tienes una sesión de "${routine.name}" sin guardar.`;
+            dashboardElements.resumeSessionInfo.textContent = t('session.resume_available', { name: routine.name });
             dashboardElements.resumeSessionBtn.classList.remove('hidden');
             resumeArea.classList.add('visible');
             
@@ -569,13 +570,13 @@ export async function startSession(routineId, userRoutines) {
     
     const selectedRoutine = userRoutines.find(r => r.id === routineId);
     if (!selectedRoutine) {
-        toast.error('Rutina no encontrada. Por favor, selecciona otra.');
+        toast.error(t('session.start_routine_not_found'));
         return;
     }
 
     const inProgress = loadInProgressSession();
     if (inProgress && inProgress.routineId !== routineId) {
-        if (!confirm('Tienes otra sesión en progreso. ¿Descartarla y empezar esta nueva?')) {
+        if (!confirm(t('session.discard_other_confirm'))) {
             return;
         }
         clearInProgressSession();
@@ -591,7 +592,7 @@ export async function startSession(routineId, userRoutines) {
  * Cancels the current session
  */
 export function cancelSession() {
-    if (confirm('¿Estás seguro de que quieres cancelar? Se perderán los datos no guardados.')) {
+    if (confirm(t('session.cancel_confirm'))) {
         sessionElements.form.reset();
         clearInProgressSession();
         clearTimerData();
@@ -646,4 +647,5 @@ export default {
     cancelSession,
     setupSessionAutoSave
 };
+
 
