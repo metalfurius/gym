@@ -19,7 +19,6 @@ import ThemeManager from './theme-manager.js';
 import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, handleExerciseChange } from './progress.js';
 import {
     initI18n,
-    applyTranslations,
     setLanguage,
     getLanguage,
     onLanguageChange,
@@ -1063,8 +1062,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (languageSelectElement) {
             languageSelectElement.value = getLanguage();
         }
-
-        applyTranslations(document);
 
         const currentUser = getCurrentUser();
         if (currentUser && dashboardElements.currentDate) {

@@ -1,40 +1,42 @@
-/**
- * Sistema de gestión de temas para My Workout Tracker
+﻿/**
+ * Sistema de gestiÃ³n de temas para My Workout Tracker
  */
 import { t, onLanguageChange } from './i18n.js';
 
 class ThemeManager {
     constructor() {
         this.themes = {
-            'default': { 
-                name: 'Moderno', 
-                icon: '🎨',
+            'default': {
+                name: 'Moderno',
+                icon: '\uD83C\uDFA8',
                 description: 'Tema azul moderno y elegante'
             },
-            'dark': { 
-                name: 'Oscuro', 
-                icon: '🌙',
+            'dark': {
+                name: 'Oscuro',
+                icon: '\uD83C\uDF19',
                 description: 'Tema oscuro para usar de noche'
             },
-            'nature': { 
-                name: 'Natural', 
-                icon: '🌿',
+            'nature': {
+                name: 'Natural',
+                icon: '\uD83C\uDF3F',
                 description: 'Tema verde inspirado en la naturaleza'
             },
-            'sunset': { 
-                name: 'Atardecer', 
-                icon: '🌅',
-                description: 'Colores cálidos del atardecer'
+            'sunset': {
+                name: 'Atardecer',
+                icon: '\uD83C\uDF05',
+                description: 'Colores c\u00e1lidos del atardecer'
             },
-            'ocean': { 
-                name: 'Océano', 
-                icon: '🌊',
-                description: 'Azules profundos del océano'
+            'ocean': {
+                name: 'Oc\u00e9ano',
+                icon: '\uD83C\uDF0A',
+                description: 'Azules profundos del oc\u00e9ano'
             }
         };
         
         this.currentTheme = this.loadTheme();
         this.unsubscribeLanguageChange = null;
+        this.escapeKeyHandler = null;
+        this.activeThemeModal = null;
         this.init();
     }
 
@@ -48,18 +50,20 @@ class ThemeManager {
                 this.updateThemeDisplay();
                 const openModal = document.querySelector('.theme-modal');
                 if (openModal) {
-                    openModal.parentNode?.removeChild(openModal);
+                    this.closeThemeModal(openModal, { immediate: true });
                     this.showThemeSelector();
                 }
             });
         }
-    }    setupEventListeners() {
+    }
+
+    setupEventListeners() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle) {
             // Remover event listener existente si lo hay
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
             
-            // Crear función bound para poder removerla después
+            // Crear funciÃ³n bound para poder removerla despuÃ©s
             this.handleThemeToggleClick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -68,23 +72,28 @@ class ThemeManager {
             
             themeToggle.addEventListener('click', this.handleThemeToggleClick);
         }
-    }showThemeSelector() {
+    }
+
+    showThemeSelector() {
         // Verificar si ya hay un modal abierto
         const existingModal = document.querySelector('.theme-modal');
         if (existingModal) {
             return; // No crear otro modal si ya hay uno
         }
         
-        // Crear modal de selección de temas
+        // Crear modal de selecciÃ³n de temas
         const modal = this.createThemeModal();
+        this.activeThemeModal = modal;
         document.body.appendChild(modal);
         
-        // Agregar event listener para cerrar solo en el overlay y botón close
+        // Agregar event listener para cerrar solo en el overlay y botÃ³n close
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 this.closeThemeModal(modal);
             }
-        });        // Event listener específico para el botón de cerrar
+        });
+
+        // Event listener especÃ­fico para el botÃ³n de cerrar
         const closeBtn = modal.querySelector('.theme-modal-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', (e) => {
@@ -94,15 +103,14 @@ class ThemeManager {
         }
 
         // Agregar soporte para cerrar con Escape
-        const handleEscapeKey = (e) => {
+        this.escapeKeyHandler = (e) => {
             if (e.key === 'Escape') {
                 this.closeThemeModal(modal);
-                document.removeEventListener('keydown', handleEscapeKey);
             }
         };
-        document.addEventListener('keydown', handleEscapeKey);
+        document.addEventListener('keydown', this.escapeKeyHandler);
 
-        // Mostrar modal con animación
+        // Mostrar modal con animaciÃ³n
         requestAnimationFrame(() => {
             modal.classList.add('show');
         });
@@ -139,7 +147,9 @@ class ThemeManager {
                     </div>
                 </div>
             </div>
-        `;        // Agregar event listeners a las opciones de tema
+        `;
+
+        // Agregar event listeners a las opciones de tema
         modal.querySelectorAll('.theme-option').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevenir que el evento se propague al modal
@@ -152,7 +162,31 @@ class ThemeManager {
         return modal;
     }
 
-    closeThemeModal(modal) {
+    closeThemeModal(modal, options = {}) {
+        if (!modal) {
+            return;
+        }
+
+        if (typeof this.escapeKeyHandler === 'function') {
+            document.removeEventListener('keydown', this.escapeKeyHandler);
+            this.escapeKeyHandler = null;
+        }
+
+        if (this.activeThemeModal === modal) {
+            this.activeThemeModal = null;
+        }
+
+        if (options.immediate) {
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+            return;
+        }
+
+        if (modal.classList.contains('closing')) {
+            return;
+        }
+
         modal.classList.add('closing');
         setTimeout(() => {
             if (modal.parentNode) {
@@ -161,12 +195,13 @@ class ThemeManager {
         }, 300);
     }
 
-    // Método para limpiar event listeners
+    // MÃ©todo para limpiar event listeners
     cleanup() {
         const themeToggle = document.getElementById('theme-toggle');
         if (themeToggle && this.handleThemeToggleClick) {
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
         }
+        this.closeThemeModal(this.activeThemeModal, { immediate: true });
         if (typeof this.unsubscribeLanguageChange === 'function') {
             this.unsubscribeLanguageChange();
             this.unsubscribeLanguageChange = null;
@@ -453,3 +488,4 @@ if (!document.getElementById('theme-modal-styles')) {
 
 // Exportar para uso en app.js
 export default ThemeManager;
+
