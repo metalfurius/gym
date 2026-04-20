@@ -123,6 +123,10 @@ function clickCalendarNav(id) {
     calendarClickHandler({ target: { id } });
 }
 
+function getTrackReadCallsByLabel(label) {
+    return mockTrackRead.mock.calls.filter(([, operation]) => operation === label);
+}
+
 describe('Calendar module', () => {
     const user = { uid: 'calendar-user-1' };
 
@@ -232,7 +236,8 @@ describe('Calendar module', () => {
         expect(cell.classList.contains('level-3')).toBe(true);
         expect(cell.title).not.toContain(`${dateString}:`);
         expect(mockDeserializeActivityMap).toHaveBeenCalled();
-        expect(mockTrackRead).not.toHaveBeenCalled();
+        expect(getTrackReadCallsByLabel('calendar.monthlyActivity')).toHaveLength(0);
+        expect(getTrackReadCallsByLabel('calendar.minimumBound')).toHaveLength(1);
     });
 
     it('debounces repeated updateCalendarView calls', async () => {
@@ -254,7 +259,8 @@ describe('Calendar module', () => {
         expect(mockTrackRead).not.toHaveBeenCalled();
 
         await flushDebounce();
-        expect(mockTrackRead).toHaveBeenCalledTimes(1);
+        expect(getTrackReadCallsByLabel('calendar.monthlyActivity')).toHaveLength(1);
+        expect(getTrackReadCallsByLabel('calendar.minimumBound')).toHaveLength(1);
     });
 
     it('navigates months and clamps at earliest activity month', async () => {
@@ -307,6 +313,35 @@ describe('Calendar module', () => {
         await flushDebounce();
 
         expect(getCalendarState()).toEqual(stateBefore);
+    });
+
+    it('keeps backward navigation permissive when earliest activity payload is invalid', async () => {
+        __firestoreState.documents.set(
+            `users/${user.uid}/sesiones_entrenamiento/session-invalid-fecha`,
+            {
+                fecha: null,
+                ejercicios: [{ tipoEjercicio: 'strength' }]
+            }
+        );
+
+        initCalendar();
+        resetToCurrentMonth();
+        await flushDebounce();
+
+        const before = getCalendarState();
+        expect(document.getElementById('prev-month-btn').disabled).toBe(false);
+        expect(mockLoggerWarn).toHaveBeenCalledWith('Could not resolve earliest activity month due to invalid date payload.');
+
+        clickCalendarNav('prev-month-btn');
+        await flushDebounce();
+
+        const expectedMonth = before.month === 0 ? 11 : before.month - 1;
+        const expectedYear = before.month === 0 ? before.year - 1 : before.year;
+        expect(getCalendarState()).toEqual({
+            year: expectedYear,
+            month: expectedMonth
+        });
+        expect(getTrackReadCallsByLabel('calendar.minimumBound')).toHaveLength(1);
     });
 
     it('does not navigate beyond current month when pressing next', async () => {

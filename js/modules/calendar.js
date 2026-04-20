@@ -151,6 +151,7 @@ async function resolveMinimumBoundForUser(userId) {
             limit(1)
         );
         const querySnapshot = await getDocs(earliestSessionQuery);
+        firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.minimumBound');
 
         if (querySnapshot.empty) {
             const today = new Date();
