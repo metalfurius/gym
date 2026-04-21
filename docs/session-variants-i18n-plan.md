@@ -1,11 +1,11 @@
 # Session-Time Exercise Variants + ES/EN Language System Plan
 
-Last updated: March 29, 2026  
-Status: Planned (documentation only, no implementation yet)
+Last updated: April 21, 2026  
+Status: Implemented (Phase 1 + Phase 2 delivered)
 
 ## Purpose
 
-Define the next feature/fun milestone after Exercise Execution Modes:
+Define the milestone that followed Exercise Execution Modes:
 
 1. Let users choose strength exercise `executionMode` and `loadType` during each session.
 2. Add a complete ES/EN language system and remove mixed-language copy.
@@ -71,7 +71,7 @@ Out of scope:
 3. Session fields `modoEjecucion`/`tipoCarga` continue as canonical session execution descriptors.
 4. Local override memory is intentionally outside the cloud data contract.
 
-## Validation Gates for Future Implementation
+## Validation Gates (Implementation Record)
 
 1. `npm run lint:ratchet`
 2. `npm run test:app`
