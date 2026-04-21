@@ -2,9 +2,9 @@ import { t, getLocale } from '../i18n.js';
 export const QUICK_LOG_DEFAULT_LABEL = 'Quick Log';
 export const QUICK_LOG_DEFAULT_NOTE_TITLE_PREFIX = 'Nota';
 export const WEEKLY_TARGET_DEFAULT = 3;
+export const WEEKLY_STREAK_LOOKBACK_WEEKS = 52;
 const WEEKLY_TARGET_MIN = 1;
 const WEEKLY_TARGET_MAX = 7;
-const WEEKLY_STREAK_LOOKBACK_WEEKS = 52;
 
 function normalizeText(value) {
     return (value || '').toString().trim();
@@ -88,6 +88,15 @@ function getWeekStartMonday(value) {
 
 function toWeekKey(value) {
     return toLocalDateKey(getWeekStartMonday(value));
+}
+
+export function getWeeklyConsistencyWindowStartDate(now = new Date(), lookbackWeeks = WEEKLY_STREAK_LOOKBACK_WEEKS) {
+    const resolvedNow = normalizeQuickLogDate(now, new Date());
+    const resolvedLookbackWeeks = normalizeLookbackWeeks(lookbackWeeks);
+    const currentWeekStart = getWeekStartMonday(resolvedNow);
+    const windowStart = new Date(currentWeekStart);
+    windowStart.setDate(windowStart.getDate() - ((resolvedLookbackWeeks - 1) * 7));
+    return windowStart;
 }
 
 export function normalizeQuickLogDate(value, fallbackDate = new Date()) {
@@ -221,9 +230,8 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
     );
     const lookbackWeeks = normalizeLookbackWeeks(input.lookbackWeeks);
     const currentWeekStart = getWeekStartMonday(now);
-    const windowStart = new Date(currentWeekStart);
+    const windowStart = getWeeklyConsistencyWindowStartDate(now, lookbackWeeks);
     const todayLocal = startOfLocalDay(now);
-    windowStart.setDate(windowStart.getDate() - ((lookbackWeeks - 1) * 7));
 
     const activeDaysByWeek = new Map();
 

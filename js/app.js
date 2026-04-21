@@ -4,7 +4,7 @@
  */
 
 import { db } from './firebase-config.js';
-import { collection, addDoc, Timestamp, query, orderBy, getDocs, doc, setDoc, deleteDoc, writeBatch, limit } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { collection, addDoc, Timestamp, query, orderBy, where, getDoc, getDocs, doc, setDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser, handleLogout } from './auth.js';
 import {
     showView, formatDate, populateDaySelector,
@@ -37,6 +37,10 @@ import { normalizeLoadType } from './utils/load-type.js';
 import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
 import {
     computeDailyHubState,
+    getWeeklyConsistencyWindowStartDate,
+    normalizeWeeklyTargetDays,
+    WEEKLY_STREAK_LOOKBACK_WEEKS,
+    WEEKLY_TARGET_DEFAULT,
     toDatetimeLocalValue
 } from './utils/quick-log.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
@@ -79,11 +83,221 @@ let themeManager = null;
 // State
 let currentUserRoutines = [];
 const ROUTINES_CACHE_TTL_MS = 10 * 60 * 1000;
-const DAILY_HUB_SESSIONS_LIMIT = 40;
 const DAILY_HUB_CACHE_TTL_MS = 30 * 1000;
+const USER_PREFERENCES_CACHE_TTL_MS = 10 * 60 * 1000;
 let dailyHubSessionsCache = [];
 let dailyHubLastFetchTimestamp = 0;
 let dailyHubCacheUserId = null;
+let weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+let weeklyTargetCacheUserId = null;
+let weeklyTargetLastFetchTimestamp = 0;
+
+function getWeeklyTargetSelectElement() {
+    return document.getElementById('weekly-target-days-select');
+}
+
+function getWeeklyTargetSaveButtonElement() {
+    return document.getElementById('weekly-target-save-btn');
+}
+
+function getUserPreferencesDocRef(userId) {
+    return doc(db, 'users', userId, 'app_data', 'user_preferences');
+}
+
+function getUserPreferencesCacheKey(userId) {
+    return `user-preferences:${userId}`;
+}
+
+function applyWeeklyTargetControlValue(value) {
+    const weeklyTargetSelectElement = getWeeklyTargetSelectElement();
+    if (!weeklyTargetSelectElement) return;
+
+    weeklyTargetSelectElement.value = `${normalizeWeeklyTargetDays(value, WEEKLY_TARGET_DEFAULT)}`;
+}
+
+async function cacheWeeklyTargetDays(userId, targetDays, updatedAtIso = new Date().toISOString()) {
+    await localFirstCache.set(getUserPreferencesCacheKey(userId), {
+        weeklyTargetDays: normalizeWeeklyTargetDays(targetDays, WEEKLY_TARGET_DEFAULT),
+        updatedAtIso
+    }, {
+        metadata: { source: 'preferences' }
+    });
+}
+
+async function readWeeklyTargetFromCache(userId) {
+    try {
+        const cachedEntry = await localFirstCache.getEntry(getUserPreferencesCacheKey(userId));
+        const cachedTarget = cachedEntry?.value?.weeklyTargetDays;
+        if (cachedTarget === undefined || cachedTarget === null) {
+            return null;
+        }
+
+        return normalizeWeeklyTargetDays(cachedTarget, WEEKLY_TARGET_DEFAULT);
+    } catch (error) {
+        logger.warn('Could not read cached weekly target:', error);
+        return null;
+    }
+}
+
+async function persistWeeklyTargetPreference(userId, targetDays, updatedAtIso = new Date().toISOString()) {
+    const normalizedTargetDays = normalizeWeeklyTargetDays(targetDays, WEEKLY_TARGET_DEFAULT);
+    const updatedAtDate = new Date(updatedAtIso);
+    const safeUpdatedAtDate = Number.isNaN(updatedAtDate.getTime()) ? new Date() : updatedAtDate;
+
+    await setDoc(getUserPreferencesDocRef(userId), {
+        weeklyTargetDays: normalizedTargetDays,
+        schemaVersion: 1,
+        updatedAt: Timestamp.fromDate(safeUpdatedAtDate)
+    }, { merge: true });
+    firebaseUsageTracker.trackWrite(1, 'preferences.weeklyTarget.save');
+
+    await cacheWeeklyTargetDays(userId, normalizedTargetDays, safeUpdatedAtDate.toISOString());
+
+    weeklyTargetDays = normalizedTargetDays;
+    weeklyTargetCacheUserId = userId;
+    weeklyTargetLastFetchTimestamp = Date.now();
+    applyWeeklyTargetControlValue(normalizedTargetDays);
+}
+
+async function fetchWeeklyTargetPreference(user, options = {}) {
+    if (!user) {
+        weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+        weeklyTargetCacheUserId = null;
+        weeklyTargetLastFetchTimestamp = 0;
+        applyWeeklyTargetControlValue(weeklyTargetDays);
+        return weeklyTargetDays;
+    }
+
+    if (weeklyTargetCacheUserId !== user.uid) {
+        weeklyTargetCacheUserId = user.uid;
+        weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+        weeklyTargetLastFetchTimestamp = 0;
+    }
+
+    const forceRefresh = options.forceRefresh === true;
+    const hasFreshMemoryValue = !forceRefresh
+        && weeklyTargetCacheUserId === user.uid
+        && (Date.now() - weeklyTargetLastFetchTimestamp) <= USER_PREFERENCES_CACHE_TTL_MS;
+
+    if (hasFreshMemoryValue) {
+        applyWeeklyTargetControlValue(weeklyTargetDays);
+        return weeklyTargetDays;
+    }
+
+    if (!offlineManager.checkOnline()) {
+        const cachedValue = await readWeeklyTargetFromCache(user.uid);
+        if (cachedValue !== null) {
+            weeklyTargetDays = cachedValue;
+            weeklyTargetLastFetchTimestamp = Date.now();
+            applyWeeklyTargetControlValue(weeklyTargetDays);
+            return weeklyTargetDays;
+        }
+
+        applyWeeklyTargetControlValue(weeklyTargetDays);
+        return weeklyTargetDays;
+    }
+
+    try {
+        const docSnap = await getDoc(getUserPreferencesDocRef(user.uid));
+        firebaseUsageTracker.trackRead(docSnap.exists() ? 1 : 0, 'preferences.weeklyTarget.read');
+
+        const nextWeeklyTargetDays = docSnap.exists()
+            ? normalizeWeeklyTargetDays(docSnap.data()?.weeklyTargetDays, WEEKLY_TARGET_DEFAULT)
+            : (await readWeeklyTargetFromCache(user.uid)) ?? WEEKLY_TARGET_DEFAULT;
+
+        weeklyTargetDays = nextWeeklyTargetDays;
+        weeklyTargetLastFetchTimestamp = Date.now();
+        applyWeeklyTargetControlValue(weeklyTargetDays);
+
+        await cacheWeeklyTargetDays(user.uid, weeklyTargetDays);
+        return weeklyTargetDays;
+    } catch (error) {
+        logger.warn('Could not load weekly target preference:', error);
+        const cachedValue = await readWeeklyTargetFromCache(user.uid);
+        if (cachedValue !== null) {
+            weeklyTargetDays = cachedValue;
+            weeklyTargetLastFetchTimestamp = Date.now();
+        }
+
+        applyWeeklyTargetControlValue(weeklyTargetDays);
+        return weeklyTargetDays;
+    }
+}
+
+function buildWeeklyTargetQueuePayload(userId, targetDays) {
+    return {
+        userId,
+        weeklyTargetDays: normalizeWeeklyTargetDays(targetDays, WEEKLY_TARGET_DEFAULT),
+        updatedAtIso: new Date().toISOString()
+    };
+}
+
+async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
+    const user = getCurrentUser();
+    if (!user) {
+        toast.error(t('settings.weekly_goal_requires_login'));
+        return { ok: false, reason: 'unauthenticated' };
+    }
+
+    const normalizedTargetDays = normalizeWeeklyTargetDays(targetDaysValue, WEEKLY_TARGET_DEFAULT);
+    const triggerButton = options.triggerButton || null;
+
+    showLoading(triggerButton, t('common.saving'));
+
+    try {
+        await offlineManager.executeWithOfflineHandling(
+            async () => {
+                await persistWeeklyTargetPreference(user.uid, normalizedTargetDays);
+            },
+            t('settings.weekly_goal_save_offline'),
+            true,
+            {
+                type: 'preferences.saveWeeklyTarget',
+                payload: buildWeeklyTargetQueuePayload(user.uid, normalizedTargetDays)
+            }
+        );
+
+        await refreshDailyHub(user, { forceRefresh: true });
+        toast.success(t('settings.weekly_goal_saved'));
+        return { ok: true, queued: false };
+    } catch (error) {
+        const wasQueued = error.message?.startsWith('Offline:') || offlineManager.isNetworkError(error);
+        if (wasQueued) {
+            weeklyTargetDays = normalizedTargetDays;
+            weeklyTargetCacheUserId = user.uid;
+            weeklyTargetLastFetchTimestamp = Date.now();
+            applyWeeklyTargetControlValue(weeklyTargetDays);
+            await cacheWeeklyTargetDays(user.uid, weeklyTargetDays);
+            await refreshDailyHub(user, { forceRefresh: true });
+
+            toast.info(t('settings.weekly_goal_saved_queued'));
+            return { ok: true, queued: true };
+        }
+
+        logger.error('Error saving weekly target preference:', error);
+        toast.error(t('settings.weekly_goal_save_error'));
+        return { ok: false, reason: 'error', error };
+    } finally {
+        hideLoading(triggerButton);
+    }
+}
+
+function setupWeeklyTargetSettingsControls() {
+    const weeklyTargetSelectElement = getWeeklyTargetSelectElement();
+    const weeklyTargetSaveButtonElement = getWeeklyTargetSaveButtonElement();
+
+    if (!weeklyTargetSelectElement || !weeklyTargetSaveButtonElement) {
+        return;
+    }
+
+    applyWeeklyTargetControlValue(weeklyTargetDays);
+
+    weeklyTargetSaveButtonElement.addEventListener('click', async () => {
+        await saveWeeklyTargetPreference(weeklyTargetSelectElement.value, {
+            triggerButton: weeklyTargetSaveButtonElement
+        });
+    });
+}
 
 function getLanguageSelectElement() {
     return document.getElementById('language-select');
@@ -243,6 +457,22 @@ function applyDailyHubState(state) {
         dashboardElements.dailyHubSyncStatus.classList.add(syncClass);
     }
 
+    if (dashboardElements.dailyHubWeeklyProgress) {
+        dashboardElements.dailyHubWeeklyProgress.textContent = t('dashboard.weekly_progress_value', {
+            days: state.weeklyProgressDays ?? 0,
+            target: state.weeklyTargetDays ?? WEEKLY_TARGET_DEFAULT
+        });
+        dashboardElements.dailyHubWeeklyProgress.classList.toggle('progress-met', state.weeklyProgressMet === true);
+    }
+
+    if (dashboardElements.dailyHubCurrentStreak) {
+        dashboardElements.dailyHubCurrentStreak.textContent = `${state.currentWeeklyStreak ?? 0}`;
+    }
+
+    if (dashboardElements.dailyHubBestStreak) {
+        dashboardElements.dailyHubBestStreak.textContent = `${state.bestWeeklyStreak ?? 0}`;
+    }
+
     if (dashboardElements.dailyHubEmptyState) {
         dashboardElements.dailyHubEmptyState.classList.toggle('hidden', !state.isEmpty);
     }
@@ -278,10 +508,12 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
 
     try {
         const sessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
+        const now = new Date();
+        const windowStart = getWeeklyConsistencyWindowStartDate(now, WEEKLY_STREAK_LOOKBACK_WEEKS);
         const dailyHubQuery = query(
             sessionsCollectionRef,
-            orderBy('fecha', 'desc'),
-            limit(DAILY_HUB_SESSIONS_LIMIT)
+            where('fecha', '>=', Timestamp.fromDate(windowStart)),
+            orderBy('fecha', 'desc')
         );
         const querySnapshot = await getDocs(dailyHubQuery);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'dashboard.dailyHub');
@@ -308,7 +540,10 @@ async function refreshDailyHub(user, options = {}) {
         dashboardElements.dailyHubMonthCount
         && dashboardElements.dailyHubLastWorkout
         && dashboardElements.dailyHubRoutineShortcut
-        && dashboardElements.dailyHubSyncStatus;
+        && dashboardElements.dailyHubSyncStatus
+        && dashboardElements.dailyHubWeeklyProgress
+        && dashboardElements.dailyHubCurrentStreak
+        && dashboardElements.dailyHubBestStreak;
 
     if (!hasDailyHubElements) {
         return;
@@ -322,6 +557,7 @@ async function refreshDailyHub(user, options = {}) {
         routines: currentUserRoutines,
         selectedRoutineId: dashboardElements.daySelect?.value || '',
         now: new Date(),
+        weeklyTargetDays,
         isOnline: offlineManager.checkOnline(),
         pendingCount: offlineManager.getPendingCount()
     });
@@ -345,6 +581,7 @@ export async function initializeAppAfterAuth(user) {
         
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user);
+        await fetchWeeklyTargetPreference(user, { forceRefresh: true });
         setQuickLogDateTimeToNow();
         await refreshDailyHub(user, { forceRefresh: true });
         
@@ -377,11 +614,16 @@ export async function initializeAppAfterAuth(user) {
         dailyHubCacheUserId = null;
         dailyHubSessionsCache = [];
         dailyHubLastFetchTimestamp = 0;
+        weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+        weeklyTargetCacheUserId = null;
+        weeklyTargetLastFetchTimestamp = 0;
+        applyWeeklyTargetControlValue(weeklyTargetDays);
         setQuickLogDateTimeToNow();
         applyDailyHubState(computeDailyHubState({
             sessions: [],
             routines: [],
             now: new Date(),
+            weeklyTargetDays,
             isOnline: offlineManager.checkOnline(),
             pendingCount: offlineManager.getPendingCount()
         }));
@@ -528,6 +770,29 @@ offlineManager.registerOperationHandler('routines.fetch', async (payload) => {
     }
 
     await refreshUserRoutinesFromFirestore(currentUser);
+});
+
+offlineManager.registerOperationHandler('preferences.saveWeeklyTarget', async (payload) => {
+    if (!payload?.userId) {
+        throw new Error('Invalid queued preferences.saveWeeklyTarget payload');
+    }
+
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+        throw new Error('User not ready for weekly target replay');
+    }
+
+    if (currentUser.uid !== payload.userId) {
+        logger.warn('Dropping queued weekly target update for a different user');
+        return;
+    }
+
+    await persistWeeklyTargetPreference(
+        payload.userId,
+        payload.weeklyTargetDays,
+        payload.updatedAtIso
+    );
+    await refreshDailyHub(currentUser, { forceRefresh: true });
 });
 
 // --- View-specific listener setup ---
@@ -1093,6 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize modules
     initScrollToTop();
     initSettings();
+    setupWeeklyTargetSettingsControls();
 });
 
 showView('auth');

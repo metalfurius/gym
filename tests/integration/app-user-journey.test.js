@@ -120,6 +120,9 @@ describe('App User Journey', () => {
         expect(isVisible('dashboard-view')).toBe(true);
         expect(document.getElementById('user-email').textContent).toContain(testEmail);
         expect(document.getElementById('daily-hub-month-count').textContent).toBe('0');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('0/3');
+        expect(document.getElementById('daily-hub-current-streak').textContent).toBe('0');
+        expect(document.getElementById('daily-hub-best-streak').textContent).toBe('0');
         expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(false);
 
         setField('#quick-log-label', 'Quick Morning');
@@ -139,7 +142,24 @@ describe('App User Journey', () => {
         expect(quickLogSessions[0].data.nombreEntrenamiento).toBe('Quick Morning');
         expect(quickLogSessions[0].data.quickLog.source).toBe('quick_log');
         expect(document.getElementById('daily-hub-month-count').textContent).toBe('1');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/3');
         expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(true);
+
+        click('#settings-btn');
+        await waitForUi(120);
+        setField('#weekly-target-days-select', '2');
+        click('#weekly-target-save-btn');
+        await waitForUi(220);
+
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/2');
+
+        const appDataDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
+        const userPreferencesDoc = appDataDocs.find((entry) => entry.id === 'user_preferences');
+        expect(userPreferencesDoc).toBeDefined();
+        expect(userPreferencesDoc.data.weeklyTargetDays).toBe(2);
+
+        click('.settings-modal-close');
+        await waitForUi(50);
 
         click('#nav-manage-routines');
         await waitForUi(50);
