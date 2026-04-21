@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase-config.js';
-import { collection, query, where, getDocs, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { collection, query, where, orderBy, limit, getDocs, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
@@ -15,13 +15,21 @@ import { serializeActivityMap, deserializeActivityMap } from '../utils/firestore
 import { t, getLocale } from '../i18n.js';
 
 // Constants
+// Legacy export kept for compatibility with older integrations/tests.
 const MIN_CALENDAR_YEAR = 2025;
 const CALENDAR_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+const MINIMUM_BOUND_RETRY_MS = 5 * 60 * 1000;
 
 // State
 let currentCalendarYear = new Date().getFullYear();
 let currentCalendarMonth = new Date().getMonth(); // 0-11 (enero-diciembre)
 let isInitialized = false;
+let minimumBoundUserId = null;
+let minimumBoundYear = null;
+let minimumBoundMonth = null;
+let minimumBoundResolved = false;
+let minimumBoundPermissive = false;
+let minimumBoundLastAttemptAt = 0;
 
 // DOM element references
 let calendarContainer = null;
@@ -101,6 +109,170 @@ function combineWorkoutTypes(type1, type2) {
  */
 function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
+}
+
+/**
+ * Compares two year-month pairs.
+ * @param {number} yearA - First year
+ * @param {number} monthA - First month (0-11)
+ * @param {number} yearB - Second year
+ * @param {number} monthB - Second month (0-11)
+ * @returns {number} -1 if A < B, 1 if A > B, 0 if equal
+ */
+function compareCalendarMonth(yearA, monthA, yearB, monthB) {
+    if (yearA < yearB) return -1;
+    if (yearA > yearB) return 1;
+    if (monthA < monthB) return -1;
+    if (monthA > monthB) return 1;
+    return 0;
+}
+
+/**
+ * Resets dynamic minimum-bound state for calendar navigation.
+ */
+function resetMinimumBoundState() {
+    minimumBoundUserId = null;
+    minimumBoundYear = null;
+    minimumBoundMonth = null;
+    minimumBoundResolved = false;
+    minimumBoundPermissive = false;
+    minimumBoundLastAttemptAt = 0;
+}
+
+/**
+ * Resolves the earliest valid activity month for a user.
+ * Uses a permissive fallback on transient failures, with retry backoff.
+ * @param {string} userId - Authenticated user id
+ */
+async function resolveMinimumBoundForUser(userId) {
+    if (!userId) {
+        resetMinimumBoundState();
+        return;
+    }
+
+    if (minimumBoundUserId !== userId) {
+        minimumBoundUserId = userId;
+        minimumBoundYear = null;
+        minimumBoundMonth = null;
+        minimumBoundResolved = false;
+        minimumBoundPermissive = false;
+    }
+
+    if (minimumBoundResolved) {
+        return;
+    }
+
+    const now = Date.now();
+    if (minimumBoundPermissive && (now - minimumBoundLastAttemptAt) < MINIMUM_BOUND_RETRY_MS) {
+        return;
+    }
+
+    minimumBoundLastAttemptAt = now;
+
+    try {
+        const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
+        const earliestSessionQuery = query(
+            sessionsRef,
+            orderBy('fecha', 'asc'),
+            limit(10)
+        );
+        const querySnapshot = await getDocs(earliestSessionQuery);
+        firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.minimumBound');
+
+        if (querySnapshot.empty) {
+            const today = new Date();
+            minimumBoundYear = today.getFullYear();
+            minimumBoundMonth = today.getMonth();
+            minimumBoundResolved = true;
+            minimumBoundPermissive = false;
+            return;
+        }
+
+        const earliestSessionDate = querySnapshot.docs
+            .map((docSnap) => docSnap?.data?.()?.fecha?.toDate?.())
+            .find((date) => date instanceof Date && !Number.isNaN(date.getTime()));
+
+        if (earliestSessionDate) {
+            minimumBoundYear = earliestSessionDate.getFullYear();
+            minimumBoundMonth = earliestSessionDate.getMonth();
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+            if (
+                compareCalendarMonth(
+                    minimumBoundYear,
+                    minimumBoundMonth,
+                    currentYear,
+                    currentMonth
+                ) > 0
+            ) {
+                logger.warn('Resolved earliest activity month is in the future. Clamping lower bound to current month.');
+                minimumBoundYear = currentYear;
+                minimumBoundMonth = currentMonth;
+            }
+
+            minimumBoundResolved = true;
+            minimumBoundPermissive = false;
+            return;
+        }
+
+        logger.warn('Could not resolve earliest activity month due to invalid date payload.');
+        minimumBoundPermissive = true;
+    } catch (error) {
+        logger.warn('Could not resolve earliest activity month. Backward navigation will stay enabled:', error);
+        minimumBoundPermissive = true;
+    }
+}
+
+/**
+ * Clamps current calendar state to valid navigation bounds.
+ */
+function clampCalendarToAllowedRange() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+
+    // Guard against future navigation.
+    if (
+        currentCalendarYear > currentYear
+        || (currentCalendarYear === currentYear && currentCalendarMonth > currentMonth)
+    ) {
+        currentCalendarYear = currentYear;
+        currentCalendarMonth = currentMonth;
+    }
+
+    // When the lower bound cannot be resolved, keep backward navigation permissive.
+    if (!minimumBoundResolved || minimumBoundPermissive) {
+        return;
+    }
+
+    let effectiveMinimumBoundYear = minimumBoundYear;
+    let effectiveMinimumBoundMonth = minimumBoundMonth;
+    if (
+        compareCalendarMonth(
+            effectiveMinimumBoundYear,
+            effectiveMinimumBoundMonth,
+            currentYear,
+            currentMonth
+        ) > 0
+    ) {
+        logger.warn('Resolved earliest activity month is in the future. Clamping lower bound to current month.');
+        effectiveMinimumBoundYear = currentYear;
+        effectiveMinimumBoundMonth = currentMonth;
+    }
+
+    if (
+        compareCalendarMonth(
+            currentCalendarYear,
+            currentCalendarMonth,
+            effectiveMinimumBoundYear,
+            effectiveMinimumBoundMonth
+        ) < 0
+    ) {
+        currentCalendarYear = effectiveMinimumBoundYear;
+        currentCalendarMonth = effectiveMinimumBoundMonth;
+    }
 }
 
 /**
@@ -347,9 +519,14 @@ function updateCalendarNavigation() {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     
-    // Disable "prev" button if at minimum month/year
-    const isAtMinimum = (currentCalendarYear === MIN_CALENDAR_YEAR && currentCalendarMonth === 0) ||
-                       currentCalendarYear < MIN_CALENDAR_YEAR;
+    // Disable "prev" button only when the current view is exactly the lower bound month.
+    const hasResolvedBound = minimumBoundResolved
+        && Number.isInteger(minimumBoundYear)
+        && Number.isInteger(minimumBoundMonth);
+    const isAtMinimum = hasResolvedBound
+        && !minimumBoundPermissive
+        && currentCalendarYear === minimumBoundYear
+        && currentCalendarMonth === minimumBoundMonth;
     
     // Disable "next" button if at current month/year
     const isAtMaximum = (currentCalendarYear === currentYear && currentCalendarMonth >= currentMonth) ||
@@ -366,6 +543,7 @@ function updateCalendarNavigation() {
 async function updateCalendarViewInternal() {
     const user = getCurrentUser();
     if (!user) {
+        resetMinimumBoundState();
         if (calendarContainer) calendarContainer.classList.add('hidden');
         return;
     }
@@ -386,17 +564,8 @@ async function updateCalendarViewInternal() {
         return;
     }
     
-    // Ensure we don't go below minimum year
-    if (currentCalendarYear < MIN_CALENDAR_YEAR) {
-        currentCalendarYear = MIN_CALENDAR_YEAR;
-        currentCalendarMonth = 0; // January of minimum year
-    }
-    
-    // Validate that we don't go to a future month
-    const today = new Date();
-    if (currentCalendarYear === today.getFullYear() && currentCalendarMonth > today.getMonth()) {
-        currentCalendarMonth = today.getMonth();
-    }
+    await resolveMinimumBoundForUser(user.uid);
+    clampCalendarToAllowedRange();
     
     calendarContainer.classList.remove('hidden');
     
@@ -424,11 +593,19 @@ function navigateToPreviousMonth() {
         currentCalendarMonth = 11;
         currentCalendarYear--;
     }
-    
-    // Check limits
-    if (currentCalendarYear < MIN_CALENDAR_YEAR) {
-        currentCalendarYear = MIN_CALENDAR_YEAR;
-        currentCalendarMonth = 0;
+
+    if (!minimumBoundPermissive && minimumBoundResolved) {
+        if (
+            compareCalendarMonth(
+                currentCalendarYear,
+                currentCalendarMonth,
+                minimumBoundYear,
+                minimumBoundMonth
+            ) < 0
+        ) {
+            currentCalendarYear = minimumBoundYear;
+            currentCalendarMonth = minimumBoundMonth;
+        }
     }
     
     updateCalendarView();
@@ -497,13 +674,7 @@ export function resetToCurrentMonth() {
     const today = new Date();
     currentCalendarYear = today.getFullYear();
     currentCalendarMonth = today.getMonth();
-    
-    // Ensure not below minimum year
-    if (currentCalendarYear < MIN_CALENDAR_YEAR) {
-        currentCalendarYear = MIN_CALENDAR_YEAR;
-        currentCalendarMonth = 0;
-    }
-    
+
     updateCalendarView();
 }
 
@@ -527,6 +698,7 @@ export function destroyCalendar() {
     nextMonthBtn = null;
     loadingSpinner = null;
     isInitialized = false;
+    resetMinimumBoundState();
 
     logger.debug('Calendar module destroyed');
 }
