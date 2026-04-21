@@ -18,6 +18,7 @@ import { t, getLocale } from '../i18n.js';
 // Legacy export kept for compatibility with older integrations/tests.
 const MIN_CALENDAR_YEAR = 2025;
 const CALENDAR_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+const MINIMUM_BOUND_RETRY_MS = 5 * 60 * 1000;
 
 // State
 let currentCalendarYear = new Date().getFullYear();
@@ -28,6 +29,7 @@ let minimumBoundYear = null;
 let minimumBoundMonth = null;
 let minimumBoundResolved = false;
 let minimumBoundPermissive = false;
+let minimumBoundLastAttemptAt = 0;
 
 // DOM element references
 let calendarContainer = null;
@@ -109,6 +111,14 @@ function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
 }
 
+/**
+ * Compares two year-month pairs.
+ * @param {number} yearA - First year
+ * @param {number} monthA - First month (0-11)
+ * @param {number} yearB - Second year
+ * @param {number} monthB - Second month (0-11)
+ * @returns {number} -1 if A < B, 1 if A > B, 0 if equal
+ */
 function compareCalendarMonth(yearA, monthA, yearB, monthB) {
     if (yearA < yearB) return -1;
     if (yearA > yearB) return 1;
@@ -117,14 +127,23 @@ function compareCalendarMonth(yearA, monthA, yearB, monthB) {
     return 0;
 }
 
+/**
+ * Resets dynamic minimum-bound state for calendar navigation.
+ */
 function resetMinimumBoundState() {
     minimumBoundUserId = null;
     minimumBoundYear = null;
     minimumBoundMonth = null;
     minimumBoundResolved = false;
     minimumBoundPermissive = false;
+    minimumBoundLastAttemptAt = 0;
 }
 
+/**
+ * Resolves the earliest valid activity month for a user.
+ * Uses a permissive fallback on transient failures, with retry backoff.
+ * @param {string} userId - Authenticated user id
+ */
 async function resolveMinimumBoundForUser(userId) {
     if (!userId) {
         resetMinimumBoundState();
@@ -139,16 +158,23 @@ async function resolveMinimumBoundForUser(userId) {
         minimumBoundPermissive = false;
     }
 
-    if (minimumBoundResolved || minimumBoundPermissive) {
+    if (minimumBoundResolved) {
         return;
     }
+
+    const now = Date.now();
+    if (minimumBoundPermissive && (now - minimumBoundLastAttemptAt) < MINIMUM_BOUND_RETRY_MS) {
+        return;
+    }
+
+    minimumBoundLastAttemptAt = now;
 
     try {
         const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
         const earliestSessionQuery = query(
             sessionsRef,
             orderBy('fecha', 'asc'),
-            limit(1)
+            limit(10)
         );
         const querySnapshot = await getDocs(earliestSessionQuery);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.minimumBound');
@@ -158,14 +184,36 @@ async function resolveMinimumBoundForUser(userId) {
             minimumBoundYear = today.getFullYear();
             minimumBoundMonth = today.getMonth();
             minimumBoundResolved = true;
+            minimumBoundPermissive = false;
             return;
         }
 
-        const earliestSessionDate = querySnapshot.docs[0]?.data()?.fecha?.toDate?.();
-        if (earliestSessionDate instanceof Date && !Number.isNaN(earliestSessionDate.getTime())) {
+        const earliestSessionDate = querySnapshot.docs
+            .map((docSnap) => docSnap?.data?.()?.fecha?.toDate?.())
+            .find((date) => date instanceof Date && !Number.isNaN(date.getTime()));
+
+        if (earliestSessionDate) {
             minimumBoundYear = earliestSessionDate.getFullYear();
             minimumBoundMonth = earliestSessionDate.getMonth();
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+            if (
+                compareCalendarMonth(
+                    minimumBoundYear,
+                    minimumBoundMonth,
+                    currentYear,
+                    currentMonth
+                ) > 0
+            ) {
+                logger.warn('Resolved earliest activity month is in the future. Clamping lower bound to current month.');
+                minimumBoundYear = currentYear;
+                minimumBoundMonth = currentMonth;
+            }
+
             minimumBoundResolved = true;
+            minimumBoundPermissive = false;
             return;
         }
 
@@ -177,6 +225,9 @@ async function resolveMinimumBoundForUser(userId) {
     }
 }
 
+/**
+ * Clamps current calendar state to valid navigation bounds.
+ */
 function clampCalendarToAllowedRange() {
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -196,16 +247,31 @@ function clampCalendarToAllowedRange() {
         return;
     }
 
+    let effectiveMinimumBoundYear = minimumBoundYear;
+    let effectiveMinimumBoundMonth = minimumBoundMonth;
+    if (
+        compareCalendarMonth(
+            effectiveMinimumBoundYear,
+            effectiveMinimumBoundMonth,
+            currentYear,
+            currentMonth
+        ) > 0
+    ) {
+        logger.warn('Resolved earliest activity month is in the future. Clamping lower bound to current month.');
+        effectiveMinimumBoundYear = currentYear;
+        effectiveMinimumBoundMonth = currentMonth;
+    }
+
     if (
         compareCalendarMonth(
             currentCalendarYear,
             currentCalendarMonth,
-            minimumBoundYear,
-            minimumBoundMonth
+            effectiveMinimumBoundYear,
+            effectiveMinimumBoundMonth
         ) < 0
     ) {
-        currentCalendarYear = minimumBoundYear;
-        currentCalendarMonth = minimumBoundMonth;
+        currentCalendarYear = effectiveMinimumBoundYear;
+        currentCalendarMonth = effectiveMinimumBoundMonth;
     }
 }
 

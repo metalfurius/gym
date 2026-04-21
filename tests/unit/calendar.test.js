@@ -14,6 +14,7 @@ const mockCacheSet = jest.fn();
 const mockTrackRead = jest.fn();
 const mockSerializeActivityMap = jest.fn((map) => Array.from(map.entries()));
 const mockDeserializeActivityMap = jest.fn((entries) => new Map(entries));
+const MINIMUM_BOUND_RETRY_MS = 5 * 60 * 1000;
 
 let calendarClickHandler = null;
 const mockAddViewListener = jest.fn((_view, _element, _event, handler) => {
@@ -301,6 +302,48 @@ describe('Calendar module', () => {
         expect(getCalendarState()).toEqual(minimumState);
     });
 
+    it('uses first valid earliest date when older docs have invalid fecha payloads', async () => {
+        const today = new Date();
+        const earliestActivityDate = new Date(today.getFullYear(), today.getMonth(), 10);
+        earliestActivityDate.setMonth(earliestActivityDate.getMonth() - 2);
+
+        __firestoreState.documents.set(
+            `users/${user.uid}/sesiones_entrenamiento/session-invalid-first`,
+            {
+                fecha: null,
+                ejercicios: [{ tipoEjercicio: 'strength' }]
+            }
+        );
+        seedSession({
+            userId: user.uid,
+            id: 'session-valid-earliest',
+            date: earliestActivityDate,
+            tipos: ['strength']
+        });
+
+        initCalendar();
+        resetToCurrentMonth();
+        await flushDebounce();
+
+        for (let i = 0; i < 60; i++) {
+            const state = getCalendarState();
+            if (
+                state.year === earliestActivityDate.getFullYear()
+                && state.month === earliestActivityDate.getMonth()
+            ) {
+                break;
+            }
+            clickCalendarNav('prev-month-btn');
+            await flushDebounce();
+        }
+
+        expect(getCalendarState()).toEqual({
+            year: earliestActivityDate.getFullYear(),
+            month: earliestActivityDate.getMonth()
+        });
+        expect(document.getElementById('prev-month-btn').disabled).toBe(true);
+    });
+
     it('uses current month as lower bound when user has no sessions', async () => {
         initCalendar();
         resetToCurrentMonth();
@@ -342,6 +385,39 @@ describe('Calendar module', () => {
             month: expectedMonth
         });
         expect(getTrackReadCallsByLabel('calendar.minimumBound')).toHaveLength(1);
+    });
+
+    it('retries minimum-bound resolution after permissive fallback cooldown', async () => {
+        const invalidPath = `users/${user.uid}/sesiones_entrenamiento/session-retry-invalid`;
+        __firestoreState.documents.set(invalidPath, {
+            fecha: null,
+            ejercicios: [{ tipoEjercicio: 'strength' }]
+        });
+
+        initCalendar();
+        resetToCurrentMonth();
+        await flushDebounce();
+
+        const initialState = getCalendarState();
+        clickCalendarNav('prev-month-btn');
+        await flushDebounce();
+
+        const movedState = getCalendarState();
+        expect(movedState).not.toEqual(initialState);
+        expect(getTrackReadCallsByLabel('calendar.minimumBound')).toHaveLength(1);
+
+        __firestoreState.documents.set(invalidPath, {
+            fecha: Timestamp.fromDate(new Date(initialState.year, initialState.month, 5)),
+            ejercicios: [{ tipoEjercicio: 'strength' }]
+        });
+
+        jest.advanceTimersByTime(MINIMUM_BOUND_RETRY_MS + 1);
+        updateCalendarView();
+        await flushDebounce();
+
+        expect(getCalendarState()).toEqual(initialState);
+        expect(document.getElementById('prev-month-btn').disabled).toBe(true);
+        expect(getTrackReadCallsByLabel('calendar.minimumBound')).toHaveLength(2);
     });
 
     it('does not navigate beyond current month when pressing next', async () => {
