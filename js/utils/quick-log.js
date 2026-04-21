@@ -1,6 +1,10 @@
 import { t, getLocale } from '../i18n.js';
 export const QUICK_LOG_DEFAULT_LABEL = 'Quick Log';
 export const QUICK_LOG_DEFAULT_NOTE_TITLE_PREFIX = 'Nota';
+export const WEEKLY_TARGET_DEFAULT = 3;
+const WEEKLY_TARGET_MIN = 1;
+const WEEKLY_TARGET_MAX = 7;
+const WEEKLY_STREAK_LOOKBACK_WEEKS = 52;
 
 function normalizeText(value) {
     return (value || '').toString().trim();
@@ -8,6 +12,19 @@ function normalizeText(value) {
 
 function isValidDate(value) {
     return value instanceof Date && !Number.isNaN(value.getTime());
+}
+
+function clampWeeklyTargetDays(value) {
+    return Math.min(WEEKLY_TARGET_MAX, Math.max(WEEKLY_TARGET_MIN, value));
+}
+
+function normalizeLookbackWeeks(value, fallback = WEEKLY_STREAK_LOOKBACK_WEEKS) {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isInteger(parsed) || parsed < 1) {
+        return fallback;
+    }
+
+    return parsed;
 }
 
 function parseDateCandidate(value) {
@@ -36,6 +53,41 @@ function parseDateCandidate(value) {
     }
 
     return null;
+}
+
+export function normalizeWeeklyTargetDays(value, fallback = WEEKLY_TARGET_DEFAULT) {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isInteger(parsed)) {
+        return clampWeeklyTargetDays(fallback);
+    }
+
+    return clampWeeklyTargetDays(parsed);
+}
+
+function startOfLocalDay(value) {
+    const date = normalizeQuickLogDate(value, new Date());
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function toLocalDateKey(value) {
+    const date = startOfLocalDay(value);
+    return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        String(date.getDate()).padStart(2, '0')
+    ].join('-');
+}
+
+function getWeekStartMonday(value) {
+    const date = startOfLocalDay(value);
+    const day = date.getDay(); // Sunday=0, Monday=1, ... Saturday=6
+    const offsetToMonday = day === 0 ? 6 : day - 1;
+    date.setDate(date.getDate() - offsetToMonday);
+    return date;
+}
+
+function toWeekKey(value) {
+    return toLocalDateKey(getWeekStartMonday(value));
 }
 
 export function normalizeQuickLogDate(value, fallbackDate = new Date()) {
@@ -160,6 +212,84 @@ function formatLastWorkoutLabel(lastWorkoutDate) {
     });
 }
 
+export function computeWeeklyConsistencyMetrics(input = {}) {
+    const now = normalizeQuickLogDate(input.now, new Date());
+    const sessions = Array.isArray(input.sessions) ? input.sessions : [];
+    const weeklyTargetDays = normalizeWeeklyTargetDays(
+        input.weeklyTargetDays,
+        WEEKLY_TARGET_DEFAULT
+    );
+    const lookbackWeeks = normalizeLookbackWeeks(input.lookbackWeeks);
+    const currentWeekStart = getWeekStartMonday(now);
+    const windowStart = new Date(currentWeekStart);
+    const todayLocal = startOfLocalDay(now);
+    windowStart.setDate(windowStart.getDate() - ((lookbackWeeks - 1) * 7));
+
+    const activeDaysByWeek = new Map();
+
+    sessions.forEach((session) => {
+        const sessionDate = resolveSessionDate(session);
+        if (!sessionDate) return;
+
+        const sessionDay = startOfLocalDay(sessionDate);
+        if (sessionDay < windowStart || sessionDay > todayLocal) return;
+
+        const weekKey = toWeekKey(sessionDay);
+        let daySet = activeDaysByWeek.get(weekKey);
+        if (!daySet) {
+            daySet = new Set();
+            activeDaysByWeek.set(weekKey, daySet);
+        }
+
+        daySet.add(toLocalDateKey(sessionDay));
+    });
+
+    const qualifiedWeeks = [];
+    for (let index = 0; index < lookbackWeeks; index += 1) {
+        const weekStart = new Date(windowStart);
+        weekStart.setDate(windowStart.getDate() + (index * 7));
+        const weekKey = toWeekKey(weekStart);
+        const activeDays = activeDaysByWeek.get(weekKey)?.size || 0;
+
+        qualifiedWeeks.push(activeDays >= weeklyTargetDays);
+    }
+
+    let bestWeeklyStreak = 0;
+    let runningStreak = 0;
+    qualifiedWeeks.forEach((qualified) => {
+        if (!qualified) {
+            runningStreak = 0;
+            return;
+        }
+
+        runningStreak += 1;
+        if (runningStreak > bestWeeklyStreak) {
+            bestWeeklyStreak = runningStreak;
+        }
+    });
+
+    let currentWeeklyStreak = 0;
+    for (let index = qualifiedWeeks.length - 1; index >= 0; index -= 1) {
+        if (!qualifiedWeeks[index]) {
+            break;
+        }
+
+        currentWeeklyStreak += 1;
+    }
+
+    const currentWeekKey = toWeekKey(currentWeekStart);
+    const weeklyProgressDays = activeDaysByWeek.get(currentWeekKey)?.size || 0;
+
+    return {
+        weeklyTargetDays,
+        weeklyProgressDays,
+        weeklyProgressLabel: `${weeklyProgressDays}/${weeklyTargetDays}`,
+        weeklyProgressMet: weeklyProgressDays >= weeklyTargetDays,
+        currentWeeklyStreak,
+        bestWeeklyStreak
+    };
+}
+
 export function computeDailyHubState(input = {}) {
     const now = normalizeQuickLogDate(input.now, new Date());
     const sessions = Array.isArray(input.sessions) ? input.sessions : [];
@@ -206,6 +336,12 @@ export function computeDailyHubState(input = {}) {
         syncClass = 'sync-queued';
     }
 
+    const weeklyConsistency = computeWeeklyConsistencyMetrics({
+        sessions,
+        now,
+        weeklyTargetDays: input.weeklyTargetDays
+    });
+
     return {
         logsMonthCount,
         // Keep backward compatibility while callers/tests migrate naming.
@@ -215,7 +351,13 @@ export function computeDailyHubState(input = {}) {
         routineShortcut,
         syncStatus,
         syncClass,
-        isEmpty: sessions.length === 0
+        isEmpty: sessions.length === 0,
+        weeklyTargetDays: weeklyConsistency.weeklyTargetDays,
+        weeklyProgressDays: weeklyConsistency.weeklyProgressDays,
+        weeklyProgressLabel: weeklyConsistency.weeklyProgressLabel,
+        weeklyProgressMet: weeklyConsistency.weeklyProgressMet,
+        currentWeeklyStreak: weeklyConsistency.currentWeeklyStreak,
+        bestWeeklyStreak: weeklyConsistency.bestWeeklyStreak
     };
 }
 

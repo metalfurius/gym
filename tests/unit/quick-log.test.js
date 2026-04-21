@@ -1,10 +1,13 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import {
     QUICK_LOG_DEFAULT_LABEL,
+    WEEKLY_TARGET_DEFAULT,
     splitQuickLogNotes,
     normalizeQuickLogDate,
+    normalizeWeeklyTargetDays,
     normalizeQuickLogPayload,
     buildQuickLogSessionModel,
+    computeWeeklyConsistencyMetrics,
     computeDailyHubState,
     toDatetimeLocalValue
 } from '../../js/utils/quick-log.js';
@@ -152,5 +155,100 @@ describe('quick-log utils', () => {
     it('returns datetime-local formatted value', () => {
         const value = toDatetimeLocalValue(new Date(2026, 2, 29, 7, 5, 0));
         expect(value).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+    });
+
+    it('normalizes weekly target days with clamp and defaults', () => {
+        expect(normalizeWeeklyTargetDays(undefined)).toBe(WEEKLY_TARGET_DEFAULT);
+        expect(normalizeWeeklyTargetDays('0')).toBe(1);
+        expect(normalizeWeeklyTargetDays('8')).toBe(7);
+        expect(normalizeWeeklyTargetDays('4')).toBe(4);
+    });
+
+    it('computes weekly consistency using distinct active days and qualified-week streaks', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const currentWeekStart = new Date(now);
+        const currentDay = currentWeekStart.getDay();
+        const offsetToMonday = currentDay === 0 ? 6 : currentDay - 1;
+        currentWeekStart.setDate(currentWeekStart.getDate() - offsetToMonday);
+        currentWeekStart.setHours(10, 0, 0, 0);
+
+        const atWeekOffset = (weekOffset, dayOffset, hour = 10) => {
+            const date = new Date(currentWeekStart);
+            date.setDate(date.getDate() - (weekOffset * 7) + dayOffset);
+            date.setHours(hour, 0, 0, 0);
+            return date;
+        };
+
+        const sessions = [
+            // Current week: only 2 distinct active days (not qualified for target=3)
+            { fecha: atWeekOffset(0, 0, 8) },
+            { fecha: atWeekOffset(0, 2, 9) },
+            { fecha: atWeekOffset(0, 2, 18) }, // duplicate same day, should not add a day
+            // Previous 2 weeks qualified (3 distinct days each)
+            { fecha: atWeekOffset(1, 0) },
+            { fecha: atWeekOffset(1, 2) },
+            { fecha: atWeekOffset(1, 4) },
+            { fecha: atWeekOffset(2, 0) },
+            { fecha: atWeekOffset(2, 1) },
+            { fecha: atWeekOffset(2, 3) },
+            // Week before those is not qualified and should break streaks
+            { fecha: atWeekOffset(3, 0) }
+        ];
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions,
+            now,
+            weeklyTargetDays: 3
+        });
+
+        expect(metrics.weeklyTargetDays).toBe(3);
+        expect(metrics.weeklyProgressDays).toBe(2);
+        expect(metrics.weeklyProgressLabel).toBe('2/3');
+        expect(metrics.weeklyProgressMet).toBe(false);
+        expect(metrics.currentWeeklyStreak).toBe(0);
+        expect(metrics.bestWeeklyStreak).toBe(2);
+    });
+
+    it('recomputes streak metrics when weekly target changes', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const state = computeDailyHubState({
+            sessions: [
+                { fecha: new Date(2026, 3, 21, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 22, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 23, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 14, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 16, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 18, 8, 0, 0) }
+            ],
+            routines: [],
+            now,
+            weeklyTargetDays: 3,
+            isOnline: true,
+            pendingCount: 0
+        });
+
+        expect(state.weeklyProgressLabel).toBe('3/3');
+        expect(state.weeklyProgressMet).toBe(true);
+        expect(state.currentWeeklyStreak).toBe(2);
+
+        const stricterState = computeDailyHubState({
+            sessions: [
+                { fecha: new Date(2026, 3, 21, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 22, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 23, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 14, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 16, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 18, 8, 0, 0) }
+            ],
+            routines: [],
+            now,
+            weeklyTargetDays: 4,
+            isOnline: true,
+            pendingCount: 0
+        });
+
+        expect(stricterState.weeklyProgressLabel).toBe('3/4');
+        expect(stricterState.weeklyProgressMet).toBe(false);
+        expect(stricterState.currentWeeklyStreak).toBe(0);
     });
 });
