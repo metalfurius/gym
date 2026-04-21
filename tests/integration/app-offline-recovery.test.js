@@ -184,6 +184,32 @@ describe('App Offline Recovery Journey', () => {
         expect(offlineManager.getPendingCount()).toBe(0);
         expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En línea');
 
+        click('#settings-btn');
+        await waitForUi(120);
+
+        setOnline(false);
+        await waitForUi(150);
+        setField('#weekly-target-days-select', '5');
+        click('#weekly-target-save-btn');
+        await waitForUi(350);
+
+        let preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
+        expect(preferencesDocs.find((entry) => entry.id === 'user_preferences')).toBeUndefined();
+        expect(offlineManager.getPendingCount()).toBe(1);
+
+        setOnline(true);
+        await waitForUi(500);
+
+        preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
+        const weeklyPreference = preferencesDocs.find((entry) => entry.id === 'user_preferences');
+        expect(weeklyPreference).toBeDefined();
+        expect(weeklyPreference.data.weeklyTargetDays).toBe(5);
+        expect(offlineManager.getPendingCount()).toBe(0);
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toContain('/5');
+
+        click('.settings-modal-close');
+        await waitForUi(80);
+
         await createRoutine({ name: 'Offline Test Routine', exerciseName: 'Bench Press', executionMode: 'pulley' });
 
         click('#nav-dashboard');
