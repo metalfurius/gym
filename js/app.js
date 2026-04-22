@@ -247,6 +247,29 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
     showLoading(triggerButton, t('common.saving'));
 
     try {
+        if (!offlineManager.checkOnline()) {
+            offlineManager.queueOperation(
+                null,
+                t('settings.weekly_goal_save_offline'),
+                {
+                    descriptor: {
+                        type: 'preferences.saveWeeklyTarget',
+                        payload: queuePayload
+                    }
+                }
+            );
+
+            weeklyTargetDays = normalizedTargetDays;
+            weeklyTargetCacheUserId = user.uid;
+            weeklyTargetLastFetchTimestamp = Date.now();
+            applyWeeklyTargetControlValue(weeklyTargetDays);
+            await cacheWeeklyTargetDays(user.uid, weeklyTargetDays, queuePayload.updatedAtIso);
+            await refreshDailyHub(user, { forceRefresh: true });
+
+            toast.info(t('settings.weekly_goal_saved_queued'));
+            return { ok: true, queued: true };
+        }
+
         await offlineManager.executeWithOfflineHandling(
             async () => {
                 await persistWeeklyTargetPreference(user.uid, normalizedTargetDays, queuePayload.updatedAtIso);
@@ -272,7 +295,9 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
             await cacheWeeklyTargetDays(user.uid, weeklyTargetDays, queuePayload.updatedAtIso);
             await refreshDailyHub(user, { forceRefresh: true });
 
-            toast.info(t('settings.weekly_goal_saved_queued'));
+            if (!error.message?.startsWith('Offline:')) {
+                toast.info(t('settings.weekly_goal_saved_queued'));
+            }
             return { ok: true, queued: true };
         }
 
@@ -512,19 +537,45 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         const sessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
         const now = new Date();
         const windowStart = getWeeklyConsistencyWindowStartDate(now, WEEKLY_STREAK_LOOKBACK_WEEKS);
-        const dailyHubQuery = query(
+        const weeklyWindowQuery = query(
             sessionsCollectionRef,
             where('fecha', '>=', Timestamp.fromDate(windowStart)),
             orderBy('fecha', 'desc'),
             limit(DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT)
         );
-        const querySnapshot = await getDocs(dailyHubQuery);
-        firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'dashboard.dailyHub');
+        const weeklyWindowSnapshot = await getDocs(weeklyWindowQuery);
+        firebaseUsageTracker.trackRead(weeklyWindowSnapshot.docs.length || 1, 'dashboard.dailyHub');
 
-        dailyHubSessionsCache = querySnapshot.docs.map((docSnap) => ({
+        if (weeklyWindowSnapshot.docs.length === DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT) {
+            logger.warn(
+                'Daily Hub weekly window query hit configured limit; weekly streak metrics may be incomplete for very high-volume users.'
+            );
+        }
+
+        let sessionsForDailyHub = weeklyWindowSnapshot.docs.map((docSnap) => ({
             id: docSnap.id,
             ...docSnap.data()
         }));
+
+        // Keep "last workout" accurate even when no sessions exist inside the 52-week window.
+        if (sessionsForDailyHub.length === 0) {
+            const latestSessionQuery = query(
+                sessionsCollectionRef,
+                orderBy('fecha', 'desc'),
+                limit(1)
+            );
+            const latestSessionSnapshot = await getDocs(latestSessionQuery);
+            firebaseUsageTracker.trackRead(latestSessionSnapshot.docs.length || 1, 'dashboard.dailyHubLatestWorkout');
+
+            if (latestSessionSnapshot.docs.length > 0) {
+                sessionsForDailyHub = latestSessionSnapshot.docs.map((docSnap) => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                }));
+            }
+        }
+
+        dailyHubSessionsCache = sessionsForDailyHub;
         dailyHubLastFetchTimestamp = Date.now();
 
         return dailyHubSessionsCache;

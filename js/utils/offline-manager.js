@@ -251,7 +251,8 @@ class OfflineManager {
             }
 
             if (queueIfOffline) {
-                this.queueOperation(operation, resolvedErrorMessage, { descriptor: queueDescriptor });
+                const queueOperationFn = isSerializableDescriptor(queueDescriptor) ? null : operation;
+                this.queueOperation(queueOperationFn, resolvedErrorMessage, { descriptor: queueDescriptor });
                 try {
                     toast.info(t('offline.queued_when_online'), { duration: 3000 });
                 } catch (e) {
@@ -274,7 +275,8 @@ class OfflineManager {
                 }
 
                 if (queueIfOffline) {
-                    this.queueOperation(operation, resolvedErrorMessage, { descriptor: queueDescriptor });
+                    const queueOperationFn = isSerializableDescriptor(queueDescriptor) ? null : operation;
+                    this.queueOperation(queueOperationFn, resolvedErrorMessage, { descriptor: queueDescriptor });
                 }
             }
             throw error;
@@ -330,15 +332,15 @@ class OfflineManager {
     }
 
     resolveOperation(entry) {
-        if (typeof entry.operation === 'function') {
-            return entry.operation;
-        }
-
         if (isSerializableDescriptor(entry.descriptor)) {
             const handler = this.operationHandlers.get(entry.descriptor.type);
             if (typeof handler === 'function') {
                 return () => handler(entry.descriptor.payload);
             }
+        }
+
+        if (typeof entry.operation === 'function') {
+            return entry.operation;
         }
 
         return null;
