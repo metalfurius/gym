@@ -193,9 +193,13 @@ describe('App Offline Recovery Journey', () => {
         click('#weekly-target-save-btn');
         await waitForUi(350);
 
+        const queuedWeeklyTargetOperation = offlineManager.pendingOperations[0];
+        const queuedUpdatedAtIso = queuedWeeklyTargetOperation?.descriptor?.payload?.updatedAtIso;
+
         let preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
         expect(preferencesDocs.find((entry) => entry.id === 'user_preferences')).toBeUndefined();
         expect(offlineManager.getPendingCount()).toBe(1);
+        expect(queuedUpdatedAtIso).toBeDefined();
 
         setOnline(true);
         await waitForUi(500);
@@ -204,6 +208,7 @@ describe('App Offline Recovery Journey', () => {
         const weeklyPreference = preferencesDocs.find((entry) => entry.id === 'user_preferences');
         expect(weeklyPreference).toBeDefined();
         expect(weeklyPreference.data.weeklyTargetDays).toBe(5);
+        expect(weeklyPreference.data.updatedAt.toDate().toISOString()).toBe(queuedUpdatedAtIso);
         expect(offlineManager.getPendingCount()).toBe(0);
         expect(document.getElementById('daily-hub-weekly-progress').textContent).toContain('/5');
 

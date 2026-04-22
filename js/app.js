@@ -4,7 +4,7 @@
  */
 
 import { db } from './firebase-config.js';
-import { collection, addDoc, Timestamp, query, orderBy, where, getDoc, getDocs, doc, setDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { collection, addDoc, Timestamp, query, orderBy, where, limit, getDoc, getDocs, doc, setDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser, handleLogout } from './auth.js';
 import {
     showView, formatDate, populateDaySelector,
@@ -84,6 +84,7 @@ let themeManager = null;
 let currentUserRoutines = [];
 const ROUTINES_CACHE_TTL_MS = 10 * 60 * 1000;
 const DAILY_HUB_CACHE_TTL_MS = 30 * 1000;
+const DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT = 1500;
 const USER_PREFERENCES_CACHE_TTL_MS = 10 * 60 * 1000;
 let dailyHubSessionsCache = [];
 let dailyHubLastFetchTimestamp = 0;
@@ -241,19 +242,20 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
 
     const normalizedTargetDays = normalizeWeeklyTargetDays(targetDaysValue, WEEKLY_TARGET_DEFAULT);
     const triggerButton = options.triggerButton || null;
+    const queuePayload = buildWeeklyTargetQueuePayload(user.uid, normalizedTargetDays);
 
     showLoading(triggerButton, t('common.saving'));
 
     try {
         await offlineManager.executeWithOfflineHandling(
             async () => {
-                await persistWeeklyTargetPreference(user.uid, normalizedTargetDays);
+                await persistWeeklyTargetPreference(user.uid, normalizedTargetDays, queuePayload.updatedAtIso);
             },
             t('settings.weekly_goal_save_offline'),
             true,
             {
                 type: 'preferences.saveWeeklyTarget',
-                payload: buildWeeklyTargetQueuePayload(user.uid, normalizedTargetDays)
+                payload: queuePayload
             }
         );
 
@@ -267,7 +269,7 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
             weeklyTargetCacheUserId = user.uid;
             weeklyTargetLastFetchTimestamp = Date.now();
             applyWeeklyTargetControlValue(weeklyTargetDays);
-            await cacheWeeklyTargetDays(user.uid, weeklyTargetDays);
+            await cacheWeeklyTargetDays(user.uid, weeklyTargetDays, queuePayload.updatedAtIso);
             await refreshDailyHub(user, { forceRefresh: true });
 
             toast.info(t('settings.weekly_goal_saved_queued'));
@@ -513,7 +515,8 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         const dailyHubQuery = query(
             sessionsCollectionRef,
             where('fecha', '>=', Timestamp.fromDate(windowStart)),
-            orderBy('fecha', 'desc')
+            orderBy('fecha', 'desc'),
+            limit(DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT)
         );
         const querySnapshot = await getDocs(dailyHubQuery);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'dashboard.dailyHub');
