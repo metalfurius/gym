@@ -36,9 +36,14 @@ import { normalizeExecutionMode } from './utils/execution-mode.js';
 import { normalizeLoadType } from './utils/load-type.js';
 import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
 import {
+    buildWeeklyConsistencyTimeline,
     computeDailyHubState,
+    getIsoWeekday,
+    getWeekKeyForDate,
     getWeeklyConsistencyWindowStartDate,
     normalizeWeeklyTargetDays,
+    WEEKLY_TARGET_EDIT_WINDOW_DAYS,
+    WEEKLY_TARGET_MAX_SAVES_PER_WEEK,
     WEEKLY_STREAK_LOOKBACK_WEEKS,
     WEEKLY_TARGET_DEFAULT,
     toDatetimeLocalValue
@@ -90,6 +95,8 @@ let dailyHubSessionsCache = [];
 let dailyHubLastFetchTimestamp = 0;
 let dailyHubCacheUserId = null;
 let weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+let weeklyTargetsByWeek = {};
+let weeklyOutcomesByWeek = {};
 let weeklyTargetCacheUserId = null;
 let weeklyTargetLastFetchTimestamp = 0;
 
@@ -109,6 +116,83 @@ function getUserPreferencesCacheKey(userId) {
     return `user-preferences:${userId}`;
 }
 
+function normalizeWeeklyTargetsByWeekState(value) {
+    if (!value || typeof value !== 'object') {
+        return {};
+    }
+
+    const normalized = {};
+    Object.entries(value).forEach(([weekKey, record]) => {
+        if (typeof weekKey !== 'string' || !weekKey.trim()) return;
+        if (!record || typeof record !== 'object') return;
+
+        const targetDays = normalizeWeeklyTargetDays(record.targetDays, WEEKLY_TARGET_DEFAULT);
+        const savesUsedRaw = Number.parseInt(record.savesUsed, 10);
+        const savesUsed = Number.isInteger(savesUsedRaw)
+            ? Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, savesUsedRaw))
+            : 0;
+
+        normalized[weekKey] = {
+            targetDays,
+            savesUsed,
+            updatedAtIso: typeof record.updatedAtIso === 'string' ? record.updatedAtIso : null
+        };
+    });
+
+    return normalized;
+}
+
+function normalizeWeeklyOutcomesByWeekState(value) {
+    if (!value || typeof value !== 'object') {
+        return {};
+    }
+
+    const normalized = {};
+    Object.entries(value).forEach(([weekKey, record]) => {
+        if (typeof weekKey !== 'string' || !weekKey.trim()) return;
+        if (!record || typeof record !== 'object') return;
+
+        const activeDaysRaw = Number.parseInt(record.activeDays, 10);
+        if (!Number.isInteger(activeDaysRaw) || activeDaysRaw < 0 || typeof record.met !== 'boolean') {
+            return;
+        }
+
+        normalized[weekKey] = {
+            activeDays: activeDaysRaw,
+            met: record.met === true,
+            targetDays: normalizeWeeklyTargetDays(record.targetDays, WEEKLY_TARGET_DEFAULT),
+            lockedAtIso: typeof record.lockedAtIso === 'string' ? record.lockedAtIso : null
+        };
+    });
+
+    return normalized;
+}
+
+function resolveCarryWeeklyTargetDays(targetsByWeek, fallbackTargetDays = WEEKLY_TARGET_DEFAULT) {
+    const normalizedTargetsByWeek = normalizeWeeklyTargetsByWeekState(targetsByWeek);
+    const orderedWeekKeys = Object.keys(normalizedTargetsByWeek).sort((weekKeyA, weekKeyB) => weekKeyA.localeCompare(weekKeyB));
+    if (orderedWeekKeys.length === 0) {
+        return normalizeWeeklyTargetDays(fallbackTargetDays, WEEKLY_TARGET_DEFAULT);
+    }
+
+    const latestWeekKey = orderedWeekKeys[orderedWeekKeys.length - 1];
+    return normalizeWeeklyTargetDays(
+        normalizedTargetsByWeek[latestWeekKey]?.targetDays,
+        fallbackTargetDays
+    );
+}
+
+function applyWeeklyTargetState(state = {}) {
+    weeklyTargetsByWeek = normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek);
+    weeklyOutcomesByWeek = normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek);
+    weeklyTargetDays = resolveCarryWeeklyTargetDays(
+        weeklyTargetsByWeek,
+        normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT)
+    );
+    weeklyTargetLastFetchTimestamp = Date.now();
+    applyWeeklyTargetControlValue(weeklyTargetDays);
+}
+
 function applyWeeklyTargetControlValue(value) {
     const weeklyTargetSelectElement = getWeeklyTargetSelectElement();
     if (!weeklyTargetSelectElement) return;
@@ -116,53 +200,108 @@ function applyWeeklyTargetControlValue(value) {
     weeklyTargetSelectElement.value = `${normalizeWeeklyTargetDays(value, WEEKLY_TARGET_DEFAULT)}`;
 }
 
-async function cacheWeeklyTargetDays(userId, targetDays, updatedAtIso = new Date().toISOString()) {
+function getCurrentWeekKey(now = new Date()) {
+    return getWeekKeyForDate(now);
+}
+
+function getCurrentDateForWeeklyRules() {
+    const nowOverride = globalThis?.__GYM_WEEKLY_TARGET_NOW_ISO;
+    if (typeof nowOverride === 'string' && nowOverride.trim()) {
+        const parsed = new Date(nowOverride);
+        if (!Number.isNaN(parsed.getTime())) {
+            return parsed;
+        }
+    }
+
+    return new Date();
+}
+
+function getWeeklyTargetSaveEligibility(now = new Date(), weekRecord = null) {
+    const isoWeekday = getIsoWeekday(now);
+    const isWithinEditWindow = isoWeekday <= WEEKLY_TARGET_EDIT_WINDOW_DAYS;
+    const savesUsed = Number.isInteger(Number.parseInt(weekRecord?.savesUsed, 10))
+        ? Number.parseInt(weekRecord.savesUsed, 10)
+        : 0;
+    const hasRemainingSaves = savesUsed < WEEKLY_TARGET_MAX_SAVES_PER_WEEK;
+
+    return {
+        isoWeekday,
+        savesUsed,
+        hasRemainingSaves,
+        isWithinEditWindow,
+        canSave: isWithinEditWindow && hasRemainingSaves
+    };
+}
+
+async function cacheWeeklyTargetState(userId, state = {}, updatedAtIso = new Date().toISOString()) {
     await localFirstCache.set(getUserPreferencesCacheKey(userId), {
-        weeklyTargetDays: normalizeWeeklyTargetDays(targetDays, WEEKLY_TARGET_DEFAULT),
+        weeklyTargetDays: normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
+        weeklyTargetsByWeek: normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek),
+        weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek),
         updatedAtIso
     }, {
         metadata: { source: 'preferences' }
     });
 }
 
-async function readWeeklyTargetFromCache(userId) {
+async function readWeeklyTargetStateFromCache(userId) {
     try {
         const cachedEntry = await localFirstCache.getEntry(getUserPreferencesCacheKey(userId));
-        const cachedTarget = cachedEntry?.value?.weeklyTargetDays;
-        if (cachedTarget === undefined || cachedTarget === null) {
+        const cachedValue = cachedEntry?.value;
+        if (!cachedValue || typeof cachedValue !== 'object') {
             return null;
         }
 
-        return normalizeWeeklyTargetDays(cachedTarget, WEEKLY_TARGET_DEFAULT);
+        return {
+            weeklyTargetDays: normalizeWeeklyTargetDays(cachedValue.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
+            weeklyTargetsByWeek: normalizeWeeklyTargetsByWeekState(cachedValue.weeklyTargetsByWeek),
+            weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(cachedValue.weeklyOutcomesByWeek),
+            updatedAtIso: typeof cachedValue.updatedAtIso === 'string' ? cachedValue.updatedAtIso : null
+        };
     } catch (error) {
         logger.warn('Could not read cached weekly target:', error);
         return null;
     }
 }
 
-async function persistWeeklyTargetPreference(userId, targetDays, updatedAtIso = new Date().toISOString()) {
-    const normalizedTargetDays = normalizeWeeklyTargetDays(targetDays, WEEKLY_TARGET_DEFAULT);
+async function persistWeeklyTargetPreference(userId, state = {}, updatedAtIso = new Date().toISOString()) {
     const updatedAtDate = new Date(updatedAtIso);
     const safeUpdatedAtDate = Number.isNaN(updatedAtDate.getTime()) ? new Date() : updatedAtDate;
+    const normalizedWeeklyTargetsByWeek = normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek);
+    const normalizedWeeklyOutcomesByWeek = normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek);
+    const normalizedTargetDays = resolveCarryWeeklyTargetDays(
+        normalizedWeeklyTargetsByWeek,
+        normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT)
+    );
 
     await setDoc(getUserPreferencesDocRef(userId), {
         weeklyTargetDays: normalizedTargetDays,
-        schemaVersion: 1,
+        weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
+        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek,
+        schemaVersion: 2,
         updatedAt: Timestamp.fromDate(safeUpdatedAtDate)
     }, { merge: true });
     firebaseUsageTracker.trackWrite(1, 'preferences.weeklyTarget.save');
 
-    await cacheWeeklyTargetDays(userId, normalizedTargetDays, safeUpdatedAtDate.toISOString());
+    await cacheWeeklyTargetState(userId, {
+        weeklyTargetDays: normalizedTargetDays,
+        weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
+        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek
+    }, safeUpdatedAtDate.toISOString());
 
-    weeklyTargetDays = normalizedTargetDays;
+    applyWeeklyTargetState({
+        weeklyTargetDays: normalizedTargetDays,
+        weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
+        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek
+    });
     weeklyTargetCacheUserId = userId;
-    weeklyTargetLastFetchTimestamp = Date.now();
-    applyWeeklyTargetControlValue(normalizedTargetDays);
 }
 
 async function fetchWeeklyTargetPreference(user, options = {}) {
     if (!user) {
         weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+        weeklyTargetsByWeek = {};
+        weeklyOutcomesByWeek = {};
         weeklyTargetCacheUserId = null;
         weeklyTargetLastFetchTimestamp = 0;
         applyWeeklyTargetControlValue(weeklyTargetDays);
@@ -172,6 +311,8 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
     if (weeklyTargetCacheUserId !== user.uid) {
         weeklyTargetCacheUserId = user.uid;
         weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+        weeklyTargetsByWeek = {};
+        weeklyOutcomesByWeek = {};
         weeklyTargetLastFetchTimestamp = 0;
     }
 
@@ -185,12 +326,11 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
         return weeklyTargetDays;
     }
 
+    const cachedState = await readWeeklyTargetStateFromCache(user.uid);
+
     if (!offlineManager.checkOnline()) {
-        const cachedValue = await readWeeklyTargetFromCache(user.uid);
-        if (cachedValue !== null) {
-            weeklyTargetDays = cachedValue;
-            weeklyTargetLastFetchTimestamp = Date.now();
-            applyWeeklyTargetControlValue(weeklyTargetDays);
+        if (cachedState) {
+            applyWeeklyTargetState(cachedState);
             return weeklyTargetDays;
         }
 
@@ -202,22 +342,27 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
         const docSnap = await getDoc(getUserPreferencesDocRef(user.uid));
         firebaseUsageTracker.trackRead(docSnap.exists() ? 1 : 0, 'preferences.weeklyTarget.read');
 
-        const nextWeeklyTargetDays = docSnap.exists()
-            ? normalizeWeeklyTargetDays(docSnap.data()?.weeklyTargetDays, WEEKLY_TARGET_DEFAULT)
-            : (await readWeeklyTargetFromCache(user.uid)) ?? WEEKLY_TARGET_DEFAULT;
+        const sourceData = docSnap.exists() ? docSnap.data() : null;
+        const nextState = {
+            weeklyTargetDays: normalizeWeeklyTargetDays(
+                sourceData?.weeklyTargetDays,
+                cachedState?.weeklyTargetDays ?? WEEKLY_TARGET_DEFAULT
+            ),
+            weeklyTargetsByWeek: normalizeWeeklyTargetsByWeekState(
+                sourceData?.weeklyTargetsByWeek ?? cachedState?.weeklyTargetsByWeek
+            ),
+            weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(
+                sourceData?.weeklyOutcomesByWeek ?? cachedState?.weeklyOutcomesByWeek
+            )
+        };
 
-        weeklyTargetDays = nextWeeklyTargetDays;
-        weeklyTargetLastFetchTimestamp = Date.now();
-        applyWeeklyTargetControlValue(weeklyTargetDays);
-
-        await cacheWeeklyTargetDays(user.uid, weeklyTargetDays);
+        applyWeeklyTargetState(nextState);
+        await cacheWeeklyTargetState(user.uid, nextState);
         return weeklyTargetDays;
     } catch (error) {
         logger.warn('Could not load weekly target preference:', error);
-        const cachedValue = await readWeeklyTargetFromCache(user.uid);
-        if (cachedValue !== null) {
-            weeklyTargetDays = cachedValue;
-            weeklyTargetLastFetchTimestamp = Date.now();
+        if (cachedState) {
+            applyWeeklyTargetState(cachedState);
         }
 
         applyWeeklyTargetControlValue(weeklyTargetDays);
@@ -225,11 +370,71 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
     }
 }
 
-function buildWeeklyTargetQueuePayload(userId, targetDays) {
+function buildWeeklyTargetQueuePayload(userId, weekKey, weekRecord, weeklyTargetValue, updatedAtIso = new Date().toISOString()) {
     return {
         userId,
-        weeklyTargetDays: normalizeWeeklyTargetDays(targetDays, WEEKLY_TARGET_DEFAULT),
-        updatedAtIso: new Date().toISOString()
+        weekKey,
+        weekRecord: {
+            targetDays: normalizeWeeklyTargetDays(weekRecord?.targetDays, WEEKLY_TARGET_DEFAULT),
+            savesUsed: Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, Number.parseInt(weekRecord?.savesUsed, 10) || 0)),
+            updatedAtIso
+        },
+        weeklyTargetDays: normalizeWeeklyTargetDays(weeklyTargetValue, WEEKLY_TARGET_DEFAULT),
+        updatedAtIso
+    };
+}
+
+function applyQueuedWeeklyTargetPayloadToState(payload, state = {}) {
+    if (!payload?.weekKey || !payload?.weekRecord) {
+        throw new Error('Invalid weekly target queue payload');
+    }
+
+    const nextWeeklyTargetsByWeek = {
+        ...normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek)
+    };
+    const existingWeekRecord = nextWeeklyTargetsByWeek[payload.weekKey] || null;
+    const incomingWeekRecord = {
+        targetDays: normalizeWeeklyTargetDays(payload.weekRecord.targetDays, WEEKLY_TARGET_DEFAULT),
+        savesUsed: Math.max(
+            0,
+            Math.min(
+                WEEKLY_TARGET_MAX_SAVES_PER_WEEK,
+                Number.parseInt(payload.weekRecord.savesUsed, 10) || 0
+            )
+        ),
+        updatedAtIso: typeof payload.weekRecord.updatedAtIso === 'string'
+            ? payload.weekRecord.updatedAtIso
+            : payload.updatedAtIso
+    };
+    const shouldKeepExisting = existingWeekRecord
+        && (
+            existingWeekRecord.savesUsed > incomingWeekRecord.savesUsed
+            || (
+                existingWeekRecord.savesUsed === incomingWeekRecord.savesUsed
+                && typeof existingWeekRecord.updatedAtIso === 'string'
+                && typeof incomingWeekRecord.updatedAtIso === 'string'
+                && existingWeekRecord.updatedAtIso > incomingWeekRecord.updatedAtIso
+            )
+        );
+
+    nextWeeklyTargetsByWeek[payload.weekKey] = shouldKeepExisting
+        ? existingWeekRecord
+        : incomingWeekRecord;
+
+    const nextWeeklyOutcomesByWeek = {
+        ...normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek)
+    };
+    delete nextWeeklyOutcomesByWeek[payload.weekKey];
+
+    const nextWeeklyTargetDays = resolveCarryWeeklyTargetDays(
+        nextWeeklyTargetsByWeek,
+        normalizeWeeklyTargetDays(payload.weeklyTargetDays, state.weeklyTargetDays ?? WEEKLY_TARGET_DEFAULT)
+    );
+
+    return {
+        weeklyTargetDays: nextWeeklyTargetDays,
+        weeklyTargetsByWeek: nextWeeklyTargetsByWeek,
+        weeklyOutcomesByWeek: nextWeeklyOutcomesByWeek
     };
 }
 
@@ -240,9 +445,45 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
         return { ok: false, reason: 'unauthenticated' };
     }
 
+    const now = getCurrentDateForWeeklyRules();
     const normalizedTargetDays = normalizeWeeklyTargetDays(targetDaysValue, WEEKLY_TARGET_DEFAULT);
+    const currentWeekKey = getCurrentWeekKey(now);
+    const currentWeekRecord = normalizeWeeklyTargetsByWeekState(weeklyTargetsByWeek)[currentWeekKey] || null;
+    const eligibility = getWeeklyTargetSaveEligibility(now, currentWeekRecord);
+    if (!eligibility.isWithinEditWindow) {
+        toast.warning(t('settings.weekly_goal_save_window_closed'));
+        return { ok: false, reason: 'window_closed' };
+    }
+    if (!eligibility.hasRemainingSaves) {
+        toast.warning(t('settings.weekly_goal_save_limit_reached'));
+        return { ok: false, reason: 'save_limit' };
+    }
+
+    const updatedAtIso = now.toISOString();
+    const updatedWeekRecord = {
+        targetDays: normalizedTargetDays,
+        savesUsed: eligibility.savesUsed + 1,
+        updatedAtIso
+    };
+    const nextState = applyQueuedWeeklyTargetPayloadToState({
+        userId: user.uid,
+        weekKey: currentWeekKey,
+        weekRecord: updatedWeekRecord,
+        weeklyTargetDays: normalizedTargetDays,
+        updatedAtIso
+    }, {
+        weeklyTargetDays,
+        weeklyTargetsByWeek,
+        weeklyOutcomesByWeek
+    });
     const triggerButton = options.triggerButton || null;
-    const queuePayload = buildWeeklyTargetQueuePayload(user.uid, normalizedTargetDays);
+    const queuePayload = buildWeeklyTargetQueuePayload(
+        user.uid,
+        currentWeekKey,
+        updatedWeekRecord,
+        nextState.weeklyTargetDays,
+        updatedAtIso
+    );
 
     showLoading(triggerButton, t('common.saving'));
 
@@ -259,11 +500,9 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
                 }
             );
 
-            weeklyTargetDays = normalizedTargetDays;
+            applyWeeklyTargetState(nextState);
             weeklyTargetCacheUserId = user.uid;
-            weeklyTargetLastFetchTimestamp = Date.now();
-            applyWeeklyTargetControlValue(weeklyTargetDays);
-            await cacheWeeklyTargetDays(user.uid, weeklyTargetDays, queuePayload.updatedAtIso);
+            await cacheWeeklyTargetState(user.uid, nextState, queuePayload.updatedAtIso);
             await refreshDailyHub(user, { forceRefresh: true });
 
             toast.info(t('settings.weekly_goal_saved_queued'));
@@ -272,7 +511,7 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
 
         await offlineManager.executeWithOfflineHandling(
             async () => {
-                await persistWeeklyTargetPreference(user.uid, normalizedTargetDays, queuePayload.updatedAtIso);
+                await persistWeeklyTargetPreference(user.uid, nextState, queuePayload.updatedAtIso);
             },
             t('settings.weekly_goal_save_offline'),
             true,
@@ -288,11 +527,9 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
     } catch (error) {
         const wasQueued = error.message?.startsWith('Offline:') || offlineManager.isNetworkError(error);
         if (wasQueued) {
-            weeklyTargetDays = normalizedTargetDays;
+            applyWeeklyTargetState(nextState);
             weeklyTargetCacheUserId = user.uid;
-            weeklyTargetLastFetchTimestamp = Date.now();
-            applyWeeklyTargetControlValue(weeklyTargetDays);
-            await cacheWeeklyTargetDays(user.uid, weeklyTargetDays, queuePayload.updatedAtIso);
+            await cacheWeeklyTargetState(user.uid, nextState, queuePayload.updatedAtIso);
             await refreshDailyHub(user, { forceRefresh: true });
 
             if (!error.message?.startsWith('Offline:')) {
@@ -589,6 +826,65 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
     }
 }
 
+async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
+    if (!user || !Array.isArray(sessions) || sessions.length === 0) {
+        return;
+    }
+
+    const timelineResult = buildWeeklyConsistencyTimeline({
+        sessions,
+        now,
+        weeklyTargetDays,
+        weeklyTargetsByWeek,
+        weeklyOutcomesByWeek,
+        lookbackWeeks: WEEKLY_STREAK_LOOKBACK_WEEKS
+    });
+
+    const nextWeeklyOutcomesByWeek = {
+        ...normalizeWeeklyOutcomesByWeekState(weeklyOutcomesByWeek)
+    };
+    const normalizedWeeklyTargets = normalizeWeeklyTargetsByWeekState(weeklyTargetsByWeek);
+    let didChange = false;
+    const nowIso = now.toISOString();
+
+    timelineResult.timeline.forEach((entry) => {
+        if (entry.isCurrentWeek || entry.isFrozen) {
+            return;
+        }
+
+        const hasExplicitWeeklyTarget = !!normalizedWeeklyTargets[entry.weekKey];
+        if (!hasExplicitWeeklyTarget && entry.activeDays === 0) {
+            return;
+        }
+
+        nextWeeklyOutcomesByWeek[entry.weekKey] = {
+            targetDays: normalizeWeeklyTargetDays(entry.targetDays, WEEKLY_TARGET_DEFAULT),
+            activeDays: Math.max(0, entry.activeDays || 0),
+            met: entry.met === true,
+            lockedAtIso: nowIso
+        };
+        didChange = true;
+    });
+
+    if (!didChange) {
+        return;
+    }
+
+    const nextState = {
+        weeklyTargetDays,
+        weeklyTargetsByWeek,
+        weeklyOutcomesByWeek: nextWeeklyOutcomesByWeek
+    };
+
+    applyWeeklyTargetState(nextState);
+    weeklyTargetCacheUserId = user.uid;
+    await cacheWeeklyTargetState(user.uid, nextState, nowIso);
+
+    if (offlineManager.checkOnline()) {
+        await persistWeeklyTargetPreference(user.uid, nextState, nowIso);
+    }
+}
+
 async function refreshDailyHub(user, options = {}) {
     const hasDailyHubElements =
         dashboardElements.dailyHubMonthCount
@@ -603,15 +899,21 @@ async function refreshDailyHub(user, options = {}) {
         return;
     }
 
+    const now = new Date();
     const sessions = user
         ? await fetchRecentSessionsForDailyHub(user, options)
         : [];
+    if (user) {
+        await finalizePastWeeklyOutcomes(user, sessions, now);
+    }
     const state = computeDailyHubState({
         sessions,
         routines: currentUserRoutines,
         selectedRoutineId: dashboardElements.daySelect?.value || '',
-        now: new Date(),
+        now,
         weeklyTargetDays,
+        weeklyTargetsByWeek,
+        weeklyOutcomesByWeek,
         isOnline: offlineManager.checkOnline(),
         pendingCount: offlineManager.getPendingCount()
     });
@@ -669,6 +971,8 @@ export async function initializeAppAfterAuth(user) {
         dailyHubSessionsCache = [];
         dailyHubLastFetchTimestamp = 0;
         weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
+        weeklyTargetsByWeek = {};
+        weeklyOutcomesByWeek = {};
         weeklyTargetCacheUserId = null;
         weeklyTargetLastFetchTimestamp = 0;
         applyWeeklyTargetControlValue(weeklyTargetDays);
@@ -678,6 +982,8 @@ export async function initializeAppAfterAuth(user) {
             routines: [],
             now: new Date(),
             weeklyTargetDays,
+            weeklyTargetsByWeek,
+            weeklyOutcomesByWeek,
             isOnline: offlineManager.checkOnline(),
             pendingCount: offlineManager.getPendingCount()
         }));
@@ -841,11 +1147,24 @@ offlineManager.registerOperationHandler('preferences.saveWeeklyTarget', async (p
         return;
     }
 
-    await persistWeeklyTargetPreference(
-        payload.userId,
-        payload.weeklyTargetDays,
-        payload.updatedAtIso
-    );
+    const normalizedPayload = (payload.weekKey && payload.weekRecord)
+        ? payload
+        : {
+            ...payload,
+            weekKey: getCurrentWeekKey(new Date(payload.updatedAtIso || Date.now())),
+            weekRecord: {
+                targetDays: payload.weeklyTargetDays,
+                savesUsed: 1,
+                updatedAtIso: payload.updatedAtIso
+            }
+        };
+
+    const nextState = applyQueuedWeeklyTargetPayloadToState(normalizedPayload, {
+        weeklyTargetDays,
+        weeklyTargetsByWeek,
+        weeklyOutcomesByWeek
+    });
+    await persistWeeklyTargetPreference(payload.userId, nextState, normalizedPayload.updatedAtIso);
     await refreshDailyHub(currentUser, { forceRefresh: true });
 });
 

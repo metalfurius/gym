@@ -1,5 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import {
+    getWeekKeyForDate,
     QUICK_LOG_DEFAULT_LABEL,
     WEEKLY_TARGET_DEFAULT,
     splitQuickLogNotes,
@@ -122,6 +123,23 @@ describe('quick-log utils', () => {
         expect(state.syncStatus).toContain('2');
         expect(state.isEmpty).toBe(false);
         expect(state.lastWorkoutDate instanceof Date).toBe(true);
+    });
+
+    it('treats daily hub as empty when there are no sessions in the current month', () => {
+        const now = new Date(2026, 3, 10, 9, 0, 0);
+        const state = computeDailyHubState({
+            sessions: [
+                { fecha: new Date(2026, 1, 27, 18, 0, 0) }
+            ],
+            routines: [],
+            now,
+            isOnline: true,
+            pendingCount: 0
+        });
+
+        expect(state.logsMonthCount).toBe(0);
+        expect(state.lastWorkoutDate instanceof Date).toBe(true);
+        expect(state.isEmpty).toBe(true);
     });
 
     it('shows queued sync status while offline when pending operations exist', () => {
@@ -250,5 +268,82 @@ describe('quick-log utils', () => {
         expect(stricterState.weeklyProgressLabel).toBe('3/4');
         expect(stricterState.weeklyProgressMet).toBe(false);
         expect(stricterState.currentWeeklyStreak).toBe(0);
+    });
+
+    it('uses week-scoped targets with carry-over across weeks', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0); // Thu Apr 23, 2026
+        const currentWeekMonday = new Date(2026, 3, 20, 10, 0, 0);
+        const prevWeekMonday = new Date(2026, 3, 13, 10, 0, 0);
+        const twoWeeksAgoMonday = new Date(2026, 3, 6, 10, 0, 0);
+
+        const sessions = [
+            // Two weeks ago: 2 active days
+            { fecha: new Date(2026, 3, 6, 8, 0, 0) },
+            { fecha: new Date(2026, 3, 8, 8, 0, 0) },
+            // Previous week: 4 active days
+            { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+            { fecha: new Date(2026, 3, 14, 8, 0, 0) },
+            { fecha: new Date(2026, 3, 16, 8, 0, 0) },
+            { fecha: new Date(2026, 3, 18, 8, 0, 0) },
+            // Current week: 3 active days
+            { fecha: new Date(2026, 3, 20, 8, 0, 0) },
+            { fecha: new Date(2026, 3, 21, 8, 0, 0) },
+            { fecha: new Date(2026, 3, 22, 8, 0, 0) }
+        ];
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions,
+            now,
+            weeklyTargetDays: 3,
+            weeklyTargetsByWeek: {
+                [getWeekKeyForDate(twoWeeksAgoMonday)]: { targetDays: 2, savesUsed: 1 },
+                [getWeekKeyForDate(prevWeekMonday)]: { targetDays: 4, savesUsed: 1 }
+            }
+        });
+
+        // Current week inherits target=4 because there is no current-week override.
+        expect(metrics.weeklyTargetDays).toBe(4);
+        expect(metrics.weeklyProgressDays).toBe(3);
+        expect(metrics.weeklyProgressLabel).toBe('3/4');
+        expect(metrics.weeklyProgressMet).toBe(false);
+        expect(metrics.currentWeeklyStreak).toBe(0);
+        expect(metrics.bestWeeklyStreak).toBe(2);
+        expect(getWeekKeyForDate(currentWeekMonday)).toBe(getWeekKeyForDate(now));
+    });
+
+    it('uses frozen outcomes for past weeks and ignores backdated-session effects', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const prevWeekMonday = new Date(2026, 3, 13, 10, 0, 0);
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                // Backdated-heavy previous week data would normally qualify for target=3.
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 14, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 16, 8, 0, 0) },
+                // Current week has 1 day so far.
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 3,
+            weeklyTargetsByWeek: {
+                [getWeekKeyForDate(prevWeekMonday)]: { targetDays: 3, savesUsed: 1 }
+            },
+            weeklyOutcomesByWeek: {
+                [getWeekKeyForDate(prevWeekMonday)]: {
+                    targetDays: 3,
+                    activeDays: 1,
+                    met: false
+                }
+            }
+        });
+
+        expect(metrics.weeklyTargetDays).toBe(3);
+        expect(metrics.weeklyProgressDays).toBe(1);
+        expect(metrics.weeklyProgressLabel).toBe('1/3');
+        expect(metrics.weeklyProgressMet).toBe(false);
+        // Previous week stays frozen as not-met despite backdated data.
+        expect(metrics.currentWeeklyStreak).toBe(0);
     });
 });

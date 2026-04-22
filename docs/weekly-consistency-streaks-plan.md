@@ -1,7 +1,7 @@
 # Weekly Consistency Streaks Plan
 
 Last updated: April 22, 2026  
-Status: Implemented (major feature delivered on PR #75 branch)
+Status: Implemented on branch (pending merge to `main`)
 
 ## Purpose
 
