@@ -191,7 +191,7 @@ This milestone is implemented. Contract implications:
 2. Session fields `modoEjecucion` and `tipoCarga` are canonical descriptors for effective per-session execution behavior.
 3. Remembered per-routine/per-exercise variant preferences remain local device state (outside Firestore).
 
-## In-Progress Milestone Alignment: Weekly Consistency Streaks
+## Implemented Milestone Alignment: Weekly Consistency Streaks
 
 Contract implications:
 

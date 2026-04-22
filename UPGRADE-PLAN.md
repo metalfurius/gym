@@ -1,6 +1,6 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: April 21, 2026
+Last updated: April 22, 2026
 
 ## Purpose
 
@@ -47,8 +47,8 @@ Execution split:
 - [done] Implement "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) for strength exercises (`docs/exercise-execution-mode-plan.md`).
 - [done] Implement "Session-Time Exercise Variants + ES/EN Language System" (`docs/session-variants-i18n-plan.md`).
   Delivered: session-time mode/load overrides, local variant memory, header ES/EN selector, unified runtime/static copy.
-- [in_progress] Implement "Custom Weekly Consistency Streaks" (`docs/weekly-consistency-streaks-plan.md`) in one long-lived draft PR.
-  Current scope: Monday-based weekly streak model, distinct active-day counting, rolling 52-week current/best streak, this-week progress card, cloud-synced weekly target (`users/{uid}/app_data/user_preferences`) with offline queue replay.
+- [done] Implement "Custom Weekly Consistency Streaks" (`docs/weekly-consistency-streaks-plan.md`).
+  Delivered scope: Monday-based weekly streak model, distinct active-day counting, rolling 52-week current/best streak, this-week progress card, cloud-synced weekly target (`users/{uid}/app_data/user_preferences`) with offline queue replay, plus timestamp consistency and bounded query hardening from review.
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
 ## Weekly Milestones and Quality Gates
@@ -92,7 +92,7 @@ Execution split:
 
 ## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
 
-1. Finalize and harden "Custom Weekly Consistency Streaks" rollout from draft PR to merge candidate.
+1. Implement "Read-Optimized Weekly Consistency (v1.1)" (`docs/read-optimized-weekly-consistency-plan.md`) to reduce Firestore reads via local-first streak computation and bounded sync strategy.
 2. Feature/Fun backlog refresh after weekly-streak milestone validation.
 3. Streaks/challenges/social mechanics discovery and sizing.
 

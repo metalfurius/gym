@@ -1,7 +1,7 @@
 # Weekly Consistency Streaks Plan
 
-Last updated: April 21, 2026  
-Status: In progress (major feature draft PR)
+Last updated: April 22, 2026  
+Status: Implemented (major feature delivered on PR #75 branch)
 
 ## Purpose
 
@@ -10,6 +10,15 @@ Define the current major feature milestone after Session Variants + ES/EN:
 1. Show meaningful weekly consistency streaks in Daily Hub.
 2. Let each user define a custom workout-days-per-week target.
 3. Keep weekly target synced in cloud with offline replay safety.
+
+## Delivered
+
+This milestone shipped with the following behaviors:
+
+1. Daily Hub weekly metrics are implemented (`this-week progress`, `current weekly streak`, `best weekly streak`).
+2. Weekly model is implemented with Monday-based weeks, distinct active-day counting, and a rolling 52-week analysis window.
+3. Weekly target preference is implemented in Settings and cloud-synced at `users/{uid}/app_data/user_preferences` with offline queue/replay.
+4. Post-review hardening is implemented for timestamp consistency in offline queued target writes and bounded Daily Hub weekly-window query reads.
 
 ## Scope (v1)
 
@@ -59,7 +68,7 @@ Rules:
 
 ## Validation Gates
 
-Required before merge:
+Historical completion criteria for this milestone:
 
 1. `npm run lint:ratchet`
 2. `npm run test:app`

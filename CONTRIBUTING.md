@@ -51,16 +51,15 @@ Examples:
 
 ## Current Major Feature Kickoff
 
-Milestone: Custom Weekly Consistency Streaks (v1)
+Milestone: Read-Optimized Weekly Consistency (v1.1)
 
-- Branch: `codex/major-weekly-consistency-streaks-v1`
-- Draft PR title: `feat: custom weekly consistency streaks (major v1) [minor]`
+- Branch (placeholder): `codex/major-read-optimized-weekly-consistency-v1-1`
+- PR title (placeholder): `feat: read-optimized weekly consistency (v1.1) [minor]`
 - Current scope (this PR):
-  - Daily Hub cards for weekly progress (`x/y`), current streak, and best streak
-  - weekly model: Monday start, distinct active days, rolling 52-week analysis
-  - user-configurable weekly target days (default `3`) in Settings modal
-  - cloud-synced target storage at `users/{uid}/app_data/user_preferences`
-  - offline durable queue/replay for weekly target updates
+  - local-first weekly streak/progress computation for Daily Hub without introducing streak persistence in Firestore
+  - bounded session-fetch strategy for streak computations with deterministic read ceilings
+  - compact cloud sync behavior for weekly target preferences and any minimal derived metadata needed for consistency
+  - maintain offline replay safety and timestamp consistency for preference updates
   - keep existing session/routine contracts backward-compatible
 - Out of scope for this PR:
   - social mechanics, sharing, or competitive challenges
