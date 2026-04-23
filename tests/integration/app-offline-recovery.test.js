@@ -132,7 +132,7 @@ describe('App Offline Recovery Journey', () => {
         localStorage.clear();
         sessionStorage.clear();
         onlineState.value = true;
-        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-22T10:00:00.000Z';
+        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-22T10:00:00.000';
 
         setupDomAndBrowserShims();
 

@@ -384,6 +384,25 @@ function buildWeeklyTargetQueuePayload(userId, weekKey, weekRecord, weeklyTarget
     };
 }
 
+function buildWeeklyStateSyncQueuePayload(userId, state = {}, updatedAtIso = new Date().toISOString()) {
+    const normalizedWeeklyTargetsByWeek = normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek);
+    const normalizedWeeklyOutcomesByWeek = normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek);
+    const normalizedWeeklyTargetDays = resolveCarryWeeklyTargetDays(
+        normalizedWeeklyTargetsByWeek,
+        normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT)
+    );
+
+    return {
+        userId,
+        updatedAtIso,
+        state: {
+            weeklyTargetDays: normalizedWeeklyTargetDays,
+            weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
+            weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek
+        }
+    };
+}
+
 function applyQueuedWeeklyTargetPayloadToState(payload, state = {}) {
     if (!payload?.weekKey || !payload?.weekRecord) {
         throw new Error('Invalid weekly target queue payload');
@@ -882,7 +901,19 @@ async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
 
     if (offlineManager.checkOnline()) {
         await persistWeeklyTargetPreference(user.uid, nextState, nowIso);
+        return;
     }
+
+    offlineManager.queueOperation(
+        null,
+        t('settings.weekly_goal_save_offline'),
+        {
+            descriptor: {
+                type: 'preferences.syncWeeklyState',
+                payload: buildWeeklyStateSyncQueuePayload(user.uid, nextState, nowIso)
+            }
+        }
+    );
 }
 
 async function refreshDailyHub(user, options = {}) {
@@ -1165,6 +1196,25 @@ offlineManager.registerOperationHandler('preferences.saveWeeklyTarget', async (p
         weeklyOutcomesByWeek
     });
     await persistWeeklyTargetPreference(payload.userId, nextState, normalizedPayload.updatedAtIso);
+    await refreshDailyHub(currentUser, { forceRefresh: true });
+});
+
+offlineManager.registerOperationHandler('preferences.syncWeeklyState', async (payload) => {
+    if (!payload?.userId || !payload?.state || typeof payload.state !== 'object') {
+        throw new Error('Invalid queued preferences.syncWeeklyState payload');
+    }
+
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+        throw new Error('User not ready for weekly state sync replay');
+    }
+
+    if (currentUser.uid !== payload.userId) {
+        logger.warn('Dropping queued weekly state sync for a different user');
+        return;
+    }
+
+    await persistWeeklyTargetPreference(payload.userId, payload.state, payload.updatedAtIso);
     await refreshDailyHub(currentUser, { forceRefresh: true });
 });
 

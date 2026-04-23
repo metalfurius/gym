@@ -13,7 +13,7 @@ Define the current major feature milestone after Session Variants + ES/EN:
 
 ## Delivered
 
-This milestone shipped with the following behaviors:
+This milestone is implemented on branch with the following behaviors:
 
 1. Daily Hub weekly metrics are implemented (`this-week progress`, `current weekly streak`, `best weekly streak`).
 2. Weekly model is implemented with Monday-based weeks, distinct active-day counting, and a rolling 52-week analysis window.
@@ -55,16 +55,32 @@ Document shape:
 ```json
 {
   "weeklyTargetDays": 3,
-  "schemaVersion": 1,
+  "weeklyTargetsByWeek": {
+    "2026-04-20": {
+      "targetDays": 3,
+      "savesUsed": 1,
+      "updatedAtIso": "2026-04-22T10:00:00.000Z"
+    }
+  },
+  "weeklyOutcomesByWeek": {
+    "2026-04-13": {
+      "targetDays": 3,
+      "activeDays": 2,
+      "met": false,
+      "lockedAtIso": "2026-04-22T10:00:00.000Z"
+    }
+  },
+  "schemaVersion": 2,
   "updatedAt": "<Firestore Timestamp>"
 }
 ```
 
 Rules:
 
-1. `weeklyTargetDays` is clamped to `1..7`.
-2. Missing preference falls back to `3`.
-3. Target changes recompute streak metrics immediately.
+1. `weeklyTargetDays` is clamped to `1..7` and resolved from carry-forward week target state.
+2. `weeklyTargetsByWeek` stores week-scoped target edits (`targetDays`, `savesUsed`, `updatedAtIso`).
+3. `weeklyOutcomesByWeek` stores frozen historical week outcomes used to prevent retroactive streak drift.
+4. Missing preference still falls back to `3`.
 
 ## Validation Gates
 

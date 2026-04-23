@@ -1,6 +1,6 @@
 # Firestore Data Contract
 
-Last updated: April 21, 2026
+Last updated: April 23, 2026
 Status: Active
 
 ## Purpose
@@ -135,7 +135,22 @@ Current document shape:
 ```json
 {
   "weeklyTargetDays": 3,
-  "schemaVersion": 1,
+  "weeklyTargetsByWeek": {
+    "2026-04-20": {
+      "targetDays": 3,
+      "savesUsed": 1,
+      "updatedAtIso": "2026-04-22T10:00:00.000Z"
+    }
+  },
+  "weeklyOutcomesByWeek": {
+    "2026-04-13": {
+      "targetDays": 3,
+      "activeDays": 2,
+      "met": false,
+      "lockedAtIso": "2026-04-22T10:00:00.000Z"
+    }
+  },
+  "schemaVersion": 2,
   "updatedAt": "<Firestore Timestamp>"
 }
 ```
@@ -143,7 +158,9 @@ Current document shape:
 Fields:
 
 - `weeklyTargetDays` (integer, clamped to `1..7`, default fallback `3`)
-- `schemaVersion` (integer, currently `1`)
+- `weeklyTargetsByWeek` (object map keyed by `YYYY-MM-DD` week start, storing `targetDays`, `savesUsed`, `updatedAtIso`)
+- `weeklyOutcomesByWeek` (object map keyed by `YYYY-MM-DD` week start, storing frozen `targetDays`, `activeDays`, `met`, `lockedAtIso`)
+- `schemaVersion` (integer, currently `2`)
 - `updatedAt` (`Timestamp`)
 
 ## Versioning Rules

@@ -100,7 +100,7 @@ describe('App User Journey', () => {
         __resetMockFirebase();
         localStorage.clear();
         sessionStorage.clear();
-        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-22T10:00:00.000Z';
+        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-22T10:00:00.000';
 
         setupDomAndBrowserShims();
 
