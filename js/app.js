@@ -94,6 +94,7 @@ const USER_PREFERENCES_CACHE_TTL_MS = 10 * 60 * 1000;
 let dailyHubSessionsCache = [];
 let dailyHubLastFetchTimestamp = 0;
 let dailyHubCacheUserId = null;
+let dailyHubLastFetchWasTruncated = false;
 let weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
 let weeklyTargetsByWeek = {};
 let weeklyOutcomesByWeek = {};
@@ -762,14 +763,20 @@ function applyDailyHubState(state) {
 }
 
 async function fetchRecentSessionsForDailyHub(user, options = {}) {
+    const createDailyHubFetchResult = (sessions, metadata = {}) => ({
+        sessions: Array.isArray(sessions) ? sessions : [],
+        weeklyWindowTruncated: metadata.weeklyWindowTruncated === true
+    });
+
     if (!user) {
-        return [];
+        return createDailyHubFetchResult([]);
     }
 
     if (dailyHubCacheUserId !== user.uid) {
         dailyHubCacheUserId = user.uid;
         dailyHubSessionsCache = [];
         dailyHubLastFetchTimestamp = 0;
+        dailyHubLastFetchWasTruncated = false;
     }
 
     const forceRefresh = options.forceRefresh === true;
@@ -777,22 +784,28 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         && (Date.now() - dailyHubLastFetchTimestamp) <= DAILY_HUB_CACHE_TTL_MS;
 
     if (!forceRefresh && hasFreshCache) {
-        return dailyHubSessionsCache;
+        return createDailyHubFetchResult(dailyHubSessionsCache, {
+            weeklyWindowTruncated: dailyHubLastFetchWasTruncated
+        });
     }
 
     const historySessionsCache = getSessionsCache();
     if (!offlineManager.checkOnline()) {
         if (historySessionsCache.length > 0) {
-            return historySessionsCache;
+            return createDailyHubFetchResult(historySessionsCache);
         }
 
-        return dailyHubSessionsCache;
+        return createDailyHubFetchResult(dailyHubSessionsCache, {
+            weeklyWindowTruncated: dailyHubLastFetchWasTruncated
+        });
     }
 
     try {
         const sessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-        const now = new Date();
-        const windowStart = getWeeklyConsistencyWindowStartDate(now, WEEKLY_STREAK_LOOKBACK_WEEKS);
+        const referenceNow = options.now instanceof Date && !Number.isNaN(options.now.getTime())
+            ? options.now
+            : new Date();
+        const windowStart = getWeeklyConsistencyWindowStartDate(referenceNow, WEEKLY_STREAK_LOOKBACK_WEEKS);
         const weeklyWindowQuery = query(
             sessionsCollectionRef,
             where('fecha', '>=', Timestamp.fromDate(windowStart)),
@@ -801,8 +814,9 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         );
         const weeklyWindowSnapshot = await getDocs(weeklyWindowQuery);
         firebaseUsageTracker.trackRead(weeklyWindowSnapshot.docs.length || 1, 'dashboard.dailyHub');
+        const didTruncateWeeklyWindow = weeklyWindowSnapshot.docs.length === DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT;
 
-        if (weeklyWindowSnapshot.docs.length === DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT) {
+        if (didTruncateWeeklyWindow) {
             logger.warn(
                 'Daily Hub weekly window query hit configured limit; weekly streak metrics may be incomplete for very high-volume users.'
             );
@@ -833,15 +847,20 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
 
         dailyHubSessionsCache = sessionsForDailyHub;
         dailyHubLastFetchTimestamp = Date.now();
+        dailyHubLastFetchWasTruncated = didTruncateWeeklyWindow;
 
-        return dailyHubSessionsCache;
+        return createDailyHubFetchResult(dailyHubSessionsCache, {
+            weeklyWindowTruncated: didTruncateWeeklyWindow
+        });
     } catch (error) {
         logger.warn('Could not refresh daily hub sessions:', error);
         if (historySessionsCache.length > 0) {
-            return historySessionsCache;
+            return createDailyHubFetchResult(historySessionsCache);
         }
 
-        return dailyHubSessionsCache;
+        return createDailyHubFetchResult(dailyHubSessionsCache, {
+            weeklyWindowTruncated: dailyHubLastFetchWasTruncated
+        });
     }
 }
 
@@ -862,17 +881,11 @@ async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
     const nextWeeklyOutcomesByWeek = {
         ...normalizeWeeklyOutcomesByWeekState(weeklyOutcomesByWeek)
     };
-    const normalizedWeeklyTargets = normalizeWeeklyTargetsByWeekState(weeklyTargetsByWeek);
     let didChange = false;
     const nowIso = now.toISOString();
 
     timelineResult.timeline.forEach((entry) => {
         if (entry.isCurrentWeek || entry.isFrozen) {
-            return;
-        }
-
-        const hasExplicitWeeklyTarget = !!normalizedWeeklyTargets[entry.weekKey];
-        if (!hasExplicitWeeklyTarget && entry.activeDays === 0) {
             return;
         }
 
@@ -930,12 +943,21 @@ async function refreshDailyHub(user, options = {}) {
         return;
     }
 
-    const now = new Date();
-    const sessions = user
-        ? await fetchRecentSessionsForDailyHub(user, options)
-        : [];
+    const now = options.now instanceof Date && !Number.isNaN(options.now.getTime())
+        ? options.now
+        : new Date();
+    const fetchResult = user
+        ? await fetchRecentSessionsForDailyHub(user, { ...options, now })
+        : { sessions: [], weeklyWindowTruncated: false };
+    const sessions = fetchResult.sessions;
     if (user) {
-        await finalizePastWeeklyOutcomes(user, sessions, now);
+        if (fetchResult.weeklyWindowTruncated) {
+            logger.warn(
+                'Skipping weekly outcome freezing because Daily Hub weekly-window query was truncated; avoiding persistence of incomplete historical outcomes.'
+            );
+        } else {
+            await finalizePastWeeklyOutcomes(user, sessions, now);
+        }
     }
     const state = computeDailyHubState({
         sessions,
@@ -1001,6 +1023,7 @@ export async function initializeAppAfterAuth(user) {
         dailyHubCacheUserId = null;
         dailyHubSessionsCache = [];
         dailyHubLastFetchTimestamp = 0;
+        dailyHubLastFetchWasTruncated = false;
         weeklyTargetDays = WEEKLY_TARGET_DEFAULT;
         weeklyTargetsByWeek = {};
         weeklyOutcomesByWeek = {};
