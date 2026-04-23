@@ -132,6 +132,7 @@ describe('App Offline Recovery Journey', () => {
         localStorage.clear();
         sessionStorage.clear();
         onlineState.value = true;
+        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-22T10:00:00.000';
 
         setupDomAndBrowserShims();
 
@@ -183,6 +184,37 @@ describe('App Offline Recovery Journey', () => {
         expect(quickLogSavedAfterReconnect[0].data.quickLog.source).toBe('quick_log');
         expect(offlineManager.getPendingCount()).toBe(0);
         expect(document.getElementById('daily-hub-sync-status').textContent).toContain('En línea');
+
+        click('#settings-btn');
+        await waitForUi(120);
+
+        setOnline(false);
+        await waitForUi(150);
+        setField('#weekly-target-days-select', '5');
+        click('#weekly-target-save-btn');
+        await waitForUi(350);
+
+        const queuedWeeklyTargetOperation = offlineManager.pendingOperations[0];
+        const queuedUpdatedAtIso = queuedWeeklyTargetOperation?.descriptor?.payload?.updatedAtIso;
+
+        let preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
+        expect(preferencesDocs.find((entry) => entry.id === 'user_preferences')).toBeUndefined();
+        expect(offlineManager.getPendingCount()).toBe(1);
+        expect(queuedUpdatedAtIso).toBeDefined();
+
+        setOnline(true);
+        await waitForUi(500);
+
+        preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
+        const weeklyPreference = preferencesDocs.find((entry) => entry.id === 'user_preferences');
+        expect(weeklyPreference).toBeDefined();
+        expect(weeklyPreference.data.weeklyTargetDays).toBe(5);
+        expect(weeklyPreference.data.updatedAt.toDate().toISOString()).toBe(queuedUpdatedAtIso);
+        expect(offlineManager.getPendingCount()).toBe(0);
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toContain('/5');
+
+        click('.settings-modal-close');
+        await waitForUi(80);
 
         await createRoutine({ name: 'Offline Test Routine', exerciseName: 'Bench Press', executionMode: 'pulley' });
 
@@ -240,6 +272,7 @@ describe('App Offline Recovery Journey', () => {
         __resetMockFirebase();
         localStorage.clear();
         sessionStorage.clear();
+        delete globalThis.__GYM_WEEKLY_TARGET_NOW_ISO;
         delete window.Chart;
         delete global.Chart;
     });

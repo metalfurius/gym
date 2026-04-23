@@ -360,6 +360,7 @@ describe('OfflineManager', () => {
             ).rejects.toThrow('Offline');
 
             expect(offlineManager.getPendingCount()).toBe(1);
+            expect(offlineManager.pendingOperations[0]?.operation).toBeNull();
 
             // Simulate app reload by clearing in-memory queue, then restoring persisted queue.
             offlineManager.pendingOperations = [];
@@ -376,6 +377,27 @@ describe('OfflineManager', () => {
             expect(offlineManager.getPendingCount()).toBe(0);
 
             offlineManager.removeOperationHandler('test.persist');
+        });
+
+        it('should prefer descriptor handlers over inline operation closures when both are present', async () => {
+            const inlineOperation = jest.fn(async () => 'inline');
+            const replayHandler = jest.fn(async () => 'handler');
+
+            offlineManager.registerOperationHandler('test.prefer.handler', replayHandler);
+            offlineManager.queueOperation(inlineOperation, 'Prefer handler', {
+                descriptor: {
+                    type: 'test.prefer.handler',
+                    payload: { value: 1 }
+                }
+            });
+
+            await offlineManager.processPendingOperations();
+
+            expect(replayHandler).toHaveBeenCalledWith({ value: 1 });
+            expect(inlineOperation).not.toHaveBeenCalled();
+            expect(offlineManager.getPendingCount()).toBe(0);
+
+            offlineManager.removeOperationHandler('test.prefer.handler');
         });
     });
 

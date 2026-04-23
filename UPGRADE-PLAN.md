@@ -1,6 +1,6 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: March 29, 2026
+Last updated: April 22, 2026
 
 ## Purpose
 
@@ -45,8 +45,10 @@ Execution split:
 - [done] Define acceptance criteria and rollout readiness for this slice (`docs/quick-log-daily-hub-readiness.md`).
 - [done] Implement "Quick Log + Daily Hub" dashboard slice with offline replay and reliability coverage.
 - [done] Implement "Exercise Execution Modes" (one-hand/two-hand/machine/pulley) for strength exercises (`docs/exercise-execution-mode-plan.md`).
-- [planned] Prioritize "Session-Time Exercise Variants + ES/EN Language System" as the next feature/fun milestone (`docs/session-variants-i18n-plan.md`).
-  Exit criteria: mode/load overrides editable per session exercise, local memory by user+routine+exercise, ES/EN selector in header, and unified UI + runtime copy.
+- [done] Implement "Session-Time Exercise Variants + ES/EN Language System" (`docs/session-variants-i18n-plan.md`).
+  Delivered: session-time mode/load overrides, local variant memory, header ES/EN selector, unified runtime/static copy.
+- [done] Implement "Custom Weekly Consistency Streaks" (`docs/weekly-consistency-streaks-plan.md`).
+  Delivered scope: Monday-based weekly streak model, distinct active-day counting, rolling 52-week current/best streak, this-week progress card, cloud-synced weekly target (`users/{uid}/app_data/user_preferences`) with offline queue replay, plus timestamp consistency and bounded query hardening from review.
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
 ## Weekly Milestones and Quality Gates
@@ -90,8 +92,8 @@ Execution split:
 
 ## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
 
-1. Session-Time Exercise Variants + ES/EN Language System implementation.
-2. Feature/Fun backlog refresh after the new milestone validation.
+1. Implement "Read-Optimized Weekly Consistency (v1.1)" (`docs/read-optimized-weekly-consistency-plan.md`) to reduce Firestore reads via local-first streak computation and bounded sync strategy.
+2. Feature/Fun backlog refresh after weekly-streak milestone validation.
 3. Streaks/challenges/social mechanics discovery and sizing.
 
 ## Hard Exit Criteria for Post-Cycle Implementation

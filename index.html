@@ -141,6 +141,18 @@
                         <p class="daily-hub-label" data-i18n="dashboard.daily_hub_sync_status">Estado de sync</p>
                         <p id="daily-hub-sync-status" class="daily-hub-value" data-i18n="dashboard.sync_online">En linea</p>
                     </article>
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_weekly_progress">Progreso semanal</p>
+                        <p id="daily-hub-weekly-progress" class="daily-hub-value">0/3</p>
+                    </article>
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_current_streak">Racha actual (semanas)</p>
+                        <p id="daily-hub-current-streak" class="daily-hub-value">0</p>
+                    </article>
+                    <article class="daily-hub-card">
+                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_best_streak">Mejor racha (semanas)</p>
+                        <p id="daily-hub-best-streak" class="daily-hub-value">0</p>
+                    </article>
                 </div>
                 <p id="daily-hub-empty-state" class="daily-hub-empty hidden" data-i18n="dashboard.daily_hub_empty">Aun no tienes sesiones guardadas este mes.</p>
             </div>
@@ -404,6 +416,28 @@
                 </h3>
             </div>
             <div class="modal-body">
+                <div class="settings-section">
+                    <h4>
+                        <span aria-hidden="true">&#127919;</span>
+                        <span data-i18n="settings.weekly_goal_title">Objetivo semanal</span>
+                    </h4>
+                    <p class="settings-warning" data-i18n="settings.weekly_goal_help">Define cuántos días por semana quieres entrenar. Tu racha semanal se calcula con este objetivo.</p>
+                    <div class="settings-weekly-goal-controls">
+                        <label for="weekly-target-days-select" data-i18n="settings.weekly_goal_label">Días objetivo por semana</label>
+                        <select id="weekly-target-days-select">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                        </select>
+                        <button id="weekly-target-save-btn" class="btn btn-secondary">
+                            <span data-i18n="settings.weekly_goal_save_btn">Guardar objetivo semanal</span>
+                        </button>
+                    </div>
+                </div>
                 <div class="settings-section">
                     <h4>
                         <span aria-hidden="true">&#128202;</span>

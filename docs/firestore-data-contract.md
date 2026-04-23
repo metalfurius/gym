@@ -1,7 +1,7 @@
-# Firestore Data Contract (Draft)
+# Firestore Data Contract
 
-Last updated: March 29, 2026
-Status: Draft for review
+Last updated: April 23, 2026
+Status: Active
 
 ## Purpose
 
@@ -126,6 +126,43 @@ Current document shape:
 }
 ```
 
+### 4) User preferences
+
+Path: `users/{uid}/app_data/user_preferences`
+
+Current document shape:
+
+```json
+{
+  "weeklyTargetDays": 3,
+  "weeklyTargetsByWeek": {
+    "2026-04-20": {
+      "targetDays": 3,
+      "savesUsed": 1,
+      "updatedAtIso": "2026-04-22T10:00:00.000Z"
+    }
+  },
+  "weeklyOutcomesByWeek": {
+    "2026-04-13": {
+      "targetDays": 3,
+      "activeDays": 2,
+      "met": false,
+      "lockedAtIso": "2026-04-22T10:00:00.000Z"
+    }
+  },
+  "schemaVersion": 2,
+  "updatedAt": "<Firestore Timestamp>"
+}
+```
+
+Fields:
+
+- `weeklyTargetDays` (integer, clamped to `1..7`, default fallback `3`)
+- `weeklyTargetsByWeek` (object map keyed by `YYYY-MM-DD` week start, storing `targetDays`, `savesUsed`, `updatedAtIso`)
+- `weeklyOutcomesByWeek` (object map keyed by `YYYY-MM-DD` week start, storing frozen `targetDays`, `activeDays`, `met`, `lockedAtIso`)
+- `schemaVersion` (integer, currently `2`)
+- `updatedAt` (`Timestamp`)
+
 ## Versioning Rules
 
 Short term (current code):
@@ -163,20 +200,29 @@ Execution mode for strength exercises is now implemented:
 2. Session exercises (`users/{uid}/sesiones_entrenamiento/{sessionId}`): optional field `modoEjecucion` (currently mirrored from routine defaults).
 3. Backward compatibility rule: if execution mode is absent, consumers treat it as `other`; existing `type` / `tipoEjercicio` semantics remain unchanged.
 
-## Planned Milestone Alignment: Session-Time Variants + ES/EN (Documentation)
+## Implemented Milestone Alignment: Session-Time Variants + ES/EN
 
-This milestone is planning-only at this stage. Contract implications are already locked:
+This milestone is implemented. Contract implications:
 
-1. No Firestore schema changes are required for the milestone.
-2. Session fields `modoEjecucion` and `tipoCarga` remain the canonical descriptors for how an exercise was effectively performed in a saved session.
-3. Remembered per-routine/per-exercise variant preferences are local device state and remain outside Firestore contract scope.
+1. No schema change was required for ES/EN language support.
+2. Session fields `modoEjecucion` and `tipoCarga` are canonical descriptors for effective per-session execution behavior.
+3. Remembered per-routine/per-exercise variant preferences remain local device state (outside Firestore).
+
+## Implemented Milestone Alignment: Weekly Consistency Streaks
+
+Contract implications:
+
+1. Weekly streak computation reads from existing sessions (`sesiones_entrenamiento`) and does not mutate session schema.
+2. User-specific target preference is cloud-synced in `app_data/user_preferences`.
+3. Preference writes must remain compatible with offline queue/replay.
 
 ## Compatibility and Migration Constraints
 
 1. No destructive migration in place for this cycle.
 2. Existing documents must remain readable without backfill.
 3. Write paths that touch session persistence must preserve compatibility with offline queue replay.
-4. Contract changes require matching updates in:
+4. Preference writes under `app_data/user_preferences` must preserve backward-compatible fallback behavior (missing doc -> default `3`).
+5. Contract changes require matching updates in:
 - `js/modules/session-manager.js`
 - `js/progress.js`
 - `js/utils/firestore-serialization.js`

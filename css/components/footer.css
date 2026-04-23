@@ -454,6 +454,36 @@ footer p {
     margin-bottom: var(--spacing-md);
 }
 
+.settings-weekly-goal-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-sm);
+    align-items: end;
+}
+
+.settings-weekly-goal-controls label {
+    grid-column: 1 / -1;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+#weekly-target-days-select {
+    min-height: 42px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: var(--background-secondary);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+#weekly-target-save-btn {
+    width: auto;
+    padding: 10px 18px;
+    min-height: 42px;
+}
+
 .btn-danger {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
@@ -533,6 +563,14 @@ footer p {
     .settings-modal-content {
         width: 95%;
         margin: 10px;
+    }
+
+    .settings-weekly-goal-controls {
+        grid-template-columns: 1fr;
+    }
+
+    #weekly-target-save-btn {
+        width: 100%;
     }
 }
 

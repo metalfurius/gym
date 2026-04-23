@@ -51,16 +51,17 @@ Examples:
 
 ## Current Major Feature Kickoff
 
-Milestone: Session-Time Exercise Variants + ES/EN Language System
+Milestone: Read-Optimized Weekly Consistency (v1.1)
 
-- Branch: `feature/session-variants-v1`
-- Draft PR title: `feat: session-time exercise variants (phase 1) [minor]`
-- Phase 1 scope (this PR):
-  - per-exercise session controls for `executionMode` and `loadType`
-  - precedence: in-progress snapshot > local override > routine default
-  - local persistence by user + routine + exercise
-  - save effective values to `modoEjecucion` and `tipoCarga`
-  - keep offline queue/replay behavior unchanged
-- Out of scope for phase 1:
-  - ES/EN i18n language system (phase 2)
-  - Firestore schema changes
+- Branch (placeholder): `codex/major-read-optimized-weekly-consistency-v1-1`
+- PR title (placeholder): `feat: read-optimized weekly consistency (v1.1) [minor]`
+- Current scope (this PR):
+  - local-first weekly streak/progress computation for Daily Hub without introducing streak persistence in Firestore
+  - bounded session-fetch strategy for streak computations with deterministic read ceilings
+  - compact cloud sync behavior for weekly target preferences and any minimal derived metadata needed for consistency
+  - maintain offline replay safety and timestamp consistency for preference updates
+  - keep existing session/routine contracts backward-compatible
+- Out of scope for this PR:
+  - social mechanics, sharing, or competitive challenges
+  - nutrition/body-composition schema expansion
+  - destructive migrations or backfill of historical documents

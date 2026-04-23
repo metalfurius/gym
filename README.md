@@ -12,6 +12,8 @@ A modern, responsive workout tracking web app with session management, routine c
 - Comprehensive workout management (routines, sessions, history)
 - Multiple views: Dashboard, Session, History, Routine Management, Progress
 - Dashboard Daily Hub with quick today stats and sync status
+- Weekly consistency streaks in Daily Hub (current streak, best streak, this-week progress)
+- Cloud-synced weekly target preference (`app_data/user_preferences`) with offline replay
 - Quick Log flow for sub-30s lightweight workout entries
 - Activity calendar for monthly workout consistency
 - Exercise progress charts with cached historical data
@@ -59,15 +61,17 @@ Planning docs:
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 - [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
 - [docs/exercise-execution-mode-plan.md](docs/exercise-execution-mode-plan.md) - post-cycle plan for one-hand/two-hand/machine/pulley execution modes
-- [docs/session-variants-i18n-plan.md](docs/session-variants-i18n-plan.md) - planned spec for per-session mode/load overrides plus ES/EN language system
+- [docs/session-variants-i18n-plan.md](docs/session-variants-i18n-plan.md) - implemented milestone spec for per-session mode/load overrides plus ES/EN language system
+- [docs/weekly-consistency-streaks-plan.md](docs/weekly-consistency-streaks-plan.md) - implemented milestone spec for custom weekly consistency streaks (v1)
+- [docs/read-optimized-weekly-consistency-plan.md](docs/read-optimized-weekly-consistency-plan.md) - next-phase major-feature spec for reducing weekly consistency read cost
 - [docs/commit-versioning.md](docs/commit-versioning.md) - commit keyword rules that drive automatic `major` / `minor` / `patch` bumps
 
 ### Current Focus (March 30, 2026 to May 10, 2026)
 
 - Dual-track strategy with hard quality gates
 - Execution split: Stability 45%, Foundation 35%, Feature/Fun 20%
-- Feature/Fun milestone delivered: Quick Log + Daily Hub implementation
-- Feature/Fun milestone pending: Session-Time Exercise Variants + ES/EN Language System (planning completed, implementation pending)
+- Feature/Fun milestones delivered: `Quick Log + Daily Hub`, `Session-Time Exercise Variants`, `ES/EN Language System`, `Custom Weekly Consistency Streaks (v1)`
+- Current major feature status: `Custom Weekly Consistency Streaks (v1)` implemented on PR `#75` branch and pending merge to `main`
 
 ### Hard Gates for This Cycle
 
@@ -80,8 +84,8 @@ Planning docs:
 
 ### Next Phase
 
-Current feature/fun implementation targets delivered: `Quick Log + Daily Hub`, `Exercise Execution Modes`.
-Next target (pending): `Session-Time Exercise Variants + ES/EN Language System`.
+Current feature/fun implementation targets delivered: `Quick Log + Daily Hub`, `Exercise Execution Modes`, `Session-Time Exercise Variants + ES/EN Language System`, `Custom Weekly Consistency Streaks (v1)`.
+Next target: `Read-Optimized Weekly Consistency (v1.1)` with local-first streak computation and reduced Firestore reads.
 
 ### How We Ship Major Features
 
