@@ -4,7 +4,15 @@
  */
 
 import { db } from '../firebase-config.js';
-import { collection, query, where, orderBy, limit, getDocs, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import {
+    collection,
+    query,
+    where,
+    orderBy,
+    limit,
+    getDocs,
+    Timestamp,
+} from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { logger } from '../utils/logger.js';
 import { debounce } from '../utils/debounce.js';
@@ -63,10 +71,10 @@ function analyzeSessionType(session) {
     if (!session.ejercicios || session.ejercicios.length === 0) {
         return 'none';
     }
-    
+
     let hasStrength = false;
     let hasCardio = false;
-    
+
     session.ejercicios.forEach(ejercicio => {
         if (ejercicio.tipoEjercicio === 'strength') {
             hasStrength = true;
@@ -74,7 +82,7 @@ function analyzeSessionType(session) {
             hasCardio = true;
         }
     });
-    
+
     if (hasStrength && hasCardio) {
         return 'mixed';
     } else if (hasCardio) {
@@ -96,7 +104,7 @@ function combineWorkoutTypes(type1, type2) {
     if (type1 === 'none') return type2;
     if (type2 === 'none') return type1;
     if (type1 === type2) return type1;
-    
+
     // If there's a combination of different types, it's mixed
     return 'mixed';
 }
@@ -163,7 +171,7 @@ async function resolveMinimumBoundForUser(userId) {
     }
 
     const now = Date.now();
-    if (minimumBoundPermissive && (now - minimumBoundLastAttemptAt) < MINIMUM_BOUND_RETRY_MS) {
+    if (minimumBoundPermissive && now - minimumBoundLastAttemptAt < MINIMUM_BOUND_RETRY_MS) {
         return;
     }
 
@@ -171,11 +179,7 @@ async function resolveMinimumBoundForUser(userId) {
 
     try {
         const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
-        const earliestSessionQuery = query(
-            sessionsRef,
-            orderBy('fecha', 'asc'),
-            limit(10)
-        );
+        const earliestSessionQuery = query(sessionsRef, orderBy('fecha', 'asc'), limit(10));
         const querySnapshot = await getDocs(earliestSessionQuery);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.minimumBound');
 
@@ -189,8 +193,8 @@ async function resolveMinimumBoundForUser(userId) {
         }
 
         const earliestSessionDate = querySnapshot.docs
-            .map((docSnap) => docSnap?.data?.()?.fecha?.toDate?.())
-            .find((date) => date instanceof Date && !Number.isNaN(date.getTime()));
+            .map(docSnap => docSnap?.data?.()?.fecha?.toDate?.())
+            .find(date => date instanceof Date && !Number.isNaN(date.getTime()));
 
         if (earliestSessionDate) {
             minimumBoundYear = earliestSessionDate.getFullYear();
@@ -199,15 +203,10 @@ async function resolveMinimumBoundForUser(userId) {
             const today = new Date();
             const currentYear = today.getFullYear();
             const currentMonth = today.getMonth();
-            if (
-                compareCalendarMonth(
-                    minimumBoundYear,
-                    minimumBoundMonth,
-                    currentYear,
-                    currentMonth
-                ) > 0
-            ) {
-                logger.warn('Resolved earliest activity month is in the future. Clamping lower bound to current month.');
+            if (compareCalendarMonth(minimumBoundYear, minimumBoundMonth, currentYear, currentMonth) > 0) {
+                logger.warn(
+                    'Resolved earliest activity month is in the future. Clamping lower bound to current month.'
+                );
                 minimumBoundYear = currentYear;
                 minimumBoundMonth = currentMonth;
             }
@@ -235,8 +234,8 @@ function clampCalendarToAllowedRange() {
 
     // Guard against future navigation.
     if (
-        currentCalendarYear > currentYear
-        || (currentCalendarYear === currentYear && currentCalendarMonth > currentMonth)
+        currentCalendarYear > currentYear ||
+        (currentCalendarYear === currentYear && currentCalendarMonth > currentMonth)
     ) {
         currentCalendarYear = currentYear;
         currentCalendarMonth = currentMonth;
@@ -249,14 +248,7 @@ function clampCalendarToAllowedRange() {
 
     let effectiveMinimumBoundYear = minimumBoundYear;
     let effectiveMinimumBoundMonth = minimumBoundMonth;
-    if (
-        compareCalendarMonth(
-            effectiveMinimumBoundYear,
-            effectiveMinimumBoundMonth,
-            currentYear,
-            currentMonth
-        ) > 0
-    ) {
+    if (compareCalendarMonth(effectiveMinimumBoundYear, effectiveMinimumBoundMonth, currentYear, currentMonth) > 0) {
         logger.warn('Resolved earliest activity month is in the future. Clamping lower bound to current month.');
         effectiveMinimumBoundYear = currentYear;
         effectiveMinimumBoundMonth = currentMonth;
@@ -284,7 +276,7 @@ function clampCalendarToAllowedRange() {
  */
 async function getMonthlyActivity(userId, year, month) {
     if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-    
+
     const activityMap = new Map(); // 'YYYY-MM-DD' -> { count, type }
     const startDate = new Date(year, month, 1); // First day of month
     const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Last day of month
@@ -305,14 +297,15 @@ async function getMonthlyActivity(userId, year, month) {
 
     try {
         const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
-        const q = query(sessionsRef,
+        const q = query(
+            sessionsRef,
             where('fecha', '>=', Timestamp.fromDate(startDate)),
             where('fecha', '<=', Timestamp.fromDate(endDate))
         );
         const querySnapshot = await getDocs(q);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.monthlyActivity', {
             year,
-            month: month + 1
+            month: month + 1,
         });
 
         querySnapshot.forEach(docSnap => {
@@ -322,23 +315,23 @@ async function getMonthlyActivity(userId, year, month) {
                 if (dateString) {
                     // Analyze workout type for this session
                     const sessionType = analyzeSessionType(session);
-                    
+
                     const currentData = activityMap.get(dateString) || { count: 0, type: 'none' };
                     const newCount = currentData.count + 1;
-                    
+
                     // Determine combined type for the day
                     let combinedType = sessionType;
                     if (currentData.count > 0) {
                         combinedType = combineWorkoutTypes(currentData.type, sessionType);
                     }
-                    
+
                     activityMap.set(dateString, { count: newCount, type: combinedType });
                 }
             }
         });
 
         await localFirstCache.set(cacheKey, serializeActivityMap(activityMap), {
-            metadata: { year, month: month + 1 }
+            metadata: { year, month: month + 1 },
         });
     } catch (error) {
         logger.error('Error fetching monthly activity:', error);
@@ -370,21 +363,21 @@ function renderActivityCalendar(year, month, activityData) {
     // Re-query calendar elements in case they weren't loaded initially
     if (!calendarView) calendarView = document.getElementById('activity-calendar');
     if (!currentMonthDisplay) currentMonthDisplay = document.getElementById('current-month-display');
-    
+
     // Check if calendar elements exist before proceeding
     if (!calendarView || !currentMonthDisplay) {
         logger.error('Calendar elements not found. DOM might not be fully loaded.', {
             calendarView: !!calendarView,
-            currentMonthDisplay: !!currentMonthDisplay
+            currentMonthDisplay: !!currentMonthDisplay,
         });
         return;
     }
-    
+
     calendarView.innerHTML = ''; // Clear previous calendar
-    
+
     currentMonthDisplay.textContent = new Date(year, month, 1).toLocaleDateString(getLocale(), {
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
     });
 
     // Add day headers
@@ -395,7 +388,7 @@ function renderActivityCalendar(year, month, activityData) {
         t('calendar.day_thu'),
         t('calendar.day_fri'),
         t('calendar.day_sat'),
-        t('calendar.day_sun')
+        t('calendar.day_sun'),
     ];
     dayHeaders.forEach(dayHeader => {
         const headerCell = document.createElement('div');
@@ -407,7 +400,7 @@ function renderActivityCalendar(year, month, activityData) {
     const daysInCurrentMonth = getDaysInMonth(year, month);
     let firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 (Sunday) - 6 (Saturday)
     // Make Monday the first day (0) and Sunday the last (6)
-    firstDayOfMonth = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+    firstDayOfMonth = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
 
     // Add empty cells to align the first day of the week (Monday)
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -428,7 +421,7 @@ function renderActivityCalendar(year, month, activityData) {
         const activityInfo = activityData.get(dateString) || { count: 0, type: 'none' };
         let activityLevel = 0;
         let activityTypeText = t('calendar.activity_none');
-        
+
         if (activityInfo.count > 0) {
             switch (activityInfo.type) {
                 case 'strength':
@@ -450,26 +443,29 @@ function renderActivityCalendar(year, month, activityData) {
         }
 
         cell.classList.add(`level-${activityLevel}`);
-        
+
         // Create informative tooltip
         const localizedDate = new Date(year, month, day).toLocaleDateString(getLocale(), {
             year: 'numeric',
             month: '2-digit',
-            day: '2-digit'
+            day: '2-digit',
         });
-        const tooltipText = activityInfo.count > 1
-            ? t('calendar.tooltip_multiple', { date: localizedDate, activity: activityTypeText, count: activityInfo.count })
-            : t('calendar.tooltip_single', { date: localizedDate, activity: activityTypeText });
+        const tooltipText =
+            activityInfo.count > 1
+                ? t('calendar.tooltip_multiple', {
+                      date: localizedDate,
+                      activity: activityTypeText,
+                      count: activityInfo.count,
+                  })
+                : t('calendar.tooltip_single', { date: localizedDate, activity: activityTypeText });
         cell.title = tooltipText;
-        
+
         // Show day number in each cell
         cell.textContent = day;
 
         // Highlight current day
         const today = new Date();
-        if (year === today.getFullYear() && 
-            month === today.getMonth() && 
-            day === today.getDate()) {
+        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
             cell.classList.add('is-today');
         }
 
@@ -509,29 +505,30 @@ function updateCalendarNavigation() {
     // Re-query navigation buttons if needed
     if (!prevMonthBtn) prevMonthBtn = document.getElementById('prev-month-btn');
     if (!nextMonthBtn) nextMonthBtn = document.getElementById('next-month-btn');
-    
+
     if (!prevMonthBtn || !nextMonthBtn) {
         logger.warn('Calendar navigation buttons not found.');
         return;
     }
-    
+
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
-    
+
     // Disable "prev" button only when the current view is exactly the lower bound month.
-    const hasResolvedBound = minimumBoundResolved
-        && Number.isInteger(minimumBoundYear)
-        && Number.isInteger(minimumBoundMonth);
-    const isAtMinimum = hasResolvedBound
-        && !minimumBoundPermissive
-        && currentCalendarYear === minimumBoundYear
-        && currentCalendarMonth === minimumBoundMonth;
-    
+    const hasResolvedBound =
+        minimumBoundResolved && Number.isInteger(minimumBoundYear) && Number.isInteger(minimumBoundMonth);
+    const isAtMinimum =
+        hasResolvedBound &&
+        !minimumBoundPermissive &&
+        currentCalendarYear === minimumBoundYear &&
+        currentCalendarMonth === minimumBoundMonth;
+
     // Disable "next" button if at current month/year
-    const isAtMaximum = (currentCalendarYear === currentYear && currentCalendarMonth >= currentMonth) ||
-                       currentCalendarYear > currentYear;
-    
+    const isAtMaximum =
+        (currentCalendarYear === currentYear && currentCalendarMonth >= currentMonth) ||
+        currentCalendarYear > currentYear;
+
     prevMonthBtn.disabled = isAtMinimum;
     nextMonthBtn.disabled = isAtMaximum;
 }
@@ -547,33 +544,33 @@ async function updateCalendarViewInternal() {
         if (calendarContainer) calendarContainer.classList.add('hidden');
         return;
     }
-    
+
     // Re-query calendar elements in case they weren't loaded initially
     if (!calendarContainer) calendarContainer = document.getElementById('activity-calendar-container');
     if (!calendarView) calendarView = document.getElementById('activity-calendar');
     if (!currentMonthDisplay) currentMonthDisplay = document.getElementById('current-month-display');
     if (!loadingSpinner) loadingSpinner = document.getElementById('calendar-loading-spinner');
-    
+
     // Check if calendar elements exist before proceeding
     if (!calendarContainer || !calendarView || !currentMonthDisplay) {
         logger.error('Calendar elements not found. DOM might not be fully loaded.', {
             container: !!calendarContainer,
             calendarView: !!calendarView,
-            currentMonthDisplay: !!currentMonthDisplay
+            currentMonthDisplay: !!currentMonthDisplay,
         });
         return;
     }
-    
+
     await resolveMinimumBoundForUser(user.uid);
     clampCalendarToAllowedRange();
-    
+
     calendarContainer.classList.remove('hidden');
-    
+
     // Show loading state while fetching data
     if (loadingSpinner) {
         loadingSpinner.classList.remove('hidden');
     }
-    
+
     const activity = await getMonthlyActivity(user.uid, currentCalendarYear, currentCalendarMonth);
     renderActivityCalendar(currentCalendarYear, currentCalendarMonth, activity);
 
@@ -595,19 +592,12 @@ function navigateToPreviousMonth() {
     }
 
     if (!minimumBoundPermissive && minimumBoundResolved) {
-        if (
-            compareCalendarMonth(
-                currentCalendarYear,
-                currentCalendarMonth,
-                minimumBoundYear,
-                minimumBoundMonth
-            ) < 0
-        ) {
+        if (compareCalendarMonth(currentCalendarYear, currentCalendarMonth, minimumBoundYear, minimumBoundMonth) < 0) {
             currentCalendarYear = minimumBoundYear;
             currentCalendarMonth = minimumBoundMonth;
         }
     }
-    
+
     updateCalendarView();
 }
 
@@ -618,10 +608,12 @@ function navigateToNextMonth() {
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
-    
+
     // Don't allow going beyond current month
-    if (currentCalendarYear < currentYear || 
-        (currentCalendarYear === currentYear && currentCalendarMonth < currentMonth)) {
+    if (
+        currentCalendarYear < currentYear ||
+        (currentCalendarYear === currentYear && currentCalendarMonth < currentMonth)
+    ) {
         currentCalendarMonth++;
         if (currentCalendarMonth > 11) {
             currentCalendarMonth = 0;
@@ -689,7 +681,7 @@ export function destroyCalendar() {
     // of the dashboard view lifecycle (in setupDashboardViewListeners). This keeps listener
     // management centralized in the view/event manager system. We reset local state here
     // and do NOT call cleanup directly to avoid interfering with other dashboard listeners.
-    
+
     // Reset state
     calendarContainer = null;
     calendarView = null;
@@ -710,7 +702,7 @@ export function destroyCalendar() {
 export function getCalendarState() {
     return {
         year: currentCalendarYear,
-        month: currentCalendarMonth
+        month: currentCalendarMonth,
     };
 }
 
@@ -726,10 +718,7 @@ export function hideCalendar() {
     }
 }
 
-export {
-    updateCalendarView,
-    MIN_CALENDAR_YEAR
-};
+export { updateCalendarView, MIN_CALENDAR_YEAR };
 
 export default {
     init: initCalendar,
@@ -738,5 +727,5 @@ export default {
     resetToCurrentMonth,
     getState: getCalendarState,
     hide: hideCalendar,
-    MIN_CALENDAR_YEAR
+    MIN_CALENDAR_YEAR,
 };

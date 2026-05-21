@@ -6,13 +6,9 @@ import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
 import {
     DEFAULT_EXECUTION_MODE,
     normalizeExecutionMode,
-    resolveExerciseExecutionMode
+    resolveExerciseExecutionMode,
 } from './utils/execution-mode.js';
-import {
-    DEFAULT_LOAD_TYPE,
-    normalizeLoadType,
-    resolveExerciseLoadType
-} from './utils/load-type.js';
+import { DEFAULT_LOAD_TYPE, normalizeLoadType, resolveExerciseLoadType } from './utils/load-type.js';
 
 export class ExerciseCacheManager {
     constructor() {
@@ -55,11 +51,7 @@ export class ExerciseCacheManager {
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Array} Array con el historial del ejercicio (más reciente primero)
      */
-    getExerciseHistory(
-        exerciseName,
-        executionMode = DEFAULT_EXECUTION_MODE,
-        loadType = DEFAULT_LOAD_TYPE
-    ) {
+    getExerciseHistory(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
         const cache = this.getFullCache();
         const normalizedMode = normalizeExecutionMode(executionMode);
         const normalizedExerciseName = this.normalizeExerciseName(exerciseName);
@@ -97,11 +89,7 @@ export class ExerciseCacheManager {
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Object|null} Datos más recientes o null si no hay historial
      */
-    getLastExerciseData(
-        exerciseName,
-        executionMode = DEFAULT_EXECUTION_MODE,
-        loadType = DEFAULT_LOAD_TYPE
-    ) {
+    getLastExerciseData(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
         const history = this.getExerciseHistory(exerciseName, executionMode, loadType);
         const result = history.length > 0 ? history[0] : null;
         return result;
@@ -128,13 +116,13 @@ export class ExerciseCacheManager {
         const normalizedMode = normalizeExecutionMode(executionMode);
         const normalizedLoadType = normalizeLoadType(loadType);
         const cacheKey = this.buildExerciseCacheKey(exerciseName, normalizedMode, normalizedLoadType);
-        
+
         if (!cache[cacheKey]) {
             cache[cacheKey] = {
                 originalName: exerciseName,
                 executionMode: normalizedMode,
                 loadType: normalizedLoadType,
-                history: []
+                history: [],
             };
         } else {
             if (!cache[cacheKey].executionMode) {
@@ -149,10 +137,10 @@ export class ExerciseCacheManager {
         const historyEntry = {
             date: sessionDate.toISOString(),
             timestamp: sessionDate.getTime(),
-            sets: sets.map((set) => {
+            sets: sets.map(set => {
                 const parsedSet = {
                     peso: parseFloat(set.peso) || 0,
-                    reps: parseInt(set.reps) || 0
+                    reps: parseInt(set.reps) || 0,
                 };
 
                 const totalLoad = Number(set.pesoTotal ?? set.totalWeight);
@@ -161,7 +149,7 @@ export class ExerciseCacheManager {
                 }
 
                 return parsedSet;
-            })
+            }),
         };
 
         // Añadir al principio del array (más reciente primero)
@@ -177,18 +165,14 @@ export class ExerciseCacheManager {
      * @param {string} exerciseName - Nombre del ejercicio
      * @returns {Object} Sugerencias de peso y reps
      */
-    getExerciseSuggestions(
-        exerciseName,
-        executionMode = DEFAULT_EXECUTION_MODE,
-        loadType = DEFAULT_LOAD_TYPE
-    ) {
+    getExerciseSuggestions(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
         const lastData = this.getLastExerciseData(exerciseName, executionMode, loadType);
-        
+
         if (!lastData) {
             return {
                 hasHistory: false,
                 suggestions: null,
-                lastSessionDate: null
+                lastSessionDate: null,
             };
         }
 
@@ -196,18 +180,18 @@ export class ExerciseCacheManager {
         const lastSets = lastData.sets;
         const maxWeight = Math.max(...lastSets.map(set => set.peso));
         const avgReps = Math.round(lastSets.reduce((sum, set) => sum + set.reps, 0) / lastSets.length);
-        
+
         const suggestions = {
             hasHistory: true,
             suggestions: {
                 peso: maxWeight,
                 reps: avgReps,
-                lastSets: lastSets
+                lastSets: lastSets,
             },
             lastSessionDate: new Date(lastData.date),
-            daysSinceLastSession: Math.floor((Date.now() - lastData.timestamp) / (1000 * 60 * 60 * 24))
+            daysSinceLastSession: Math.floor((Date.now() - lastData.timestamp) / (1000 * 60 * 60 * 24)),
         };
-        
+
         return suggestions;
     }
 
@@ -221,10 +205,9 @@ export class ExerciseCacheManager {
             return;
         }
 
-        const sessionDate = sessionData.fecha && sessionData.fecha.toDate ? 
-            sessionData.fecha.toDate() : new Date();
+        const sessionDate = sessionData.fecha && sessionData.fecha.toDate ? sessionData.fecha.toDate() : new Date();
 
-        sessionData.ejercicios.forEach((ejercicio) => {
+        sessionData.ejercicios.forEach(ejercicio => {
             if (ejercicio.tipoEjercicio === 'strength' && ejercicio.sets && ejercicio.sets.length > 0) {
                 const executionMode = resolveExerciseExecutionMode(ejercicio);
                 const loadType = resolveExerciseLoadType(ejercicio);
@@ -269,14 +252,14 @@ export class ExerciseCacheManager {
         const entry = metadata[userId];
         if (!entry || !entry.checkedAt) return false;
 
-        return (Date.now() - entry.checkedAt) < this.integrityCheckIntervalMs;
+        return Date.now() - entry.checkedAt < this.integrityCheckIntervalMs;
     }
 
     markIntegrityChecked(userId, rebuilt = false) {
         const metadata = this.getIntegrityMetadata();
         metadata[userId] = {
             checkedAt: Date.now(),
-            rebuilt
+            rebuilt,
         };
         this.saveIntegrityMetadata(metadata);
     }
@@ -294,7 +277,7 @@ export class ExerciseCacheManager {
             const backupData = {
                 cache: cache,
                 lastSync: new Date().toISOString(),
-                version: '1.0'
+                version: '1.0',
             };
 
             // Guardar backup en Firestore
@@ -345,8 +328,9 @@ export class ExerciseCacheManager {
         if (!userId || !db) return;
 
         try {
-            const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-            
+            const { collection, query, orderBy, limit, getDocs } =
+                await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+
             // Obtener las últimas 200 sesiones para construir el cache completo (reducido de 500 para mejor rendimiento)
             const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
             const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(200));
@@ -354,8 +338,8 @@ export class ExerciseCacheManager {
             firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.buildFromHistory');
             // Procesar sesiones en orden cronológico inverso (más antigua primero)
             const sessions = querySnapshot.docs.reverse();
-            
-            sessions.forEach((docSnap) => {
+
+            sessions.forEach(docSnap => {
                 const sessionData = { id: docSnap.id, ...docSnap.data() };
                 this.processCompletedSession(sessionData);
             });
@@ -385,11 +369,7 @@ export class ExerciseCacheManager {
      * @param {string} executionMode - Modo de ejecuciÃ³n
      * @returns {string} Clave normalizada para el cache
      */
-    buildExerciseCacheKey(
-        exerciseName,
-        executionMode = DEFAULT_EXECUTION_MODE,
-        loadType = DEFAULT_LOAD_TYPE
-    ) {
+    buildExerciseCacheKey(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
         const normalizedName = this.normalizeExerciseName(exerciseName);
         const normalizedMode = normalizeExecutionMode(executionMode);
         const normalizedLoadType = normalizeLoadType(loadType);
@@ -405,11 +385,7 @@ export class ExerciseCacheManager {
         return `${normalizedName}__${normalizedMode}__${normalizedLoadType}`;
     }
 
-    buildFallbackCacheKeys(
-        exerciseName,
-        executionMode = DEFAULT_EXECUTION_MODE,
-        loadType = DEFAULT_LOAD_TYPE
-    ) {
+    buildFallbackCacheKeys(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
         const normalizedName = this.normalizeExerciseName(exerciseName);
         const normalizedMode = normalizeExecutionMode(executionMode);
         const normalizedLoadType = normalizeLoadType(loadType);
@@ -446,7 +422,7 @@ export class ExerciseCacheManager {
             if (exercise.history) {
                 const originalLength = exercise.history.length;
                 exercise.history = exercise.history.filter(entry => entry.timestamp > cutoffTime);
-                
+
                 if (exercise.history.length === 0) {
                     delete cache[exerciseKey];
                     cleaned = true;
@@ -469,7 +445,7 @@ export class ExerciseCacheManager {
     getCacheStats() {
         const cache = this.getFullCache();
         const exerciseNames = Object.keys(cache);
-        
+
         let totalEntries = 0;
         let oldestEntry = Date.now();
         let newestEntry = 0;
@@ -490,7 +466,7 @@ export class ExerciseCacheManager {
             totalEntries,
             oldestEntry: oldestEntry < Date.now() ? new Date(oldestEntry) : null,
             newestEntry: newestEntry > 0 ? new Date(newestEntry) : null,
-            cacheSize: JSON.stringify(cache).length
+            cacheSize: JSON.stringify(cache).length,
         };
     }
 
@@ -512,35 +488,36 @@ export class ExerciseCacheManager {
         if (!userId || !db) return false;
 
         try {
-            const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-            
+            const { collection, query, orderBy, limit, getDocs } =
+                await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+
             // Obtener las últimas 10 sesiones para verificar
             const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
             const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(10));
             const querySnapshot = await getDocs(q);
             firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.verifyIntegrity');
-            
+
             const recentSessions = querySnapshot.docs;
             const cacheStats = this.getCacheStats();
-            
+
             // Si no hay sesiones, el cache debería estar vacío
             if (recentSessions.length === 0) {
                 return cacheStats.exerciseCount > 0;
             }
-            
+
             // Verificar si hay sesiones recientes con ejercicios de fuerza que no están en el cache
             let foundMissingExercises = false;
-            
+
             for (const docSnap of recentSessions) {
                 const sessionData = { id: docSnap.id, ...docSnap.data() };
-                
+
                 if (sessionData.ejercicios) {
                     for (const ejercicio of sessionData.ejercicios) {
                         if (ejercicio.tipoEjercicio === 'strength' && ejercicio.sets && ejercicio.sets.length > 0) {
                             const executionMode = resolveExerciseExecutionMode(ejercicio);
                             const loadType = resolveExerciseLoadType(ejercicio);
                             const history = this.getExerciseHistory(ejercicio.nombreEjercicio, executionMode, loadType);
-                            
+
                             // Si encontramos un ejercicio sin historial, o con historial muy limitado
                             // comparado con las sesiones disponibles, necesitamos reconstruir
                             if (history.length === 0) {
@@ -552,7 +529,7 @@ export class ExerciseCacheManager {
                     if (foundMissingExercises) break;
                 }
             }
-            
+
             return foundMissingExercises;
         } catch (error) {
             logger.error('Error verificando integridad del cache:', error);
@@ -575,7 +552,7 @@ export class ExerciseCacheManager {
             }
 
             const needsRebuild = await this.verifyCacheIntegrity(userId, db);
-            
+
             if (needsRebuild) {
                 await this.buildCacheFromHistory(userId, db);
                 this.markIntegrityChecked(userId, true);
@@ -593,5 +570,3 @@ export class ExerciseCacheManager {
 
 // Crear instancia singleton
 export const exerciseCache = new ExerciseCacheManager();
-
-

@@ -3,8 +3,6 @@ name: Format Check
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 permissions:
   contents: read
@@ -28,18 +26,4 @@ jobs:
         run: npm ci
 
       - name: Run Prettier check
-        id: prettier
-        run: |
-          # Run prettier check and capture output
-          set +e
-          OUTPUT=$(npx prettier --check "js/**/*.js" "css/**/*.css" "*.html" "*.json" --ignore-path .gitignore 2>&1)
-          EXIT_CODE=$?
-          set -e
-          
-          echo "$OUTPUT"
-          
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "::warning::Some files are not formatted. Run 'npm run format' to fix."
-            # Comment out the line below to make this check blocking
-            # exit 1
-          fi
+        run: npm run format:check

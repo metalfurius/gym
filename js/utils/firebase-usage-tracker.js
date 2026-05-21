@@ -12,7 +12,7 @@ function createInitialState() {
         sessionStartedAt: Date.now(),
         reads: 0,
         writes: 0,
-        operations: []
+        operations: [],
     };
 }
 
@@ -46,7 +46,7 @@ export class FirebaseUsageTracker {
             sessionStartedAt: typeof state.sessionStartedAt === 'number' ? state.sessionStartedAt : Date.now(),
             reads: typeof state.reads === 'number' ? state.reads : 0,
             writes: typeof state.writes === 'number' ? state.writes : 0,
-            operations: Array.isArray(state.operations) ? state.operations : []
+            operations: Array.isArray(state.operations) ? state.operations : [],
         };
     }
 
@@ -75,7 +75,7 @@ export class FirebaseUsageTracker {
             type,
             count: safeCount,
             operation,
-            details
+            details,
         });
 
         if (this.state.operations.length > MAX_TRACKED_OPERATIONS) {
@@ -131,7 +131,7 @@ export class FirebaseUsageTracker {
             sessionDurationMs,
             estimatedCostUsd: Number((readCost + writeCost).toFixed(4)),
             topOperations,
-            recentOperations: this.state.operations.slice(0, 20)
+            recentOperations: this.state.operations.slice(0, 20),
         };
     }
 

@@ -25,10 +25,10 @@ module.exports = {
         'no-eval': 'error',
         'no-implied-eval': 'error',
         
-        // Style (relaxed for existing codebase - uses 4-space indentation)
+        // Style (Prettier is the formatting source of truth)
         'semi': ['warn', 'always'],
         'quotes': ['warn', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
-        'indent': ['warn', 4, { SwitchCase: 1 }],
+        'indent': 'off',
         'comma-dangle': ['warn', 'only-multiline'],
         
         // ES6+

@@ -41,8 +41,8 @@
     --calendar-level-2: #fed7d7; /* Rosa suave - Mixto (fuerza + cardio) */
     --calendar-level-3: #c6f6d5; /* Verde suave - Solo cardio */
 
-    --font-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
-    --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-sans-serif: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
     --border-radius-sm: 6px;
     --border-radius-md: 12px;
@@ -72,32 +72,33 @@
     --shadow-lg: var(--box-shadow-lg);
     --accent-gradient: linear-gradient(135deg, var(--primary-color), var(--accent-color));
     --button-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
-    --button-text: var(--header-text);    --primary-text: #ffffff;
+    --button-text: var(--header-text);
+    --primary-text: #ffffff;
     --secondary-text: var(--text-color);
     --button-secondary-bg: rgba(255, 255, 255, 0.9);
     --button-secondary-text: var(--text-color);
     --button-secondary-hover-bg: rgba(255, 255, 255, 1);
     --button-secondary-hover-text: var(--primary-color);
-    
+
     /* Delete button specific variables */
     --delete-button-color: #dc2626;
     --delete-button-bg: #fef2f2;
     --delete-button-border: #fecaca;
     --delete-button-hover-bg: #dc2626;
     --delete-button-hover-color: #ffffff;
-      /* Modal specific variables */
+    /* Modal specific variables */
     --modal-bg: var(--card-bg);
     --modal-text: var(--text-color);
     --modal-header-bg: var(--primary-color);
     --modal-header-text: #ffffff;
-    
+
     /* Success/weight badge colors */
     --success-badge-bg: linear-gradient(to right, #f0fdf4, #dcfce7);
     --success-badge-color: #16a34a;
 }
 
 /* Tema Oscuro */
-[data-theme="dark"] {
+[data-theme='dark'] {
     --primary-color: #818cf8;
     --primary-hover-color: #6366f1;
     --primary-light: #312e81;
@@ -130,13 +131,13 @@
     --input-border: #334155;
     --input-focus-border: var(--primary-color);
     --input-focus-shadow: rgba(129, 140, 248, 0.25);
-    
+
     /* Calendar Variables para tipos de entrenamiento - Tema oscuro */
     --calendar-inactive-bg: #334155;
     --calendar-level-1: #1e40af; /* Azul más oscuro - Solo fuerza */
     --calendar-level-2: #be185d; /* Rosa más oscuro - Mixto */
     --calendar-level-3: #059669; /* Verde más oscuro - Solo cardio */
-    
+
     /* Variables adicionales específicas del tema */
     --card-background: var(--card-bg);
     --shadow-xs: var(--box-shadow-xs);
@@ -147,30 +148,31 @@
     --button-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
     --button-text: var(--header-text);
     --primary-text: #ffffff;
-    --secondary-text: var(--text-color);    --button-secondary-bg: rgba(248, 250, 252, 0.1);
+    --secondary-text: var(--text-color);
+    --button-secondary-bg: rgba(248, 250, 252, 0.1);
     --button-secondary-text: var(--text-color);
     --button-secondary-hover-bg: rgba(248, 250, 252, 0.2);
     --button-secondary-hover-text: var(--primary-color);
-    
+
     /* Delete button specific variables */
     --delete-button-color: #ef4444;
     --delete-button-bg: rgba(239, 68, 68, 0.1);
     --delete-button-border: rgba(239, 68, 68, 0.2);
     --delete-button-hover-bg: #ef4444;
     --delete-button-hover-color: #ffffff;
-      /* Modal specific variables */
+    /* Modal specific variables */
     --modal-bg: var(--card-bg);
     --modal-text: var(--text-color);
     --modal-header-bg: var(--primary-color);
     --modal-header-text: #ffffff;
-    
+
     /* Success/weight badge colors for dark theme */
     --success-badge-bg: linear-gradient(to right, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
     --success-badge-color: #6ee7b7;
 }
 
 /* Tema Verde Natural */
-[data-theme="nature"] {
+[data-theme='nature'] {
     --primary-color: #059669;
     --primary-hover-color: #047857;
     --primary-light: #d1fae5;
@@ -210,7 +212,7 @@
     --calendar-level-2: #86efac;
     --calendar-level-3: #22c55e;
     --calendar-level-4: #15803d;
-    
+
     /* Variables adicionales específicas del tema */
     --card-background: var(--card-bg);
     --shadow-xs: var(--box-shadow-xs);
@@ -221,30 +223,31 @@
     --button-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
     --button-text: var(--header-text);
     --primary-text: #ffffff;
-    --secondary-text: var(--text-color);    --button-secondary-bg: rgba(255, 255, 255, 0.9);
+    --secondary-text: var(--text-color);
+    --button-secondary-bg: rgba(255, 255, 255, 0.9);
     --button-secondary-text: var(--text-color);
     --button-secondary-hover-bg: rgba(255, 255, 255, 1);
     --button-secondary-hover-text: var(--primary-color);
-    
+
     /* Delete button specific variables */
     --delete-button-color: #dc2626;
     --delete-button-bg: #fef2f2;
     --delete-button-border: #fecaca;
     --delete-button-hover-bg: #dc2626;
     --delete-button-hover-color: #ffffff;
-      /* Modal specific variables */
+    /* Modal specific variables */
     --modal-bg: var(--card-bg);
     --modal-text: var(--text-color);
     --modal-header-bg: var(--primary-color);
     --modal-header-text: #ffffff;
-    
+
     /* Success/weight badge colors */
     --success-badge-bg: linear-gradient(to right, #f0fdf4, #dcfce7);
     --success-badge-color: #16a34a;
 }
 
 /* Tema Sunset */
-[data-theme="sunset"] {
+[data-theme='sunset'] {
     --primary-color: #f59e0b;
     --primary-hover-color: #d97706;
     --primary-light: #fef3c7;
@@ -277,13 +280,13 @@
     --input-border: #e5e7eb;
     --input-focus-border: var(--primary-color);
     --input-focus-shadow: rgba(245, 158, 11, 0.25);
-    
+
     /* Calendar Variables para tipos de entrenamiento - Tema amanecer */
     --calendar-inactive-bg: #fef3c7;
     --calendar-level-1: #ddd6fe; /* Púrpura suave - Solo fuerza */
     --calendar-level-2: #fecaca; /* Rosa coral - Mixto */
     --calendar-level-3: #bbf7d0; /* Verde menta - Solo cardio */
-    
+
     /* Variables adicionales específicas del tema */
     --card-background: var(--card-bg);
     --shadow-xs: var(--box-shadow-xs);
@@ -293,31 +296,32 @@
     --accent-gradient: linear-gradient(135deg, var(--primary-color), var(--accent-color));
     --button-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
     --button-text: var(--header-text);
-    --primary-text: #ffffff;    --secondary-text: var(--text-color);
+    --primary-text: #ffffff;
+    --secondary-text: var(--text-color);
     --button-secondary-bg: rgba(255, 255, 255, 0.9);
     --button-secondary-text: var(--text-color);
     --button-secondary-hover-bg: rgba(255, 255, 255, 1);
     --button-secondary-hover-text: var(--primary-color);
-    
+
     /* Delete button specific variables */
     --delete-button-color: #dc2626;
     --delete-button-bg: #fef2f2;
     --delete-button-border: #fecaca;
     --delete-button-hover-bg: #dc2626;
     --delete-button-hover-color: #ffffff;
-      /* Modal specific variables */
+    /* Modal specific variables */
     --modal-bg: var(--card-bg);
     --modal-text: var(--text-color);
     --modal-header-bg: var(--primary-color);
     --modal-header-text: #ffffff;
-    
+
     /* Success/weight badge colors */
     --success-badge-bg: linear-gradient(to right, #fef3c7, #fed7aa);
     --success-badge-color: #ea580c;
 }
 
 /* Tema Ocean */
-[data-theme="ocean"] {
+[data-theme='ocean'] {
     --primary-color: #0ea5e9;
     --primary-hover-color: #0284c7;
     --primary-light: #e0f2fe;
@@ -350,14 +354,14 @@
     --input-border: #cbd5e1;
     --input-focus-border: var(--primary-color);
     --input-focus-shadow: rgba(14, 165, 233, 0.25);
-    
+
     /* Calendar Variables */
     --calendar-inactive-bg: #e0f2fe;
     --calendar-level-1: #bae6fd;
     --calendar-level-2: #7dd3fc;
     --calendar-level-3: #0ea5e9;
     --calendar-level-4: #0284c7;
-    
+
     /* Variables adicionales específicas del tema */
     --card-background: var(--card-bg);
     --shadow-xs: var(--box-shadow-xs);
@@ -368,23 +372,24 @@
     --button-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
     --button-text: var(--header-text);
     --primary-text: #ffffff;
-    --secondary-text: var(--text-color);    --button-secondary-bg: rgba(255, 255, 255, 0.9);
+    --secondary-text: var(--text-color);
+    --button-secondary-bg: rgba(255, 255, 255, 0.9);
     --button-secondary-text: var(--text-color);
     --button-secondary-hover-bg: rgba(255, 255, 255, 1);
     --button-secondary-hover-text: var(--primary-color);
-    
+
     /* Delete button specific variables */
     --delete-button-color: #dc2626;
     --delete-button-bg: #fef2f2;
     --delete-button-border: #fecaca;
     --delete-button-hover-bg: #dc2626;
     --delete-button-hover-color: #ffffff;
-      /* Modal specific variables */
+    /* Modal specific variables */
     --modal-bg: var(--card-bg);
     --modal-text: var(--text-color);
     --modal-header-bg: var(--primary-color);
     --modal-header-text: #ffffff;
-    
+
     /* Success/weight badge colors */
     --success-badge-bg: linear-gradient(to right, #e0f2fe, #bae6fd);
     --success-badge-color: #0284c7;

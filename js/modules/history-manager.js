@@ -13,7 +13,7 @@ import {
     getDoc,
     deleteDoc,
     limit,
-    startAfter
+    startAfter,
 } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { historyElements, renderHistoryList, showSessionDetail, showLoading, hideLoading } from '../ui.js';
@@ -50,7 +50,7 @@ async function getCachedInitialHistory(userId) {
         return {
             sessions: deserializeSessionsFromCache(entry.value.sessions),
             hasNext: !!entry.value.hasNext,
-            isFresh: localFirstCache.isFresh(entry, HISTORY_CACHE_TTL_MS)
+            isFresh: localFirstCache.isFresh(entry, HISTORY_CACHE_TTL_MS),
         };
     } catch (error) {
         logger.warn('Could not read history cache:', error);
@@ -76,7 +76,8 @@ function resetPaginationState() {
 
 function updatePaginationButtons(queryResultsLength) {
     if (historyElements.prevPageBtn) {
-        historyElements.prevPageBtn.disabled = currentHistoryPageNumber === 1 || historyPageDocSnapshotsStack.length <= 1;
+        historyElements.prevPageBtn.disabled =
+            currentHistoryPageNumber === 1 || historyPageDocSnapshotsStack.length <= 1;
     }
 
     if (historyElements.nextPageBtn) {
@@ -97,7 +98,11 @@ export async function fetchAndRenderHistory(direction = 'initial') {
         return;
     }
 
-    if (direction === 'initial' && allSessionsCache.length > 0 && (Date.now() - lastHistoryFetchTimestamp) <= HISTORY_CACHE_TTL_MS) {
+    if (
+        direction === 'initial' &&
+        allSessionsCache.length > 0 &&
+        Date.now() - lastHistoryFetchTimestamp <= HISTORY_CACHE_TTL_MS
+    ) {
         historyElements.loadingSpinner.classList.add('hidden');
         if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
         renderHistoryList(allSessionsCache);
@@ -115,7 +120,9 @@ export async function fetchAndRenderHistory(direction = 'initial') {
                 if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
                 if (historyElements.prevPageBtn) historyElements.prevPageBtn.disabled = true;
                 if (historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = !cached.hasNext;
-                if (historyElements.pageInfo) historyElements.pageInfo.textContent = t('history.page_cached', { page: 1 });
+                if (historyElements.pageInfo) {
+                    historyElements.pageInfo.textContent = t('history.page_cached', { page: 1 });
+                }
                 historyElements.loadingSpinner.classList.add('hidden');
                 toast.info(t('history.cache_notice'));
                 return;
@@ -141,7 +148,12 @@ export async function fetchAndRenderHistory(direction = 'initial') {
             resetPaginationState();
             q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), limit(HISTORY_PAGE_SIZE));
         } else if (direction === 'next' && historyPageLastDocSnapshot) {
-            q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), startAfter(historyPageLastDocSnapshot), limit(HISTORY_PAGE_SIZE));
+            q = query(
+                userSessionsCollectionRef,
+                orderBy('fecha', 'desc'),
+                startAfter(historyPageLastDocSnapshot),
+                limit(HISTORY_PAGE_SIZE)
+            );
             currentHistoryPageNumber++;
         } else if (direction === 'prev') {
             if (historyPageDocSnapshotsStack.length > 0) {
@@ -149,7 +161,12 @@ export async function fetchAndRenderHistory(direction = 'initial') {
                 const prevPageStartAfterDoc = historyPageDocSnapshotsStack.pop();
 
                 if (prevPageStartAfterDoc) {
-                    q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), startAfter(prevPageStartAfterDoc), limit(HISTORY_PAGE_SIZE));
+                    q = query(
+                        userSessionsCollectionRef,
+                        orderBy('fecha', 'desc'),
+                        startAfter(prevPageStartAfterDoc),
+                        limit(HISTORY_PAGE_SIZE)
+                    );
                 } else {
                     q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), limit(HISTORY_PAGE_SIZE));
                 }
@@ -169,11 +186,11 @@ export async function fetchAndRenderHistory(direction = 'initial') {
         const querySnapshot = await getDocs(q);
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'history.pageFetch', {
             direction,
-            page: currentHistoryPageNumber
+            page: currentHistoryPageNumber,
         });
 
         const sessionsForList = [];
-        querySnapshot.forEach((docSnap) => {
+        querySnapshot.forEach(docSnap => {
             sessionsForList.push({ id: docSnap.id, ...docSnap.data() });
         });
 
@@ -203,19 +220,26 @@ export async function fetchAndRenderHistory(direction = 'initial') {
         updatePaginationButtons(querySnapshot.docs.length);
 
         if (direction === 'initial') {
-            await localFirstCache.set(getHistoryCacheKey(user.uid, 1), {
-                sessions: serializeSessionsForCache(sessionsForList),
-                hasNext: querySnapshot.docs.length >= HISTORY_PAGE_SIZE
-            }, {
-                metadata: { page: 1 }
-            });
+            await localFirstCache.set(
+                getHistoryCacheKey(user.uid, 1),
+                {
+                    sessions: serializeSessionsForCache(sessionsForList),
+                    hasNext: querySnapshot.docs.length >= HISTORY_PAGE_SIZE,
+                },
+                {
+                    metadata: { page: 1 },
+                }
+            );
         }
     } catch (error) {
         logger.error('Error fetching history:', error);
         historyElements.list.innerHTML = `<li>${t('history.load_error')}</li>`;
         if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
 
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+        if (
+            error.message &&
+            (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+        ) {
             const { loadFirebaseDiagnostics } = await import('../app.js');
             loadFirebaseDiagnostics();
         }
@@ -228,8 +252,10 @@ async function deleteSession(sessionId, targetButton) {
     const user = getCurrentUser();
     if (!user) return;
 
-    const sessionFromCache = allSessionsCache.find((session) => session.id === sessionId);
-    const sessionName = sessionFromCache ? (sessionFromCache.nombreEntrenamiento || t('history.this_session')) : t('history.this_session');
+    const sessionFromCache = allSessionsCache.find(session => session.id === sessionId);
+    const sessionName = sessionFromCache
+        ? sessionFromCache.nombreEntrenamiento || t('history.this_session')
+        : t('history.this_session');
 
     if (!confirm(t('history.delete_confirm', { name: sessionName }))) {
         return;
@@ -242,7 +268,7 @@ async function deleteSession(sessionId, targetButton) {
         await deleteDoc(sessionDocRef);
         firebaseUsageTracker.trackWrite(1, 'history.deleteSession');
 
-        localFirstCache.clearByPrefix(`history:${user.uid}:`).catch((cacheError) => {
+        localFirstCache.clearByPrefix(`history:${user.uid}:`).catch(cacheError => {
             logger.warn('Could not invalidate history cache after delete:', cacheError);
         });
 
@@ -258,7 +284,10 @@ async function deleteSession(sessionId, targetButton) {
         toast.error(t('history.delete_error'));
         hideLoading(targetButton);
 
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+        if (
+            error.message &&
+            (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+        ) {
             const { loadFirebaseDiagnostics } = await import('../app.js');
             loadFirebaseDiagnostics();
         }
@@ -266,25 +295,31 @@ async function deleteSession(sessionId, targetButton) {
 }
 
 async function reloadCurrentPage(user) {
-    const startAfterDocForReload = historyPageDocSnapshotsStack.length > 1
-        ? historyPageDocSnapshotsStack[historyPageDocSnapshotsStack.length - 2]
-        : null;
+    const startAfterDocForReload =
+        historyPageDocSnapshotsStack.length > 1
+            ? historyPageDocSnapshotsStack[historyPageDocSnapshotsStack.length - 2]
+            : null;
 
     let qReload;
     const userSessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
 
     if (startAfterDocForReload) {
-        qReload = query(userSessionsRef, orderBy('fecha', 'desc'), startAfter(startAfterDocForReload), limit(HISTORY_PAGE_SIZE));
+        qReload = query(
+            userSessionsRef,
+            orderBy('fecha', 'desc'),
+            startAfter(startAfterDocForReload),
+            limit(HISTORY_PAGE_SIZE)
+        );
     } else {
         qReload = query(userSessionsRef, orderBy('fecha', 'desc'), limit(HISTORY_PAGE_SIZE));
     }
 
     const snapshot = await getDocs(qReload);
     firebaseUsageTracker.trackRead(snapshot.docs.length || 1, 'history.reloadPage', {
-        page: currentHistoryPageNumber
+        page: currentHistoryPageNumber,
     });
 
-    const reloadedSessions = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    const reloadedSessions = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
 
     allSessionsCache = [...reloadedSessions];
     lastHistoryFetchTimestamp = Date.now();
@@ -299,12 +334,16 @@ async function reloadCurrentPage(user) {
     updatePaginationButtons(snapshot.docs.length);
 
     if (currentHistoryPageNumber === 1) {
-        await localFirstCache.set(getHistoryCacheKey(user.uid, 1), {
-            sessions: serializeSessionsForCache(reloadedSessions),
-            hasNext: snapshot.docs.length >= HISTORY_PAGE_SIZE
-        }, {
-            metadata: { page: 1, refreshed: true }
-        });
+        await localFirstCache.set(
+            getHistoryCacheKey(user.uid, 1),
+            {
+                sessions: serializeSessionsForCache(reloadedSessions),
+                hasNext: snapshot.docs.length >= HISTORY_PAGE_SIZE,
+            },
+            {
+                metadata: { page: 1, refreshed: true },
+            }
+        );
     }
 }
 
@@ -312,7 +351,7 @@ async function viewSessionDetails(sessionId) {
     const user = getCurrentUser();
     if (!user) return;
 
-    let sessionData = allSessionsCache.find((session) => session.id === sessionId);
+    let sessionData = allSessionsCache.find(session => session.id === sessionId);
 
     if (!sessionData) {
         historyElements.loadingSpinner.classList.remove('hidden');
@@ -397,6 +436,5 @@ export default {
     getCurrentPageNumber,
     getPageSize,
     init: initHistoryManager,
-    destroy: destroyHistoryManager
+    destroy: destroyHistoryManager,
 };
-

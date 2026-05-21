@@ -97,7 +97,7 @@
 }
 
 .chart-container::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -132,7 +132,7 @@
 }
 
 .stat-card::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -212,24 +212,24 @@
         grid-template-columns: 1fr;
         gap: var(--spacing-sm);
     }
-    
+
     .progress-stats {
         grid-template-columns: 1fr 1fr;
         gap: var(--spacing-sm);
     }
-    
+
     .chart-container {
         padding: var(--spacing-md);
     }
-    
+
     #progress-chart {
         max-height: 300px;
     }
-    
+
     .stat-card {
         padding: var(--spacing-md);
     }
-    
+
     .stat-card span {
         font-size: 1.5rem;
     }
@@ -239,15 +239,15 @@
     .progress-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .stat-card span {
         font-size: 1.3rem;
     }
-    
+
     .no-data-message {
         padding: var(--spacing-lg);
     }
-    
+
     .no-data-icon {
         font-size: 2.5rem;
     }
@@ -267,13 +267,13 @@
 }
 
 .trend-up::before {
-    content: "📈 ";
+    content: '📈 ';
 }
 
 .trend-down::before {
-    content: "📉 ";
+    content: '📉 ';
 }
 
 .trend-stable::before {
-    content: "➡️ ";
+    content: '➡️ ';
 }

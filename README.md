@@ -57,7 +57,7 @@ Then open:
 Planning docs:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - PR-first contribution workflow and major-feature lifecycle policy
-- [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the 6-week roadmap
+- [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the product and technical roadmap
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 - [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
 - [docs/exercise-execution-mode-plan.md](docs/exercise-execution-mode-plan.md) - post-cycle plan for one-hand/two-hand/machine/pulley execution modes
@@ -66,26 +66,30 @@ Planning docs:
 - [docs/read-optimized-weekly-consistency-plan.md](docs/read-optimized-weekly-consistency-plan.md) - next-phase major-feature spec for reducing weekly consistency read cost
 - [docs/commit-versioning.md](docs/commit-versioning.md) - commit keyword rules that drive automatic `major` / `minor` / `patch` bumps
 
-### Current Focus (March 30, 2026 to May 10, 2026)
+### Current Focus (May 21, 2026)
 
-- Dual-track strategy with hard quality gates
-- Execution split: Stability 45%, Foundation 35%, Feature/Fun 20%
+- Stabilize the deterministic `merge-ready` contract before new feature work
+- Keep quality gates green locally and in CI
 - Feature/Fun milestones delivered: `Quick Log + Daily Hub`, `Session-Time Exercise Variants`, `ES/EN Language System`, `Custom Weekly Consistency Streaks (v1)`
-- Current major feature status: `Custom Weekly Consistency Streaks (v1)` implemented on PR `#75` branch and pending merge to `main`
+- Current major feature status: `Custom Weekly Consistency Streaks (v1)` merged via PR `#75`
+- Active next target: `Read-Optimized Weekly Consistency (v1.1)`
 
 ### Hard Gates for This Cycle
 
 - `npm run lint:ratchet` (zero-warning policy)
+- `npm run format:check` (no formatting drift)
 - `npm run test:app` (app journeys required)
 - `npm run test:app:offline` (offline recovery/retry required)
 - `npm run test:no-skips` (no `.skip` / `xit` / `xdescribe`)
+- `npm run test:coverage:gate` (active coverage threshold)
+- `npm run merge:ready:local` (local mirror of merge contract)
 - Staged coverage ratchet in the roadmap: Week 2 >= 64%, Week 4 >= 67%, Week 6 >= 70%
 - Feature/fun lane freeze whenever a hard gate fails
 
 ### Next Phase
 
 Current feature/fun implementation targets delivered: `Quick Log + Daily Hub`, `Exercise Execution Modes`, `Session-Time Exercise Variants + ES/EN Language System`, `Custom Weekly Consistency Streaks (v1)`.
-Next target: `Read-Optimized Weekly Consistency (v1.1)` with local-first streak computation and reduced Firestore reads.
+Next target: `Read-Optimized Weekly Consistency (v1.1)` with local-first Daily Hub session caching and reduced repeated Firestore reads.
 
 ### How We Ship Major Features
 
@@ -139,6 +143,8 @@ Commands:
 - `npm run test:coverage:gate`
 - `npm run test:no-skips`
 - `npm run test:all`
+- `npm run merge:ready:local`
+- `npm run format:check`
 - `npm run lint`
 - `npm run lint:ratchet`
 - `npm run lint:errors`

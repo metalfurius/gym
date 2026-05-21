@@ -54,7 +54,7 @@ export class StorageManager {
             return {
                 quota: estimate.quota,
                 usage: estimate.usage,
-                usagePercentage: estimate.quota ? (estimate.usage / estimate.quota * 100).toFixed(2) : 0
+                usagePercentage: estimate.quota ? ((estimate.usage / estimate.quota) * 100).toFixed(2) : 0,
             };
         } catch (error) {
             logger.error('Error getting storage estimate:', error);
@@ -95,7 +95,7 @@ export class StorageManager {
 
         logger.info('Storage status:', {
             isPersistent,
-            estimate
+            estimate,
         });
 
         // Only request persistent storage if not already granted

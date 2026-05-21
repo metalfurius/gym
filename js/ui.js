@@ -7,19 +7,14 @@ import {
     DEFAULT_EXECUTION_MODE,
     normalizeExecutionMode,
     resolveExerciseExecutionMode,
-    getExecutionModeLabel
+    getExecutionModeLabel,
 } from './utils/execution-mode.js';
-import {
-    DEFAULT_LOAD_TYPE,
-    normalizeLoadType,
-    resolveExerciseLoadType,
-    getLoadTypeLabel
-} from './utils/load-type.js';
+import { DEFAULT_LOAD_TYPE, normalizeLoadType, resolveExerciseLoadType, getLoadTypeLabel } from './utils/load-type.js';
 import { getLastKnownBodyweight } from './utils/bodyweight.js';
 import {
     getSessionVariantOverride,
     normalizeExerciseIdentity,
-    resolveSessionVariantSelection
+    resolveSessionVariantSelection,
 } from './utils/session-variant-overrides.js';
 import { t, getLocale } from './i18n.js';
 
@@ -68,9 +63,7 @@ function formatSignedWeight(value) {
 }
 
 function resolveInProgressExercise(inProgressData, exerciseIndex, exerciseName) {
-    const inProgressExercises = Array.isArray(inProgressData?.ejercicios)
-        ? inProgressData.ejercicios
-        : [];
+    const inProgressExercises = Array.isArray(inProgressData?.ejercicios) ? inProgressData.ejercicios : [];
     const normalizedExerciseName = normalizeExerciseIdentity(exerciseName);
     const indexedExercise = inProgressExercises[exerciseIndex];
     if (indexedExercise && typeof indexedExercise === 'object') {
@@ -84,9 +77,11 @@ function resolveInProgressExercise(inProgressData, exerciseIndex, exerciseName) 
         return null;
     }
 
-    return inProgressExercises.find((exerciseEntry) =>
-        normalizeExerciseIdentity(exerciseEntry?.nombreEjercicio) === normalizedExerciseName
-    ) || null;
+    return (
+        inProgressExercises.find(
+            exerciseEntry => normalizeExerciseIdentity(exerciseEntry?.nombreEjercicio) === normalizedExerciseName
+        ) || null
+    );
 }
 
 export const views = {
@@ -96,7 +91,7 @@ export const views = {
     history: document.getElementById('history-view'),
     manageRoutines: document.getElementById('manage-routines-view'),
     routineEditor: document.getElementById('routine-editor-view'),
-    progress: document.getElementById('progress-view')
+    progress: document.getElementById('progress-view'),
 };
 
 export const navButtons = {
@@ -104,7 +99,7 @@ export const navButtons = {
     manageRoutines: document.getElementById('nav-manage-routines'),
     history: document.getElementById('nav-history'),
     progress: document.getElementById('nav-progress'),
-    logout: document.getElementById('logout-btn')
+    logout: document.getElementById('logout-btn'),
 };
 
 export const authElements = {
@@ -113,7 +108,7 @@ export const authElements = {
     passwordInput: document.getElementById('auth-password'),
     loginBtn: document.getElementById('login-email-btn'),
     signupBtn: document.getElementById('signup-email-btn'),
-    errorMsg: document.getElementById('auth-error')
+    errorMsg: document.getElementById('auth-error'),
 };
 
 export const dashboardElements = {
@@ -121,7 +116,7 @@ export const dashboardElements = {
     currentDate: document.getElementById('current-date'),
     daySelect: document.getElementById('day-select'),
     startSessionBtn: document.getElementById('start-session-btn'),
-    resumeSessionArea: document.getElementById('resume-session-area'), 
+    resumeSessionArea: document.getElementById('resume-session-area'),
     resumeSessionBtn: document.getElementById('resume-session-btn'),
     resumeSessionInfo: document.getElementById('resume-session-info'),
     manageRoutinesLinkBtn: document.getElementById('manage-routines-link-btn'),
@@ -138,7 +133,7 @@ export const dashboardElements = {
     quickLogLabelInput: document.getElementById('quick-log-label'),
     quickLogDateTimeInput: document.getElementById('quick-log-datetime'),
     quickLogNotesInput: document.getElementById('quick-log-notes'),
-    quickLogSaveBtn: document.getElementById('quick-log-save-btn')
+    quickLogSaveBtn: document.getElementById('quick-log-save-btn'),
 };
 
 export const sessionElements = {
@@ -146,7 +141,7 @@ export const sessionElements = {
     title: document.getElementById('session-title'),
     exerciseList: document.getElementById('exercise-list'),
     saveBtn: document.getElementById('save-session-btn'),
-    cancelBtn: document.getElementById('cancel-session-btn')
+    cancelBtn: document.getElementById('cancel-session-btn'),
 };
 
 export const historyElements = {
@@ -156,7 +151,7 @@ export const historyElements = {
     paginationControls: document.getElementById('history-pagination-controls'),
     prevPageBtn: document.getElementById('history-prev-page-btn'),
     nextPageBtn: document.getElementById('history-next-page-btn'),
-    pageInfo: document.getElementById('history-page-info')
+    pageInfo: document.getElementById('history-page-info'),
 };
 
 export const sessionDetailModal = {
@@ -164,7 +159,7 @@ export const sessionDetailModal = {
     closeBtn: document.querySelector('.modal-close'),
     title: document.getElementById('session-detail-title'),
     date: document.getElementById('session-detail-date'),
-    exercises: document.getElementById('session-detail-exercises')
+    exercises: document.getElementById('session-detail-exercises'),
 };
 
 export const manageRoutinesElements = {
@@ -172,7 +167,7 @@ export const manageRoutinesElements = {
     loadingSpinner: document.getElementById('routines-loading'),
     addNewBtn: document.getElementById('add-new-routine-btn'),
     exportRoutinesBtn: document.getElementById('export-routines-btn'),
-    deleteAllRoutinesBtn: document.getElementById('delete-all-routines-btn')
+    deleteAllRoutinesBtn: document.getElementById('delete-all-routines-btn'),
 };
 
 export const routineEditorElements = {
@@ -184,7 +179,7 @@ export const routineEditorElements = {
     addExerciseBtn: document.getElementById('add-exercise-to-routine-btn'),
     saveRoutineBtn: document.getElementById('save-routine-btn'),
     cancelEditRoutineBtn: document.getElementById('cancel-edit-routine-btn'),
-    deleteRoutineBtn: document.getElementById('delete-routine-btn')
+    deleteRoutineBtn: document.getElementById('delete-routine-btn'),
 };
 
 export const progressElements = {
@@ -199,9 +194,8 @@ export const progressElements = {
     totalProgress: document.getElementById('total-progress'),
     sessionCount: document.getElementById('session-count'),
     trendIndicator: document.getElementById('trend-indicator'),
-    noDataMessage: document.getElementById('progress-no-data')
+    noDataMessage: document.getElementById('progress-no-data'),
 };
-
 
 // --- UI Functions ---
 
@@ -216,12 +210,12 @@ export async function showView(viewToShowId) {
         cleanupViewListeners(currentView);
         logger.debug(`Cleaned up listeners for view: ${currentView}`);
     }
-    
+
     // Reset timer initialization when navigating away from session view
     if (!views.session.classList.contains('hidden') && viewToShowId !== 'session') {
         resetTimerInitialization();
     }
-    
+
     Object.values(views).forEach(view => view.classList.add('hidden'));
     if (views[viewToShowId]) {
         views[viewToShowId].classList.remove('hidden');
@@ -231,10 +225,12 @@ export async function showView(viewToShowId) {
 
     Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
     if (viewToShowId === 'dashboard' && navButtons.dashboard) navButtons.dashboard.classList.add('active');
-    if (viewToShowId === 'manageRoutines' && navButtons.manageRoutines) navButtons.manageRoutines.classList.add('active');
+    if (viewToShowId === 'manageRoutines' && navButtons.manageRoutines) {
+        navButtons.manageRoutines.classList.add('active');
+    }
     if (viewToShowId === 'history' && navButtons.history) navButtons.history.classList.add('active');
     if (viewToShowId === 'progress' && navButtons.progress) navButtons.progress.classList.add('active');
-    
+
     // Run view-specific initializer after the view is shown
     const initializer = viewInitializers.get(viewToShowId);
     if (initializer) {
@@ -250,7 +246,13 @@ export async function showView(viewToShowId) {
 }
 
 export function updateNav(isLoggedIn) {
-    const commonButtons = [navButtons.dashboard, navButtons.manageRoutines, navButtons.history, navButtons.progress, navButtons.logout];
+    const commonButtons = [
+        navButtons.dashboard,
+        navButtons.manageRoutines,
+        navButtons.history,
+        navButtons.progress,
+        navButtons.logout,
+    ];
     if (isLoggedIn) {
         commonButtons.forEach(btn => btn.classList.remove('hidden'));
         dashboardElements.userEmail.parentElement.classList.remove('hidden');
@@ -278,7 +280,13 @@ export function clearAuthMessages() {
 
 export function formatDate(date) {
     if (!date) return t('common.na');
-    return date.toLocaleDateString(getLocale(), { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString(getLocale(), {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 }
 export function formatDateShort(date) {
     if (!date) return t('common.na');
@@ -291,7 +299,7 @@ export function populateDaySelector(userRoutines) {
         logger.error('Day select element not found');
         return;
     }
-    
+
     dashboardElements.daySelect.innerHTML = `<option value="">${t('dashboard.day_selector_choose')}</option>`;
     if (userRoutines && userRoutines.length > 0) {
         userRoutines.forEach(routine => {
@@ -307,14 +315,13 @@ export function populateDaySelector(userRoutines) {
         option.disabled = true;
         dashboardElements.daySelect.appendChild(option);
     }
-    
+
     if (dashboardElements.startSessionBtn) {
         dashboardElements.startSessionBtn.disabled = true;
     } else {
         logger.error('Start session button not found');
     }
 }
-
 
 export async function renderSessionView(routine, inProgressData = null) {
     if (!routine || !routine.exercises) {
@@ -346,7 +353,7 @@ export async function renderSessionView(routine, inProgressData = null) {
     userWeightInput.inputMode = 'decimal';
     userWeightInput.pattern = '[0-9]*[.,]?[0-9]*';
 
-    userWeightInput.addEventListener('input', function(e) {
+    userWeightInput.addEventListener('input', function (e) {
         let value = e.target.value;
         value = value.replace(',', '.');
         value = value.replace(/[^0-9.]/g, '');
@@ -360,7 +367,7 @@ export async function renderSessionView(routine, inProgressData = null) {
         e.target.value = value;
     });
 
-    userWeightInput.addEventListener('blur', function(e) {
+    userWeightInput.addEventListener('blur', function (e) {
         const value = e.target.value.replace(',', '.');
         if (value && !isNaN(value)) {
             const numValue = parseFloat(value);
@@ -405,12 +412,16 @@ export async function renderSessionView(routine, inProgressData = null) {
         if (exercise.type === 'strength') {
             const numericSets = Number(exercise.sets);
             const hasNumericSets =
-                (typeof exercise.sets === 'number' && Number.isFinite(exercise.sets))
-                || (typeof exercise.sets === 'string' && exercise.sets.trim() !== '' && Number.isFinite(numericSets));
+                (typeof exercise.sets === 'number' && Number.isFinite(exercise.sets)) ||
+                (typeof exercise.sets === 'string' && exercise.sets.trim() !== '' && Number.isFinite(numericSets));
             const setsDisplay = hasNumericSets ? `${exercise.sets} ${t('session.series_unit')}` : exercise.sets;
-            target.textContent = t('session.target', { target: `${setsDisplay} x ${exercise.reps} ${t('session.reps_label')}` });
+            target.textContent = t('session.target', {
+                target: `${setsDisplay} x ${exercise.reps} ${t('session.reps_label')}`,
+            });
         } else if (exercise.type === 'cardio') {
-            target.textContent = t('session.target', { target: exercise.duration || t('session.target_time_distance') });
+            target.textContent = t('session.target', {
+                target: exercise.duration || t('session.target_time_distance'),
+            });
         } else {
             target.textContent = t('session.target', { target: exercise.reps || t('session.target_complete') });
         }
@@ -422,7 +433,7 @@ export async function renderSessionView(routine, inProgressData = null) {
             const selectedVariant = resolveSessionVariantSelection({
                 inProgressExercise,
                 localOverride,
-                routineExercise: exercise
+                routineExercise: exercise,
             });
 
             const initialExecutionMode = selectedVariant.executionMode;
@@ -487,11 +498,8 @@ export async function renderSessionView(routine, inProgressData = null) {
 
                 return variantLabels.length > 0 ? ' (' + variantLabels.join(', ') + ')' : '';
             };
-            const getSuggestionsForVariant = (executionMode, loadType) => exerciseCache.getExerciseSuggestions(
-                exercise.name,
-                executionMode,
-                loadType
-            );
+            const getSuggestionsForVariant = (executionMode, loadType) =>
+                exerciseCache.getExerciseSuggestions(exercise.name, executionMode, loadType);
             let suggestions = getSuggestionsForVariant(initialExecutionMode, initialLoadType);
             const historyInfoContainer = document.createElement('div');
             exerciseBlock.appendChild(historyInfoContainer);
@@ -504,9 +512,12 @@ export async function renderSessionView(routine, inProgressData = null) {
                     lastWorkoutInfo.className = 'last-workout-info';
 
                     const daysAgo = suggestionsData.daysSinceLastSession;
-                    const timeText = daysAgo === 0 ? t('session.time_today')
-                        : daysAgo === 1 ? t('session.time_yesterday')
-                            : t('session.time_days_ago', { days: daysAgo });
+                    const timeText =
+                        daysAgo === 0
+                            ? t('session.time_today')
+                            : daysAgo === 1
+                              ? t('session.time_yesterday')
+                              : t('session.time_days_ago', { days: daysAgo });
 
                     const header = document.createElement('div');
                     header.className = 'last-workout-header';
@@ -568,11 +579,7 @@ export async function renderSessionView(routine, inProgressData = null) {
 
                 if (allowSignedLoad) {
                     value = value.replace(/[^0-9.+-]/g, '');
-                    const sign = value.startsWith('-')
-                        ? '-'
-                        : value.startsWith('+')
-                            ? '+'
-                            : '';
+                    const sign = value.startsWith('-') ? '-' : value.startsWith('+') ? '+' : '';
                     const numericSection = value.replace(/[+-]/g, '');
                     const numericParts = numericSection.split('.');
                     const integerPart = numericParts.shift() || '';
@@ -603,7 +610,9 @@ export async function renderSessionView(routine, inProgressData = null) {
                         : t('session.suggested_value', { value: `${numericWeight}kg` });
                 }
 
-                return allowSignedLoad ? t('session.weight_placeholder_signed') : t('session.weight_placeholder_default');
+                return allowSignedLoad
+                    ? t('session.weight_placeholder_signed')
+                    : t('session.weight_placeholder_default');
             };
 
             const numberOfSets = parseInt(exercise.sets, 10) || 0;
@@ -644,15 +653,13 @@ export async function renderSessionView(routine, inProgressData = null) {
                     initialLoadType === 'bodyweight'
                 );
                 weightInput.inputMode = 'decimal';
-                weightInput.pattern = initialLoadType === 'bodyweight'
-                    ? '[+-]?[0-9]*[.,]?[0-9]*'
-                    : '[0-9]*[.,]?[0-9]*';
+                weightInput.pattern = initialLoadType === 'bodyweight' ? '[+-]?[0-9]*[.,]?[0-9]*' : '[0-9]*[.,]?[0-9]*';
 
-                weightInput.addEventListener('input', function(e) {
+                weightInput.addEventListener('input', function (e) {
                     e.target.value = sanitizeWeightInputValue(e.target.value);
                 });
 
-                weightInput.addEventListener('blur', function(e) {
+                weightInput.addEventListener('blur', function (e) {
                     const allowSignedLoad = isBodyweightSelected();
                     const sanitizedValue = sanitizeWeightInputValue(e.target.value, allowSignedLoad);
                     if (!sanitizedValue || sanitizedValue === '+' || sanitizedValue === '-') {
@@ -764,9 +771,7 @@ export async function renderSessionView(routine, inProgressData = null) {
                         delete weightInput.dataset.suggestion;
                     }
                     weightInput.dataset.placeholderType = placeholderType;
-                    weightInput.pattern = allowSignedLoad
-                        ? '[+-]?[0-9]*[.,]?[0-9]*'
-                        : '[0-9]*[.,]?[0-9]*';
+                    weightInput.pattern = allowSignedLoad ? '[+-]?[0-9]*[.,]?[0-9]*' : '[0-9]*[.,]?[0-9]*';
                     weightInput.placeholder = formatWeightSuggestionPlaceholder(
                         suggestionWeight,
                         placeholderType,
@@ -814,9 +819,8 @@ export async function renderSessionView(routine, inProgressData = null) {
         const notesTextarea = document.createElement('textarea');
         notesTextarea.id = `notes-${exerciseIndex}`;
         notesTextarea.name = `notes-${exerciseIndex}`;
-        notesTextarea.placeholder = exercise.type === 'cardio'
-            ? t('session.notes_placeholder_cardio')
-            : t('session.notes_placeholder_other');
+        notesTextarea.placeholder =
+            exercise.type === 'cardio' ? t('session.notes_placeholder_cardio') : t('session.notes_placeholder_other');
         notesTextarea.className = 'exercise-notes';
 
         if (inProgressExercise?.notasEjercicio) {
@@ -850,96 +854,100 @@ export function renderHistoryList(sessions) {
         const li = document.createElement('li');
         li.dataset.sessionId = session.id;
         li.classList.add('session-card');
-        
+
         const nameEl = document.createElement('div');
         nameEl.classList.add('session-name');
         nameEl.textContent = session.nombreEntrenamiento || session.diaEntrenamiento;
         li.appendChild(nameEl);
-        
+
         const inlineInfoEl = document.createElement('div');
         inlineInfoEl.classList.add('session-inline-info');
-        
+
         const dateEl = document.createElement('div');
         dateEl.classList.add('session-date');
-        dateEl.textContent = session.fecha && session.fecha.toDate ? formatDateShort(session.fecha.toDate()) : t('history.date_unavailable');
+        dateEl.textContent =
+            session.fecha && session.fecha.toDate
+                ? formatDateShort(session.fecha.toDate())
+                : t('history.date_unavailable');
         inlineInfoEl.appendChild(dateEl);
-        
+
         if (session.pesoUsuario) {
             const weightEl = document.createElement('div');
             weightEl.classList.add('session-weight');
             weightEl.textContent = `${session.pesoUsuario} kg`;
             inlineInfoEl.appendChild(weightEl);
         }
-        
+
         li.appendChild(inlineInfoEl);
-        
+
         if (session.ejercicios && session.ejercicios.length > 0) {
             const summaryEl = document.createElement('div');
             summaryEl.classList.add('session-summary');
             summaryEl.textContent = t('history.exercises_done_count', { count: session.ejercicios.length });
             li.appendChild(summaryEl);
         }
-        
+
         const actionsEl = document.createElement('div');
         actionsEl.classList.add('session-actions');
-        
+
         const viewBtn = document.createElement('button');
         viewBtn.textContent = t('history.view_details');
         viewBtn.classList.add('session-action-btn', 'view');
         viewBtn.dataset.action = 'view-session';
         actionsEl.appendChild(viewBtn);
-        
+
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = t('history.delete');
         deleteBtn.classList.add('session-action-btn', 'delete');
         deleteBtn.dataset.action = 'delete-session';
         deleteBtn.dataset.sessionId = session.id;
         actionsEl.appendChild(deleteBtn);
-        
+
         li.appendChild(actionsEl);
-        
-        li.addEventListener('click', (e) => {
+
+        li.addEventListener('click', e => {
             if (e.target.classList.contains('session-action-btn')) {
                 return;
             }
             viewBtn.click();
         });
-        
+
         historyElements.list.appendChild(li);
     });
-    
-    applyHistoryFilters(); 
+
+    applyHistoryFilters();
 }
 
 export function showSessionDetail(sessionData) {
     if (!sessionData) return;
-    
-    sessionDetailModal.title.textContent = sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || t('history.detail_title');
-    
+
+    sessionDetailModal.title.textContent =
+        sessionData.nombreEntrenamiento || sessionData.diaEntrenamiento || t('history.detail_title');
+
     const dateInfo = `${formatDate(sessionData.fecha.toDate())}`;
     sessionDetailModal.date.textContent = dateInfo;
-    
+
     if (sessionData.pesoUsuario) {
         const weightBadge = document.createElement('span');
         weightBadge.classList.add('user-weight-badge');
         weightBadge.textContent = t('history.weight_badge', { weight: sessionData.pesoUsuario });
         sessionDetailModal.date.appendChild(weightBadge);
     }
-    
+
     sessionDetailModal.exercises.innerHTML = '';
-    
+
     if (sessionData.ejercicios && sessionData.ejercicios.length > 0) {
         sessionData.ejercicios.forEach(ex => {
             const exLi = document.createElement('li');
             exLi.classList.add('exercise-detail');
-            
+
             const nameEl = document.createElement('strong');
             nameEl.textContent = ex.nombreEjercicio;
             exLi.appendChild(nameEl);
-            
+
             const typeEl = document.createElement('span');
             typeEl.classList.add('exercise-type-badge');
-            
+
             if (ex.tipoEjercicio === 'strength') {
                 typeEl.classList.add('strength');
                 typeEl.textContent = t('history.type_strength');
@@ -950,20 +958,20 @@ export function showSessionDetail(sessionData) {
                 typeEl.classList.add('other');
                 typeEl.textContent = ex.tipoEjercicio || t('history.type_other');
             }
-            
+
             exLi.appendChild(typeEl);
 
             const hasExecutionMode =
-                ex.modoEjecucion !== undefined
-                || ex.executionMode !== undefined
-                || ex.execution_mode !== undefined
-                || ex.modo !== undefined;
+                ex.modoEjecucion !== undefined ||
+                ex.executionMode !== undefined ||
+                ex.execution_mode !== undefined ||
+                ex.modo !== undefined;
 
             const hasLoadType =
-                ex.tipoCarga !== undefined
-                || ex.loadType !== undefined
-                || ex.load_type !== undefined
-                || ex.tipo_carga !== undefined;
+                ex.tipoCarga !== undefined ||
+                ex.loadType !== undefined ||
+                ex.load_type !== undefined ||
+                ex.tipo_carga !== undefined;
 
             if (ex.tipoEjercicio === 'strength' && hasExecutionMode) {
                 const executionMode = resolveExerciseExecutionMode(ex);
@@ -982,13 +990,13 @@ export function showSessionDetail(sessionData) {
                 loadTypeEl.textContent = t('history.load_type', { value: getLoadTypeLabel(loadType) });
                 exLi.appendChild(loadTypeEl);
             }
-            
+
             if (ex.tipoEjercicio === 'strength' && ex.sets && ex.sets.length > 0) {
                 const loadType = resolveExerciseLoadType(ex);
                 const isBodyweightExercise = loadType === 'bodyweight';
                 const setsUl = document.createElement('ul');
                 setsUl.classList.add('sets-list');
-                
+
                 ex.sets.forEach((set, index) => {
                     const setLi = document.createElement('li');
                     let setContent = '';
@@ -998,7 +1006,10 @@ export function showSessionDetail(sessionData) {
                         const extraLoadText = Number.isFinite(extraLoad)
                             ? `${formatSignedWeight(extraLoad)}`
                             : escapeHtml(set.peso);
-                        setContent = t('history.series_bodyweight', { index: index + 1, extraLoad: `${extraLoadText}` });
+                        setContent = t('history.series_bodyweight', {
+                            index: index + 1,
+                            extraLoad: `${extraLoadText}`,
+                        });
 
                         const totalLoad = Number(set.pesoTotal ?? set.totalWeight);
                         if (Number.isFinite(totalLoad)) {
@@ -1010,18 +1021,18 @@ export function showSessionDetail(sessionData) {
                         setContent = t('history.series_line', {
                             index: index + 1,
                             weight: escapeHtml(set.peso),
-                            reps: escapeHtml(set.reps)
+                            reps: escapeHtml(set.reps),
                         });
                     }
-                    
+
                     if (set.tiempoDescanso && set.tiempoDescanso !== '00:00') {
                         setContent += ` <span class="rest-time-badge">${t('history.rest_badge', { rest: escapeHtml(set.tiempoDescanso) })}</span>`;
                     }
-                    
+
                     setLi.innerHTML = setContent;
                     setsUl.appendChild(setLi);
                 });
-                
+
                 exLi.appendChild(setsUl);
             }
             if (ex.notasEjercicio) {
@@ -1030,7 +1041,7 @@ export function showSessionDetail(sessionData) {
                 notesEl.innerHTML = `<em>${t('history.notes_prefix')}: ${escapeHtml(ex.notasEjercicio)}</em>`;
                 exLi.appendChild(notesEl);
             }
-            
+
             sessionDetailModal.exercises.appendChild(exLi);
         });
     } else {
@@ -1038,7 +1049,7 @@ export function showSessionDetail(sessionData) {
         noExercisesEl.textContent = t('history.exercise_none');
         sessionDetailModal.exercises.appendChild(noExercisesEl);
     }
-    
+
     sessionDetailModal.modal.style.display = 'block';
 }
 
@@ -1072,7 +1083,7 @@ export function renderManageRoutinesView(routines) {
 
         const nameContainer = document.createElement('div');
         nameContainer.className = 'routine-name-container';
-        
+
         const nameSpan = document.createElement('div');
         nameSpan.className = 'routine-name';
         nameSpan.textContent = routine.name;
@@ -1095,16 +1106,16 @@ export function renderManageRoutinesView(routines) {
         editBtn.textContent = t('routines.edit');
         editBtn.className = 'routine-action-btn edit';
         editBtn.dataset.routineId = routine.id;
-        editBtn.addEventListener('click', (e) => {
+        editBtn.addEventListener('click', e => {
             e.stopPropagation();
-            const event = new CustomEvent('editRoutineClicked', { detail: { routineId: e.target.dataset.routineId }});
+            const event = new CustomEvent('editRoutineClicked', { detail: { routineId: e.target.dataset.routineId } });
             document.dispatchEvent(event);
         });
         actionsDiv.appendChild(editBtn);
 
         li.appendChild(actionsDiv);
 
-        li.addEventListener('click', (e) => {
+        li.addEventListener('click', e => {
             if (!e.target.closest('.routine-actions')) {
                 editBtn.click();
             }
@@ -1112,7 +1123,7 @@ export function renderManageRoutinesView(routines) {
 
         manageRoutinesElements.list.appendChild(li);
     });
-    
+
     showView('manageRoutines');
 }
 
@@ -1140,7 +1151,6 @@ export function renderRoutineEditor(routine = null) {
     showView('routineEditor');
 }
 
-
 export function addExerciseToEditorForm(exerciseData = null) {
     exerciseEditorCounter++;
     const exerciseDiv = document.createElement('div');
@@ -1148,12 +1158,8 @@ export function addExerciseToEditorForm(exerciseData = null) {
     exerciseDiv.dataset.editorId = `exEditor-${exerciseEditorCounter}`;
 
     const exerciseType = exerciseData?.type || 'strength';
-    const exerciseExecutionMode = normalizeExecutionMode(
-        exerciseData?.executionMode ?? exerciseData?.modoEjecucion
-    );
-    const exerciseLoadType = normalizeLoadType(
-        exerciseData?.loadType ?? exerciseData?.tipoCarga
-    );
+    const exerciseExecutionMode = normalizeExecutionMode(exerciseData?.executionMode ?? exerciseData?.modoEjecucion);
+    const exerciseLoadType = normalizeLoadType(exerciseData?.loadType ?? exerciseData?.tipoCarga);
 
     exerciseDiv.innerHTML = `
         <button type="button" class="remove-exercise-btn" data-target="${exerciseDiv.dataset.editorId}" title="${t('routines.editor_remove_exercise_title')}">x</button>
@@ -1221,16 +1227,16 @@ export function addExerciseToEditorForm(exerciseData = null) {
             <textarea id="ex-notes-${exerciseEditorCounter}" name="ex-notes" placeholder="${exerciseType === 'strength' ? t('session.notes_placeholder_strength') : t('session.notes_placeholder_cardio')}">${escapeHtml(exerciseData?.notes || '')}</textarea>
         </div>
     `;
-    
+
     routineEditorElements.exercisesContainer.appendChild(exerciseDiv);
 
     const typeSelect = exerciseDiv.querySelector('select[name="ex-type"]');
     const strengthFields = exerciseDiv.querySelector('.strength-fields');
     const cardioFields = exerciseDiv.querySelector('.cardio-fields');
 
-    typeSelect.addEventListener('change', (e) => {
+    typeSelect.addEventListener('change', e => {
         const notesTextarea = exerciseDiv.querySelector('textarea[name="ex-notes"]');
-        
+
         if (e.target.value === 'strength') {
             strengthFields.style.display = 'block';
             cardioFields.style.display = 'none';
@@ -1249,10 +1255,9 @@ export function addExerciseToEditorForm(exerciseData = null) {
             exerciseDiv.remove();
         }, 300);
     });
-    
+
     exerciseDiv.style.animation = 'slideInUp 0.3s ease forwards';
 }
-
 
 export function showLoading(buttonElement, text = t('common.loading')) {
     if (buttonElement) {
@@ -1277,7 +1282,7 @@ export const calendarElements = {
     prevMonthBtn: document.getElementById('prev-month-btn'),
     nextMonthBtn: document.getElementById('next-month-btn'),
     currentMonthDisplay: document.getElementById('current-month-display'),
-    loadingSpinner: document.getElementById('calendar-loading-spinner')
+    loadingSpinner: document.getElementById('calendar-loading-spinner'),
 };
 
 // Debug calendar elements at module load time
@@ -1287,34 +1292,34 @@ logger.debug('Calendar elements loaded:', {
     prevMonthBtn: !!calendarElements.prevMonthBtn,
     nextMonthBtn: !!calendarElements.nextMonthBtn,
     currentMonthDisplay: !!calendarElements.currentMonthDisplay,
-    loadingSpinner: !!calendarElements.loadingSpinner
+    loadingSpinner: !!calendarElements.loadingSpinner,
 });
 
 export function applyHistoryFilters() {
     if (!historyElements.list || !historyElements.searchInput) return;
     const sessionItems = historyElements.list.querySelectorAll('li[data-session-id]');
-    
+
     if (!sessionItems.length) return;
-    
+
     const searchQuery = historyElements.searchInput.value.toLowerCase().trim();
-    
+
     sessionItems.forEach(item => {
         let passesSearchFilter = true;
-        
+
         if (searchQuery) {
             const nameEl = item.querySelector('.session-name');
             const dateEl = item.querySelector('.session-date');
             const summaryEl = item.querySelector('.session-summary');
-            
+
             const textToSearch = [
                 nameEl ? nameEl.textContent.toLowerCase() : '',
                 dateEl ? dateEl.textContent.toLowerCase() : '',
-                summaryEl ? summaryEl.textContent.toLowerCase() : ''
+                summaryEl ? summaryEl.textContent.toLowerCase() : '',
             ].join(' ');
-            
+
             passesSearchFilter = textToSearch.includes(searchQuery);
         }
-        
+
         item.style.display = passesSearchFilter ? '' : 'none';
     });
 }
@@ -1329,26 +1334,24 @@ if (historyElements.searchInput) {
 function fillExerciseWithLastValues(exerciseIndex, lastSets) {
     const exerciseBlock = sessionElements.exerciseList.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
     if (!exerciseBlock) return;
-    
+
     lastSets.forEach((set, setIndex) => {
         const weightInput = exerciseBlock.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
         const repsInput = exerciseBlock.querySelector(`input[name="reps-${exerciseIndex}-${setIndex}"]`);
-        
+
         if (weightInput && Number.isFinite(Number(set.peso))) {
             weightInput.value = set.peso;
             weightInput.style.background = 'rgba(67, 97, 238, 0.05)';
             weightInput.style.borderColor = 'var(--accent-color)';
         }
-        
+
         if (repsInput && set.reps > 0) {
             repsInput.value = set.reps;
             repsInput.style.background = 'rgba(67, 97, 238, 0.05)';
             repsInput.style.borderColor = 'var(--accent-color)';
         }
     });
-    
+
     // Show feedback message using toast notification
     toast.success(t('session.last_values_applied'));
 }
-
-

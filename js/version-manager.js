@@ -29,7 +29,7 @@ function restoreSessionSnapshot(snapshot) {
     saveInProgressSession({
         routineId: snapshot.routineId,
         data: snapshot.data || {},
-        timestamp: snapshot.timestamp || Date.now()
+        timestamp: snapshot.timestamp || Date.now(),
     });
 
     return true;
@@ -100,8 +100,8 @@ async function clearBrowserCaches() {
         if ('caches' in window) {
             const cacheNames = await caches.keys();
             const deletePromises = cacheNames
-                .filter((name) => name.startsWith('gym-tracker-'))
-                .map((name) => {
+                .filter(name => name.startsWith('gym-tracker-'))
+                .map(name => {
                     logger.info(`Version Manager: Deleting cache: ${name}`);
                     return caches.delete(name);
                 });
@@ -207,7 +207,7 @@ export async function forceAppUpdate() {
             localStorage.setItem(BACKUP_SESSION_KEY, JSON.stringify(inProgressSession));
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         if (forceUpdateBtn) {
             forceUpdateBtn.classList.remove('updating');
@@ -215,7 +215,7 @@ export async function forceAppUpdate() {
             forceUpdateBtn.innerHTML = t('version.force_update_done');
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         await clearBrowserCaches();
         window.location.reload(true);

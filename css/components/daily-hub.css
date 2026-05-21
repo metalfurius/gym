@@ -28,11 +28,7 @@
     padding: var(--spacing-md);
     border: 1px dashed rgba(var(--primary-rgb), 0.35);
     border-radius: var(--border-radius-md);
-    background: linear-gradient(
-        145deg,
-        rgba(var(--primary-rgb), 0.08),
-        rgba(var(--primary-rgb), 0.02)
-    );
+    background: linear-gradient(145deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.02));
     box-shadow: var(--shadow-xs);
     display: none;
 }
@@ -64,7 +60,7 @@
 }
 
 .dashboard-panel::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -123,11 +119,7 @@
     padding: var(--spacing-md);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    background: linear-gradient(
-        145deg,
-        rgba(var(--primary-rgb), 0.08),
-        rgba(var(--primary-rgb), 0.02)
-    );
+    background: linear-gradient(145deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.02));
     box-shadow: var(--shadow-xs);
     position: relative;
     overflow: hidden;
@@ -135,7 +127,7 @@
 }
 
 .daily-hub-card::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -201,7 +193,7 @@
 }
 
 #daily-hub-sync-status::before {
-    content: "";
+    content: '';
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -283,11 +275,7 @@
     font-variant-numeric: tabular-nums;
     font-weight: 600;
     min-height: 46px;
-    background: linear-gradient(
-        180deg,
-        rgba(var(--primary-rgb), 0.04),
-        var(--input-bg)
-    );
+    background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.04), var(--input-bg));
 }
 
 #quick-log-datetime::-webkit-calendar-picker-indicator {

@@ -1,44 +1,45 @@
 {
-  "name": "my-workout-tracker",
-  "version": "1.0.2",
-  "description": "A modern, responsive workout tracking web application",
-  "type": "module",
-  "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:all": "npm run lint:errors && npm run test:no-skips && npm run test:unit -- --runInBand && npm run test:integration -- --runInBand && npm run test:coverage -- --runInBand",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "test:no-skips": "node scripts/no-skipped-tests.mjs",
-    "coverage:gate": "node scripts/coverage-gate.mjs",
-    "test:coverage:gate": "npm run test:coverage -- --runInBand && npm run coverage:gate",
-    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
-    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
-    "test:app:offline": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
-    "test:app:only": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-language-switch.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
-    "test:app": "npm run lint:errors && npm run test:app:only",
-    "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
-    "serve": "node scripts/serve-local.mjs",
-    "lint": "eslint . --ext .js,.cjs",
-    "lint:ratchet": "eslint . --ext .js,.cjs --max-warnings 0",
-    "lint:errors": "eslint . --ext .js,.cjs --quiet",
-    "lint:fix": "eslint . --ext .js,.cjs --fix",
-    "format": "prettier --write \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",
-    "format:check": "prettier --check \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore"
-  },
-  "keywords": [
-    "workout",
-    "fitness",
-    "tracker",
-    "gym"
-  ],
-  "author": "metalfurius",
-  "license": "SEE LICENSE IN README.md",
-  "devDependencies": {
-    "@jest/globals": "^30.2.0",
-    "eslint": "^8.57.0",
-    "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "jest-junit": "^16.0.0",
-    "prettier": "^3.7.4"
-  }
+    "name": "my-workout-tracker",
+    "version": "1.0.2",
+    "description": "A modern, responsive workout tracking web application",
+    "type": "module",
+    "scripts": {
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+        "test:all": "npm run lint:errors && npm run test:no-skips && npm run test:unit -- --runInBand && npm run test:integration -- --runInBand && npm run test:coverage -- --runInBand",
+        "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+        "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+        "test:no-skips": "node scripts/no-skipped-tests.mjs",
+        "coverage:gate": "node scripts/coverage-gate.mjs",
+        "test:coverage:gate": "npm run test:coverage -- --runInBand && npm run coverage:gate",
+        "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
+        "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
+        "test:app:offline": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
+        "test:app:only": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-language-switch.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand",
+        "test:app": "npm run lint:errors && npm run test:app:only",
+        "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
+        "serve": "node scripts/serve-local.mjs",
+        "lint": "eslint . --ext .js,.cjs",
+        "lint:ratchet": "eslint . --ext .js,.cjs --max-warnings 0",
+        "lint:errors": "eslint . --ext .js,.cjs --quiet",
+        "lint:fix": "eslint . --ext .js,.cjs --fix",
+        "format": "prettier --write \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",
+        "format:check": "prettier --check \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",
+        "merge:ready:local": "npm run lint:ratchet && npm run format:check && npm run test:app && npm run test:app:offline && npm run test:no-skips && npm run test:coverage:gate"
+    },
+    "keywords": [
+        "workout",
+        "fitness",
+        "tracker",
+        "gym"
+    ],
+    "author": "metalfurius",
+    "license": "SEE LICENSE IN README.md",
+    "devDependencies": {
+        "@jest/globals": "^30.2.0",
+        "eslint": "^8.57.0",
+        "jest": "^30.2.0",
+        "jest-environment-jsdom": "^30.2.0",
+        "jest-junit": "^16.0.0",
+        "prettier": "^3.7.4"
+    }
 }

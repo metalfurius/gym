@@ -1,6 +1,6 @@
 # Firestore Data Contract
 
-Last updated: April 23, 2026
+Last updated: May 21, 2026
 Status: Active
 
 ## Purpose
@@ -215,6 +215,14 @@ Contract implications:
 1. Weekly streak computation reads from existing sessions (`sesiones_entrenamiento`) and does not mutate session schema.
 2. User-specific target preference is cloud-synced in `app_data/user_preferences`.
 3. Preference writes must remain compatible with offline queue/replay.
+
+## Implemented Milestone Alignment: Read-Optimized Weekly Consistency v1.1
+
+Contract implications:
+
+1. Daily Hub weekly session cache is local-only (`localFirstCache`) and does not add Firestore documents.
+2. Cached Daily Hub sessions are serialized with `fechaIso` for local recomputation.
+3. Replayed weekly-target writes must preserve queued `updatedAtIso` and avoid immediate follow-up writes that replace replay metadata with wall-clock replay time.
 
 ## Compatibility and Migration Constraints
 

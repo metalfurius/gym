@@ -14,7 +14,7 @@ export function normalizeExerciseIdentity(exerciseName = '') {
 function sanitizeOverrideEntry(entry = {}) {
     return {
         executionMode: normalizeExecutionMode(entry.executionMode),
-        loadType: normalizeLoadType(entry.loadType)
+        loadType: normalizeLoadType(entry.loadType),
     };
 }
 
@@ -82,9 +82,7 @@ export function readSessionVariantOverrides(userId) {
 
     try {
         const parsed = JSON.parse(raw);
-        return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-            ? parsed
-            : {};
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
     } catch {
         return {};
     }
@@ -105,12 +103,14 @@ export function getSessionVariantOverride(userId, routineId, exerciseName) {
 }
 
 export function saveSessionVariantOverride(userId, routineId, exerciseName, override = {}) {
-    return saveSessionVariantOverrides(userId, [{
-        routineId,
-        exerciseName,
-        executionMode: override.executionMode,
-        loadType: override.loadType
-    }]);
+    return saveSessionVariantOverrides(userId, [
+        {
+            routineId,
+            exerciseName,
+            executionMode: override.executionMode,
+            loadType: override.loadType,
+        },
+    ]);
 }
 
 export function saveSessionVariantOverrides(userId, overrides = []) {
@@ -120,11 +120,8 @@ export function saveSessionVariantOverrides(userId, overrides = []) {
 
     const existing = readSessionVariantOverrides(userId);
 
-    overrides.forEach((override) => {
-        const mapKey = buildSessionVariantOverrideMapKey(
-            override?.routineId,
-            override?.exerciseName
-        );
+    overrides.forEach(override => {
+        const mapKey = buildSessionVariantOverrideMapKey(override?.routineId, override?.exerciseName);
 
         if (!mapKey) {
             return;
@@ -132,7 +129,7 @@ export function saveSessionVariantOverrides(userId, overrides = []) {
 
         existing[mapKey] = sanitizeOverrideEntry({
             executionMode: override.executionMode,
-            loadType: override.loadType
+            loadType: override.loadType,
         });
     });
 
@@ -143,26 +140,26 @@ export function saveSessionVariantOverrides(userId, overrides = []) {
 export function resolveSessionVariantSelection({
     inProgressExercise = null,
     localOverride = null,
-    routineExercise = null
+    routineExercise = null,
 } = {}) {
     const executionMode = normalizeExecutionMode(
-        inProgressExercise?.modoEjecucion
-        ?? inProgressExercise?.executionMode
-        ?? localOverride?.executionMode
-        ?? routineExercise?.executionMode
-        ?? routineExercise?.modoEjecucion
+        inProgressExercise?.modoEjecucion ??
+            inProgressExercise?.executionMode ??
+            localOverride?.executionMode ??
+            routineExercise?.executionMode ??
+            routineExercise?.modoEjecucion
     );
 
     const loadType = normalizeLoadType(
-        inProgressExercise?.tipoCarga
-        ?? inProgressExercise?.loadType
-        ?? localOverride?.loadType
-        ?? routineExercise?.loadType
-        ?? routineExercise?.tipoCarga
+        inProgressExercise?.tipoCarga ??
+            inProgressExercise?.loadType ??
+            localOverride?.loadType ??
+            routineExercise?.loadType ??
+            routineExercise?.tipoCarga
     );
 
     return {
         executionMode,
-        loadType
+        loadType,
     };
 }

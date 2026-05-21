@@ -6,33 +6,33 @@ import { t, onLanguageChange } from './i18n.js';
 class ThemeManager {
     constructor() {
         this.themes = {
-            'default': {
+            default: {
                 name: 'Moderno',
                 icon: '\uD83C\uDFA8',
-                description: 'Tema azul moderno y elegante'
+                description: 'Tema azul moderno y elegante',
             },
-            'dark': {
+            dark: {
                 name: 'Oscuro',
                 icon: '\uD83C\uDF19',
-                description: 'Tema oscuro para usar de noche'
+                description: 'Tema oscuro para usar de noche',
             },
-            'nature': {
+            nature: {
                 name: 'Natural',
                 icon: '\uD83C\uDF3F',
-                description: 'Tema verde inspirado en la naturaleza'
+                description: 'Tema verde inspirado en la naturaleza',
             },
-            'sunset': {
+            sunset: {
                 name: 'Atardecer',
                 icon: '\uD83C\uDF05',
-                description: 'Colores c\u00e1lidos del atardecer'
+                description: 'Colores c\u00e1lidos del atardecer',
             },
-            'ocean': {
+            ocean: {
                 name: 'Oc\u00e9ano',
                 icon: '\uD83C\uDF0A',
-                description: 'Azules profundos del oc\u00e9ano'
-            }
+                description: 'Azules profundos del oc\u00e9ano',
+            },
         };
-        
+
         this.currentTheme = this.loadTheme();
         this.unsubscribeLanguageChange = null;
         this.escapeKeyHandler = null;
@@ -62,14 +62,14 @@ class ThemeManager {
         if (themeToggle) {
             // Remove existing event listener if present
             themeToggle.removeEventListener('click', this.handleThemeToggleClick);
-            
+
             // Create bound handler so it can be removed later
-            this.handleThemeToggleClick = (e) => {
+            this.handleThemeToggleClick = e => {
                 e.preventDefault();
                 e.stopPropagation();
                 this.showThemeSelector();
             };
-            
+
             themeToggle.addEventListener('click', this.handleThemeToggleClick);
         }
     }
@@ -80,14 +80,14 @@ class ThemeManager {
         if (existingModal) {
             return;
         }
-        
+
         // Build and mount theme selector modal
         const modal = this.createThemeModal();
         this.activeThemeModal = modal;
         document.body.appendChild(modal);
-        
+
         // Close only on overlay click (or close button)
-        modal.addEventListener('click', (e) => {
+        modal.addEventListener('click', e => {
             if (e.target === modal) {
                 this.closeThemeModal(modal);
             }
@@ -96,14 +96,14 @@ class ThemeManager {
         // Explicit close button handler
         const closeBtn = modal.querySelector('.theme-modal-close');
         if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
+            closeBtn.addEventListener('click', e => {
                 e.stopPropagation();
                 this.closeThemeModal(modal);
             });
         }
 
         // Agregar soporte para cerrar con Escape
-        this.escapeKeyHandler = (e) => {
+        this.escapeKeyHandler = e => {
             if (e.key === 'Escape') {
                 this.closeThemeModal(modal);
             }
@@ -127,7 +127,9 @@ class ThemeManager {
                 </div>
                 <div class="theme-modal-body">
                     <div class="theme-grid">
-                        ${Object.entries(this.themes).map(([key, theme]) => `
+                        ${Object.entries(this.themes)
+                            .map(
+                                ([key, theme]) => `
                             <div class="theme-option ${key === this.currentTheme ? 'active' : ''}" 
                                  data-theme="${key}">
                                 <div class="theme-preview" data-theme="${key}">
@@ -143,7 +145,9 @@ class ThemeManager {
                                     <p>${this.getThemeDescription(key)}</p>
                                 </div>
                             </div>
-                        `).join('')}
+                        `
+                            )
+                            .join('')}
                     </div>
                 </div>
             </div>
@@ -151,7 +155,7 @@ class ThemeManager {
 
         // Agregar event listeners a las opciones de tema
         modal.querySelectorAll('.theme-option').forEach(option => {
-            option.addEventListener('click', (e) => {
+            option.addEventListener('click', e => {
                 e.stopPropagation(); // Prevenir que el evento se propague al modal
                 const themeKey = option.dataset.theme;
                 this.setTheme(themeKey);
@@ -214,26 +218,28 @@ class ThemeManager {
             this.applyTheme(themeKey);
             this.saveTheme(themeKey);
             this.updateThemeDisplay();
-            
+
             // Disparar evento personalizado para que otros componentes puedan reaccionar
-            window.dispatchEvent(new CustomEvent('themeChanged', { 
-                detail: { theme: themeKey, themeName: this.getThemeName(themeKey) }
-            }));
+            window.dispatchEvent(
+                new CustomEvent('themeChanged', {
+                    detail: { theme: themeKey, themeName: this.getThemeName(themeKey) },
+                })
+            );
         }
     }
 
     applyTheme(themeKey) {
         document.documentElement.setAttribute('data-theme', themeKey === 'default' ? '' : themeKey);
-        
+
         // Actualizar meta theme-color para PWA
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
             const colors = {
-                'default': '#667eea',
-                'dark': '#1e1b4b',
-                'nature': '#064e3b',
-                'sunset': '#dc2626',
-                'ocean': '#0c4a6e'
+                default: '#667eea',
+                dark: '#1e1b4b',
+                nature: '#064e3b',
+                sunset: '#dc2626',
+                ocean: '#0c4a6e',
             };
             metaThemeColor.setAttribute('content', colors[themeKey] || colors.default);
         }
@@ -242,11 +248,11 @@ class ThemeManager {
     updateThemeDisplay() {
         const themeNameElement = document.getElementById('theme-name');
         const themeIconElement = document.querySelector('.theme-icon');
-        
+
         if (themeNameElement) {
             themeNameElement.textContent = this.getThemeName(this.currentTheme);
         }
-        
+
         if (themeIconElement) {
             themeIconElement.textContent = this.themes[this.currentTheme].icon;
         }
@@ -272,13 +278,13 @@ class ThemeManager {
 
     getThemeName(themeKey) {
         return t(`theme.${themeKey}_name`, {
-            default: this.themes[themeKey]?.name || ''
+            default: this.themes[themeKey]?.name || '',
         });
     }
 
     getThemeDescription(themeKey) {
         return t(`theme.${themeKey}_description`, {
-            default: this.themes[themeKey]?.description || ''
+            default: this.themes[themeKey]?.description || '',
         });
     }
 }
@@ -488,4 +494,3 @@ if (!document.getElementById('theme-modal-styles')) {
 
 // Exportar para uso en app.js
 export default ThemeManager;
-

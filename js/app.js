@@ -4,26 +4,55 @@
  */
 
 import { db } from './firebase-config.js';
-import { collection, addDoc, Timestamp, query, orderBy, where, limit, getDoc, getDocs, doc, setDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import {
+    collection,
+    addDoc,
+    Timestamp,
+    query,
+    orderBy,
+    where,
+    limit,
+    getDoc,
+    getDocs,
+    doc,
+    setDoc,
+    deleteDoc,
+    writeBatch,
+} from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser, handleLogout } from './auth.js';
 import {
-    showView, formatDate, populateDaySelector,
-    renderManageRoutinesView, renderRoutineEditor, renderSessionView, addExerciseToEditorForm,
-    views, navButtons, dashboardElements, sessionElements, historyElements, sessionDetailModal,
-    manageRoutinesElements, routineEditorElements, progressElements, showLoading, hideLoading,
-    hideSessionDetail, registerViewInitializer
+    showView,
+    formatDate,
+    populateDaySelector,
+    renderManageRoutinesView,
+    renderRoutineEditor,
+    renderSessionView,
+    addExerciseToEditorForm,
+    views,
+    navButtons,
+    dashboardElements,
+    sessionElements,
+    historyElements,
+    sessionDetailModal,
+    manageRoutinesElements,
+    routineEditorElements,
+    progressElements,
+    showLoading,
+    hideLoading,
+    hideSessionDetail,
+    registerViewInitializer,
 } from './ui.js';
 import { storageManager } from './storage-manager.js';
 import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
 import ThemeManager from './theme-manager.js';
-import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, handleExerciseChange } from './progress.js';
 import {
-    initI18n,
-    setLanguage,
-    getLanguage,
-    onLanguageChange,
-    t
-} from './i18n.js';
+    initializeProgressView,
+    loadExerciseList,
+    updateChart,
+    resetProgressView,
+    handleExerciseChange,
+} from './progress.js';
+import { initI18n, setLanguage, getLanguage, onLanguageChange, t } from './i18n.js';
 
 // Import new modules
 import { logger } from './utils/logger.js';
@@ -46,12 +75,12 @@ import {
     WEEKLY_TARGET_MAX_SAVES_PER_WEEK,
     WEEKLY_STREAK_LOOKBACK_WEEKS,
     WEEKLY_TARGET_DEFAULT,
-    toDatetimeLocalValue
+    toDatetimeLocalValue,
 } from './utils/quick-log.js';
 import { initScrollToTop } from './modules/scroll-to-top.js';
 import { initSettings } from './modules/settings.js';
 import { initCalendar, updateCalendarView, hideCalendar } from './modules/calendar.js';
-import { 
+import {
     setCurrentRoutineForSession,
     saveSessionData,
     saveQuickLogEntry,
@@ -60,13 +89,13 @@ import {
     cancelSession,
     setupSessionAutoSave,
     getCurrentRoutineForSession,
-    getSessionFormData
+    getSessionFormData,
 } from './modules/session-manager.js';
 import {
     initHistoryManager,
     fetchAndRenderHistory,
     getSessionsCache,
-    invalidateHistoryCache
+    invalidateHistoryCache,
 } from './modules/history-manager.js';
 
 // Conditional loading of firebase diagnostics
@@ -117,6 +146,49 @@ function getUserPreferencesCacheKey(userId) {
     return `user-preferences:${userId}`;
 }
 
+function getDailyHubSessionsCacheKey(userId) {
+    return `daily-hub-sessions:${userId}`;
+}
+
+function dateLikeToIso(value) {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.toISOString();
+    }
+
+    if (typeof value === 'string' && value.trim()) {
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    }
+
+    if (value && typeof value.toDate === 'function') {
+        const parsed = value.toDate();
+        return parsed instanceof Date && !Number.isNaN(parsed.getTime()) ? parsed.toISOString() : null;
+    }
+
+    return null;
+}
+
+function serializeDailyHubSessionForCache(session = {}) {
+    const serialized = { ...session };
+    const fechaIso =
+        dateLikeToIso(session.fecha) ||
+        dateLikeToIso(session.fechaIso) ||
+        dateLikeToIso(session.quickLog?.createdAtIso);
+
+    delete serialized.fecha;
+
+    if (fechaIso) {
+        serialized.fechaIso = fechaIso;
+    }
+
+    return serialized;
+}
+
 function normalizeWeeklyTargetsByWeekState(value) {
     if (!value || typeof value !== 'object') {
         return {};
@@ -136,7 +208,7 @@ function normalizeWeeklyTargetsByWeekState(value) {
         normalized[weekKey] = {
             targetDays,
             savesUsed,
-            updatedAtIso: typeof record.updatedAtIso === 'string' ? record.updatedAtIso : null
+            updatedAtIso: typeof record.updatedAtIso === 'string' ? record.updatedAtIso : null,
         };
     });
 
@@ -162,7 +234,7 @@ function normalizeWeeklyOutcomesByWeekState(value) {
             activeDays: activeDaysRaw,
             met: record.met === true,
             targetDays: normalizeWeeklyTargetDays(record.targetDays, WEEKLY_TARGET_DEFAULT),
-            lockedAtIso: typeof record.lockedAtIso === 'string' ? record.lockedAtIso : null
+            lockedAtIso: typeof record.lockedAtIso === 'string' ? record.lockedAtIso : null,
         };
     });
 
@@ -171,16 +243,15 @@ function normalizeWeeklyOutcomesByWeekState(value) {
 
 function resolveCarryWeeklyTargetDays(targetsByWeek, fallbackTargetDays = WEEKLY_TARGET_DEFAULT) {
     const normalizedTargetsByWeek = normalizeWeeklyTargetsByWeekState(targetsByWeek);
-    const orderedWeekKeys = Object.keys(normalizedTargetsByWeek).sort((weekKeyA, weekKeyB) => weekKeyA.localeCompare(weekKeyB));
+    const orderedWeekKeys = Object.keys(normalizedTargetsByWeek).sort((weekKeyA, weekKeyB) =>
+        weekKeyA.localeCompare(weekKeyB)
+    );
     if (orderedWeekKeys.length === 0) {
         return normalizeWeeklyTargetDays(fallbackTargetDays, WEEKLY_TARGET_DEFAULT);
     }
 
     const latestWeekKey = orderedWeekKeys[orderedWeekKeys.length - 1];
-    return normalizeWeeklyTargetDays(
-        normalizedTargetsByWeek[latestWeekKey]?.targetDays,
-        fallbackTargetDays
-    );
+    return normalizeWeeklyTargetDays(normalizedTargetsByWeek[latestWeekKey]?.targetDays, fallbackTargetDays);
 }
 
 function applyWeeklyTargetState(state = {}) {
@@ -230,19 +301,23 @@ function getWeeklyTargetSaveEligibility(now = new Date(), weekRecord = null) {
         savesUsed,
         hasRemainingSaves,
         isWithinEditWindow,
-        canSave: isWithinEditWindow && hasRemainingSaves
+        canSave: isWithinEditWindow && hasRemainingSaves,
     };
 }
 
 async function cacheWeeklyTargetState(userId, state = {}, updatedAtIso = new Date().toISOString()) {
-    await localFirstCache.set(getUserPreferencesCacheKey(userId), {
-        weeklyTargetDays: normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
-        weeklyTargetsByWeek: normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek),
-        weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek),
-        updatedAtIso
-    }, {
-        metadata: { source: 'preferences' }
-    });
+    await localFirstCache.set(
+        getUserPreferencesCacheKey(userId),
+        {
+            weeklyTargetDays: normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
+            weeklyTargetsByWeek: normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek),
+            weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek),
+            updatedAtIso,
+        },
+        {
+            metadata: { source: 'preferences' },
+        }
+    );
 }
 
 async function readWeeklyTargetStateFromCache(userId) {
@@ -257,12 +332,57 @@ async function readWeeklyTargetStateFromCache(userId) {
             weeklyTargetDays: normalizeWeeklyTargetDays(cachedValue.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
             weeklyTargetsByWeek: normalizeWeeklyTargetsByWeekState(cachedValue.weeklyTargetsByWeek),
             weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(cachedValue.weeklyOutcomesByWeek),
-            updatedAtIso: typeof cachedValue.updatedAtIso === 'string' ? cachedValue.updatedAtIso : null
+            updatedAtIso: typeof cachedValue.updatedAtIso === 'string' ? cachedValue.updatedAtIso : null,
         };
     } catch (error) {
         logger.warn('Could not read cached weekly target:', error);
         return null;
     }
+}
+
+async function cacheDailyHubSessions(userId, sessions = [], metadata = {}) {
+    await localFirstCache.set(
+        getDailyHubSessionsCacheKey(userId),
+        {
+            sessions: Array.isArray(sessions) ? sessions.map(serializeDailyHubSessionForCache) : [],
+            weeklyWindowTruncated: metadata.weeklyWindowTruncated === true,
+        },
+        {
+            metadata: { source: 'dailyHub' },
+        }
+    );
+}
+
+async function readDailyHubSessionsFromCache(userId, options = {}) {
+    try {
+        const cachedEntry = await localFirstCache.getEntry(getDailyHubSessionsCacheKey(userId));
+        const cachedValue = cachedEntry?.value;
+        if (!cachedValue || typeof cachedValue !== 'object') {
+            return null;
+        }
+
+        const allowStale = options.allowStale === true;
+        const isFresh = localFirstCache.isFresh(cachedEntry, DAILY_HUB_CACHE_TTL_MS);
+        if (!allowStale && !isFresh) {
+            return null;
+        }
+
+        return {
+            sessions: Array.isArray(cachedValue.sessions) ? cachedValue.sessions : [],
+            weeklyWindowTruncated: cachedValue.weeklyWindowTruncated === true,
+            updatedAt: cachedEntry.updatedAt || Date.now(),
+        };
+    } catch (error) {
+        logger.warn('Could not read cached Daily Hub sessions:', error);
+        return null;
+    }
+}
+
+function applyDailyHubSessionCache(userId, cachedValue) {
+    dailyHubCacheUserId = userId;
+    dailyHubSessionsCache = Array.isArray(cachedValue?.sessions) ? cachedValue.sessions : [];
+    dailyHubLastFetchTimestamp = cachedValue?.updatedAt || Date.now();
+    dailyHubLastFetchWasTruncated = cachedValue?.weeklyWindowTruncated === true;
 }
 
 async function persistWeeklyTargetPreference(userId, state = {}, updatedAtIso = new Date().toISOString()) {
@@ -275,25 +395,33 @@ async function persistWeeklyTargetPreference(userId, state = {}, updatedAtIso = 
         normalizeWeeklyTargetDays(state.weeklyTargetDays, WEEKLY_TARGET_DEFAULT)
     );
 
-    await setDoc(getUserPreferencesDocRef(userId), {
-        weeklyTargetDays: normalizedTargetDays,
-        weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
-        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek,
-        schemaVersion: 2,
-        updatedAt: Timestamp.fromDate(safeUpdatedAtDate)
-    }, { merge: true });
+    await setDoc(
+        getUserPreferencesDocRef(userId),
+        {
+            weeklyTargetDays: normalizedTargetDays,
+            weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
+            weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek,
+            schemaVersion: 2,
+            updatedAt: Timestamp.fromDate(safeUpdatedAtDate),
+        },
+        { merge: true }
+    );
     firebaseUsageTracker.trackWrite(1, 'preferences.weeklyTarget.save');
 
-    await cacheWeeklyTargetState(userId, {
-        weeklyTargetDays: normalizedTargetDays,
-        weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
-        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek
-    }, safeUpdatedAtDate.toISOString());
+    await cacheWeeklyTargetState(
+        userId,
+        {
+            weeklyTargetDays: normalizedTargetDays,
+            weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
+            weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek,
+        },
+        safeUpdatedAtDate.toISOString()
+    );
 
     applyWeeklyTargetState({
         weeklyTargetDays: normalizedTargetDays,
         weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
-        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek
+        weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek,
     });
     weeklyTargetCacheUserId = userId;
 }
@@ -318,9 +446,10 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
     }
 
     const forceRefresh = options.forceRefresh === true;
-    const hasFreshMemoryValue = !forceRefresh
-        && weeklyTargetCacheUserId === user.uid
-        && (Date.now() - weeklyTargetLastFetchTimestamp) <= USER_PREFERENCES_CACHE_TTL_MS;
+    const hasFreshMemoryValue =
+        !forceRefresh &&
+        weeklyTargetCacheUserId === user.uid &&
+        Date.now() - weeklyTargetLastFetchTimestamp <= USER_PREFERENCES_CACHE_TTL_MS;
 
     if (hasFreshMemoryValue) {
         applyWeeklyTargetControlValue(weeklyTargetDays);
@@ -354,7 +483,7 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
             ),
             weeklyOutcomesByWeek: normalizeWeeklyOutcomesByWeekState(
                 sourceData?.weeklyOutcomesByWeek ?? cachedState?.weeklyOutcomesByWeek
-            )
+            ),
         };
 
         applyWeeklyTargetState(nextState);
@@ -371,17 +500,26 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
     }
 }
 
-function buildWeeklyTargetQueuePayload(userId, weekKey, weekRecord, weeklyTargetValue, updatedAtIso = new Date().toISOString()) {
+function buildWeeklyTargetQueuePayload(
+    userId,
+    weekKey,
+    weekRecord,
+    weeklyTargetValue,
+    updatedAtIso = new Date().toISOString()
+) {
     return {
         userId,
         weekKey,
         weekRecord: {
             targetDays: normalizeWeeklyTargetDays(weekRecord?.targetDays, WEEKLY_TARGET_DEFAULT),
-            savesUsed: Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, Number.parseInt(weekRecord?.savesUsed, 10) || 0)),
-            updatedAtIso
+            savesUsed: Math.max(
+                0,
+                Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, Number.parseInt(weekRecord?.savesUsed, 10) || 0)
+            ),
+            updatedAtIso,
         },
         weeklyTargetDays: normalizeWeeklyTargetDays(weeklyTargetValue, WEEKLY_TARGET_DEFAULT),
-        updatedAtIso
+        updatedAtIso,
     };
 }
 
@@ -399,8 +537,8 @@ function buildWeeklyStateSyncQueuePayload(userId, state = {}, updatedAtIso = new
         state: {
             weeklyTargetDays: normalizedWeeklyTargetDays,
             weeklyTargetsByWeek: normalizedWeeklyTargetsByWeek,
-            weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek
-        }
+            weeklyOutcomesByWeek: normalizedWeeklyOutcomesByWeek,
+        },
     };
 }
 
@@ -410,39 +548,32 @@ function applyQueuedWeeklyTargetPayloadToState(payload, state = {}) {
     }
 
     const nextWeeklyTargetsByWeek = {
-        ...normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek)
+        ...normalizeWeeklyTargetsByWeekState(state.weeklyTargetsByWeek),
     };
     const existingWeekRecord = nextWeeklyTargetsByWeek[payload.weekKey] || null;
     const incomingWeekRecord = {
         targetDays: normalizeWeeklyTargetDays(payload.weekRecord.targetDays, WEEKLY_TARGET_DEFAULT),
         savesUsed: Math.max(
             0,
-            Math.min(
-                WEEKLY_TARGET_MAX_SAVES_PER_WEEK,
-                Number.parseInt(payload.weekRecord.savesUsed, 10) || 0
-            )
+            Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, Number.parseInt(payload.weekRecord.savesUsed, 10) || 0)
         ),
-        updatedAtIso: typeof payload.weekRecord.updatedAtIso === 'string'
-            ? payload.weekRecord.updatedAtIso
-            : payload.updatedAtIso
+        updatedAtIso:
+            typeof payload.weekRecord.updatedAtIso === 'string'
+                ? payload.weekRecord.updatedAtIso
+                : payload.updatedAtIso,
     };
-    const shouldKeepExisting = existingWeekRecord
-        && (
-            existingWeekRecord.savesUsed > incomingWeekRecord.savesUsed
-            || (
-                existingWeekRecord.savesUsed === incomingWeekRecord.savesUsed
-                && typeof existingWeekRecord.updatedAtIso === 'string'
-                && typeof incomingWeekRecord.updatedAtIso === 'string'
-                && existingWeekRecord.updatedAtIso > incomingWeekRecord.updatedAtIso
-            )
-        );
+    const shouldKeepExisting =
+        existingWeekRecord &&
+        (existingWeekRecord.savesUsed > incomingWeekRecord.savesUsed ||
+            (existingWeekRecord.savesUsed === incomingWeekRecord.savesUsed &&
+                typeof existingWeekRecord.updatedAtIso === 'string' &&
+                typeof incomingWeekRecord.updatedAtIso === 'string' &&
+                existingWeekRecord.updatedAtIso > incomingWeekRecord.updatedAtIso));
 
-    nextWeeklyTargetsByWeek[payload.weekKey] = shouldKeepExisting
-        ? existingWeekRecord
-        : incomingWeekRecord;
+    nextWeeklyTargetsByWeek[payload.weekKey] = shouldKeepExisting ? existingWeekRecord : incomingWeekRecord;
 
     const nextWeeklyOutcomesByWeek = {
-        ...normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek)
+        ...normalizeWeeklyOutcomesByWeekState(state.weeklyOutcomesByWeek),
     };
     delete nextWeeklyOutcomesByWeek[payload.weekKey];
 
@@ -454,7 +585,7 @@ function applyQueuedWeeklyTargetPayloadToState(payload, state = {}) {
     return {
         weeklyTargetDays: nextWeeklyTargetDays,
         weeklyTargetsByWeek: nextWeeklyTargetsByWeek,
-        weeklyOutcomesByWeek: nextWeeklyOutcomesByWeek
+        weeklyOutcomesByWeek: nextWeeklyOutcomesByWeek,
     };
 }
 
@@ -483,19 +614,22 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
     const updatedWeekRecord = {
         targetDays: normalizedTargetDays,
         savesUsed: eligibility.savesUsed + 1,
-        updatedAtIso
+        updatedAtIso,
     };
-    const nextState = applyQueuedWeeklyTargetPayloadToState({
-        userId: user.uid,
-        weekKey: currentWeekKey,
-        weekRecord: updatedWeekRecord,
-        weeklyTargetDays: normalizedTargetDays,
-        updatedAtIso
-    }, {
-        weeklyTargetDays,
-        weeklyTargetsByWeek,
-        weeklyOutcomesByWeek
-    });
+    const nextState = applyQueuedWeeklyTargetPayloadToState(
+        {
+            userId: user.uid,
+            weekKey: currentWeekKey,
+            weekRecord: updatedWeekRecord,
+            weeklyTargetDays: normalizedTargetDays,
+            updatedAtIso,
+        },
+        {
+            weeklyTargetDays,
+            weeklyTargetsByWeek,
+            weeklyOutcomesByWeek,
+        }
+    );
     const triggerButton = options.triggerButton || null;
     const queuePayload = buildWeeklyTargetQueuePayload(
         user.uid,
@@ -509,16 +643,12 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
 
     try {
         if (!offlineManager.checkOnline()) {
-            offlineManager.queueOperation(
-                null,
-                t('settings.weekly_goal_save_offline'),
-                {
-                    descriptor: {
-                        type: 'preferences.saveWeeklyTarget',
-                        payload: queuePayload
-                    }
-                }
-            );
+            offlineManager.queueOperation(null, t('settings.weekly_goal_save_offline'), {
+                descriptor: {
+                    type: 'preferences.saveWeeklyTarget',
+                    payload: queuePayload,
+                },
+            });
 
             applyWeeklyTargetState(nextState);
             weeklyTargetCacheUserId = user.uid;
@@ -537,7 +667,7 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
             true,
             {
                 type: 'preferences.saveWeeklyTarget',
-                payload: queuePayload
+                payload: queuePayload,
             }
         );
 
@@ -578,7 +708,7 @@ function setupWeeklyTargetSettingsControls() {
 
     weeklyTargetSaveButtonElement.addEventListener('click', async () => {
         await saveWeeklyTargetPreference(weeklyTargetSelectElement.value, {
-            triggerButton: weeklyTargetSaveButtonElement
+            triggerButton: weeklyTargetSaveButtonElement,
         });
     });
 }
@@ -592,7 +722,7 @@ function setupLanguageSelector() {
     if (!languageSelectElement) return;
 
     languageSelectElement.value = getLanguage();
-    languageSelectElement.addEventListener('change', (event) => {
+    languageSelectElement.addEventListener('change', event => {
         const selectedLanguage = event.target?.value || 'es';
         setLanguage(selectedLanguage);
     });
@@ -601,14 +731,15 @@ function setupLanguageSelector() {
 function getRoutineEditorDraftSnapshot() {
     const routineId = routineEditorElements.routineIdInput?.value || '';
     const routineName = routineEditorElements.routineNameInput?.value || '';
-    const exerciseEditors = routineEditorElements.exercisesContainer?.querySelectorAll('.routine-exercise-editor') || [];
+    const exerciseEditors =
+        routineEditorElements.exercisesContainer?.querySelectorAll('.routine-exercise-editor') || [];
 
-    const exercises = Array.from(exerciseEditors).map((editor) => {
+    const exercises = Array.from(exerciseEditors).map(editor => {
         const type = editor.querySelector('select[name="ex-type"]')?.value || 'strength';
         const draft = {
             name: editor.querySelector('input[name="ex-name"]')?.value || '',
             type,
-            notes: editor.querySelector('textarea[name="ex-notes"]')?.value || ''
+            notes: editor.querySelector('textarea[name="ex-notes"]')?.value || '',
         };
 
         if (type === 'strength') {
@@ -617,9 +748,7 @@ function getRoutineEditorDraftSnapshot() {
             draft.executionMode = normalizeExecutionMode(
                 editor.querySelector('select[name="ex-execution-mode"]')?.value
             );
-            draft.loadType = normalizeLoadType(
-                editor.querySelector('select[name="ex-load-type"]')?.value
-            );
+            draft.loadType = normalizeLoadType(editor.querySelector('select[name="ex-load-type"]')?.value);
         } else {
             draft.duration = editor.querySelector('input[name="ex-duration"]')?.value || '';
         }
@@ -630,7 +759,7 @@ function getRoutineEditorDraftSnapshot() {
     return {
         routineId,
         routineName,
-        exercises
+        exercises,
     };
 }
 
@@ -641,7 +770,7 @@ function refreshRoutineEditorForLanguage() {
     renderRoutineEditor({
         id: isEditingExistingRoutine ? draftSnapshot.routineId : '__draft__',
         name: draftSnapshot.routineName,
-        exercises: draftSnapshot.exercises
+        exercises: draftSnapshot.exercises,
     });
 
     if (!isEditingExistingRoutine) {
@@ -659,9 +788,9 @@ async function refreshVisibleViewForLanguage(user) {
         const selectedRoutineId = dashboardElements.daySelect?.value || '';
         populateDaySelector(currentUserRoutines);
 
-        const hasSelectedRoutine = Boolean(selectedRoutineId)
-            && Array.from(dashboardElements.daySelect?.options || [])
-                .some((option) => option.value === selectedRoutineId);
+        const hasSelectedRoutine =
+            Boolean(selectedRoutineId) &&
+            Array.from(dashboardElements.daySelect?.options || []).some(option => option.value === selectedRoutineId);
 
         if (hasSelectedRoutine && dashboardElements.daySelect) {
             dashboardElements.daySelect.value = selectedRoutineId;
@@ -672,7 +801,7 @@ async function refreshVisibleViewForLanguage(user) {
 
         checkAndOfferResumeSession(currentUserRoutines);
 
-        await refreshDailyHub(user).catch((error) => {
+        await refreshDailyHub(user).catch(error => {
             logger.warn('Could not refresh daily hub after language change:', error);
         });
     }
@@ -713,15 +842,13 @@ function getQuickLogFormPayload() {
     return {
         label: dashboardElements.quickLogLabelInput?.value || '',
         dateTime: dashboardElements.quickLogDateTimeInput?.value || '',
-        notesText: dashboardElements.quickLogNotesInput?.value || ''
+        notesText: dashboardElements.quickLogNotesInput?.value || '',
     };
 }
 
 function applyDailyHubState(state) {
     if (dashboardElements.dailyHubMonthCount) {
-        const monthCount = Number.isFinite(state.logsMonthCount)
-            ? state.logsMonthCount
-            : (state.logsTodayCount || 0);
+        const monthCount = Number.isFinite(state.logsMonthCount) ? state.logsMonthCount : state.logsTodayCount || 0;
         dashboardElements.dailyHubMonthCount.textContent = `${monthCount}`;
     }
 
@@ -744,7 +871,7 @@ function applyDailyHubState(state) {
     if (dashboardElements.dailyHubWeeklyProgress) {
         dashboardElements.dailyHubWeeklyProgress.textContent = t('dashboard.weekly_progress_value', {
             days: state.weeklyProgressDays ?? 0,
-            target: state.weeklyTargetDays ?? WEEKLY_TARGET_DEFAULT
+            target: state.weeklyTargetDays ?? WEEKLY_TARGET_DEFAULT,
         });
         dashboardElements.dailyHubWeeklyProgress.classList.toggle('progress-met', state.weeklyProgressMet === true);
     }
@@ -765,7 +892,8 @@ function applyDailyHubState(state) {
 async function fetchRecentSessionsForDailyHub(user, options = {}) {
     const createDailyHubFetchResult = (sessions, metadata = {}) => ({
         sessions: Array.isArray(sessions) ? sessions : [],
-        weeklyWindowTruncated: metadata.weeklyWindowTruncated === true
+        weeklyWindowTruncated: metadata.weeklyWindowTruncated === true,
+        fromCache: metadata.fromCache === true,
     });
 
     if (!user) {
@@ -780,12 +908,13 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
     }
 
     const forceRefresh = options.forceRefresh === true;
-    const hasFreshCache = dailyHubSessionsCache.length > 0
-        && (Date.now() - dailyHubLastFetchTimestamp) <= DAILY_HUB_CACHE_TTL_MS;
+    const hasFreshMemoryCache =
+        dailyHubLastFetchTimestamp > 0 && Date.now() - dailyHubLastFetchTimestamp <= DAILY_HUB_CACHE_TTL_MS;
 
-    if (!forceRefresh && hasFreshCache) {
+    if (!forceRefresh && hasFreshMemoryCache) {
         return createDailyHubFetchResult(dailyHubSessionsCache, {
-            weeklyWindowTruncated: dailyHubLastFetchWasTruncated
+            weeklyWindowTruncated: dailyHubLastFetchWasTruncated,
+            fromCache: true,
         });
     }
 
@@ -795,16 +924,36 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
             return createDailyHubFetchResult(historySessionsCache);
         }
 
+        const cachedDailyHubSessions = await readDailyHubSessionsFromCache(user.uid, { allowStale: true });
+        if (cachedDailyHubSessions) {
+            applyDailyHubSessionCache(user.uid, cachedDailyHubSessions);
+            return createDailyHubFetchResult(cachedDailyHubSessions.sessions, {
+                weeklyWindowTruncated: cachedDailyHubSessions.weeklyWindowTruncated,
+                fromCache: true,
+            });
+        }
+
         return createDailyHubFetchResult(dailyHubSessionsCache, {
-            weeklyWindowTruncated: dailyHubLastFetchWasTruncated
+            weeklyWindowTruncated: dailyHubLastFetchWasTruncated,
+            fromCache: dailyHubLastFetchTimestamp > 0,
         });
+    }
+
+    if (!forceRefresh) {
+        const cachedDailyHubSessions = await readDailyHubSessionsFromCache(user.uid);
+        if (cachedDailyHubSessions) {
+            applyDailyHubSessionCache(user.uid, cachedDailyHubSessions);
+            return createDailyHubFetchResult(cachedDailyHubSessions.sessions, {
+                weeklyWindowTruncated: cachedDailyHubSessions.weeklyWindowTruncated,
+                fromCache: true,
+            });
+        }
     }
 
     try {
         const sessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-        const referenceNow = options.now instanceof Date && !Number.isNaN(options.now.getTime())
-            ? options.now
-            : new Date();
+        const referenceNow =
+            options.now instanceof Date && !Number.isNaN(options.now.getTime()) ? options.now : new Date();
         const windowStart = getWeeklyConsistencyWindowStartDate(referenceNow, WEEKLY_STREAK_LOOKBACK_WEEKS);
         const weeklyWindowQuery = query(
             sessionsCollectionRef,
@@ -822,25 +971,21 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
             );
         }
 
-        let sessionsForDailyHub = weeklyWindowSnapshot.docs.map((docSnap) => ({
+        let sessionsForDailyHub = weeklyWindowSnapshot.docs.map(docSnap => ({
             id: docSnap.id,
-            ...docSnap.data()
+            ...docSnap.data(),
         }));
 
         // Keep "last workout" accurate even when no sessions exist inside the 52-week window.
         if (sessionsForDailyHub.length === 0) {
-            const latestSessionQuery = query(
-                sessionsCollectionRef,
-                orderBy('fecha', 'desc'),
-                limit(1)
-            );
+            const latestSessionQuery = query(sessionsCollectionRef, orderBy('fecha', 'desc'), limit(1));
             const latestSessionSnapshot = await getDocs(latestSessionQuery);
             firebaseUsageTracker.trackRead(latestSessionSnapshot.docs.length || 1, 'dashboard.dailyHubLatestWorkout');
 
             if (latestSessionSnapshot.docs.length > 0) {
-                sessionsForDailyHub = latestSessionSnapshot.docs.map((docSnap) => ({
+                sessionsForDailyHub = latestSessionSnapshot.docs.map(docSnap => ({
                     id: docSnap.id,
-                    ...docSnap.data()
+                    ...docSnap.data(),
                 }));
             }
         }
@@ -848,9 +993,12 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         dailyHubSessionsCache = sessionsForDailyHub;
         dailyHubLastFetchTimestamp = Date.now();
         dailyHubLastFetchWasTruncated = didTruncateWeeklyWindow;
+        await cacheDailyHubSessions(user.uid, sessionsForDailyHub, {
+            weeklyWindowTruncated: didTruncateWeeklyWindow,
+        });
 
         return createDailyHubFetchResult(dailyHubSessionsCache, {
-            weeklyWindowTruncated: didTruncateWeeklyWindow
+            weeklyWindowTruncated: didTruncateWeeklyWindow,
         });
     } catch (error) {
         logger.warn('Could not refresh daily hub sessions:', error);
@@ -859,7 +1007,7 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         }
 
         return createDailyHubFetchResult(dailyHubSessionsCache, {
-            weeklyWindowTruncated: dailyHubLastFetchWasTruncated
+            weeklyWindowTruncated: dailyHubLastFetchWasTruncated,
         });
     }
 }
@@ -875,16 +1023,16 @@ async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
         weeklyTargetDays,
         weeklyTargetsByWeek,
         weeklyOutcomesByWeek,
-        lookbackWeeks: WEEKLY_STREAK_LOOKBACK_WEEKS
+        lookbackWeeks: WEEKLY_STREAK_LOOKBACK_WEEKS,
     });
 
     const nextWeeklyOutcomesByWeek = {
-        ...normalizeWeeklyOutcomesByWeekState(weeklyOutcomesByWeek)
+        ...normalizeWeeklyOutcomesByWeekState(weeklyOutcomesByWeek),
     };
     let didChange = false;
     const nowIso = now.toISOString();
 
-    timelineResult.timeline.forEach((entry) => {
+    timelineResult.timeline.forEach(entry => {
         if (entry.isCurrentWeek || entry.isFrozen) {
             return;
         }
@@ -893,7 +1041,7 @@ async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
             targetDays: normalizeWeeklyTargetDays(entry.targetDays, WEEKLY_TARGET_DEFAULT),
             activeDays: Math.max(0, entry.activeDays || 0),
             met: entry.met === true,
-            lockedAtIso: nowIso
+            lockedAtIso: nowIso,
         };
         didChange = true;
     });
@@ -905,7 +1053,7 @@ async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
     const nextState = {
         weeklyTargetDays,
         weeklyTargetsByWeek,
-        weeklyOutcomesByWeek: nextWeeklyOutcomesByWeek
+        weeklyOutcomesByWeek: nextWeeklyOutcomesByWeek,
     };
 
     applyWeeklyTargetState(nextState);
@@ -917,41 +1065,37 @@ async function finalizePastWeeklyOutcomes(user, sessions, now = new Date()) {
         return;
     }
 
-    offlineManager.queueOperation(
-        null,
-        t('settings.weekly_goal_save_offline'),
-        {
-            descriptor: {
-                type: 'preferences.syncWeeklyState',
-                payload: buildWeeklyStateSyncQueuePayload(user.uid, nextState, nowIso)
-            }
-        }
-    );
+    offlineManager.queueOperation(null, t('settings.weekly_goal_save_offline'), {
+        descriptor: {
+            type: 'preferences.syncWeeklyState',
+            payload: buildWeeklyStateSyncQueuePayload(user.uid, nextState, nowIso),
+        },
+    });
 }
 
 async function refreshDailyHub(user, options = {}) {
     const hasDailyHubElements =
-        dashboardElements.dailyHubMonthCount
-        && dashboardElements.dailyHubLastWorkout
-        && dashboardElements.dailyHubRoutineShortcut
-        && dashboardElements.dailyHubSyncStatus
-        && dashboardElements.dailyHubWeeklyProgress
-        && dashboardElements.dailyHubCurrentStreak
-        && dashboardElements.dailyHubBestStreak;
+        dashboardElements.dailyHubMonthCount &&
+        dashboardElements.dailyHubLastWorkout &&
+        dashboardElements.dailyHubRoutineShortcut &&
+        dashboardElements.dailyHubSyncStatus &&
+        dashboardElements.dailyHubWeeklyProgress &&
+        dashboardElements.dailyHubCurrentStreak &&
+        dashboardElements.dailyHubBestStreak;
 
     if (!hasDailyHubElements) {
         return;
     }
 
-    const now = options.now instanceof Date && !Number.isNaN(options.now.getTime())
-        ? options.now
-        : new Date();
+    const now = options.now instanceof Date && !Number.isNaN(options.now.getTime()) ? options.now : new Date();
     const fetchResult = user
         ? await fetchRecentSessionsForDailyHub(user, { ...options, now })
         : { sessions: [], weeklyWindowTruncated: false };
     const sessions = fetchResult.sessions;
     if (user) {
-        if (fetchResult.weeklyWindowTruncated) {
+        if (options.skipWeeklyOutcomeFinalization === true || fetchResult.fromCache) {
+            logger.debug('Skipping weekly outcome freezing for cache-backed or replay-safe Daily Hub refresh.');
+        } else if (fetchResult.weeklyWindowTruncated) {
             logger.warn(
                 'Skipping weekly outcome freezing because Daily Hub weekly-window query was truncated; avoiding persistence of incomplete historical outcomes.'
             );
@@ -968,7 +1112,7 @@ async function refreshDailyHub(user, options = {}) {
         weeklyTargetsByWeek,
         weeklyOutcomesByWeek,
         isOnline: offlineManager.checkOnline(),
-        pendingCount: offlineManager.getPendingCount()
+        pendingCount: offlineManager.getPendingCount(),
     });
 
     applyDailyHubState(state);
@@ -987,26 +1131,26 @@ export async function initializeAppAfterAuth(user) {
                 logger.error('Theme manager initialization failed:', error);
             }
         }
-        
+
         dashboardElements.currentDate.textContent = formatDate(new Date());
         await fetchUserRoutines(user);
         await fetchWeeklyTargetPreference(user, { forceRefresh: true });
         setQuickLogDateTimeToNow();
         await refreshDailyHub(user, { forceRefresh: true });
-        
+
         // Initialize exercise cache
         await initializeExerciseCache(user);
-        
+
         // Initialize progress view
         initializeProgressView();
 
         // Process any queued durable operations that were waiting for auth context.
-        offlineManager.processPendingOperations().catch((error) => {
+        offlineManager.processPendingOperations().catch(error => {
             logger.warn('Could not process pending offline operations after auth:', error);
         });
-        
+
         checkAndOfferResumeSession(currentUserRoutines);
-        
+
         // Initialize calendar with current month - with small delay to ensure DOM ready
         setTimeout(() => {
             updateCalendarView();
@@ -1031,51 +1175,52 @@ export async function initializeAppAfterAuth(user) {
         weeklyTargetLastFetchTimestamp = 0;
         applyWeeklyTargetControlValue(weeklyTargetDays);
         setQuickLogDateTimeToNow();
-        applyDailyHubState(computeDailyHubState({
-            sessions: [],
-            routines: [],
-            now: new Date(),
-            weeklyTargetDays,
-            weeklyTargetsByWeek,
-            weeklyOutcomesByWeek,
-            isOnline: offlineManager.checkOnline(),
-            pendingCount: offlineManager.getPendingCount()
-        }));
+        applyDailyHubState(
+            computeDailyHubState({
+                sessions: [],
+                routines: [],
+                now: new Date(),
+                weeklyTargetDays,
+                weeklyTargetsByWeek,
+                weeklyOutcomesByWeek,
+                isOnline: offlineManager.checkOnline(),
+                pendingCount: offlineManager.getPendingCount(),
+            })
+        );
     }
 }
 
 // Initializes exercise cache for the user
 async function initializeExerciseCache(user) {
     if (!user) return;
-    
+
     try {
         const { exerciseCache } = await import('./exercise-cache.js');
-        
+
         // Clean old entries
         exerciseCache.cleanOldEntries();
-        
+
         // Verify and rebuild cache automatically if necessary
         const wasRebuilt = await exerciseCache.validateAndRebuildCache(user.uid, db);
-        
+
         if (!wasRebuilt) {
             // If not rebuilt, try to restore from Firebase backup if local cache is empty
             const stats = exerciseCache.getCacheStats();
-            
+
             if (stats.exerciseCount === 0) {
                 const restored = await exerciseCache.restoreFromFirebase(user.uid, db);
-                
+
                 if (!restored) {
                     // If no Firebase backup, build cache from existing history
                     await exerciseCache.buildCacheFromHistory(user.uid, db);
                 }
             }
         }
-        
+
         // Sync with Firebase in background (without blocking)
         exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
             logger.warn('Error in initial cache sync:', error);
         });
-        
     } catch (error) {
         logger.error('Error initializing exercise cache:', error);
     }
@@ -1088,11 +1233,11 @@ async function refreshUserRoutinesFromFirestore(user) {
 
     const querySnapshot = await getDocs(q);
     firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'routines.fetch');
-    currentUserRoutines = querySnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    currentUserRoutines = querySnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
     populateDaySelector(currentUserRoutines);
 
     await localFirstCache.set(cacheKey, serializeRoutinesForCache(currentUserRoutines), {
-        metadata: { source: 'firestore' }
+        metadata: { source: 'firestore' },
     });
 
     if (!views.manageRoutines.classList.contains('hidden')) {
@@ -1126,7 +1271,7 @@ async function fetchUserRoutines(user, options = {}) {
                 }
 
                 if (localFirstCache.isFresh(cachedEntry, ROUTINES_CACHE_TTL_MS)) {
-                    await refreshDailyHub(user).catch((refreshError) => {
+                    await refreshDailyHub(user).catch(refreshError => {
                         logger.warn('Could not refresh daily hub from cached routines:', refreshError);
                     });
                     return;
@@ -1145,8 +1290,8 @@ async function fetchUserRoutines(user, options = {}) {
             {
                 type: 'routines.fetch',
                 payload: {
-                    userId: user.uid
-                }
+                    userId: user.uid,
+                },
             }
         );
     } catch (error) {
@@ -1157,18 +1302,20 @@ async function fetchUserRoutines(user, options = {}) {
             populateDaySelector([]);
         }
 
-        if (!error.message?.startsWith('Offline:')
-            && (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT'))) {
+        if (
+            !error.message?.startsWith('Offline:') &&
+            (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT'))
+        ) {
             loadFirebaseDiagnostics();
         }
     }
 
-    await refreshDailyHub(user).catch((refreshError) => {
+    await refreshDailyHub(user).catch(refreshError => {
         logger.warn('Could not refresh daily hub after routines fetch:', refreshError);
     });
 }
 
-offlineManager.registerOperationHandler('routines.fetch', async (payload) => {
+offlineManager.registerOperationHandler('routines.fetch', async payload => {
     if (!payload?.userId) {
         throw new Error('Invalid queued routines.fetch payload');
     }
@@ -1186,7 +1333,7 @@ offlineManager.registerOperationHandler('routines.fetch', async (payload) => {
     await refreshUserRoutinesFromFirestore(currentUser);
 });
 
-offlineManager.registerOperationHandler('preferences.saveWeeklyTarget', async (payload) => {
+offlineManager.registerOperationHandler('preferences.saveWeeklyTarget', async payload => {
     if (!payload?.userId) {
         throw new Error('Invalid queued preferences.saveWeeklyTarget payload');
     }
@@ -1201,28 +1348,32 @@ offlineManager.registerOperationHandler('preferences.saveWeeklyTarget', async (p
         return;
     }
 
-    const normalizedPayload = (payload.weekKey && payload.weekRecord)
-        ? payload
-        : {
-            ...payload,
-            weekKey: getCurrentWeekKey(new Date(payload.updatedAtIso || Date.now())),
-            weekRecord: {
-                targetDays: payload.weeklyTargetDays,
-                savesUsed: 1,
-                updatedAtIso: payload.updatedAtIso
-            }
-        };
+    const normalizedPayload =
+        payload.weekKey && payload.weekRecord
+            ? payload
+            : {
+                  ...payload,
+                  weekKey: getCurrentWeekKey(new Date(payload.updatedAtIso || Date.now())),
+                  weekRecord: {
+                      targetDays: payload.weeklyTargetDays,
+                      savesUsed: 1,
+                      updatedAtIso: payload.updatedAtIso,
+                  },
+              };
 
     const nextState = applyQueuedWeeklyTargetPayloadToState(normalizedPayload, {
         weeklyTargetDays,
         weeklyTargetsByWeek,
-        weeklyOutcomesByWeek
+        weeklyOutcomesByWeek,
     });
     await persistWeeklyTargetPreference(payload.userId, nextState, normalizedPayload.updatedAtIso);
-    await refreshDailyHub(currentUser, { forceRefresh: true });
+    await refreshDailyHub(currentUser, {
+        forceRefresh: true,
+        skipWeeklyOutcomeFinalization: true,
+    });
 });
 
-offlineManager.registerOperationHandler('preferences.syncWeeklyState', async (payload) => {
+offlineManager.registerOperationHandler('preferences.syncWeeklyState', async payload => {
     if (!payload?.userId || !payload?.state || typeof payload.state !== 'object') {
         throw new Error('Invalid queued preferences.syncWeeklyState payload');
     }
@@ -1238,7 +1389,10 @@ offlineManager.registerOperationHandler('preferences.syncWeeklyState', async (pa
     }
 
     await persistWeeklyTargetPreference(payload.userId, payload.state, payload.updatedAtIso);
-    await refreshDailyHub(currentUser, { forceRefresh: true });
+    await refreshDailyHub(currentUser, {
+        forceRefresh: true,
+        skipWeeklyOutcomeFinalization: true,
+    });
 });
 
 // --- View-specific listener setup ---
@@ -1258,7 +1412,7 @@ function setupDashboardViewListeners() {
                 dashboardElements.startSessionBtn.disabled = !dashboardElements.daySelect.value;
             }
 
-            refreshDailyHub(getCurrentUser()).catch((error) => {
+            refreshDailyHub(getCurrentUser()).catch(error => {
                 logger.warn('Could not refresh daily hub after routine selection change:', error);
             });
         });
@@ -1286,7 +1440,7 @@ function setupDashboardViewListeners() {
     }
 
     if (dashboardElements.quickLogForm) {
-        addViewListener('dashboard', dashboardElements.quickLogForm, 'submit', async (event) => {
+        addViewListener('dashboard', dashboardElements.quickLogForm, 'submit', async event => {
             event.preventDefault();
 
             const result = await saveQuickLogEntry(
@@ -1296,7 +1450,7 @@ function setupDashboardViewListeners() {
                     fetchAndRenderHistory();
                 },
                 {
-                    triggerButton: dashboardElements.quickLogSaveBtn
+                    triggerButton: dashboardElements.quickLogSaveBtn,
                 }
             );
 
@@ -1311,7 +1465,7 @@ function setupDashboardViewListeners() {
         logger.warn('Quick log form not found for dashboard listeners.');
     }
 
-    refreshDailyHub(getCurrentUser()).catch((error) => {
+    refreshDailyHub(getCurrentUser()).catch(error => {
         logger.warn('Could not refresh daily hub while entering dashboard view:', error);
     });
 }
@@ -1324,7 +1478,7 @@ function setupSessionViewListeners() {
             saveSessionData(() => {
                 invalidateHistoryCache();
                 fetchAndRenderHistory();
-                refreshDailyHub(getCurrentUser(), { forceRefresh: true }).catch((error) => {
+                refreshDailyHub(getCurrentUser(), { forceRefresh: true }).catch(error => {
                     logger.warn('Could not refresh daily hub after session save:', error);
                 });
             });
@@ -1378,14 +1532,13 @@ function setupManageRoutinesViewListeners() {
                         name: routine.name,
                         exercises: routine.exercises,
                         createdAt: routine.createdAt?.toDate?.()?.toISOString() || null,
-                        updatedAt: routine.updatedAt?.toDate?.()?.toISOString() || null
-                    }))
+                        updatedAt: routine.updatedAt?.toDate?.()?.toISOString() || null,
+                    })),
                 };
 
                 const jsonString = JSON.stringify(exportData, null, 2);
                 await navigator.clipboard.writeText(jsonString);
                 toast.success(t('routines.export_success', { count: currentUserRoutines.length }));
-                
             } catch (error) {
                 logger.error('Error exporting routines:', error);
                 if (error.name === 'NotAllowedError') {
@@ -1415,7 +1568,7 @@ function setupManageRoutinesViewListeners() {
             }
 
             const confirmMessage = t('routines.delete_all_confirm', { count: currentUserRoutines.length });
-            
+
             if (!confirm(confirmMessage)) {
                 return;
             }
@@ -1442,7 +1595,7 @@ function setupManageRoutinesViewListeners() {
                     await batch.commit();
                     firebaseUsageTracker.trackWrite(routinesDeletedCount, 'routines.deleteAll');
                     toast.success(t('routines.delete_all_success', { count: routinesDeletedCount }));
-                    
+
                     await fetchUserRoutines(user, { forceRefresh: true });
                     if (!views.manageRoutines.classList.contains('hidden')) {
                         renderManageRoutinesView(currentUserRoutines);
@@ -1451,7 +1604,10 @@ function setupManageRoutinesViewListeners() {
             } catch (error) {
                 logger.error('Error deleting all routines:', error);
                 toast.error(t('routines.delete_all_error'));
-                if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                if (
+                    error.message &&
+                    (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+                ) {
                     loadFirebaseDiagnostics();
                 }
             } finally {
@@ -1473,7 +1629,7 @@ function setupRoutineEditorViewListeners() {
     }
 
     if (routineEditorElements.form) {
-        addViewListener('routineEditor', routineEditorElements.form, 'submit', async (event) => {
+        addViewListener('routineEditor', routineEditorElements.form, 'submit', async event => {
             event.preventDefault();
             const user = getCurrentUser();
             if (!user) {
@@ -1489,14 +1645,17 @@ function setupRoutineEditorViewListeners() {
             }
 
             const exercises = [];
-            const exerciseEditors = routineEditorElements.exercisesContainer.querySelectorAll('.routine-exercise-editor');
+            const exerciseEditors =
+                routineEditorElements.exercisesContainer.querySelectorAll('.routine-exercise-editor');
             exerciseEditors.forEach(editor => {
                 const name = editor.querySelector('input[name="ex-name"]').value.trim();
                 const type = editor.querySelector('select[name="ex-type"]').value;
                 const executionModeInput = editor.querySelector('select[name="ex-execution-mode"]');
                 const loadTypeInput = editor.querySelector('select[name="ex-load-type"]');
                 const notes = editor.querySelector('textarea[name="ex-notes"]').value.trim();
-                let sets = '', reps = '', duration = '';
+                let sets = '',
+                    reps = '',
+                    duration = '';
                 let executionMode = null;
                 let loadType = null;
 
@@ -1526,7 +1685,7 @@ function setupRoutineEditorViewListeners() {
             const routineData = {
                 name: routineName,
                 exercises: exercises,
-                updatedAt: Timestamp.now()
+                updatedAt: Timestamp.now(),
             };
 
             showLoading(routineEditorElements.saveRoutineBtn, t('routines.save_loading'));
@@ -1546,7 +1705,10 @@ function setupRoutineEditorViewListeners() {
             } catch (error) {
                 logger.error('Error saving routine:', error);
                 toast.error(t('routines.save_error'));
-                if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                if (
+                    error.message &&
+                    (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+                ) {
                     loadFirebaseDiagnostics();
                 }
             } finally {
@@ -1587,7 +1749,10 @@ function setupRoutineEditorViewListeners() {
                 } catch (error) {
                     logger.error('Error deleting routine:', error);
                     toast.error(t('routines.delete_error'));
-                    if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+                    if (
+                        error.message &&
+                        (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+                    ) {
                         loadFirebaseDiagnostics();
                     }
                 } finally {
@@ -1606,16 +1771,16 @@ function setupHistoryViewListeners() {
 
 function setupProgressViewListeners() {
     cleanupViewListeners('progress');
-    
+
     // Add event listeners using the event manager
     if (progressElements.exerciseSelect) {
         addViewListener('progress', progressElements.exerciseSelect, 'change', handleExerciseChange);
     }
-    
+
     if (progressElements.metricSelect) {
         addViewListener('progress', progressElements.metricSelect, 'change', updateChart);
     }
-    
+
     if (progressElements.periodSelect) {
         addViewListener('progress', progressElements.periodSelect, 'change', updateChart);
     }
@@ -1638,7 +1803,7 @@ navButtons.dashboard.addEventListener('click', () => {
     fetchUserRoutines(currentUser);
     checkAndOfferResumeSession(currentUserRoutines);
     updateCalendarView();
-    refreshDailyHub(currentUser, { forceRefresh: true }).catch((error) => {
+    refreshDailyHub(currentUser).catch(error => {
         logger.warn('Could not refresh daily hub on dashboard navigation:', error);
     });
 });
@@ -1657,7 +1822,7 @@ navButtons.progress.addEventListener('click', () => {
 navButtons.logout.addEventListener('click', handleLogout);
 
 offlineManager.addListener(() => {
-    refreshDailyHub(getCurrentUser(), { forceRefresh: true }).catch((error) => {
+    refreshDailyHub(getCurrentUser(), { forceRefresh: true }).catch(error => {
         logger.warn('Could not refresh daily hub after connectivity change:', error);
     });
 });
@@ -1673,7 +1838,7 @@ if (sessionDetailModal.closeBtn) {
 }
 
 if (sessionDetailModal.modal) {
-    window.addEventListener('click', (event) => {
+    window.addEventListener('click', event => {
         if (event.target === sessionDetailModal.modal) hideSessionDetail();
     });
 } else {
@@ -1681,7 +1846,7 @@ if (sessionDetailModal.modal) {
 }
 
 // Event listener for edit clicks bubbled up from ui.js
-document.addEventListener('editRoutineClicked', (event) => {
+document.addEventListener('editRoutineClicked', event => {
     const routineId = event.detail.routineId;
     const routineToEdit = currentUserRoutines.find(r => r.id === routineId);
     if (routineToEdit) {
@@ -1693,7 +1858,6 @@ document.addEventListener('editRoutineClicked', (event) => {
 
 // Manage Routines - duplicate listener removed (already exists above)
 
-
 // PWA Service Worker and Storage Manager Initialization
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
@@ -1701,7 +1865,7 @@ if ('serviceWorker' in navigator) {
         try {
             const versionResult = await initVersionControl();
             logger.info('Version control initialized:', versionResult);
-            
+
             // Check for backup session that might need restoration after update
             checkForBackupSession();
         } catch (error) {
@@ -1717,23 +1881,32 @@ if ('serviceWorker' in navigator) {
 
         // Use a relative path that works regardless of deployment location
         const swPath = new URL('sw.js', window.location.href).pathname;
-        navigator.serviceWorker.register(swPath)
+        navigator.serviceWorker
+            .register(swPath)
             .then(reg => logger.info('ServiceWorker registered.', reg))
             .catch(err => {
                 logger.error('ServiceWorker registration failed:', err);
-                if (err.name === 'TypeError' && err.message.includes('Failed to register') && err.message.includes('404')) {
+                if (
+                    err.name === 'TypeError' &&
+                    err.message.includes('Failed to register') &&
+                    err.message.includes('404')
+                ) {
                     logger.warn('This may be due to a missing service worker file or an ad blocker.');
                 }
             });
     });
-    
+
     // Add an error handler for Firestore connection errors
-    window.addEventListener('error', function(event) {
+    window.addEventListener('error', function (event) {
         const errorText = event.message || '';
-        if (errorText.includes('ERR_BLOCKED_BY_CLIENT') || 
-            (event.filename && event.filename.includes('firestore.googleapis.com'))) {
-            logger.warn('Detected possible content blocker interfering with Firebase connections. ' +
-                        'This may affect app functionality.');
+        if (
+            errorText.includes('ERR_BLOCKED_BY_CLIENT') ||
+            (event.filename && event.filename.includes('firestore.googleapis.com'))
+        ) {
+            logger.warn(
+                'Detected possible content blocker interfering with Firebase connections. ' +
+                    'This may affect app functionality.'
+            );
             loadFirebaseDiagnostics();
         }
     });
@@ -1779,7 +1952,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dashboardElements.currentDate.textContent = formatDate(new Date());
         }
 
-        refreshVisibleViewForLanguage(currentUser).catch((error) => {
+        refreshVisibleViewForLanguage(currentUser).catch(error => {
             logger.warn('Could not refresh visible views after language change:', error);
         });
     });
@@ -1792,15 +1965,15 @@ document.addEventListener('DOMContentLoaded', () => {
             logger.error('Theme manager initialization failed:', error);
         }
     }
-    
+
     // Initialize offline detection
     offlineManager.init();
 
     // Initialize local-first cache store in the background
-    localFirstCache.initialize().catch((error) => {
+    localFirstCache.initialize().catch(error => {
         logger.warn('Local cache initialization failed:', error);
     });
-    
+
     // Initialize modules
     initScrollToTop();
     initSettings();
@@ -1825,4 +1998,3 @@ async function loadProgressData() {
 
 // Export for module compatibility
 export { currentUserRoutines, fetchUserRoutines };
-

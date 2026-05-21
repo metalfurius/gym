@@ -16,10 +16,12 @@ function createQueueId() {
 }
 
 function isSerializableDescriptor(descriptor) {
-    return !!descriptor
-        && typeof descriptor === 'object'
-        && typeof descriptor.type === 'string'
-        && descriptor.type.trim().length > 0;
+    return (
+        !!descriptor &&
+        typeof descriptor === 'object' &&
+        typeof descriptor.type === 'string' &&
+        descriptor.type.trim().length > 0
+    );
 }
 
 class OfflineManager {
@@ -62,7 +64,7 @@ class OfflineManager {
                     }
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 logger.warn('Could not restore persisted offline queue:', error);
             });
 
@@ -125,7 +127,7 @@ class OfflineManager {
                 return;
             }
 
-            const knownIds = new Set(this.pendingOperations.map((item) => item.id));
+            const knownIds = new Set(this.pendingOperations.map(item => item.id));
             for (const persistedItem of persistedQueue) {
                 if (!persistedItem || typeof persistedItem !== 'object') continue;
                 if (!persistedItem.id || knownIds.has(persistedItem.id)) continue;
@@ -136,7 +138,7 @@ class OfflineManager {
                     operation: null,
                     description: persistedItem.description || t('offline.queued_when_online'),
                     timestamp: persistedItem.timestamp || Date.now(),
-                    descriptor: persistedItem.descriptor
+                    descriptor: persistedItem.descriptor,
                 });
                 knownIds.add(persistedItem.id);
             }
@@ -151,12 +153,12 @@ class OfflineManager {
 
     getPersistableQueue() {
         return this.pendingOperations
-            .filter((item) => isSerializableDescriptor(item.descriptor))
-            .map((item) => ({
+            .filter(item => isSerializableDescriptor(item.descriptor))
+            .map(item => ({
                 id: item.id,
                 description: item.description,
                 timestamp: item.timestamp,
-                descriptor: item.descriptor
+                descriptor: item.descriptor,
             }));
     }
 
@@ -171,8 +173,8 @@ class OfflineManager {
             await localFirstCache.set(PERSISTED_QUEUE_KEY, persistableQueue, {
                 metadata: {
                     count: persistableQueue.length,
-                    updatedAt: Date.now()
-                }
+                    updatedAt: Date.now(),
+                },
             });
         } catch (error) {
             logger.warn('Failed to persist offline queue:', error);
@@ -235,7 +237,12 @@ class OfflineManager {
      * @param {Object|null} queueDescriptor - Serializable descriptor for durable queue.
      * @returns {Promise<*>}
      */
-    async executeWithOfflineHandling(operation, errorMessage = undefined, queueIfOffline = false, queueDescriptor = null) {
+    async executeWithOfflineHandling(
+        operation,
+        errorMessage = undefined,
+        queueIfOffline = false,
+        queueDescriptor = null
+    ) {
         if (typeof operation !== 'function') {
             throw new Error('Operation must be a function');
         }
@@ -297,11 +304,11 @@ class OfflineManager {
             'Failed to fetch',
             'NetworkError',
             'ERR_INTERNET_DISCONNECTED',
-            'ERR_NETWORK_CHANGED'
+            'ERR_NETWORK_CHANGED',
         ];
 
         const errorString = error?.toString().toLowerCase() || '';
-        return networkErrors.some((term) => errorString.includes(term.toLowerCase()));
+        return networkErrors.some(term => errorString.includes(term.toLowerCase()));
     }
 
     /**
@@ -318,14 +325,14 @@ class OfflineManager {
             operation: typeof operation === 'function' ? operation : null,
             description,
             timestamp: Date.now(),
-            descriptor
+            descriptor,
         };
 
         this.pendingOperations.push(queueEntry);
         logger.info(`Queued operation: ${description}`);
 
         if (descriptor) {
-            this.persistQueue().catch((error) => {
+            this.persistQueue().catch(error => {
                 logger.warn('Could not persist queued operation:', error);
             });
         }
@@ -376,7 +383,7 @@ class OfflineManager {
                     logger.warn(`No handler found for queued operation: ${queueEntry.description}`);
                     this.pendingOperations.push({
                         ...queueEntry,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
                     });
                     continue;
                 }
@@ -390,7 +397,7 @@ class OfflineManager {
                     logger.error(`Failed queued operation: ${queueEntry.description}`, error);
                     this.pendingOperations.push({
                         ...queueEntry,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
                     });
                 }
             }
@@ -430,7 +437,7 @@ class OfflineManager {
      * @param {Function} callback
      */
     removeListener(callback) {
-        this.listeners = this.listeners.filter((cb) => cb !== callback);
+        this.listeners = this.listeners.filter(cb => cb !== callback);
     }
 
     /**
@@ -460,7 +467,7 @@ class OfflineManager {
      */
     clearPending() {
         this.pendingOperations = [];
-        this.persistQueue().catch((error) => {
+        this.persistQueue().catch(error => {
             logger.warn('Could not clear persisted offline queue:', error);
         });
         logger.info('Cleared all pending operations');

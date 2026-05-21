@@ -7,7 +7,7 @@ const LOG_LEVELS = {
     DEBUG: 0,
     INFO: 1,
     WARN: 2,
-    ERROR: 3
+    ERROR: 3,
 };
 
 function resolveHostname() {
@@ -26,7 +26,7 @@ function getCurrentLogLevel(hostname = resolveHostname()) {
 
 function getLevelName(level) {
     const levelNames = Object.keys(LOG_LEVELS);
-    return levelNames.find((name) => LOG_LEVELS[name] === level) || 'UNKNOWN';
+    return levelNames.find(name => LOG_LEVELS[name] === level) || 'UNKNOWN';
 }
 
 /**
@@ -37,9 +37,8 @@ function getLevelName(level) {
  * @returns {Object} Logger instance
  */
 export function createLogger(options = {}) {
-    const hostnameResolver = typeof options.hostnameResolver === 'function'
-        ? options.hostnameResolver
-        : resolveHostname;
+    const hostnameResolver =
+        typeof options.hostnameResolver === 'function' ? options.hostnameResolver : resolveHostname;
 
     const getLevel = () => getCurrentLogLevel(hostnameResolver());
 
@@ -85,7 +84,7 @@ export function createLogger(options = {}) {
         /**
          * Get current log level name (for debugging the logger itself)
          */
-        getLevel: () => getLevelName(getLevel())
+        getLevel: () => getLevelName(getLevel()),
     };
 }
 

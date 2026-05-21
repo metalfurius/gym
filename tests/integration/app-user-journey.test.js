@@ -10,6 +10,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const indexHtml = fs.readFileSync(path.resolve(__dirname, '../../index.html'), 'utf8');
+let firebaseUsageTracker;
 
 function waitForUi(ms = 0) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -39,6 +40,12 @@ function setField(selector, value) {
     field.dispatchEvent(new Event('input', { bubbles: true }));
     field.dispatchEvent(new Event('change', { bubbles: true }));
     return field;
+}
+
+function getDailyHubReadTotal() {
+    return firebaseUsageTracker.state.operations
+        .filter((operation) => operation.type === 'read' && operation.operation.startsWith('dashboard.dailyHub'))
+        .reduce((total, operation) => total + operation.count, 0);
 }
 
 function setupDomAndBrowserShims() {
@@ -105,6 +112,7 @@ describe('App User Journey', () => {
         setupDomAndBrowserShims();
 
         await import('../../js/app.js');
+        ({ firebaseUsageTracker } = await import('../../js/utils/firebase-usage-tracker.js'));
         document.dispatchEvent(new Event('DOMContentLoaded'));
         window.dispatchEvent(new Event('load'));
         await waitForUi(50);
@@ -145,6 +153,18 @@ describe('App User Journey', () => {
         expect(document.getElementById('daily-hub-month-count').textContent).toBe('1');
         expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/3');
         expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(true);
+
+        await waitForUi(500);
+        const dailyHubReadsAfterQuickLog = getDailyHubReadTotal();
+        click('#nav-history');
+        await waitForUi(120);
+        click('#nav-dashboard');
+        await waitForUi(120);
+        click('#nav-history');
+        await waitForUi(120);
+        click('#nav-dashboard');
+        await waitForUi(120);
+        expect(getDailyHubReadTotal()).toBe(dailyHubReadsAfterQuickLog);
 
         click('#settings-btn');
         await waitForUi(120);

@@ -1,7 +1,7 @@
 # Read-Optimized Weekly Consistency Plan
 
-Last updated: April 22, 2026
-Status: Planned (next major feature milestone)
+Last updated: May 21, 2026
+Status: Active (v1.1 stabilization and read reduction)
 
 ## Purpose
 
@@ -17,12 +17,20 @@ In scope:
 2. Bounded read strategy:
    - keep deterministic query limits for weekly-window session fetches
    - reduce forced refresh paths that trigger high-frequency re-reads
+   - reuse fresh Daily Hub cache on routine dashboard navigation
 3. Cloud sync behavior:
    - keep `users/{uid}/app_data/user_preferences` as canonical weekly-target storage
    - sync only compact preference or minimal derived metadata when required for cross-device coherence
 4. Reliability parity:
    - preserve offline queue/replay behavior for weekly-target writes
    - preserve timestamp consistency for replayed preference writes
+
+Implemented in this iteration:
+
+1. Daily Hub session results are cached through `localFirstCache` by user.
+2. Normal dashboard navigation reuses fresh Daily Hub cache instead of forcing a Firestore read.
+3. Offline Daily Hub rendering can use stale cached weekly-window sessions when no history cache is available.
+4. Replayed weekly-target writes preserve their queued `updatedAtIso` and skip immediate outcome-freezing writes that would overwrite replay metadata.
 
 Out of scope:
 
@@ -40,6 +48,7 @@ Required before merge:
 3. `npm run test:app:offline`
 4. `npm run test:coverage:gate`
 5. `npm run test:no-skips`
-6. Read-usage verification:
+6. `npm run format:check`
+7. Read-usage verification:
    - no unbounded weekly-window session query in Daily Hub path
    - measurable read reduction versus pre-v1.1 baseline for repeated dashboard refresh scenarios

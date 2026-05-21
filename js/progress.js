@@ -9,14 +9,9 @@ import {
     DEFAULT_EXECUTION_MODE,
     normalizeExecutionMode,
     resolveExerciseExecutionMode,
-    getExecutionModeLabel
+    getExecutionModeLabel,
 } from './utils/execution-mode.js';
-import {
-    DEFAULT_LOAD_TYPE,
-    normalizeLoadType,
-    resolveExerciseLoadType,
-    getLoadTypeLabel
-} from './utils/load-type.js';
+import { DEFAULT_LOAD_TYPE, normalizeLoadType, resolveExerciseLoadType, getLoadTypeLabel } from './utils/load-type.js';
 import { t, getLocale } from './i18n.js';
 
 let progressChart = null;
@@ -30,12 +25,16 @@ const progressTabCache = {
     exercisesWithCount: null,
     lastCacheTime: null,
     isInitialized: false,
-    cacheValidityTime: 5 * 60 * 1000
+    cacheValidityTime: 5 * 60 * 1000,
 };
 
 export function normalizeExerciseName(name) {
     if (!name) return '';
-    return name.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s]/g, '')
+        .replace(/\s+/g, '_');
 }
 
 const EXERCISE_MODE_SEPARATOR = '::mode=';
@@ -49,11 +48,7 @@ function safeDecodeExerciseName(value) {
     }
 }
 
-function buildExerciseLabel(
-    exerciseName,
-    executionMode = DEFAULT_EXECUTION_MODE,
-    loadType = DEFAULT_LOAD_TYPE
-) {
+function buildExerciseLabel(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
     const mode = normalizeExecutionMode(executionMode);
     const normalizedLoadType = normalizeLoadType(loadType);
     const variants = [];
@@ -66,9 +61,7 @@ function buildExerciseLabel(
         variants.push(getLoadTypeLabel(normalizedLoadType));
     }
 
-    return variants.length > 0
-        ? `${exerciseName} (${variants.join(', ')})`
-        : exerciseName;
+    return variants.length > 0 ? `${exerciseName} (${variants.join(', ')})` : exerciseName;
 }
 
 function buildExerciseSelectionValue(
@@ -93,7 +86,7 @@ function parseExerciseSelectionValue(value) {
             name: fallbackName,
             executionMode: DEFAULT_EXECUTION_MODE,
             loadType: DEFAULT_LOAD_TYPE,
-            label: buildExerciseLabel(fallbackName, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE)
+            label: buildExerciseLabel(fallbackName, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE),
         };
     }
 
@@ -112,15 +105,11 @@ function parseExerciseSelectionValue(value) {
         name,
         executionMode,
         loadType,
-        label
+        label,
     };
 }
 
-function buildExerciseDescriptor(
-    exerciseName,
-    executionMode = DEFAULT_EXECUTION_MODE,
-    loadType = DEFAULT_LOAD_TYPE
-) {
+function buildExerciseDescriptor(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
     const mode = normalizeExecutionMode(executionMode);
     const normalizedLoadType = normalizeLoadType(loadType);
     return parseExerciseSelectionValue(buildExerciseSelectionValue(exerciseName, mode, normalizedLoadType));
@@ -188,7 +177,7 @@ export function invalidateProgressCache() {
     progressTabCache.isInitialized = false;
     exerciseDataCache.clear();
 
-    localFirstCache.clearByPrefix('progress:sessions:').catch((error) => {
+    localFirstCache.clearByPrefix('progress:sessions:').catch(error => {
         logger.warn('Could not invalidate cached progress sessions:', error);
     });
 }
@@ -225,10 +214,11 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
         return;
     }
 
-    exercises.forEach((exerciseItem) => {
-        const descriptor = typeof exerciseItem === 'string'
-            ? buildExerciseDescriptor(exerciseItem, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE)
-            : exerciseItem;
+    exercises.forEach(exerciseItem => {
+        const descriptor =
+            typeof exerciseItem === 'string'
+                ? buildExerciseDescriptor(exerciseItem, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE)
+                : exerciseItem;
 
         if (!descriptor) {
             return;
@@ -238,7 +228,7 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
         option.value = descriptor.value;
 
         if (exercisesWithCount) {
-            const info = exercisesWithCount.find((exercise) => exercise.value === descriptor.value);
+            const info = exercisesWithCount.find(exercise => exercise.value === descriptor.value);
             option.textContent = `${descriptor.label} (${t('progress.sessions_suffix', { count: info ? info.sessionCount : 0 })})`;
         } else {
             option.textContent = descriptor.label;
@@ -315,7 +305,7 @@ export async function loadExerciseList() {
         }
 
         const exercisesWithCount = [];
-        Object.keys(fullCache).forEach((exerciseKey) => {
+        Object.keys(fullCache).forEach(exerciseKey => {
             const exercise = fullCache[exerciseKey];
             if (!exercise.originalName || !exercise.history || exercise.history.length < 3) {
                 return;
@@ -326,7 +316,7 @@ export async function loadExerciseList() {
             const descriptor = buildExerciseDescriptor(exercise.originalName, executionMode, loadType);
             exercisesWithCount.push({
                 ...descriptor,
-                sessionCount: exercise.history.length
+                sessionCount: exercise.history.length,
             });
         });
 
@@ -337,12 +327,12 @@ export async function loadExerciseList() {
             return a.label.localeCompare(b.label);
         });
 
-        const sortedExercises = exercisesWithCount.map((exercise) => ({
+        const sortedExercises = exercisesWithCount.map(exercise => ({
             value: exercise.value,
             label: exercise.label,
             name: exercise.name,
             executionMode: exercise.executionMode,
-            loadType: exercise.loadType
+            loadType: exercise.loadType,
         }));
 
         if (sortedExercises.length === 0) {
@@ -426,15 +416,15 @@ async function getExerciseData(exerciseSelection, period) {
         const selectedMode = normalizeExecutionMode(exerciseSelection.executionMode);
         const selectedLoadType = normalizeLoadType(exerciseSelection.loadType);
 
-        const exerciseKey = Object.keys(fullCache).find((key) => {
+        const exerciseKey = Object.keys(fullCache).find(key => {
             const cacheEntry = fullCache[key];
             const normalizedName = normalizeExerciseName(cacheEntry.originalName);
             const cacheMode = inferExecutionModeFromCacheEntry(cacheEntry, key);
             const cacheLoadType = inferLoadTypeFromCacheEntry(cacheEntry, key);
             return (
-                normalizedName === normalizedSelectedName
-                && cacheMode === selectedMode
-                && cacheLoadType === selectedLoadType
+                normalizedName === normalizedSelectedName &&
+                cacheMode === selectedMode &&
+                cacheLoadType === selectedLoadType
             );
         });
 
@@ -462,19 +452,19 @@ async function getExerciseData(exerciseSelection, period) {
                 break;
         }
 
-        exerciseHistory = exerciseHistory.filter((record) => {
+        exerciseHistory = exerciseHistory.filter(record => {
             const recordDate = record.date instanceof Date ? record.date : new Date(record.date);
             return recordDate >= startDate;
         });
 
-        const processedData = exerciseHistory.map((record) => {
+        const processedData = exerciseHistory.map(record => {
             const recordDate = record.date instanceof Date ? record.date : new Date(record.date);
             let maxWeight = Number.NEGATIVE_INFINITY;
             let totalVolume = 0;
             let maxReps = 0;
 
             if (record.sets && Array.isArray(record.sets)) {
-                record.sets.forEach((set) => {
+                record.sets.forEach(set => {
                     const weight = resolveSetWeightForMetrics(set, selectedLoadType);
                     const reps = parseInt(set.reps || set.repeticiones || 0, 10);
 
@@ -489,7 +479,7 @@ async function getExerciseData(exerciseSelection, period) {
                 weight: maxWeight === Number.NEGATIVE_INFINITY ? 0 : maxWeight,
                 volume: totalVolume,
                 reps: maxReps,
-                sets: record.sets
+                sets: record.sets,
             };
         });
 
@@ -511,28 +501,33 @@ async function loadSessionHistoryForProgress() {
     const cacheKey = `progress:sessions:${user.uid}`;
     const cachedEntry = await localFirstCache.getEntry(cacheKey);
 
-    if (cachedEntry?.value && Array.isArray(cachedEntry.value) && localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS)) {
+    if (
+        cachedEntry?.value &&
+        Array.isArray(cachedEntry.value) &&
+        localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS)
+    ) {
         return deserializeSessionsFromCache(cachedEntry.value);
     }
 
     const { db } = await import('./firebase-config.js');
-    const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+    const { collection, query, orderBy, limit, getDocs } =
+        await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
 
     const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
     const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(MAX_PROGRESS_SESSIONS));
     const querySnapshot = await getDocs(q);
 
     firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'progress.sessionHistoryFallback', {
-        limit: MAX_PROGRESS_SESSIONS
+        limit: MAX_PROGRESS_SESSIONS,
     });
 
-    const sessions = querySnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    const sessions = querySnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
 
     await localFirstCache.set(cacheKey, serializeSessionsForCache(sessions), {
         metadata: {
             source: 'firestore',
-            limit: MAX_PROGRESS_SESSIONS
-        }
+            limit: MAX_PROGRESS_SESSIONS,
+        },
     });
 
     return sessions;
@@ -555,17 +550,15 @@ async function getExerciseDataFromSessions(exerciseSelection, period) {
             return dateA - dateB;
         });
 
-        sortedSessions.forEach((sessionData) => {
-            const sessionDate = sessionData.fecha && sessionData.fecha.toDate
-                ? sessionData.fecha.toDate()
-                : new Date();
+        sortedSessions.forEach(sessionData => {
+            const sessionDate = sessionData.fecha && sessionData.fecha.toDate ? sessionData.fecha.toDate() : new Date();
             const sessionBodyweight = Number(sessionData.pesoUsuario ?? sessionData.userWeight);
             if (Number.isFinite(sessionBodyweight) && sessionBodyweight > 0) {
                 lastKnownBodyweight = sessionBodyweight;
             }
 
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
-                sessionData.ejercicios.forEach((ejercicio) => {
+                sessionData.ejercicios.forEach(ejercicio => {
                     const name = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
                     const normalizedName = normalizeExerciseName(name);
 
@@ -573,17 +566,17 @@ async function getExerciseDataFromSessions(exerciseSelection, period) {
                     const loadType = normalizeLoadType(resolveExerciseLoadType(ejercicio));
 
                     if (
-                        normalizedName === normalizedSelectedName
-                        && ejercicio.tipoEjercicio === 'strength'
-                        && executionMode === selectedMode
-                        && loadType === selectedLoadType
-                        && ejercicio.sets
+                        normalizedName === normalizedSelectedName &&
+                        ejercicio.tipoEjercicio === 'strength' &&
+                        executionMode === selectedMode &&
+                        loadType === selectedLoadType &&
+                        ejercicio.sets
                     ) {
                         let maxWeight = Number.NEGATIVE_INFINITY;
                         let totalVolume = 0;
                         let maxReps = 0;
 
-                        ejercicio.sets.forEach((set) => {
+                        ejercicio.sets.forEach(set => {
                             const weight = resolveSetWeightForMetrics(set, loadType, lastKnownBodyweight);
                             const reps = parseInt(set.reps || set.repeticiones || 0, 10);
 
@@ -597,7 +590,7 @@ async function getExerciseDataFromSessions(exerciseSelection, period) {
                             weight: maxWeight === Number.NEGATIVE_INFINITY ? 0 : maxWeight,
                             volume: totalVolume,
                             reps: maxReps,
-                            sets: ejercicio.sets
+                            sets: ejercicio.sets,
                         });
                     }
                 });
@@ -623,7 +616,7 @@ async function getExerciseDataFromSessions(exerciseSelection, period) {
                 break;
         }
 
-        const filteredData = exerciseData.filter((record) => record.date >= startDate);
+        const filteredData = exerciseData.filter(record => record.date >= startDate);
         filteredData.sort((a, b) => a.date - b.date);
 
         return filteredData;
@@ -638,7 +631,7 @@ function processChartData(exerciseData, metric) {
 
     const dataByDate = new Map();
 
-    exerciseData.forEach((entry) => {
+    exerciseData.forEach(entry => {
         const dateKey = entry.date.toISOString().split('T')[0];
 
         if (!dataByDate.has(dateKey)) {
@@ -646,7 +639,7 @@ function processChartData(exerciseData, metric) {
                 date: entry.date,
                 weights: [],
                 reps: [],
-                volumes: []
+                volumes: [],
             });
         }
 
@@ -713,26 +706,28 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
     const metricLabels = {
         weight: `${t('progress.metric_weight')} (${t('progress.unit_weight')})`,
         reps: t('progress.metric_reps'),
-        volume: `${t('progress.metric_volume')} (${t('progress.unit_volume')})`
+        volume: `${t('progress.metric_volume')} (${t('progress.unit_volume')})`,
     };
 
     progressChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: chartData.labels,
-            datasets: [{
-                label: metricLabels[metric] || t('progress.value'),
-                data: chartData.data,
-                borderColor: 'rgb(102, 126, 234)',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                tension: 0.4,
-                pointBackgroundColor: 'rgb(102, 126, 234)',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                fill: true
-            }]
+            datasets: [
+                {
+                    label: metricLabels[metric] || t('progress.value'),
+                    data: chartData.data,
+                    borderColor: 'rgb(102, 126, 234)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(102, 126, 234)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true,
+                },
+            ],
         },
         options: {
             responsive: true,
@@ -743,46 +738,46 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
                     text: t('progress.chart_title', { exercise: exerciseName, metric: metricLabels[metric] }),
                     font: {
                         size: 16,
-                        weight: 'bold'
+                        weight: 'bold',
                     },
-                    color: 'var(--text-color)'
+                    color: 'var(--text-color)',
                 },
                 legend: {
-                    display: false
-                }
+                    display: false,
+                },
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    },
-                    ticks: {
-                        color: 'var(--text-secondary-color)'
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.1)',
                     },
                     ticks: {
                         color: 'var(--text-secondary-color)',
-                        maxTicksLimit: 10
-                    }
-                }
+                    },
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                    },
+                    ticks: {
+                        color: 'var(--text-secondary-color)',
+                        maxTicksLimit: 10,
+                    },
+                },
             },
             interaction: {
                 intersect: false,
-                mode: 'index'
-            }
-        }
+                mode: 'index',
+            },
+        },
     });
 }
 
 function updateProgressStats(exerciseData, metric) {
     if (!exerciseData || exerciseData.length < 3) return;
 
-    const values = exerciseData.map((entry) => {
+    const values = exerciseData.map(entry => {
         switch (metric) {
             case 'weight':
                 return entry.weight;
@@ -800,13 +795,13 @@ function updateProgressStats(exerciseData, metric) {
     const lastValue = values[values.length - 1];
     const totalProgress = lastValue - firstValue;
 
-    const uniqueDates = new Set(exerciseData.map((entry) => entry.date.toDateString()));
+    const uniqueDates = new Set(exerciseData.map(entry => entry.date.toDateString()));
     const sessionCount = uniqueDates.size;
 
     const units = {
         weight: t('progress.unit_weight'),
         reps: t('progress.unit_reps'),
-        volume: t('progress.unit_volume')
+        volume: t('progress.unit_volume'),
     };
 
     progressElements.bestRecord.textContent = `${bestRecord.toFixed(1)} ${units[metric]}`;
@@ -825,17 +820,18 @@ function updateProgressStats(exerciseData, metric) {
 
     progressElements.totalProgress.textContent = progressText;
     progressElements.trendIndicator.className = trendClass;
-    progressElements.trendIndicator.textContent = trendClass === 'trend-up'
-        ? t('progress.trend_up')
-        : trendClass === 'trend-down'
-            ? t('progress.trend_down')
-            : t('progress.trend_stable');
+    progressElements.trendIndicator.textContent =
+        trendClass === 'trend-up'
+            ? t('progress.trend_up')
+            : trendClass === 'trend-down'
+              ? t('progress.trend_down')
+              : t('progress.trend_stable');
 }
 
 function formatDateForChart(date) {
     return date.toLocaleDateString(getLocale(), {
         day: '2-digit',
-        month: 'short'
+        month: 'short',
     });
 }
 
@@ -889,7 +885,7 @@ function hideNoDataMessage() {
 
 export function clearExerciseCache() {
     exerciseDataCache.clear();
-    localFirstCache.clearByPrefix('progress:sessions:').catch((error) => {
+    localFirstCache.clearByPrefix('progress:sessions:').catch(error => {
         logger.warn('Could not clear cached progress sessions:', error);
     });
 }
@@ -917,9 +913,9 @@ async function loadExercisesFromSessions() {
         const exerciseCount = new Map();
         const descriptors = new Map();
 
-        sessions.forEach((sessionData) => {
+        sessions.forEach(sessionData => {
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
-                sessionData.ejercicios.forEach((ejercicio) => {
+                sessionData.ejercicios.forEach(ejercicio => {
                     const exerciseName = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
                     if (exerciseName && ejercicio.tipoEjercicio === 'strength') {
                         const executionMode = resolveExerciseExecutionMode(ejercicio);
@@ -943,7 +939,7 @@ async function loadExercisesFromSessions() {
                 if (descriptor) {
                     exercisesWithCount.push({
                         ...descriptor,
-                        sessionCount: count
+                        sessionCount: count,
                     });
                 }
             }
@@ -957,14 +953,14 @@ async function loadExercisesFromSessions() {
         });
 
         return {
-            names: exercisesWithCount.map((exercise) => ({
+            names: exercisesWithCount.map(exercise => ({
                 value: exercise.value,
                 label: exercise.label,
                 name: exercise.name,
                 executionMode: exercise.executionMode,
-                loadType: exercise.loadType
+                loadType: exercise.loadType,
             })),
-            withCounts: exercisesWithCount
+            withCounts: exercisesWithCount,
         };
     } catch (error) {
         logger.error('Error in fallback exercise loading:', error);

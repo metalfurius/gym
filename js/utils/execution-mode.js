@@ -2,13 +2,7 @@ import { t } from '../i18n.js';
 
 export const DEFAULT_EXECUTION_MODE = 'two_hand';
 
-export const EXECUTION_MODE_VALUES = [
-    'one_hand',
-    'two_hand',
-    'machine',
-    'pulley',
-    'other'
-];
+export const EXECUTION_MODE_VALUES = ['one_hand', 'two_hand', 'machine', 'pulley', 'other'];
 
 export function normalizeExecutionMode(value) {
     const normalized = (value || '').toString().trim().toLowerCase();
@@ -17,10 +11,7 @@ export function normalizeExecutionMode(value) {
 
 export function resolveExerciseExecutionMode(exercise = {}) {
     return normalizeExecutionMode(
-        exercise.modoEjecucion
-        ?? exercise.executionMode
-        ?? exercise.execution_mode
-        ?? exercise.modo
+        exercise.modoEjecucion ?? exercise.executionMode ?? exercise.execution_mode ?? exercise.modo
     );
 }
 
@@ -31,7 +22,7 @@ export function getExecutionModeLabel(value) {
         two_hand: 'execution_mode.two_hand',
         machine: 'execution_mode.machine',
         pulley: 'execution_mode.pulley',
-        other: 'execution_mode.other'
+        other: 'execution_mode.other',
     };
     const key = keyByMode[mode] || keyByMode.other;
     return t(key);

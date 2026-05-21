@@ -339,16 +339,16 @@
         padding: 10px;
         margin: 8px 0;
     }
-    
+
     .last-workout-details {
         gap: 6px;
     }
-    
+
     .last-set {
         font-size: 0.8em;
         padding: 3px 6px;
     }
-    
+
     .cache-status {
         bottom: 15px;
         right: 15px;
@@ -361,47 +361,47 @@
         padding: 16px;
         max-height: 85vh;
     }
-    
+
     .stats-summary {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
+
     .exercise-stat-row {
         grid-template-columns: 1fr;
         gap: 8px;
         text-align: center;
     }
-    
+
     .stat-number {
         font-size: 1.5em;
     }
 }
 
 /* Dark mode adjustments */
-[data-theme="dark"] .last-workout-info {
+[data-theme='dark'] .last-workout-info {
     background: var(--card-bg-dark);
     border-color: var(--border-color-dark);
 }
 
-[data-theme="dark"] .exercise-suggestion {
+[data-theme='dark'] .exercise-suggestion {
     background: rgba(67, 97, 238, 0.1);
     border-color: rgba(67, 97, 238, 0.3);
 }
 
-[data-theme="dark"] .no-exercise-history {
+[data-theme='dark'] .no-exercise-history {
     background: rgba(108, 117, 125, 0.05);
     border-color: var(--border-color-dark);
 }
 
-[data-theme="dark"] .stats-modal {
+[data-theme='dark'] .stats-modal {
     background: var(--card-bg-dark);
 }
 
-[data-theme="dark"] .cache-info {
+[data-theme='dark'] .cache-info {
     background: rgba(108, 117, 125, 0.05);
 }
 
-[data-theme="dark"] .stats-modal-overlay {
+[data-theme='dark'] .stats-modal-overlay {
     background: rgba(0, 0, 0, 0.8) !important;
 }

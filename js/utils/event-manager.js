@@ -30,7 +30,7 @@ class EventManager {
 
         element.addEventListener(event, handler, options);
         this.listeners.get(viewName).push({ element, event, handler, options });
-        
+
         logger.debug(`EventManager: Added ${event} listener for view ${viewName}`);
     }
 
@@ -78,7 +78,7 @@ class EventManager {
         if (viewName) {
             return this.listeners.get(viewName)?.length || 0;
         }
-        
+
         let total = 0;
         for (const listeners of this.listeners.values()) {
             total += listeners.length;

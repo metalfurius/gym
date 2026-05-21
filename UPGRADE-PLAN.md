@@ -1,21 +1,23 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: April 22, 2026
+Last updated: May 21, 2026
 
 ## Purpose
 
 This file is the single source of truth for product and technical priorities.
-Execution has started. This document is kept synchronized with completed implementation milestones.
+The March-May stabilization cycle is closed. This document now tracks completed milestones plus the active post-cycle stabilization and v1.1 optimization work.
 
-## Current Baseline (verified March 29, 2026)
+## Current Baseline (verified May 21, 2026)
 
-- [done] `npm run lint:ratchet` passes (zero warnings).
-- [done] `npm run test:app` passes (app journey suites green).
-- [done] `npm run test:coverage:gate` passes at 67.50% statements coverage.
-- [done] 650 automated tests pass locally.
-- [done] Staged coverage ratchet is enforced by tooling (`scripts/coverage-gate.mjs` + CI workflow).
+- [done] `npm run lint:errors` passes.
+- [done] `npm run test:no-skips` passes.
+- [done] Unit test suite passes locally.
+- [done] `npm run test:app:offline` passes after weekly-target replay timestamp hardening.
+- [done] `npm run test:app:only` passes with Daily Hub repeated-refresh read verification.
+- [done] `npm run coverage:gate` passes at >= 70% statements coverage.
+- [active] `format:check` is becoming a blocking merge gate through the deterministic `merge-ready` contract.
 
-## Six-Week Strategy (March 30, 2026 to May 10, 2026)
+## Completed Six-Week Strategy (March 30, 2026 to May 10, 2026)
 
 Execution split:
 
@@ -92,9 +94,11 @@ Execution split:
 
 ## Post-Cycle Prioritized Feature Queue (starting May 11, 2026)
 
-1. Implement "Read-Optimized Weekly Consistency (v1.1)" (`docs/read-optimized-weekly-consistency-plan.md`) to reduce Firestore reads via local-first streak computation and bounded sync strategy.
-2. Feature/Fun backlog refresh after weekly-streak milestone validation.
-3. Streaks/challenges/social mechanics discovery and sizing.
+1. Stabilize merge readiness: deterministic `merge-ready`, blocking format check, weekly replay timestamp preservation, and documentation alignment.
+2. Implement "Read-Optimized Weekly Consistency (v1.1)" (`docs/read-optimized-weekly-consistency-plan.md`) to reduce repeated Daily Hub Firestore reads via local-first session caching and bounded sync strategy.
+3. Handle Dependabot maintenance PRs separately from feature work (`#67` dev dependencies, `#70` GitHub Actions).
+4. Refresh Feature/Fun backlog after v1.1 validation.
+5. Size streaks/challenges/social mechanics discovery after gates remain green.
 
 ## Hard Exit Criteria for Post-Cycle Implementation
 
@@ -102,7 +106,7 @@ All criteria are required:
 
 1. `npm run lint:ratchet` remains green.
 2. `npm run test:app` remains green.
-3. Coverage reaches and holds >= 70% at end of Week 6.
+3. Coverage reaches and holds >= 70%.
 4. Data contract and migration rules are documented and approved.
 5. No unresolved contradiction remains between `done`, `planned`, and `deferred` items.
 

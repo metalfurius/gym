@@ -2,7 +2,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut as firebaseSignOut,
-    onAuthStateChanged
+    onAuthStateChanged,
 } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
 import { auth } from './firebase-config.js';
 import {
@@ -12,7 +12,7 @@ import {
     displayAuthSuccess,
     clearAuthMessages,
     authElements,
-    dashboardElements
+    dashboardElements,
 } from './ui.js';
 import { clearInProgressSession } from './modules/session-manager.js';
 import { initializeAppAfterAuth } from './app.js';
@@ -27,14 +27,22 @@ export function getCurrentUser() {
 
 function getFriendlyAuthErrorMessage(error) {
     switch (error.code) {
-        case 'auth/invalid-email': return t('auth.errors.invalid_email');
-        case 'auth/user-disabled': return t('auth.errors.user_disabled');
-        case 'auth/user-not-found': return t('auth.errors.user_not_found');
-        case 'auth/wrong-password': return t('auth.errors.wrong_password');
-        case 'auth/email-already-in-use': return t('auth.errors.email_already_in_use');
-        case 'auth/weak-password': return t('auth.errors.weak_password');
-        case 'auth/operation-not-allowed': return t('auth.errors.operation_not_allowed');
-        case 'auth/missing-password': return t('auth.errors.missing_password');
+        case 'auth/invalid-email':
+            return t('auth.errors.invalid_email');
+        case 'auth/user-disabled':
+            return t('auth.errors.user_disabled');
+        case 'auth/user-not-found':
+            return t('auth.errors.user_not_found');
+        case 'auth/wrong-password':
+            return t('auth.errors.wrong_password');
+        case 'auth/email-already-in-use':
+            return t('auth.errors.email_already_in_use');
+        case 'auth/weak-password':
+            return t('auth.errors.weak_password');
+        case 'auth/operation-not-allowed':
+            return t('auth.errors.operation_not_allowed');
+        case 'auth/missing-password':
+            return t('auth.errors.missing_password');
         default:
             logger.error('Unhandled Auth Error:', error);
             return t('auth.errors.generic');
@@ -63,7 +71,10 @@ export async function handleEmailSignup(event) {
         displayAuthSuccess(t('auth.signup_success'));
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+        if (
+            error.message &&
+            (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+        ) {
             import('./app.js').then(module => {
                 if (module.loadFirebaseDiagnostics) {
                     module.loadFirebaseDiagnostics();
@@ -94,7 +105,10 @@ export async function handleEmailLogin(event) {
         displayAuthSuccess(t('auth.login_success'));
     } catch (error) {
         displayAuthError(getFriendlyAuthErrorMessage(error));
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
+        if (
+            error.message &&
+            (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))
+        ) {
             import('./app.js').then(module => {
                 if (module.loadFirebaseDiagnostics) {
                     module.loadFirebaseDiagnostics();
@@ -129,7 +143,7 @@ if (authElements.signupBtn) {
     logger.error('Signup button not found for attaching event listener.');
 }
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async user => {
     currentUser = user;
     if (user) {
         logger.info('User logged in:', user.email);
@@ -147,4 +161,3 @@ onAuthStateChanged(auth, async (user) => {
     }
     clearAuthMessages();
 });
-

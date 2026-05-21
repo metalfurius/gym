@@ -47,7 +47,7 @@ export class LocalFirstCache {
         this.initialized = true;
 
         if (this.indexedDbEnabled) {
-            this.dbPromise = this.openDatabase().catch((error) => {
+            this.dbPromise = this.openDatabase().catch(error => {
                 logger.warn('LocalFirstCache: IndexedDB unavailable, falling back to localStorage', error);
                 this.indexedDbEnabled = false;
                 return null;
@@ -209,7 +209,7 @@ export class LocalFirstCache {
             key,
             value,
             metadata: options.metadata || {},
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
         };
 
         this.memoryCache.set(key, entry);
@@ -244,8 +244,8 @@ export class LocalFirstCache {
     async clearByPrefix(prefix) {
         await this.initialize();
 
-        const memoryKeys = Array.from(this.memoryCache.keys()).filter((key) => key.startsWith(prefix));
-        memoryKeys.forEach((key) => {
+        const memoryKeys = Array.from(this.memoryCache.keys()).filter(key => key.startsWith(prefix));
+        memoryKeys.forEach(key => {
             this.memoryCache.delete(key);
             this.deleteFromLocalStorage(key);
         });
@@ -255,10 +255,10 @@ export class LocalFirstCache {
         try {
             const entries = await this.getAllFromIndexedDb();
             const keys = entries
-                .filter((entry) => entry && typeof entry.key === 'string' && entry.key.startsWith(prefix))
-                .map((entry) => entry.key);
+                .filter(entry => entry && typeof entry.key === 'string' && entry.key.startsWith(prefix))
+                .map(entry => entry.key);
 
-            await Promise.all(keys.map((key) => this.deleteFromIndexedDb(key)));
+            await Promise.all(keys.map(key => this.deleteFromIndexedDb(key)));
         } catch (error) {
             logger.warn('LocalFirstCache: clearByPrefix failed', error);
         }
@@ -269,7 +269,7 @@ export class LocalFirstCache {
 
         const keys = Array.from(this.memoryCache.keys());
         this.memoryCache.clear();
-        keys.forEach((key) => this.deleteFromLocalStorage(key));
+        keys.forEach(key => this.deleteFromLocalStorage(key));
 
         if (!this.indexedDbEnabled) return;
 

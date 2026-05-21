@@ -69,9 +69,9 @@ export async function loadCacheInfo() {
         const cacheStats = exerciseCache.getCacheStats();
         const storageEstimate = await storageManager.getStorageEstimate();
         const firebaseUsage = firebaseUsageTracker.getSummary();
-        
+
         let html = '<div class="cache-stats">';
-        
+
         // Exercise cache stats
         html += `
             <div class="cache-stat-item">
@@ -87,7 +87,7 @@ export async function loadCacheInfo() {
                 <span class="cache-stat-value">${formatBytes(cacheStats.cacheSize)}</span>
             </div>
         `;
-        
+
         if (cacheStats.newestEntry) {
             html += `
                 <div class="cache-stat-item">
@@ -96,7 +96,7 @@ export async function loadCacheInfo() {
                 </div>
             `;
         }
-        
+
         if (cacheStats.oldestEntry) {
             const daysOfHistory = Math.floor((Date.now() - cacheStats.oldestEntry.getTime()) / (1000 * 60 * 60 * 24));
             html += `
@@ -106,7 +106,7 @@ export async function loadCacheInfo() {
                 </div>
             `;
         }
-        
+
         // Storage API stats
         if (storageEstimate) {
             html += `
@@ -148,14 +148,14 @@ export async function loadCacheInfo() {
 
         if (firebaseUsage.topOperations.length > 0) {
             html += `<div class="firebase-usage-list"><strong>${t('settings.cache_stat_expensive_ops')}</strong><ul>`;
-            firebaseUsage.topOperations.forEach((operation) => {
+            firebaseUsage.topOperations.forEach(operation => {
                 html += `<li>${operation.type} - ${operation.operation}: ${operation.total}</li>`;
             });
             html += '</ul></div>';
         }
-        
+
         html += '</div>';
-        
+
         cacheInfoContainer.innerHTML = html;
     } catch (error) {
         logger.error('Error loading cache info:', error);
@@ -172,7 +172,7 @@ export function showSettingsModal() {
     if (!settingsModal) {
         settingsModal = document.getElementById('settings-modal');
     }
-    
+
     if (settingsModal) {
         settingsModal.style.display = 'block';
         loadCacheInfo();
@@ -186,7 +186,7 @@ export function hideSettingsModal() {
     if (!settingsModal) {
         settingsModal = document.getElementById('settings-modal');
     }
-    
+
     if (settingsModal) {
         settingsModal.style.display = 'none';
     }
@@ -197,18 +197,18 @@ export function hideSettingsModal() {
  */
 export async function clearExerciseCache() {
     const confirmMessage = t('settings.clear_cache_confirm');
-    
+
     if (!confirm(confirmMessage)) {
         return;
     }
-    
+
     try {
         const { exerciseCache } = await import('../exercise-cache.js');
         exerciseCache.clearCache();
-        
+
         // Reload cache info to show empty state
         await loadCacheInfo();
-        
+
         toast.success(t('settings.cache_cleared'));
     } catch (error) {
         logger.error('Error clearing cache:', error);
@@ -254,7 +254,7 @@ export function initSettings() {
 
     // Close settings modal when clicking outside
     if (settingsModal) {
-        handleWindowClick = (event) => {
+        handleWindowClick = event => {
             if (event.target === settingsModal) {
                 hideSettingsModal();
             }
@@ -337,7 +337,5 @@ export default {
     hide: hideSettingsModal,
     loadCacheInfo,
     clearCache: clearExerciseCache,
-    formatBytes
+    formatBytes,
 };
-
-

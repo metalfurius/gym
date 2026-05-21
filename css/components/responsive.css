@@ -1,7 +1,8 @@
 /* --- Responsive Adjustments --- */
 @media (min-width: 480px) {
     /* Auth View: Buttons side-by-side */
-    #auth-view .auth-buttons { /* Más específico para evitar afectar otros .auth-buttons si existieran */
+    #auth-view .auth-buttons {
+        /* Más específico para evitar afectar otros .auth-buttons si existieran */
         display: flex;
         flex-direction: row;
         gap: var(--spacing-md);
@@ -9,7 +10,7 @@
     #auth-view .auth-buttons button {
         flex: 1; /* Para que ocupen el mismo espacio si son dos */
     }
-    
+
     /* Routine Editor: Buttons side-by-side */
     #routine-editor-form .form-buttons-group {
         display: flex;

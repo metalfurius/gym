@@ -201,6 +201,7 @@ describe('App Offline Recovery Journey', () => {
         expect(preferencesDocs.find((entry) => entry.id === 'user_preferences')).toBeUndefined();
         expect(offlineManager.getPendingCount()).toBe(1);
         expect(queuedUpdatedAtIso).toBeDefined();
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toContain('/5');
 
         setOnline(true);
         await waitForUi(500);

@@ -19,7 +19,7 @@
     color: var(--text-secondary-color);
 }
 
-.user-weight-input input[type="number"] {
+.user-weight-input input[type='number'] {
     margin-bottom: 0; /* Quitar margen inferior si es el único elemento */
     background-color: var(--input-bg); /* Asegurar consistencia con otros inputs */
 }

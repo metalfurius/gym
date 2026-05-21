@@ -1,7 +1,7 @@
 # Weekly Consistency Streaks Plan
 
-Last updated: April 22, 2026  
-Status: Implemented on branch (pending merge to `main`)
+Last updated: May 21, 2026
+Status: Implemented and merged via PR `#75`
 
 ## Purpose
 
@@ -13,7 +13,7 @@ Define the current major feature milestone after Session Variants + ES/EN:
 
 ## Delivered
 
-This milestone is implemented on branch with the following behaviors:
+This milestone is implemented on `main` with the following behaviors:
 
 1. Daily Hub weekly metrics are implemented (`this-week progress`, `current weekly streak`, `best weekly streak`).
 2. Weekly model is implemented with Monday-based weeks, distinct active-day counting, and a rolling 52-week analysis window.

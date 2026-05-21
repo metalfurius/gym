@@ -18,7 +18,11 @@
     opacity: 0;
     visibility: hidden;
     transform: translateY(20px);
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background-color 0.2s ease;
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease,
+        visibility 0.3s ease,
+        background-color 0.2s ease;
     padding: 0; /* Reset padding para mejor centrado */
     -webkit-tap-highlight-color: transparent; /* Eliminar highlight en toque móvil */
 }
@@ -45,7 +49,8 @@
 }
 
 /* Ajuste para móviles */
-@media (max-width: 767px) { /* Usar max-width para aplicar a pantallas más pequeñas que 768px */
+@media (max-width: 767px) {
+    /* Usar max-width para aplicar a pantallas más pequeñas que 768px */
     #scroll-to-top-btn {
         bottom: 20px; /* Puede ser necesario ajustar si el footer es muy alto */
         right: 20px;

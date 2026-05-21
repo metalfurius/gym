@@ -3,7 +3,13 @@
  * Provides a reusable pagination implementation for Firestore queries
  */
 
-import { query, orderBy, limit, startAfter, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import {
+    query,
+    orderBy,
+    limit,
+    startAfter,
+    getDocs,
+} from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -38,7 +44,7 @@ export class Pagination {
         this.pageSize = options.pageSize || 10;
         this.orderByField = options.orderByField || 'createdAt';
         this.orderDirection = options.orderDirection || 'desc';
-        
+
         this.reset();
     }
 
@@ -67,7 +73,7 @@ export class Pagination {
             lastDocSnapshot: this.lastDocSnapshot,
             snapshotStack: [...this.snapshotStack],
             hasNextPage: this.hasNextPage,
-            hasPrevPage: this.hasPrevPage
+            hasPrevPage: this.hasPrevPage,
         };
     }
 
@@ -83,11 +89,7 @@ export class Pagination {
         try {
             if (direction === 'initial') {
                 this.reset();
-                q = query(
-                    collectionRef, 
-                    orderBy(this.orderByField, this.orderDirection), 
-                    limit(this.pageSize)
-                );
+                q = query(collectionRef, orderBy(this.orderByField, this.orderDirection), limit(this.pageSize));
             } else if (direction === 'next' && this.lastDocSnapshot) {
                 q = query(
                     collectionRef,
@@ -100,7 +102,7 @@ export class Pagination {
                 if (this.snapshotStack.length > 0) {
                     this.snapshotStack.pop();
                     const prevPageStartAfterDoc = this.snapshotStack.pop();
-                    
+
                     if (prevPageStartAfterDoc) {
                         q = query(
                             collectionRef,
@@ -109,11 +111,7 @@ export class Pagination {
                             limit(this.pageSize)
                         );
                     } else {
-                        q = query(
-                            collectionRef,
-                            orderBy(this.orderByField, this.orderDirection),
-                            limit(this.pageSize)
-                        );
+                        q = query(collectionRef, orderBy(this.orderByField, this.orderDirection), limit(this.pageSize));
                     }
                     this.currentPage--;
                 } else {
@@ -125,19 +123,19 @@ export class Pagination {
 
             const querySnapshot = await getDocs(q);
             const items = [];
-            
-            querySnapshot.forEach((docSnap) => {
+
+            querySnapshot.forEach(docSnap => {
                 items.push({ id: docSnap.id, ...docSnap.data() });
             });
 
             // Update pagination state
             if (querySnapshot.docs.length > 0) {
                 const firstDoc = querySnapshot.docs[0];
-                
+
                 if (direction === 'initial') {
                     this.snapshotStack.push(null);
                 }
-                
+
                 if (direction !== 'prev' || querySnapshot.docs.length > 0) {
                     this.snapshotStack.push(firstDoc);
                 }
@@ -156,11 +154,10 @@ export class Pagination {
             // Update navigation flags
             this.hasNextPage = querySnapshot.docs.length >= this.pageSize;
             this.hasPrevPage = this.currentPage > 1 && this.snapshotStack.length > 1;
-            
+
             this.cachedItems = [...items];
 
             return { items, state: this.getState() };
-            
         } catch (error) {
             logger.error('Pagination fetch error:', error);
             throw error;
@@ -197,9 +194,7 @@ export class Pagination {
      * @returns {Promise<PaginationResult>}
      */
     async refresh(collectionRef) {
-        const startAfterDoc = this.snapshotStack.length > 1 
-            ? this.snapshotStack[this.snapshotStack.length - 2] 
-            : null;
+        const startAfterDoc = this.snapshotStack.length > 1 ? this.snapshotStack[this.snapshotStack.length - 2] : null;
 
         let q;
         if (startAfterDoc) {
@@ -210,18 +205,14 @@ export class Pagination {
                 limit(this.pageSize)
             );
         } else {
-            q = query(
-                collectionRef,
-                orderBy(this.orderByField, this.orderDirection),
-                limit(this.pageSize)
-            );
+            q = query(collectionRef, orderBy(this.orderByField, this.orderDirection), limit(this.pageSize));
         }
 
         try {
             const querySnapshot = await getDocs(q);
             const items = [];
-            
-            querySnapshot.forEach((docSnap) => {
+
+            querySnapshot.forEach(docSnap => {
                 items.push({ id: docSnap.id, ...docSnap.data() });
             });
 
@@ -237,7 +228,6 @@ export class Pagination {
             this.cachedItems = [...items];
 
             return { items, state: this.getState() };
-            
         } catch (error) {
             logger.error('Pagination refresh error:', error);
             throw error;

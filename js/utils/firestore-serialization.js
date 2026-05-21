@@ -24,7 +24,7 @@ function timestampLikeFromIso(isoString) {
     if (!isoString) return null;
 
     return {
-        toDate: () => new Date(isoString)
+        toDate: () => new Date(isoString),
     };
 }
 
@@ -40,7 +40,7 @@ export function serializeRoutineForCache(routine) {
         name: routine.name,
         exercises: Array.isArray(routine.exercises) ? routine.exercises : [],
         createdAtIso: extractIsoDate(routine.createdAt),
-        updatedAtIso: extractIsoDate(routine.updatedAt)
+        updatedAtIso: extractIsoDate(routine.updatedAt),
     };
 }
 
@@ -50,7 +50,7 @@ export function deserializeRoutineFromCache(cachedRoutine) {
         name: cachedRoutine.name,
         exercises: Array.isArray(cachedRoutine.exercises) ? cachedRoutine.exercises : [],
         createdAt: timestampLikeFromIso(cachedRoutine.createdAtIso),
-        updatedAt: timestampLikeFromIso(cachedRoutine.updatedAtIso)
+        updatedAt: timestampLikeFromIso(cachedRoutine.updatedAtIso),
     };
 }
 
@@ -66,7 +66,7 @@ export function serializeSessionForCache(session) {
     const { fecha, ...rest } = session;
     return {
         ...rest,
-        fechaIso: extractIsoDate(fecha)
+        fechaIso: extractIsoDate(fecha),
     };
 }
 
@@ -75,7 +75,7 @@ export function deserializeSessionFromCache(cachedSession) {
 
     return {
         ...rest,
-        fecha: timestampLikeFromIso(fechaIso)
+        fecha: timestampLikeFromIso(fechaIso),
     };
 }
 
@@ -112,7 +112,7 @@ export function fromDbToSessionModel(docData = {}) {
         userId: docData.userId ?? null,
         nombreEntrenamiento: docData.nombreEntrenamiento || docData.diaEntrenamiento || docData.dia || '',
         pesoUsuario: toNumberOrNull(docData.pesoUsuario ?? docData.userWeight),
-        ejercicios: rawExercises.map((exercise) => {
+        ejercicios: rawExercises.map(exercise => {
             const tipoEjercicio = exercise.tipoEjercicio || exercise.type || exercise.tipo || 'strength';
             const mappedExercise = {
                 nombreEjercicio: exercise.nombreEjercicio || exercise.name || exercise.ejercicio || '',
@@ -122,21 +122,21 @@ export function fromDbToSessionModel(docData = {}) {
                 objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
                 notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
                 sets: Array.isArray(exercise.sets)
-                    ? exercise.sets.map((set) => {
-                        const mappedSet = {
-                            peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
-                            reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
-                            tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
-                        };
+                    ? exercise.sets.map(set => {
+                          const mappedSet = {
+                              peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
+                              reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
+                              tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00',
+                          };
 
-                        const totalWeight = toNumberOrNull(set.pesoTotal ?? set.totalWeight ?? set.total_load);
-                        if (totalWeight !== null) {
-                            mappedSet.pesoTotal = totalWeight;
-                        }
+                          const totalWeight = toNumberOrNull(set.pesoTotal ?? set.totalWeight ?? set.total_load);
+                          if (totalWeight !== null) {
+                              mappedSet.pesoTotal = totalWeight;
+                          }
 
-                        return mappedSet;
-                    })
-                    : []
+                          return mappedSet;
+                      })
+                    : [],
             };
 
             if (tipoEjercicio === 'strength') {
@@ -145,7 +145,7 @@ export function fromDbToSessionModel(docData = {}) {
             }
 
             return mappedExercise;
-        })
+        }),
     };
 }
 
@@ -168,7 +168,7 @@ export function fromAppToSessionDbModel(model = {}, options = {}) {
         userId: model.userId ?? null,
         nombreEntrenamiento: model.nombreEntrenamiento || model.diaEntrenamiento || model.dia || '',
         pesoUsuario: toNumberOrNull(model.pesoUsuario),
-        ejercicios: rawExercises.map((exercise) => {
+        ejercicios: rawExercises.map(exercise => {
             const tipoEjercicio = exercise.tipoEjercicio || exercise.type || exercise.tipo || 'strength';
             const mappedExercise = {
                 nombreEjercicio: exercise.nombreEjercicio || exercise.name || exercise.ejercicio || '',
@@ -178,21 +178,21 @@ export function fromAppToSessionDbModel(model = {}, options = {}) {
                 objetivoDuracion: exercise.objetivoDuracion ?? exercise.targetDuration ?? null,
                 notasEjercicio: exercise.notasEjercicio ?? exercise.notes ?? '',
                 sets: Array.isArray(exercise.sets)
-                    ? exercise.sets.map((set) => {
-                        const mappedSet = {
-                            peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
-                            reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
-                            tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00'
-                        };
+                    ? exercise.sets.map(set => {
+                          const mappedSet = {
+                              peso: toNumberOrNull(set.peso ?? set.weight) ?? 0,
+                              reps: Math.trunc(toNumberOrNull(set.reps ?? set.repeticiones) ?? 0),
+                              tiempoDescanso: set.tiempoDescanso || set.restTime || '00:00',
+                          };
 
-                        const totalWeight = toNumberOrNull(set.pesoTotal ?? set.totalWeight ?? set.total_load);
-                        if (totalWeight !== null) {
-                            mappedSet.pesoTotal = totalWeight;
-                        }
+                          const totalWeight = toNumberOrNull(set.pesoTotal ?? set.totalWeight ?? set.total_load);
+                          if (totalWeight !== null) {
+                              mappedSet.pesoTotal = totalWeight;
+                          }
 
-                        return mappedSet;
-                    })
-                    : []
+                          return mappedSet;
+                      })
+                    : [],
             };
 
             if (tipoEjercicio === 'strength') {
@@ -201,6 +201,6 @@ export function fromAppToSessionDbModel(model = {}, options = {}) {
             }
 
             return mappedExercise;
-        })
+        }),
     };
 }

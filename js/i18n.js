@@ -6,7 +6,7 @@ export const SUPPORTED_LANGUAGES = ['es', 'en'];
 
 const LOCALES = {
     es: 'es-ES',
-    en: 'en-US'
+    en: 'en-US',
 };
 
 const dictionaries = {
@@ -111,15 +111,18 @@ const dictionaries = {
         'routines.loading': 'Cargando rutinas...',
         'routines.action_requires_login': 'Debes iniciar sesi\u00f3n para realizar esta acci\u00f3n.',
         'routines.export_all': 'Exportar todas las rutinas',
-        'routines.export_confirm': '\u00bfDeseas exportar todas tus rutinas al portapapeles? Se copiar\u00e1 un JSON con todas tus rutinas.',
+        'routines.export_confirm':
+            '\u00bfDeseas exportar todas tus rutinas al portapapeles? Se copiar\u00e1 un JSON con todas tus rutinas.',
         'routines.export_loading': 'Exportando...',
         'routines.export_empty': 'No tienes rutinas para exportar.',
         'routines.export_success': '{count} rutina(s) exportadas al portapapeles.',
-        'routines.export_error_clipboard': 'Error: no se pudo acceder al portapapeles. Verifica permisos del navegador.',
+        'routines.export_error_clipboard':
+            'Error: no se pudo acceder al portapapeles. Verifica permisos del navegador.',
         'routines.export_error': 'Error al exportar las rutinas.',
         'routines.delete_all': 'Borrar todas las rutinas',
         'routines.delete_all_empty': 'No tienes rutinas para borrar.',
-        'routines.delete_all_confirm': 'ATENCI\u00d3N: Vas a borrar TODAS tus {count} rutina(s) de forma permanente.\n\n\u00bfSeguro? Esta acci\u00f3n NO se puede deshacer.',
+        'routines.delete_all_confirm':
+            'ATENCI\u00d3N: Vas a borrar TODAS tus {count} rutina(s) de forma permanente.\n\n\u00bfSeguro? Esta acci\u00f3n NO se puede deshacer.',
         'routines.delete_all_prompt': 'Para confirmar, escribe "BORRAR TODO" (en may\u00fasculas):',
         'routines.delete_all_prompt_keyword': 'BORRAR TODO',
         'routines.delete_all_cancelled': 'Cancelado. No se borraron las rutinas.',
@@ -134,7 +137,8 @@ const dictionaries = {
         'routines.save_error': 'Error al guardar la rutina.',
         'routines.cancel_edit_confirm': '\u00bfCancelar edici\u00f3n? Los cambios no guardados se perder\u00e1n.',
         'routines.not_found': 'Rutina no encontrada para eliminar.',
-        'routines.delete_confirm': '\u00bfEst\u00e1s seguro de que quieres eliminar la rutina "{name}"? Esta acci\u00f3n no se puede deshacer.',
+        'routines.delete_confirm':
+            '\u00bfEst\u00e1s seguro de que quieres eliminar la rutina "{name}"? Esta acci\u00f3n no se puede deshacer.',
         'routines.delete_loading': 'Eliminando...',
         'routines.delete_success': 'Rutina eliminada con \u00e9xito.',
         'routines.delete_error': 'Error al eliminar la rutina.',
@@ -143,7 +147,8 @@ const dictionaries = {
         'routines.empty_description': 'Crea una rutina nueva o prueba nuestras rutinas de muestra.',
         'routines.exercise_count': '{count} ejercicio(s)',
         'routines.edit': 'Editar',
-        'routines.fetch_offline': 'No se pueden cargar las rutinas sin conexi\u00f3n. Se reintentar\u00e1 cuando vuelvas a estar en l\u00ednea.',
+        'routines.fetch_offline':
+            'No se pueden cargar las rutinas sin conexi\u00f3n. Se reintentar\u00e1 cuando vuelvas a estar en l\u00ednea.',
 
         'routines.editor_create_title': 'Crear nueva rutina',
         'routines.editor_edit_title': 'Editar rutina',
@@ -172,15 +177,18 @@ const dictionaries = {
         'session.cancel': 'Cancelar sesi\u00f3n',
         'session.no_active_routine': 'Error: no hay rutina activa o no has iniciado sesi\u00f3n.',
         'session.saved_busy': 'Ya se est\u00e1 guardando la sesi\u00f3n. Espera un momento.',
-        'session.save_no_data': 'No se registraron datos para ning\u00fan ejercicio. Introduce datos o notas para guardar la sesi\u00f3n.',
-        'session.saved_when_online': 'Sin conexi\u00f3n. La sesi\u00f3n se guardar\u00e1 autom\u00e1ticamente al recuperar Internet.',
+        'session.save_no_data':
+            'No se registraron datos para ning\u00fan ejercicio. Introduce datos o notas para guardar la sesi\u00f3n.',
+        'session.saved_when_online':
+            'Sin conexi\u00f3n. La sesi\u00f3n se guardar\u00e1 autom\u00e1ticamente al recuperar Internet.',
         'session.saved_success': 'Sesi\u00f3n guardada con \u00e9xito.',
         'session.saved_queued': 'Sesi\u00f3n en cola. Se guardar\u00e1 cuando vuelvas a estar en l\u00ednea.',
         'session.save_error': 'Error al guardar la sesi\u00f3n.',
         'session.resume_available': 'Tienes una sesi\u00f3n de "{name}" sin guardar.',
         'session.start_routine_not_found': 'Rutina no encontrada. Selecciona otra.',
         'session.discard_other_confirm': 'Tienes otra sesi\u00f3n en progreso. \u00bfDescartarla y empezar esta nueva?',
-        'session.cancel_confirm': '\u00bfEst\u00e1s seguro de que quieres cancelar? Se perder\u00e1n los datos no guardados.',
+        'session.cancel_confirm':
+            '\u00bfEst\u00e1s seguro de que quieres cancelar? Se perder\u00e1n los datos no guardados.',
         'session.invalid_routine_data': 'Error: datos de la rutina no v\u00e1lidos.',
         'session.user_weight': 'Tu peso hoy (kg):',
         'session.user_weight_placeholder': 'Introduce tu peso (kg)',
@@ -190,7 +198,8 @@ const dictionaries = {
         'session.target_time_distance': 'Tiempo/Distancia',
         'session.target_complete': 'Completar',
         'session.bodyweight_hint': 'Carga de peso corporal: usa negativo para asistido y positivo para lastre.',
-        'session.first_time_exercise': 'Primera vez haciendo este ejercicio. Registra tus datos para futuras referencias.',
+        'session.first_time_exercise':
+            'Primera vez haciendo este ejercicio. Registra tus datos para futuras referencias.',
         'session.last_workout': '\u00daltimo entrenamiento',
         'session.time_today': 'hoy',
         'session.time_yesterday': 'ayer',
@@ -262,7 +271,8 @@ const dictionaries = {
         'history.page': 'P\u00e1g. {page}',
         'history.page_cached': 'P\u00e1g. {page} (cache)',
         'history.this_session': 'esta sesi\u00f3n',
-        'history.delete_confirm': '\u00bfEst\u00e1s seguro de que quieres eliminar "{name}"? Esta acci\u00f3n no se puede deshacer.',
+        'history.delete_confirm':
+            '\u00bfEst\u00e1s seguro de que quieres eliminar "{name}"? Esta acci\u00f3n no se puede deshacer.',
         'history.delete_success': 'Sesi\u00f3n eliminada correctamente.',
         'history.delete_error': 'Error al eliminar la sesi\u00f3n.',
 
@@ -282,7 +292,8 @@ const dictionaries = {
         'progress.session_count': 'Sesiones registradas',
         'progress.trend': 'Tendencia',
         'progress.no_data_title': 'Datos insuficientes',
-        'progress.no_data_message': 'Selecciona un ejercicio con al menos 3 entrenamientos registrados para ver tu progreso.',
+        'progress.no_data_message':
+            'Selecciona un ejercicio con al menos 3 entrenamientos registrados para ver tu progreso.',
         'progress.select_placeholder': '-- Selecciona un ejercicio --',
         'progress.loading_exercises': '-- Cargando ejercicios... --',
         'progress.no_history': 'No hay ejercicios en el historial',
@@ -301,27 +312,33 @@ const dictionaries = {
 
         'settings.title': 'Ajustes',
         'settings.weekly_goal_title': 'Objetivo semanal',
-        'settings.weekly_goal_help': 'Define cu\u00e1ntos d\u00edas por semana quieres entrenar. Tu racha semanal se calcula con este objetivo.',
+        'settings.weekly_goal_help':
+            'Define cu\u00e1ntos d\u00edas por semana quieres entrenar. Tu racha semanal se calcula con este objetivo.',
         'settings.weekly_goal_label': 'D\u00edas objetivo por semana',
         'settings.weekly_goal_save_btn': 'Guardar objetivo semanal',
         'settings.weekly_goal_saved': 'Objetivo semanal guardado.',
-        'settings.weekly_goal_saved_queued': 'Objetivo semanal en cola. Se sincronizar\u00e1 al recuperar conexi\u00f3n.',
+        'settings.weekly_goal_saved_queued':
+            'Objetivo semanal en cola. Se sincronizar\u00e1 al recuperar conexi\u00f3n.',
         'settings.weekly_goal_save_error': 'Error al guardar el objetivo semanal.',
         'settings.weekly_goal_requires_login': 'Debes iniciar sesi\u00f3n para guardar el objetivo semanal.',
-        'settings.weekly_goal_save_offline': 'Sin conexi\u00f3n. El objetivo semanal se guardar\u00e1 al volver a estar en l\u00ednea.',
+        'settings.weekly_goal_save_offline':
+            'Sin conexi\u00f3n. El objetivo semanal se guardar\u00e1 al volver a estar en l\u00ednea.',
         'settings.weekly_goal_save_window_closed': 'Solo puedes cambiar el objetivo semanal de lunes a mi\u00e9rcoles.',
         'settings.weekly_goal_save_limit_reached': 'Ya usaste los 3 cambios permitidos para esta semana.',
         'settings.cache_info_title': 'Informaci\u00f3n del cache',
         'settings.cache_info_loading': 'Cargando informaci\u00f3n del cache...',
         'settings.cache_info_error': 'Error al cargar la informaci\u00f3n del cache.',
         'settings.cache_manage_title': 'Gesti\u00f3n del cache',
-        'settings.cache_warning': 'Eliminar el cach\u00e9 borrar\u00e1 los datos de sugerencias guardados localmente. Los datos de tus sesiones en la nube no se ver\u00e1n afectados.',
+        'settings.cache_warning':
+            'Eliminar el cach\u00e9 borrar\u00e1 los datos de sugerencias guardados localmente. Los datos de tus sesiones en la nube no se ver\u00e1n afectados.',
         'settings.cache_delete_btn': 'Eliminar cache local',
-        'settings.clear_cache_confirm': '\u00bfEst\u00e1s seguro de que quieres eliminar el cach\u00e9 local?\n\nEsto borrar\u00e1 las sugerencias de ejercicios guardadas localmente. Los datos de tus sesiones en la nube no se ver\u00e1n afectados.\n\nEl cach\u00e9 se reconstruir\u00e1 autom\u00e1ticamente la pr\u00f3xima vez que inicies sesi\u00f3n.',
+        'settings.clear_cache_confirm':
+            '\u00bfEst\u00e1s seguro de que quieres eliminar el cach\u00e9 local?\n\nEsto borrar\u00e1 las sugerencias de ejercicios guardadas localmente. Los datos de tus sesiones en la nube no se ver\u00e1n afectados.\n\nEl cach\u00e9 se reconstruir\u00e1 autom\u00e1ticamente la pr\u00f3xima vez que inicies sesi\u00f3n.',
         'settings.cache_cleared': 'Cache eliminado correctamente',
         'settings.cache_clear_error': 'Error al eliminar el cache',
         'settings.firebase_usage_title': 'Uso de Firebase',
-        'settings.firebase_usage_warning': 'Estas m\u00e9tricas muestran el uso estimado de la sesi\u00f3n actual para identificar lecturas y escrituras costosas.',
+        'settings.firebase_usage_warning':
+            'Estas m\u00e9tricas muestran el uso estimado de la sesi\u00f3n actual para identificar lecturas y escrituras costosas.',
         'settings.firebase_usage_reset_btn': 'Reiniciar m\u00e9tricas Firebase',
         'settings.firebase_metrics_reset': 'M\u00e9tricas de Firebase reiniciadas',
         'settings.cache_stat_exercise_count': 'Ejercicios en cache:',
@@ -339,7 +356,8 @@ const dictionaries = {
         'settings.cache_stat_expensive_ops': 'Operaciones mas costosas:',
 
         'version.force_update': 'Actualizar',
-        'version.force_update_confirm': '\u00bfEst\u00e1s seguro de que quieres forzar la actualizaci\u00f3n de la aplicaci\u00f3n? Esto limpiar\u00e1 el cach\u00e9 y recargar\u00e1 la p\u00e1gina.',
+        'version.force_update_confirm':
+            '\u00bfEst\u00e1s seguro de que quieres forzar la actualizaci\u00f3n de la aplicaci\u00f3n? Esto limpiar\u00e1 el cach\u00e9 y recargar\u00e1 la p\u00e1gina.',
         'version.updated_title': 'Aplicaci\u00f3n actualizada',
         'version.updated_message': 'Version {version} instalada correctamente',
         'version.force_update_loading': 'Actualizando...',
@@ -386,7 +404,7 @@ const dictionaries = {
         'theme.ocean_description': 'Azules profundos del oc\u00e9ano',
 
         'footer.contact': 'Para sugerencias o errores:',
-        'footer.copyright': '\u00a9 2025 My Workout Tracker. Hecho para mantenerte en forma.'
+        'footer.copyright': '\u00a9 2025 My Workout Tracker. Hecho para mantenerte en forma.',
     },
     en: {
         'app.name': 'My Workout Tracker',
@@ -489,7 +507,8 @@ const dictionaries = {
         'routines.loading': 'Loading routines...',
         'routines.action_requires_login': 'You must sign in to perform this action.',
         'routines.export_all': 'Export all routines',
-        'routines.export_confirm': 'Do you want to export all your routines to the clipboard? A JSON payload will be copied.',
+        'routines.export_confirm':
+            'Do you want to export all your routines to the clipboard? A JSON payload will be copied.',
         'routines.export_loading': 'Exporting...',
         'routines.export_empty': 'You have no routines to export.',
         'routines.export_success': '{count} routine(s) exported to clipboard.',
@@ -497,7 +516,8 @@ const dictionaries = {
         'routines.export_error': 'Error exporting routines.',
         'routines.delete_all': 'Delete all routines',
         'routines.delete_all_empty': 'You have no routines to delete.',
-        'routines.delete_all_confirm': 'WARNING: You are about to permanently delete ALL your {count} routine(s).\n\nAre you sure? This cannot be undone.',
+        'routines.delete_all_confirm':
+            'WARNING: You are about to permanently delete ALL your {count} routine(s).\n\nAre you sure? This cannot be undone.',
         'routines.delete_all_prompt': 'To confirm, type "DELETE ALL" (uppercase):',
         'routines.delete_all_prompt_keyword': 'DELETE ALL',
         'routines.delete_all_cancelled': 'Cancelled. No routines were deleted.',
@@ -679,7 +699,8 @@ const dictionaries = {
 
         'settings.title': 'Settings',
         'settings.weekly_goal_title': 'Weekly target',
-        'settings.weekly_goal_help': 'Set how many days per week you want to train. Your weekly streak is computed against this goal.',
+        'settings.weekly_goal_help':
+            'Set how many days per week you want to train. Your weekly streak is computed against this goal.',
         'settings.weekly_goal_label': 'Target days per week',
         'settings.weekly_goal_save_btn': 'Save weekly target',
         'settings.weekly_goal_saved': 'Weekly target saved.',
@@ -693,13 +714,16 @@ const dictionaries = {
         'settings.cache_info_loading': 'Loading cache information...',
         'settings.cache_info_error': 'Error loading cache information.',
         'settings.cache_manage_title': 'Cache management',
-        'settings.cache_warning': 'Clearing cache removes locally saved suggestion data. Cloud session data is not affected.',
+        'settings.cache_warning':
+            'Clearing cache removes locally saved suggestion data. Cloud session data is not affected.',
         'settings.cache_delete_btn': 'Clear local cache',
-        'settings.clear_cache_confirm': 'Are you sure you want to clear local cache?\n\nThis removes locally saved exercise suggestions. Cloud session data is not affected.\n\nCache will be rebuilt automatically the next time you sign in.',
+        'settings.clear_cache_confirm':
+            'Are you sure you want to clear local cache?\n\nThis removes locally saved exercise suggestions. Cloud session data is not affected.\n\nCache will be rebuilt automatically the next time you sign in.',
         'settings.cache_cleared': 'Cache cleared successfully',
         'settings.cache_clear_error': 'Error clearing cache',
         'settings.firebase_usage_title': 'Firebase usage',
-        'settings.firebase_usage_warning': 'These metrics show estimated usage for the current session to identify expensive reads/writes.',
+        'settings.firebase_usage_warning':
+            'These metrics show estimated usage for the current session to identify expensive reads/writes.',
         'settings.firebase_usage_reset_btn': 'Reset Firebase metrics',
         'settings.firebase_metrics_reset': 'Firebase metrics reset',
         'settings.cache_stat_exercise_count': 'Exercises in cache:',
@@ -717,7 +741,8 @@ const dictionaries = {
         'settings.cache_stat_expensive_ops': 'Most expensive operations:',
 
         'version.force_update': 'Update',
-        'version.force_update_confirm': 'Are you sure you want to force app update? This will clear cache and reload the page.',
+        'version.force_update_confirm':
+            'Are you sure you want to force app update? This will clear cache and reload the page.',
         'version.updated_title': 'Application updated',
         'version.updated_message': 'Version {version} installed successfully',
         'version.force_update_loading': 'Updating...',
@@ -764,8 +789,8 @@ const dictionaries = {
         'theme.ocean_description': 'Deep ocean blues',
 
         'footer.contact': 'For suggestions or bugs:',
-        'footer.copyright': '© 2025 My Workout Tracker. Built to keep you in shape.'
-    }
+        'footer.copyright': '© 2025 My Workout Tracker. Built to keep you in shape.',
+    },
 };
 
 let currentLanguage = DEFAULT_LANGUAGE;
@@ -799,14 +824,14 @@ function updateDocumentLanguage() {
 function emitLanguageChange() {
     const detail = {
         language: currentLanguage,
-        locale: getLocale()
+        locale: getLocale(),
     };
 
     if (isBrowser()) {
         window.dispatchEvent(new CustomEvent('languageChanged', { detail }));
     }
 
-    listeners.forEach((listener) => {
+    listeners.forEach(listener => {
         try {
             listener(detail);
         } catch (error) {
@@ -870,7 +895,7 @@ export function registerTranslations(language, translations) {
     const nextEntries = translations && typeof translations === 'object' ? translations : {};
     dictionaries[resolvedLanguage] = {
         ...(dictionaries[resolvedLanguage] || {}),
-        ...nextEntries
+        ...nextEntries,
     };
 }
 
@@ -883,8 +908,7 @@ export function getLocale() {
 }
 
 export function t(key, params = {}) {
-    const value = getDictionaryValue(currentLanguage, key)
-        ?? getDictionaryValue(DEFAULT_LANGUAGE, key);
+    const value = getDictionaryValue(currentLanguage, key) ?? getDictionaryValue(DEFAULT_LANGUAGE, key);
 
     if (value === undefined) {
         if (params && Object.prototype.hasOwnProperty.call(params, 'default')) {
@@ -908,10 +932,11 @@ export function applyTranslations(root = document) {
         applyTranslationToElement(root);
     }
 
-    root.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label], [data-i18n-value]')
-        .forEach((element) => {
-            applyTranslationToElement(element);
-        });
+    root.querySelectorAll(
+        '[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label], [data-i18n-value]'
+    ).forEach(element => {
+        applyTranslationToElement(element);
+    });
 }
 
 export function setLanguage(language, options = {}) {
@@ -939,15 +964,11 @@ export function setLanguage(language, options = {}) {
 }
 
 export function initI18n(options = {}) {
-    const initialLanguage = resolveLanguage(
-        options.language
-        || getStoredLanguage()
-        || DEFAULT_LANGUAGE
-    );
+    const initialLanguage = resolveLanguage(options.language || getStoredLanguage() || DEFAULT_LANGUAGE);
 
     return setLanguage(initialLanguage, {
         persist: options.persist !== false,
-        apply: options.apply !== false
+        apply: options.apply !== false,
     });
 }
 

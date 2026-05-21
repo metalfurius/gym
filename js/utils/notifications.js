@@ -9,7 +9,7 @@ export const NOTIFICATION_TYPES = {
     SUCCESS: 'success',
     ERROR: 'error',
     WARNING: 'warning',
-    INFO: 'info'
+    INFO: 'info',
 };
 
 // Default durations in milliseconds
@@ -17,7 +17,7 @@ const DEFAULT_DURATIONS = {
     [NOTIFICATION_TYPES.SUCCESS]: 3000,
     [NOTIFICATION_TYPES.ERROR]: 5000,
     [NOTIFICATION_TYPES.WARNING]: 4000,
-    [NOTIFICATION_TYPES.INFO]: 3000
+    [NOTIFICATION_TYPES.INFO]: 3000,
 };
 
 // Keep icons ASCII-safe to avoid encoding artifacts in different runtimes.
@@ -25,7 +25,7 @@ const NOTIFICATION_ICONS = {
     [NOTIFICATION_TYPES.SUCCESS]: '[OK]',
     [NOTIFICATION_TYPES.ERROR]: '[X]',
     [NOTIFICATION_TYPES.WARNING]: '[!]',
-    [NOTIFICATION_TYPES.INFO]: '[i]'
+    [NOTIFICATION_TYPES.INFO]: '[i]',
 };
 
 let notificationContainer = null;
@@ -237,21 +237,17 @@ export function hideNotification(notification) {
 export function clearAllNotifications() {
     if (notificationContainer) {
         const notifications = notificationContainer.querySelectorAll('.notification');
-        notifications.forEach((notification) => hideNotification(notification));
+        notifications.forEach(notification => hideNotification(notification));
     }
 }
 
 // Convenience methods
 export const toast = {
-    success: (message, options = {}) =>
-        showNotification(message, NOTIFICATION_TYPES.SUCCESS, options),
-    error: (message, options = {}) =>
-        showNotification(message, NOTIFICATION_TYPES.ERROR, options),
-    warning: (message, options = {}) =>
-        showNotification(message, NOTIFICATION_TYPES.WARNING, options),
-    info: (message, options = {}) =>
-        showNotification(message, NOTIFICATION_TYPES.INFO, options),
-    clear: clearAllNotifications
+    success: (message, options = {}) => showNotification(message, NOTIFICATION_TYPES.SUCCESS, options),
+    error: (message, options = {}) => showNotification(message, NOTIFICATION_TYPES.ERROR, options),
+    warning: (message, options = {}) => showNotification(message, NOTIFICATION_TYPES.WARNING, options),
+    info: (message, options = {}) => showNotification(message, NOTIFICATION_TYPES.INFO, options),
+    clear: clearAllNotifications,
 };
 
 export default toast;

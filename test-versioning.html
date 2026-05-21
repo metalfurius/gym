@@ -1,250 +1,272 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test de Sistema de Versioning - Gym Tracker</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .test-section {
-            background: #f5f5f5;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
-        }
-        .success { border-left-color: #28a745; background: #d4edda; }
-        .warning { border-left-color: #ffc107; background: #fff3cd; }
-        .error { border-left-color: #dc3545; background: #f8d7da; }
-        code {
-            background: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-        }
-        .button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .button:hover {
-            background: #0056b3;
-        }
-        .log {
-            background: #000;
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-    </style>
-</head>
-<body>
-    <h1>🧪 Test del Sistema de Versioning</h1>
-    <p>Esta página te permite probar el sistema de versioning de Gym Tracker sin afectar la aplicación principal.</p>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test de Sistema de Versioning - Gym Tracker</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                line-height: 1.6;
+            }
+            .test-section {
+                background: #f5f5f5;
+                padding: 20px;
+                margin: 20px 0;
+                border-radius: 8px;
+                border-left: 4px solid #007bff;
+            }
+            .success {
+                border-left-color: #28a745;
+                background: #d4edda;
+            }
+            .warning {
+                border-left-color: #ffc107;
+                background: #fff3cd;
+            }
+            .error {
+                border-left-color: #dc3545;
+                background: #f8d7da;
+            }
+            code {
+                background: #e9ecef;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: 'Courier New', monospace;
+            }
+            .button {
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                margin: 5px;
+            }
+            .button:hover {
+                background: #0056b3;
+            }
+            .log {
+                background: #000;
+                color: #00ff00;
+                padding: 15px;
+                border-radius: 5px;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🧪 Test del Sistema de Versioning</h1>
+        <p>
+            Esta página te permite probar el sistema de versioning de Gym Tracker sin afectar la aplicación principal.
+        </p>
 
-    <div class="test-section">
-        <h2>📋 Estado Actual del Sistema</h2>
-        <p><strong>Versión almacenada:</strong> <span id="stored-version">Cargando...</span></p>
-        <p><strong>Versión actual:</strong> <span id="current-version">1.0.2</span></p>
-        <p><strong>Service Worker:</strong> <span id="sw-status">Verificando...</span></p>
-        <p><strong>Caché disponible:</strong> <span id="cache-status">Verificando...</span></p>
-    </div>
+        <div class="test-section">
+            <h2>📋 Estado Actual del Sistema</h2>
+            <p>
+                <strong>Versión almacenada:</strong>
+                <span id="stored-version">Cargando...</span>
+            </p>
+            <p>
+                <strong>Versión actual:</strong>
+                <span id="current-version">1.0.2</span>
+            </p>
+            <p>
+                <strong>Service Worker:</strong>
+                <span id="sw-status">Verificando...</span>
+            </p>
+            <p>
+                <strong>Caché disponible:</strong>
+                <span id="cache-status">Verificando...</span>
+            </p>
+        </div>
 
-    <div class="test-section">
-        <h2>🔧 Pruebas del Sistema</h2>
-        <button class="button" onclick="testVersionDetection()">Probar Detección de Versión</button>
-        <button class="button" onclick="testCacheManagement()">Probar Gestión de Caché</button>
-        <button class="button" onclick="testSessionBackup()">Probar Backup de Sesión</button>
-        <button class="button" onclick="simulateUpdate()">Simular Actualización</button>
-        <button class="button" onclick="resetSystem()">Resetear Sistema</button>
-    </div>
+        <div class="test-section">
+            <h2>🔧 Pruebas del Sistema</h2>
+            <button class="button" onclick="testVersionDetection()">Probar Detección de Versión</button>
+            <button class="button" onclick="testCacheManagement()">Probar Gestión de Caché</button>
+            <button class="button" onclick="testSessionBackup()">Probar Backup de Sesión</button>
+            <button class="button" onclick="simulateUpdate()">Simular Actualización</button>
+            <button class="button" onclick="resetSystem()">Resetear Sistema</button>
+        </div>
 
-    <div class="test-section">
-        <h2>📊 Log de Pruebas</h2>
-        <div id="test-log" class="log">Iniciando sistema de pruebas...\n</div>
-        <button class="button" onclick="clearLog()">Limpiar Log</button>
-    </div>
+        <div class="test-section">
+            <h2>📊 Log de Pruebas</h2>
+            <div id="test-log" class="log">Iniciando sistema de pruebas...\n</div>
+            <button class="button" onclick="clearLog()">Limpiar Log</button>
+        </div>
 
-    <div class="test-section warning">
-        <h2>⚠️ Advertencias</h2>
-        <ul>
-            <li>Este test modifica localStorage temporalmente</li>
-            <li>Los cambios no afectan la aplicación principal</li>
-            <li>Puedes resetear todo con el botón "Resetear Sistema"</li>
-        </ul>
-    </div>
+        <div class="test-section warning">
+            <h2>⚠️ Advertencias</h2>
+            <ul>
+                <li>Este test modifica localStorage temporalmente</li>
+                <li>Los cambios no afectan la aplicación principal</li>
+                <li>Puedes resetear todo con el botón "Resetear Sistema"</li>
+            </ul>
+        </div>
 
-    <script>
-        // Simulación del sistema de versioning para pruebas
-        const TEST_VERSION_KEY = 'gym-tracker-version-test';
-        const TEST_BACKUP_KEY = 'gym-tracker-backup-session-test';
-        const CURRENT_VERSION = '1.0.2';
+        <script>
+            // Simulación del sistema de versioning para pruebas
+            const TEST_VERSION_KEY = 'gym-tracker-version-test';
+            const TEST_BACKUP_KEY = 'gym-tracker-backup-session-test';
+            const CURRENT_VERSION = '1.0.2';
 
-        function log(message) {
-            const logEl = document.getElementById('test-log');
-            const timestamp = new Date().toLocaleTimeString();
-            logEl.innerHTML += `[${timestamp}] ${message}\n`;
-            logEl.scrollTop = logEl.scrollHeight;
-        }
-
-        function updateStatus() {
-            const storedVersion = localStorage.getItem(TEST_VERSION_KEY) || 'No establecida';
-            document.getElementById('stored-version').textContent = storedVersion;
-
-            // Check Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    document.getElementById('sw-status').textContent = 
-                        registrations.length > 0 ? 'Activo' : 'No registrado';
-                });
-            } else {
-                document.getElementById('sw-status').textContent = 'No soportado';
+            function log(message) {
+                const logEl = document.getElementById('test-log');
+                const timestamp = new Date().toLocaleTimeString();
+                logEl.innerHTML += `[${timestamp}] ${message}\n`;
+                logEl.scrollTop = logEl.scrollHeight;
             }
 
-            // Check Cache API
-            if ('caches' in window) {
-                caches.keys().then(cacheNames => {
-                    const gymCaches = cacheNames.filter(name => name.startsWith('gym-tracker-'));
-                    document.getElementById('cache-status').textContent = 
-                        `${gymCaches.length} cachés encontrados`;
-                });
-            } else {
-                document.getElementById('cache-status').textContent = 'No soportado';
-            }
-        }
+            function updateStatus() {
+                const storedVersion = localStorage.getItem(TEST_VERSION_KEY) || 'No establecida';
+                document.getElementById('stored-version').textContent = storedVersion;
 
-        function testVersionDetection() {
-            log('🔍 Iniciando prueba de detección de versión...');
-            
-            const storedVersion = localStorage.getItem(TEST_VERSION_KEY);
-            
-            if (!storedVersion) {
-                log('✅ Primera instalación detectada correctamente');
-                localStorage.setItem(TEST_VERSION_KEY, CURRENT_VERSION);
-                log(`📦 Versión ${CURRENT_VERSION} establecida en localStorage`);
-            } else if (storedVersion !== CURRENT_VERSION) {
-                log(`🔄 Actualización detectada: ${storedVersion} → ${CURRENT_VERSION}`);
-                localStorage.setItem(TEST_VERSION_KEY, CURRENT_VERSION);
-                log('✅ Versión actualizada en localStorage');
-            } else {
-                log('ℹ️ Sin cambios de versión detectados');
-            }
-            
-            updateStatus();
-        }
-
-        function testCacheManagement() {
-            log('🗄️ Iniciando prueba de gestión de caché...');
-            
-            if ('caches' in window) {
-                caches.keys().then(cacheNames => {
-                    const gymCaches = cacheNames.filter(name => name.startsWith('gym-tracker-'));
-                    log(`📊 Encontrados ${gymCaches.length} cachés de Gym Tracker`);
-                    
-                    gymCaches.forEach(cacheName => {
-                        log(`   - ${cacheName}`);
+                // Check Service Worker
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        document.getElementById('sw-status').textContent =
+                            registrations.length > 0 ? 'Activo' : 'No registrado';
                     });
-                    
-                    if (gymCaches.length > 1) {
-                        log('⚠️ Múltiples cachés detectados - sería necesario limpiar los antiguos');
-                    } else {
-                        log('✅ Gestión de caché correcta');
-                    }
-                });
-            } else {
-                log('❌ Cache API no soportada en este navegador');
-            }
-        }
-
-        function testSessionBackup() {
-            log('💾 Iniciando prueba de backup de sesión...');
-            
-            // Simular una sesión en progreso
-            const mockSession = {
-                routineId: 'test-routine-123',
-                data: {
-                    ejercicios: [
-                        { nombreEjercicio: 'Test Exercise', sets: [{ peso: 50, reps: 10 }] }
-                    ],
-                    pesoUsuario: 75
+                } else {
+                    document.getElementById('sw-status').textContent = 'No soportado';
                 }
-            };
-            
-            // Simular backup
-            localStorage.setItem(TEST_BACKUP_KEY, JSON.stringify(mockSession));
-            log('✅ Sesión respaldada exitosamente');
-            
-            // Verificar backup
-            const restoredSession = localStorage.getItem(TEST_BACKUP_KEY);
-            if (restoredSession) {
-                const parsed = JSON.parse(restoredSession);
-                log(`📋 Backup verificado: rutina ${parsed.routineId}, ${parsed.data.ejercicios.length} ejercicio(s)`);
-                log('✅ Sistema de backup funcionando correctamente');
-            } else {
-                log('❌ Error: No se pudo verificar el backup');
-            }
-        }
 
-        function simulateUpdate() {
-            log('🚀 Simulando proceso completo de actualización...');
-            
-            // 1. Simular versión anterior
-            const oldVersion = '1.0.1';
-            localStorage.setItem(TEST_VERSION_KEY, oldVersion);
-            log(`📝 Versión anterior simulada: ${oldVersion}`);
-            
-            // 2. Simular sesión en progreso
-            const mockSession = {
-                routineId: 'active-routine',
-                data: { ejercicios: [], pesoUsuario: 70 }
-            };
-            localStorage.setItem(TEST_BACKUP_KEY, JSON.stringify(mockSession));
-            log('💾 Sesión en progreso respaldada');
-            
-            // 3. Simular detección de actualización
-            setTimeout(() => {
-                log(`🔄 Actualización detectada: ${oldVersion} → ${CURRENT_VERSION}`);
-                
-                // 4. Simular limpieza de caché
-                log('🗑️ Limpiando cachés antiguos...');
-                
-                // 5. Actualizar versión
-                localStorage.setItem(TEST_VERSION_KEY, CURRENT_VERSION);
-                log(`✅ Versión actualizada a ${CURRENT_VERSION}`);
-                
-                // 6. Restaurar sesión
-                const backupSession = localStorage.getItem(TEST_BACKUP_KEY);
-                if (backupSession) {
-                    log('🔄 Restaurando sesión en progreso...');
-                    log('✅ Sesión restaurada exitosamente');
-                    localStorage.removeItem(TEST_BACKUP_KEY);
+                // Check Cache API
+                if ('caches' in window) {
+                    caches.keys().then(cacheNames => {
+                        const gymCaches = cacheNames.filter(name => name.startsWith('gym-tracker-'));
+                        document.getElementById('cache-status').textContent = `${gymCaches.length} cachés encontrados`;
+                    });
+                } else {
+                    document.getElementById('cache-status').textContent = 'No soportado';
                 }
-                
-                log('🎉 Proceso de actualización completado exitosamente');
+            }
+
+            function testVersionDetection() {
+                log('🔍 Iniciando prueba de detección de versión...');
+
+                const storedVersion = localStorage.getItem(TEST_VERSION_KEY);
+
+                if (!storedVersion) {
+                    log('✅ Primera instalación detectada correctamente');
+                    localStorage.setItem(TEST_VERSION_KEY, CURRENT_VERSION);
+                    log(`📦 Versión ${CURRENT_VERSION} establecida en localStorage`);
+                } else if (storedVersion !== CURRENT_VERSION) {
+                    log(`🔄 Actualización detectada: ${storedVersion} → ${CURRENT_VERSION}`);
+                    localStorage.setItem(TEST_VERSION_KEY, CURRENT_VERSION);
+                    log('✅ Versión actualizada en localStorage');
+                } else {
+                    log('ℹ️ Sin cambios de versión detectados');
+                }
+
                 updateStatus();
-                
-                // Simular notificación
-                showTestNotification();
-            }, 1000);
-        }
+            }
 
-        function showTestNotification() {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
+            function testCacheManagement() {
+                log('🗄️ Iniciando prueba de gestión de caché...');
+
+                if ('caches' in window) {
+                    caches.keys().then(cacheNames => {
+                        const gymCaches = cacheNames.filter(name => name.startsWith('gym-tracker-'));
+                        log(`📊 Encontrados ${gymCaches.length} cachés de Gym Tracker`);
+
+                        gymCaches.forEach(cacheName => {
+                            log(`   - ${cacheName}`);
+                        });
+
+                        if (gymCaches.length > 1) {
+                            log('⚠️ Múltiples cachés detectados - sería necesario limpiar los antiguos');
+                        } else {
+                            log('✅ Gestión de caché correcta');
+                        }
+                    });
+                } else {
+                    log('❌ Cache API no soportada en este navegador');
+                }
+            }
+
+            function testSessionBackup() {
+                log('💾 Iniciando prueba de backup de sesión...');
+
+                // Simular una sesión en progreso
+                const mockSession = {
+                    routineId: 'test-routine-123',
+                    data: {
+                        ejercicios: [{ nombreEjercicio: 'Test Exercise', sets: [{ peso: 50, reps: 10 }] }],
+                        pesoUsuario: 75,
+                    },
+                };
+
+                // Simular backup
+                localStorage.setItem(TEST_BACKUP_KEY, JSON.stringify(mockSession));
+                log('✅ Sesión respaldada exitosamente');
+
+                // Verificar backup
+                const restoredSession = localStorage.getItem(TEST_BACKUP_KEY);
+                if (restoredSession) {
+                    const parsed = JSON.parse(restoredSession);
+                    log(
+                        `📋 Backup verificado: rutina ${parsed.routineId}, ${parsed.data.ejercicios.length} ejercicio(s)`
+                    );
+                    log('✅ Sistema de backup funcionando correctamente');
+                } else {
+                    log('❌ Error: No se pudo verificar el backup');
+                }
+            }
+
+            function simulateUpdate() {
+                log('🚀 Simulando proceso completo de actualización...');
+
+                // 1. Simular versión anterior
+                const oldVersion = '1.0.1';
+                localStorage.setItem(TEST_VERSION_KEY, oldVersion);
+                log(`📝 Versión anterior simulada: ${oldVersion}`);
+
+                // 2. Simular sesión en progreso
+                const mockSession = {
+                    routineId: 'active-routine',
+                    data: { ejercicios: [], pesoUsuario: 70 },
+                };
+                localStorage.setItem(TEST_BACKUP_KEY, JSON.stringify(mockSession));
+                log('💾 Sesión en progreso respaldada');
+
+                // 3. Simular detección de actualización
+                setTimeout(() => {
+                    log(`🔄 Actualización detectada: ${oldVersion} → ${CURRENT_VERSION}`);
+
+                    // 4. Simular limpieza de caché
+                    log('🗑️ Limpiando cachés antiguos...');
+
+                    // 5. Actualizar versión
+                    localStorage.setItem(TEST_VERSION_KEY, CURRENT_VERSION);
+                    log(`✅ Versión actualizada a ${CURRENT_VERSION}`);
+
+                    // 6. Restaurar sesión
+                    const backupSession = localStorage.getItem(TEST_BACKUP_KEY);
+                    if (backupSession) {
+                        log('🔄 Restaurando sesión en progreso...');
+                        log('✅ Sesión restaurada exitosamente');
+                        localStorage.removeItem(TEST_BACKUP_KEY);
+                    }
+
+                    log('🎉 Proceso de actualización completado exitosamente');
+                    updateStatus();
+
+                    // Simular notificación
+                    showTestNotification();
+                }, 1000);
+            }
+
+            function showTestNotification() {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
                 position: fixed;
                 top: 20px;
                 right: 20px;
@@ -257,8 +279,8 @@
                 font-family: inherit;
                 animation: slideIn 0.5s ease-out;
             `;
-            
-            notification.innerHTML = `
+
+                notification.innerHTML = `
                 <div style="margin-bottom: 8px;">
                     <strong>🎉 ¡Actualización Simulada!</strong>
                 </div>
@@ -266,50 +288,50 @@
                     Versión ${CURRENT_VERSION} - Sistema funcionando
                 </div>
             `;
-            
-            // Añadir animación CSS
-            if (!document.querySelector('#test-notification-styles')) {
-                const styles = document.createElement('style');
-                styles.id = 'test-notification-styles';
-                styles.textContent = `
+
+                // Añadir animación CSS
+                if (!document.querySelector('#test-notification-styles')) {
+                    const styles = document.createElement('style');
+                    styles.id = 'test-notification-styles';
+                    styles.textContent = `
                     @keyframes slideIn {
                         from { opacity: 0; transform: translateX(100%); }
                         to { opacity: 1; transform: translateX(0); }
                     }
                 `;
-                document.head.appendChild(styles);
+                    document.head.appendChild(styles);
+                }
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 4000);
+
+                log('📢 Notificación de actualización mostrada');
             }
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 4000);
-            
-            log('📢 Notificación de actualización mostrada');
-        }
 
-        function resetSystem() {
-            log('🔄 Reseteando sistema de pruebas...');
-            localStorage.removeItem(TEST_VERSION_KEY);
-            localStorage.removeItem(TEST_BACKUP_KEY);
-            log('✅ Sistema reseteado - todas las claves de prueba eliminadas');
-            updateStatus();
-        }
+            function resetSystem() {
+                log('🔄 Reseteando sistema de pruebas...');
+                localStorage.removeItem(TEST_VERSION_KEY);
+                localStorage.removeItem(TEST_BACKUP_KEY);
+                log('✅ Sistema reseteado - todas las claves de prueba eliminadas');
+                updateStatus();
+            }
 
-        function clearLog() {
-            document.getElementById('test-log').innerHTML = 'Log limpiado...\n';
-        }
+            function clearLog() {
+                document.getElementById('test-log').innerHTML = 'Log limpiado...\n';
+            }
 
-        // Inicializar al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            log('🎬 Sistema de pruebas iniciado');
-            log(`📱 User Agent: ${navigator.userAgent.substring(0, 50)}...`);
-            log(`💾 localStorage disponible: ${typeof(Storage) !== "undefined" ? 'Sí' : 'No'}`);
-            log(`🗄️ Cache API disponible: ${'caches' in window ? 'Sí' : 'No'}`);
-            log(`👷 Service Worker disponible: ${'serviceWorker' in navigator ? 'Sí' : 'No'}`);
-            updateStatus();
-        });
-    </script>
-</body>
+            // Inicializar al cargar la página
+            document.addEventListener('DOMContentLoaded', () => {
+                log('🎬 Sistema de pruebas iniciado');
+                log(`📱 User Agent: ${navigator.userAgent.substring(0, 50)}...`);
+                log(`💾 localStorage disponible: ${typeof Storage !== 'undefined' ? 'Sí' : 'No'}`);
+                log(`🗄️ Cache API disponible: ${'caches' in window ? 'Sí' : 'No'}`);
+                log(`👷 Service Worker disponible: ${'serviceWorker' in navigator ? 'Sí' : 'No'}`);
+                updateStatus();
+            });
+        </script>
+    </body>
 </html>

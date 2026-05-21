@@ -1,13 +1,37 @@
 # Contributing Guide
 
-## PR-First Workflow (Soft Policy)
+## Deterministic Merge Contract (Hard Policy)
+
+This repository uses a deterministic merge contract for all PRs into `main`, including feature, bug-fix, maintenance, and docs-only PRs.
+
+A PR is merge-safe only when all conditions are true:
+
+- Required status check `merge-ready` is green on the latest commit.
+- All PR conversations are resolved.
+- The PR branch is up to date with `main`.
+
+## Local Preflight Before Merge Candidate
+
+Run the same local preflight before marking a PR as merge candidate:
+
+- `npm run merge:ready:local`
+
+This command runs the quality gates in the same order as CI:
+
+- `npm run lint:ratchet`
+- `npm run format:check`
+- `npm run test:app`
+- `npm run test:app:offline`
+- `npm run test:no-skips`
+- `npm run test:coverage:gate`
+
+## PR-First Workflow
 
 This repository uses a PR-first workflow for major features.
 
 - One branch + one draft PR per major feature.
 - Keep iterating inside the same PR until merge-safe.
 - Do not split a major feature into unrelated parallel PRs unless a separate maintenance task requires it.
-- This is policy-driven for now (no branch-protection automation changes in this phase).
 
 ## Major Feature Lifecycle
 
@@ -17,17 +41,7 @@ Use these stages in the PR description as work progresses:
 2. In Progress
 3. Merge Candidate
 
-A major feature PR starts as Draft and only moves to Merge Candidate when all required gates are green and review feedback is resolved.
-
-## Required Gates Before Merge
-
-Every major feature PR must pass:
-
-- `npm run lint:ratchet`
-- `npm run test:app`
-- `npm run test:app:offline`
-- `npm run test:coverage:gate`
-- `npm run test:no-skips`
+A major feature PR starts as Draft and only moves to Merge Candidate after the merge contract is satisfied.
 
 ## Version Keyword Rule
 
@@ -49,11 +63,19 @@ Examples:
 - CI toolchain updates
 - Standalone docs-only or test-only maintenance
 
+## Emergency Admin Bypass (Hotfix Only)
+
+Admin bypass or direct push to `main` is allowed only for urgent hotfixes.
+
+- Run `npm run merge:ready:local` before bypass when time allows.
+- Document the bypass reason.
+- Follow with a normal cleanup PR to restore the full merge contract trail.
+
 ## Current Major Feature Kickoff
 
 Milestone: Read-Optimized Weekly Consistency (v1.1)
 
-- Branch (placeholder): `codex/major-read-optimized-weekly-consistency-v1-1`
+- Branch: `codex/stabilize-read-optimized-v1`
 - PR title (placeholder): `feat: read-optimized weekly consistency (v1.1) [minor]`
 - Current scope (this PR):
   - local-first weekly streak/progress computation for Daily Hub without introducing streak persistence in Firestore

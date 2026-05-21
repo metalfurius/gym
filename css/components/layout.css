@@ -194,21 +194,21 @@ section:hover {
         padding: var(--spacing-lg);
         margin-bottom: var(--spacing-lg);
     }
-    
+
     .workout-section-title {
         font-size: 1.3rem;
     }
-    
+
     .primary-action-btn {
         padding: var(--spacing-md) var(--spacing-lg);
         font-size: 1rem;
     }
-    
+
     .secondary-actions {
         grid-template-columns: 1fr;
         gap: var(--spacing-sm);
     }
-    
+
     .secondary-action-btn {
         padding: var(--spacing-sm) var(--spacing-md);
         font-size: 0.9rem;

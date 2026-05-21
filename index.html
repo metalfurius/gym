@@ -1,483 +1,649 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#2c3e50" />
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#2c3e50" />
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">    <!-- CSS Desglosado -->
-    <link rel="stylesheet" href="css/components/variables.css">
-    <link rel="stylesheet" href="css/components/base.css">
-    <link rel="stylesheet" href="css/components/header.css">
-    <link rel="stylesheet" href="css/components/layout.css">
-    <link rel="stylesheet" href="css/components/forms.css">
-    <link rel="stylesheet" href="css/components/buttons.css">
-    <link rel="stylesheet" href="css/components/auth.css">
-    <link rel="stylesheet" href="css/components/footer.css">
-    <link rel="stylesheet" href="css/components/spinner.css">
-    <link rel="stylesheet" href="css/components/calendar.css">
-    <link rel="stylesheet" href="css/components/modal.css">
-    <link rel="stylesheet" href="css/user-weight.css">
-    <link rel="stylesheet" href="css/components/scroll-to-top.css">
-    <link rel="stylesheet" href="css/components/history.css">
-    <link rel="stylesheet" href="css/components/routines.css">
-    <link rel="stylesheet" href="css/components/exercise-cache.css">
-    <link rel="stylesheet" href="css/components/progress.css">
-    <link rel="stylesheet" href="css/components/timer.css">
-    <link rel="stylesheet" href="css/components/daily-hub.css">
-    <link rel="stylesheet" href="css/components/responsive.css">
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
-    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
-    
-    <!-- Preload critical JavaScript -->
-    <link rel="modulepreload" href="js/app.js" crossorigin="anonymous">
-    
-    <title>My Workout Tracker</title>
-</head>
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <!-- CSS Desglosado -->
+        <link rel="stylesheet" href="css/components/variables.css" />
+        <link rel="stylesheet" href="css/components/base.css" />
+        <link rel="stylesheet" href="css/components/header.css" />
+        <link rel="stylesheet" href="css/components/layout.css" />
+        <link rel="stylesheet" href="css/components/forms.css" />
+        <link rel="stylesheet" href="css/components/buttons.css" />
+        <link rel="stylesheet" href="css/components/auth.css" />
+        <link rel="stylesheet" href="css/components/footer.css" />
+        <link rel="stylesheet" href="css/components/spinner.css" />
+        <link rel="stylesheet" href="css/components/calendar.css" />
+        <link rel="stylesheet" href="css/components/modal.css" />
+        <link rel="stylesheet" href="css/user-weight.css" />
+        <link rel="stylesheet" href="css/components/scroll-to-top.css" />
+        <link rel="stylesheet" href="css/components/history.css" />
+        <link rel="stylesheet" href="css/components/routines.css" />
+        <link rel="stylesheet" href="css/components/exercise-cache.css" />
+        <link rel="stylesheet" href="css/components/progress.css" />
+        <link rel="stylesheet" href="css/components/timer.css" />
+        <link rel="stylesheet" href="css/components/daily-hub.css" />
+        <link rel="stylesheet" href="css/components/responsive.css" />
 
-<body>
-    <header>
-        <div class="header-content">
-            <div class="header-brand">
-                <div class="header-logo">&#128170;</div>
-                <h1 data-i18n="app.name">My Workout Tracker</h1>
-            </div>
-            
-            <div class="header-controls">
-                <div class="language-selector">
-                    <label for="language-select" class="sr-only" data-i18n="header.language_label">Idioma</label>
-                    <select id="language-select" class="language-select">
-                        <option value="es" data-i18n="header.language_option_es">ES</option>
-                        <option value="en" data-i18n="header.language_option_en">EN</option>
-                    </select>
+        <link rel="manifest" href="manifest.json" />
+        <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png" />
+        <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico" />
+
+        <!-- Preload critical JavaScript -->
+        <link rel="modulepreload" href="js/app.js" crossorigin="anonymous" />
+
+        <title>My Workout Tracker</title>
+    </head>
+
+    <body>
+        <header>
+            <div class="header-content">
+                <div class="header-brand">
+                    <div class="header-logo">&#128170;</div>
+                    <h1 data-i18n="app.name">My Workout Tracker</h1>
                 </div>
-                <div class="theme-selector">
-                    <button id="theme-toggle" class="theme-toggle" title="Cambiar tema" data-i18n-title="header.theme_toggle_title">
-                        <span class="theme-icon">&#127912;</span>
-                        <span id="theme-name">Moderno</span>
-                    </button>
-                </div>
-            </div>
-            
-            <nav>
-                <button id="nav-dashboard" class="hidden" data-i18n="nav.dashboard">Dashboard</button>
-                <button id="nav-manage-routines" class="hidden" data-i18n="nav.manage_routines">Mis Rutinas</button>
-                <button id="nav-history" class="hidden" data-i18n="nav.history">Historial</button>
-                <button id="nav-progress" class="hidden" data-i18n="nav.progress">Progreso</button>
-                <button id="logout-btn" class="hidden secondary" data-i18n="nav.logout">Cerrar Sesión</button>
-            </nav>
-        </div>
-    </header>
 
-    <main>        <!-- Auth View -->
-        <section id="auth-view">
-            <h2 data-i18n="auth.welcome">Bienvenido</h2>
-            <form id="auth-form">
-                <h3 data-i18n="auth.access_account">Accede con tu cuenta</h3>
-                <label for="auth-email" data-i18n="auth.email">Correo electrónico</label>
-                <input type="email" id="auth-email" required autocomplete="email" placeholder="tu@email.com">
-                <label for="auth-password" data-i18n="auth.password">Contraseña</label>
-                <input type="password" id="auth-password" required minlength="6" autocomplete="current-password" placeholder="⬢⬢⬢⬢⬢⬢⬢⬢">
-                <div class="auth-buttons">
-                    <button type="submit" id="login-email-btn" data-i18n="auth.login">Iniciar Sesión</button>
-                    <button type="submit" id="signup-email-btn" data-i18n="auth.signup">Crear Cuenta Nueva</button>
-                </div>
-                <p id="auth-error" class="error-message"></p>
-            </form>
-        </section>
-
-        <!-- Dashboard View -->
-        <section id="dashboard-view" class="hidden">
-            <h2 data-i18n="dashboard.title">Dashboard</h2>
-            <div id="user-info" class="hidden dashboard-user-info">
-                <p><span data-i18n="dashboard.user_label">Usuario:</span> <span id="user-email"></span></p>
-                <p><span data-i18n="dashboard.date_label">Fecha:</span> <span id="current-date"></span></p>
-            </div>
-            <div id="resume-session-area" class="dashboard-resume-area">
-                <p id="resume-session-info" class="dashboard-resume-info"></p>
-                <button id="resume-session-btn" class="ghost hidden dashboard-resume-btn" data-i18n="dashboard.resume_button">Continuar
-                    Sesion</button>
-            </div>
-
-            <!-- Sección principal de entrenamiento -->
-            <div class="workout-section">
-                <h3 class="workout-section-title">&#128640; <span data-i18n="dashboard.start_workout">Empezar Entrenamiento</span></h3>
-                <div class="workout-controls">
-                    <div class="routine-selector-container">
-                        <label for="day-select" class="routine-label" data-i18n="dashboard.select_routine_today">Elige una rutina para hoy:</label>
-                        <select id="day-select" class="routine-select">
-                            <option value="" data-i18n="dashboard.loading_routines">-- Cargando rutinas... --</option>
+                <div class="header-controls">
+                    <div class="language-selector">
+                        <label for="language-select" class="sr-only" data-i18n="header.language_label">Idioma</label>
+                        <select id="language-select" class="language-select">
+                            <option value="es" data-i18n="header.language_option_es">ES</option>
+                            <option value="en" data-i18n="header.language_option_en">EN</option>
                         </select>
                     </div>
-                    <button id="start-session-btn" class="primary-action-btn" disabled>
-                        <span class="btn-icon">&#128170;</span>
-                        <span class="btn-text" data-i18n="dashboard.start_new_session">Iniciar Nueva Sesion</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="daily-hub-section dashboard-panel">
-                <h3 class="dashboard-panel-title" data-i18n="dashboard.daily_hub_title">Resumen del Dia</h3>
-                <div class="daily-hub-grid">
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_month_count">Sesiones del mes</p>
-                        <p id="daily-hub-month-count" class="daily-hub-value">0</p>
-                    </article>
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_last_workout">Ultimo entrenamiento</p>
-                        <p id="daily-hub-last-workout" class="daily-hub-value" data-i18n="dashboard.last_workout_none">Sin registros</p>
-                    </article>
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_current_routine">Rutina actual</p>
-                        <p id="daily-hub-routine-shortcut" class="daily-hub-value" data-i18n="dashboard.routine_none">Sin rutina</p>
-                    </article>
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_sync_status">Estado de sync</p>
-                        <p id="daily-hub-sync-status" class="daily-hub-value" data-i18n="dashboard.sync_online">En linea</p>
-                    </article>
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_weekly_progress">Progreso semanal</p>
-                        <p id="daily-hub-weekly-progress" class="daily-hub-value">0/3</p>
-                    </article>
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_current_streak">Racha actual (semanas)</p>
-                        <p id="daily-hub-current-streak" class="daily-hub-value">0</p>
-                    </article>
-                    <article class="daily-hub-card">
-                        <p class="daily-hub-label" data-i18n="dashboard.daily_hub_best_streak">Mejor racha (semanas)</p>
-                        <p id="daily-hub-best-streak" class="daily-hub-value">0</p>
-                    </article>
-                </div>
-                <p id="daily-hub-empty-state" class="daily-hub-empty hidden" data-i18n="dashboard.daily_hub_empty">Aun no tienes sesiones guardadas este mes.</p>
-            </div>
-
-            <div class="quick-log-section dashboard-panel">
-                <h3 class="dashboard-panel-title" data-i18n="dashboard.quick_log_title">Quick Log</h3>
-                <form id="quick-log-form" class="quick-log-form">
-                    <div class="quick-log-field quick-log-field-label">
-                        <label for="quick-log-label" data-i18n="dashboard.quick_log_label">Titulo</label>
-                        <input id="quick-log-label" type="text" maxlength="80" placeholder="Ej: Entreno express" data-i18n-placeholder="dashboard.quick_log_label_placeholder" value="Quick Log">
-                    </div>
-
-                    <div class="quick-log-field quick-log-field-datetime">
-                        <label for="quick-log-datetime" data-i18n="dashboard.quick_log_datetime">Fecha y hora</label>
-                        <input id="quick-log-datetime" type="datetime-local" step="60">
-                    </div>
-
-                    <div class="quick-log-field quick-log-field-notes">
-                        <label for="quick-log-notes" data-i18n="dashboard.quick_log_notes">Notas de ejercicios (una por linea)</label>
-                        <textarea id="quick-log-notes" rows="3" required placeholder="Ej: Press banca 3x8&#10;Plancha 45s" data-i18n-placeholder="dashboard.quick_log_notes_placeholder"></textarea>
-                    </div>
-
-                    <div class="quick-log-actions">
-                        <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
-                            <span class="btn-icon">&#9889;</span>
-                            <span class="btn-text" data-i18n="dashboard.quick_log_save">Guardar Quick Log</span>
+                    <div class="theme-selector">
+                        <button
+                            id="theme-toggle"
+                            class="theme-toggle"
+                            title="Cambiar tema"
+                            data-i18n-title="header.theme_toggle_title"
+                        >
+                            <span class="theme-icon">&#127912;</span>
+                            <span id="theme-name">Moderno</span>
                         </button>
                     </div>
+                </div>
+
+                <nav>
+                    <button id="nav-dashboard" class="hidden" data-i18n="nav.dashboard">Dashboard</button>
+                    <button id="nav-manage-routines" class="hidden" data-i18n="nav.manage_routines">Mis Rutinas</button>
+                    <button id="nav-history" class="hidden" data-i18n="nav.history">Historial</button>
+                    <button id="nav-progress" class="hidden" data-i18n="nav.progress">Progreso</button>
+                    <button id="logout-btn" class="hidden secondary" data-i18n="nav.logout">Cerrar Sesión</button>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <!-- Auth View -->
+            <section id="auth-view">
+                <h2 data-i18n="auth.welcome">Bienvenido</h2>
+                <form id="auth-form">
+                    <h3 data-i18n="auth.access_account">Accede con tu cuenta</h3>
+                    <label for="auth-email" data-i18n="auth.email">Correo electrónico</label>
+                    <input type="email" id="auth-email" required autocomplete="email" placeholder="tu@email.com" />
+                    <label for="auth-password" data-i18n="auth.password">Contraseña</label>
+                    <input
+                        type="password"
+                        id="auth-password"
+                        required
+                        minlength="6"
+                        autocomplete="current-password"
+                        placeholder="⬢⬢⬢⬢⬢⬢⬢⬢"
+                    />
+                    <div class="auth-buttons">
+                        <button type="submit" id="login-email-btn" data-i18n="auth.login">Iniciar Sesión</button>
+                        <button type="submit" id="signup-email-btn" data-i18n="auth.signup">Crear Cuenta Nueva</button>
+                    </div>
+                    <p id="auth-error" class="error-message"></p>
                 </form>
-            </div>
+            </section>
 
-            <div id="activity-calendar-container" class="dashboard-panel dashboard-calendar-panel"> <!-- Eliminado style margin, ya lo maneja el CSS -->
-                <h3 class="dashboard-panel-title" data-i18n="dashboard.activity_month_title">Actividad del Mes</h3>
-                <div class="calendar-controls"> <!-- Eliminado style margin, display, etc. ya lo maneja el CSS -->
-                    <button id="prev-month-btn" title="Mes anterior" data-i18n-title="dashboard.prev_month"><</button>
-                    <span id="current-month-display"></span>
-                    <button id="next-month-btn" title="Mes siguiente" data-i18n-title="dashboard.next_month">></button>
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="hidden">
+                <h2 data-i18n="dashboard.title">Dashboard</h2>
+                <div id="user-info" class="hidden dashboard-user-info">
+                    <p>
+                        <span data-i18n="dashboard.user_label">Usuario:</span>
+                        <span id="user-email"></span>
+                    </p>
+                    <p>
+                        <span data-i18n="dashboard.date_label">Fecha:</span>
+                        <span id="current-date"></span>
+                    </p>
                 </div>
-                <div id="activity-calendar"> <!-- Eliminado style, ya lo maneja el CSS -->
-                    <!-- Las celdas del calendario se generarán aquí -->
+                <div id="resume-session-area" class="dashboard-resume-area">
+                    <p id="resume-session-info" class="dashboard-resume-info"></p>
+                    <button
+                        id="resume-session-btn"
+                        class="ghost hidden dashboard-resume-btn"
+                        data-i18n="dashboard.resume_button"
+                    >
+                        Continuar Sesion
+                    </button>
                 </div>
-                <div class="calendar-legend">
-                    <h4 data-i18n="dashboard.calendar_legend_title">Tipos de entrenamiento:</h4>
-                    <div class="legend-items">
-                        <div class="legend-item">
-                            <div class="legend-color level-0"></div>
-                            <span data-i18n="dashboard.legend_none">Sin actividad</span>
+
+                <!-- Sección principal de entrenamiento -->
+                <div class="workout-section">
+                    <h3 class="workout-section-title">
+                        &#128640;
+                        <span data-i18n="dashboard.start_workout">Empezar Entrenamiento</span>
+                    </h3>
+                    <div class="workout-controls">
+                        <div class="routine-selector-container">
+                            <label for="day-select" class="routine-label" data-i18n="dashboard.select_routine_today">
+                                Elige una rutina para hoy:
+                            </label>
+                            <select id="day-select" class="routine-select">
+                                <option value="" data-i18n="dashboard.loading_routines">
+                                    -- Cargando rutinas... --
+                                </option>
+                            </select>
                         </div>
-                        <div class="legend-item">
-                            <div class="legend-color level-1"></div>
-                            <span aria-hidden="true">&#128170;</span>
-                            <span data-i18n="dashboard.legend_strength">Solo fuerza</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color level-2"></div>
-                            <span aria-hidden="true">&#128293;</span>
-                            <span data-i18n="dashboard.legend_mixed">Mixto (fuerza + cardio)</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color level-3"></div>
-                            <span aria-hidden="true">&#127939;</span>
-                            <span data-i18n="dashboard.legend_cardio">Solo cardio</span>
-                        </div>
+                        <button id="start-session-btn" class="primary-action-btn" disabled>
+                            <span class="btn-icon">&#128170;</span>
+                            <span class="btn-text" data-i18n="dashboard.start_new_session">Iniciar Nueva Sesion</span>
+                        </button>
                     </div>
                 </div>
-                <div id="calendar-loading-spinner" class="spinner hidden dashboard-calendar-loading"></div>
-            </div>
-            
-            <!-- Sección de acciones secundarias -->
-            <div class="secondary-actions">
-                <button id="manage-routines-link-btn" class="secondary-action-btn">
-                    <span class="btn-icon">&#9881;</span>
-                    <span class="btn-text" data-i18n="dashboard.manage_routines_cta">Gestionar Mis Rutinas</span>
-                </button>
-            </div>
-        </section><!-- Session View -->
-        <section id="session-view" class="hidden">
-            <h2 id="session-title"></h2>
-            <form id="session-form">
-                <div id="exercise-list"></div>
-                <button type="button" id="save-session-btn" data-i18n="session.save">Guardar Sesión</button>
-                <button type="button" id="cancel-session-btn" class="secondary" style="margin-top:10px;" data-i18n="session.cancel">Cancelar
-                    Sesión</button>            </form>
-        </section>
-        
-        <!-- History View -->
-        <section id="history-view" class="hidden">
-            <h2 data-i18n="history.title">Historial de Sesiones</h2>
-            
-            <!-- Nuevos controles de filtrado mejorados -->
-            <div class="history-controls">
-                <div class="search-container">
-                    <input type="search" id="history-search" placeholder="Buscar en sesiones cargadas..." data-i18n-placeholder="history.search_placeholder">
-                </div>
-            </div>
-            
-            <div id="history-loading" class="spinner"></div>
-            <ul id="history-list">
-                <!-- Las sesiones se generarán dinámicamente aquí -->
-            </ul>            <div id="history-pagination-controls" class="pagination-controls hidden">
-                 <button id="history-prev-page-btn" class="ghost" data-direction="prev" disabled data-i18n="history.prev">Anterior</button>
-                 <span id="history-page-info"></span>
-                 <button id="history-next-page-btn" class="ghost" data-direction="next" disabled data-i18n="history.next">Siguiente</button>
-            </div>
-        </section>        <!-- Manage Routines View -->
-        <section id="manage-routines-view" class="hidden">
-            <h2 data-i18n="routines.title">Gestionar Mis Rutinas</h2>
-            <button id="add-new-routine-btn" data-i18n="routines.add">Crear Nueva Rutina</button>
-            <div id="routines-loading" class="spinner"></div>
-            <ul id="routine-list">            <!-- User routines will be listed here by JS -->
-            </ul>
-            <div class="routine-actions">
-                <button type="button" id="export-routines-btn" class="routine-action-btn primary">
-                    <span aria-hidden="true">&#128203;</span>
-                    <span data-i18n="routines.export_all">Exportar Todas las Rutinas</span>
-                </button>
-                <button type="button" id="delete-all-routines-btn" class="routine-action-btn secondary">
-                    <span aria-hidden="true">&#128465;&#65039;</span>
-                    <span data-i18n="routines.delete_all">Borrar Todas las Rutinas</span>
-                </button>
-            </div>
-        </section>
 
-        <!-- Progress View -->
-        <section id="progress-view" class="hidden">
-            <h2>
-                <span aria-hidden="true">&#128202;</span>
-                <span data-i18n="progress.title">Progreso de Ejercicios</span>
-            </h2>
-            
-            <div class="progress-controls">
-                <div class="progress-selector-container">
-                    <label for="exercise-select" class="progress-label" data-i18n="progress.select_exercise">Selecciona un ejercicio:</label>
-                    <select id="exercise-select" class="progress-select">
-                        <option value="" data-i18n="progress.loading_exercises">-- Cargando ejercicios... --</option>
-                    </select>
+                <div class="daily-hub-section dashboard-panel">
+                    <h3 class="dashboard-panel-title" data-i18n="dashboard.daily_hub_title">Resumen del Dia</h3>
+                    <div class="daily-hub-grid">
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_month_count">Sesiones del mes</p>
+                            <p id="daily-hub-month-count" class="daily-hub-value">0</p>
+                        </article>
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_last_workout">
+                                Ultimo entrenamiento
+                            </p>
+                            <p
+                                id="daily-hub-last-workout"
+                                class="daily-hub-value"
+                                data-i18n="dashboard.last_workout_none"
+                            >
+                                Sin registros
+                            </p>
+                        </article>
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_current_routine">Rutina actual</p>
+                            <p
+                                id="daily-hub-routine-shortcut"
+                                class="daily-hub-value"
+                                data-i18n="dashboard.routine_none"
+                            >
+                                Sin rutina
+                            </p>
+                        </article>
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_sync_status">Estado de sync</p>
+                            <p id="daily-hub-sync-status" class="daily-hub-value" data-i18n="dashboard.sync_online">
+                                En linea
+                            </p>
+                        </article>
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_weekly_progress">
+                                Progreso semanal
+                            </p>
+                            <p id="daily-hub-weekly-progress" class="daily-hub-value">0/3</p>
+                        </article>
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_current_streak">
+                                Racha actual (semanas)
+                            </p>
+                            <p id="daily-hub-current-streak" class="daily-hub-value">0</p>
+                        </article>
+                        <article class="daily-hub-card">
+                            <p class="daily-hub-label" data-i18n="dashboard.daily_hub_best_streak">
+                                Mejor racha (semanas)
+                            </p>
+                            <p id="daily-hub-best-streak" class="daily-hub-value">0</p>
+                        </article>
+                    </div>
+                    <p id="daily-hub-empty-state" class="daily-hub-empty hidden" data-i18n="dashboard.daily_hub_empty">
+                        Aun no tienes sesiones guardadas este mes.
+                    </p>
                 </div>
-                
-                <div class="progress-options">
-                    <div class="metric-selector">
-                        <label for="metric-select" data-i18n="progress.metric">Métrica:</label>
-                        <select id="metric-select">
-                            <option value="weight" data-i18n="progress.metric_weight">Peso máximo</option>
-                            <option value="volume" data-i18n="progress.metric_volume">Volumen total</option>
-                            <option value="reps" data-i18n="progress.metric_reps">Repeticiones máximas</option>
+
+                <div class="quick-log-section dashboard-panel">
+                    <h3 class="dashboard-panel-title" data-i18n="dashboard.quick_log_title">Quick Log</h3>
+                    <form id="quick-log-form" class="quick-log-form">
+                        <div class="quick-log-field quick-log-field-label">
+                            <label for="quick-log-label" data-i18n="dashboard.quick_log_label">Titulo</label>
+                            <input
+                                id="quick-log-label"
+                                type="text"
+                                maxlength="80"
+                                placeholder="Ej: Entreno express"
+                                data-i18n-placeholder="dashboard.quick_log_label_placeholder"
+                                value="Quick Log"
+                            />
+                        </div>
+
+                        <div class="quick-log-field quick-log-field-datetime">
+                            <label for="quick-log-datetime" data-i18n="dashboard.quick_log_datetime">
+                                Fecha y hora
+                            </label>
+                            <input id="quick-log-datetime" type="datetime-local" step="60" />
+                        </div>
+
+                        <div class="quick-log-field quick-log-field-notes">
+                            <label for="quick-log-notes" data-i18n="dashboard.quick_log_notes">
+                                Notas de ejercicios (una por linea)
+                            </label>
+                            <textarea
+                                id="quick-log-notes"
+                                rows="3"
+                                required
+                                placeholder="Ej: Press banca 3x8&#10;Plancha 45s"
+                                data-i18n-placeholder="dashboard.quick_log_notes_placeholder"
+                            ></textarea>
+                        </div>
+
+                        <div class="quick-log-actions">
+                            <button id="quick-log-save-btn" type="submit" class="primary-action-btn">
+                                <span class="btn-icon">&#9889;</span>
+                                <span class="btn-text" data-i18n="dashboard.quick_log_save">Guardar Quick Log</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="activity-calendar-container" class="dashboard-panel dashboard-calendar-panel">
+                    <!-- Eliminado style margin, ya lo maneja el CSS -->
+                    <h3 class="dashboard-panel-title" data-i18n="dashboard.activity_month_title">Actividad del Mes</h3>
+                    <div class="calendar-controls">
+                        <!-- Eliminado style margin, display, etc. ya lo maneja el CSS -->
+                        <button id="prev-month-btn" title="Mes anterior" data-i18n-title="dashboard.prev_month">
+                            <
+                        </button>
+                        <span id="current-month-display"></span>
+                        <button id="next-month-btn" title="Mes siguiente" data-i18n-title="dashboard.next_month">
+                            >
+                        </button>
+                    </div>
+                    <div id="activity-calendar">
+                        <!-- Eliminado style, ya lo maneja el CSS -->
+                        <!-- Las celdas del calendario se generarán aquí -->
+                    </div>
+                    <div class="calendar-legend">
+                        <h4 data-i18n="dashboard.calendar_legend_title">Tipos de entrenamiento:</h4>
+                        <div class="legend-items">
+                            <div class="legend-item">
+                                <div class="legend-color level-0"></div>
+                                <span data-i18n="dashboard.legend_none">Sin actividad</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color level-1"></div>
+                                <span aria-hidden="true">&#128170;</span>
+                                <span data-i18n="dashboard.legend_strength">Solo fuerza</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color level-2"></div>
+                                <span aria-hidden="true">&#128293;</span>
+                                <span data-i18n="dashboard.legend_mixed">Mixto (fuerza + cardio)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color level-3"></div>
+                                <span aria-hidden="true">&#127939;</span>
+                                <span data-i18n="dashboard.legend_cardio">Solo cardio</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="calendar-loading-spinner" class="spinner hidden dashboard-calendar-loading"></div>
+                </div>
+
+                <!-- Sección de acciones secundarias -->
+                <div class="secondary-actions">
+                    <button id="manage-routines-link-btn" class="secondary-action-btn">
+                        <span class="btn-icon">&#9881;</span>
+                        <span class="btn-text" data-i18n="dashboard.manage_routines_cta">Gestionar Mis Rutinas</span>
+                    </button>
+                </div>
+            </section>
+            <!-- Session View -->
+            <section id="session-view" class="hidden">
+                <h2 id="session-title"></h2>
+                <form id="session-form">
+                    <div id="exercise-list"></div>
+                    <button type="button" id="save-session-btn" data-i18n="session.save">Guardar Sesión</button>
+                    <button
+                        type="button"
+                        id="cancel-session-btn"
+                        class="secondary"
+                        style="margin-top: 10px"
+                        data-i18n="session.cancel"
+                    >
+                        Cancelar Sesión
+                    </button>
+                </form>
+            </section>
+
+            <!-- History View -->
+            <section id="history-view" class="hidden">
+                <h2 data-i18n="history.title">Historial de Sesiones</h2>
+
+                <!-- Nuevos controles de filtrado mejorados -->
+                <div class="history-controls">
+                    <div class="search-container">
+                        <input
+                            type="search"
+                            id="history-search"
+                            placeholder="Buscar en sesiones cargadas..."
+                            data-i18n-placeholder="history.search_placeholder"
+                        />
+                    </div>
+                </div>
+
+                <div id="history-loading" class="spinner"></div>
+                <ul id="history-list">
+                    <!-- Las sesiones se generarán dinámicamente aquí -->
+                </ul>
+                <div id="history-pagination-controls" class="pagination-controls hidden">
+                    <button
+                        id="history-prev-page-btn"
+                        class="ghost"
+                        data-direction="prev"
+                        disabled
+                        data-i18n="history.prev"
+                    >
+                        Anterior
+                    </button>
+                    <span id="history-page-info"></span>
+                    <button
+                        id="history-next-page-btn"
+                        class="ghost"
+                        data-direction="next"
+                        disabled
+                        data-i18n="history.next"
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            </section>
+            <!-- Manage Routines View -->
+            <section id="manage-routines-view" class="hidden">
+                <h2 data-i18n="routines.title">Gestionar Mis Rutinas</h2>
+                <button id="add-new-routine-btn" data-i18n="routines.add">Crear Nueva Rutina</button>
+                <div id="routines-loading" class="spinner"></div>
+                <ul id="routine-list">
+                    <!-- User routines will be listed here by JS -->
+                </ul>
+                <div class="routine-actions">
+                    <button type="button" id="export-routines-btn" class="routine-action-btn primary">
+                        <span aria-hidden="true">&#128203;</span>
+                        <span data-i18n="routines.export_all">Exportar Todas las Rutinas</span>
+                    </button>
+                    <button type="button" id="delete-all-routines-btn" class="routine-action-btn secondary">
+                        <span aria-hidden="true">&#128465;&#65039;</span>
+                        <span data-i18n="routines.delete_all">Borrar Todas las Rutinas</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Progress View -->
+            <section id="progress-view" class="hidden">
+                <h2>
+                    <span aria-hidden="true">&#128202;</span>
+                    <span data-i18n="progress.title">Progreso de Ejercicios</span>
+                </h2>
+
+                <div class="progress-controls">
+                    <div class="progress-selector-container">
+                        <label for="exercise-select" class="progress-label" data-i18n="progress.select_exercise">
+                            Selecciona un ejercicio:
+                        </label>
+                        <select id="exercise-select" class="progress-select">
+                            <option value="" data-i18n="progress.loading_exercises">
+                                -- Cargando ejercicios... --
+                            </option>
                         </select>
                     </div>
-                    
-                    <div class="period-selector">
-                        <label for="period-select" data-i18n="progress.period">Período:</label>
-                        <select id="period-select">
-                            <option value="all" data-i18n="progress.period_all">Todo el historial</option>
-                            <option value="1y" data-i18n="progress.period_1y">&Uacute;ltimo a&ntilde;o</option>
-                            <option value="6m" data-i18n="progress.period_6m">&Uacute;ltimos 6 meses</option>
-                            <option value="3m" data-i18n="progress.period_3m">&Uacute;ltimos 3 meses</option>
-                        </select>
+
+                    <div class="progress-options">
+                        <div class="metric-selector">
+                            <label for="metric-select" data-i18n="progress.metric">Métrica:</label>
+                            <select id="metric-select">
+                                <option value="weight" data-i18n="progress.metric_weight">Peso máximo</option>
+                                <option value="volume" data-i18n="progress.metric_volume">Volumen total</option>
+                                <option value="reps" data-i18n="progress.metric_reps">Repeticiones máximas</option>
+                            </select>
+                        </div>
+
+                        <div class="period-selector">
+                            <label for="period-select" data-i18n="progress.period">Período:</label>
+                            <select id="period-select">
+                                <option value="all" data-i18n="progress.period_all">Todo el historial</option>
+                                <option value="1y" data-i18n="progress.period_1y">&Uacute;ltimo a&ntilde;o</option>
+                                <option value="6m" data-i18n="progress.period_6m">&Uacute;ltimos 6 meses</option>
+                                <option value="3m" data-i18n="progress.period_3m">&Uacute;ltimos 3 meses</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-content">
+                    <div id="progress-loading" class="spinner hidden"></div>
+                    <div id="progress-chart-container" class="chart-container hidden">
+                        <canvas id="progress-chart"></canvas>
+                    </div>
+                    <div id="progress-stats" class="progress-stats hidden">
+                        <div class="stat-card">
+                            <h4 data-i18n="progress.best_record">Mejor marca</h4>
+                            <span id="best-record">--</span>
+                        </div>
+                        <div class="stat-card">
+                            <h4 data-i18n="progress.total_progress">Progreso total</h4>
+                            <span id="total-progress">--</span>
+                        </div>
+                        <div class="stat-card">
+                            <h4 data-i18n="progress.session_count">Sesiones registradas</h4>
+                            <span id="session-count">--</span>
+                        </div>
+                        <div class="stat-card">
+                            <h4 data-i18n="progress.trend">Tendencia</h4>
+                            <span id="trend-indicator">--</span>
+                        </div>
+                    </div>
+                    <div id="progress-no-data" class="no-data-message hidden">
+                        <div class="no-data-icon">&#128200;</div>
+                        <h3 data-i18n="progress.no_data_title">Datos insuficientes</h3>
+                        <p data-i18n="progress.no_data_message">
+                            Selecciona un ejercicio con al menos 3 entrenamientos registrados para ver tu progreso.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Routine Editor View -->
+            <section id="routine-editor-view" class="hidden">
+                <h2 id="routine-editor-title" data-i18n="routines.editor_edit_title">Editar Rutina</h2>
+                <form id="routine-editor-form">
+                    <input type="hidden" id="routine-id" name="routine-id" />
+
+                    <label for="routine-name" data-i18n="routines.editor_name">Nombre de la Rutina:</label>
+                    <input type="text" id="routine-name" name="routine-name" required />
+
+                    <fieldset>
+                        <legend data-i18n="routines.editor_exercises">Ejercicios</legend>
+                        <div id="routine-exercises-container">
+                            <!-- Exercise editor blocks will be added here by JS -->
+                        </div>
+                        <button
+                            type="button"
+                            id="add-exercise-to-routine-btn"
+                            class="ghost"
+                            style="width: auto"
+                            data-i18n="routines.editor_add_exercise"
+                        >
+                            + Añadir Ejercicio
+                        </button>
+                    </fieldset>
+
+                    <div class="form-buttons-group">
+                        <!-- Clase para responsive.css -->
+                        <button type="submit" id="save-routine-btn" data-i18n="routines.editor_save">
+                            Guardar Rutina
+                        </button>
+                        <button
+                            type="button"
+                            id="cancel-edit-routine-btn"
+                            class="ghost"
+                            data-i18n="routines.editor_cancel"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                    <button
+                        type="button"
+                        id="delete-routine-btn"
+                        class="secondary hidden"
+                        style="margin-top: 15px"
+                        data-i18n="routines.editor_delete"
+                    >
+                        Eliminar Rutina
+                    </button>
+                </form>
+            </section>
+            <!-- Session Detail Modal -->
+            <div id="session-detail-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="modal-close">&times;</span>
+                        <h3 id="session-detail-title" data-i18n="history.detail_title">Detalle de Sesión</h3>
+                        <p id="session-detail-date"></p>
+                    </div>
+                    <div class="modal-body">
+                        <div class="session-detail-summary">
+                            <h4 data-i18n="history.detail_exercises_done">Ejercicios Realizados</h4>
+                        </div>
+                        <ul id="session-detail-exercises"></ul>
                     </div>
                 </div>
             </div>
-
-            <div class="progress-content">
-                <div id="progress-loading" class="spinner hidden"></div>
-                <div id="progress-chart-container" class="chart-container hidden">
-                    <canvas id="progress-chart"></canvas>
-                </div>
-                <div id="progress-stats" class="progress-stats hidden">
-                    <div class="stat-card">
-                        <h4 data-i18n="progress.best_record">Mejor marca</h4>
-                        <span id="best-record">--</span>
-                    </div>
-                    <div class="stat-card">
-                        <h4 data-i18n="progress.total_progress">Progreso total</h4>
-                        <span id="total-progress">--</span>
-                    </div>
-                    <div class="stat-card">
-                        <h4 data-i18n="progress.session_count">Sesiones registradas</h4>
-                        <span id="session-count">--</span>
-                    </div>
-                    <div class="stat-card">
-                        <h4 data-i18n="progress.trend">Tendencia</h4>
-                        <span id="trend-indicator">--</span>
-                    </div>
-                </div>
-                <div id="progress-no-data" class="no-data-message hidden">
-                    <div class="no-data-icon">&#128200;</div>
-                    <h3 data-i18n="progress.no_data_title">Datos insuficientes</h3>
-                    <p data-i18n="progress.no_data_message">Selecciona un ejercicio con al menos 3 entrenamientos registrados para ver tu progreso.</p>
-                </div>
+        </main>
+        <footer>
+            <p>
+                <span data-i18n="footer.copyright">
+                    &copy; 2025 My Workout Tracker. Hecho para mantenerte en forma.
+                </span>
+                <span aria-hidden="true">&#128170;</span>
+            </p>
+            <div class="footer-contact">
+                <p>
+                    <span data-i18n="footer.contact">Para sugerencias o errores:</span>
+                    <a href="mailto:contact@codeoverdose.es">contact@codeoverdose.es</a>
+                </p>
             </div>
-        </section>
-
-        <!-- Routine Editor View -->
-        <section id="routine-editor-view" class="hidden">
-            <h2 id="routine-editor-title" data-i18n="routines.editor_edit_title">Editar Rutina</h2>
-            <form id="routine-editor-form">
-                <input type="hidden" id="routine-id" name="routine-id">
-
-                <label for="routine-name" data-i18n="routines.editor_name">Nombre de la Rutina:</label>
-                <input type="text" id="routine-name" name="routine-name" required>
-
-                <fieldset>
-                    <legend data-i18n="routines.editor_exercises">Ejercicios</legend>
-                    <div id="routine-exercises-container">
-                        <!-- Exercise editor blocks will be added here by JS -->
-                    </div>
-                    <button type="button" id="add-exercise-to-routine-btn" class="ghost" style="width: auto;" data-i18n="routines.editor_add_exercise">+ Añadir
-                        Ejercicio</button>
-                </fieldset>
-
-                <div class="form-buttons-group"> <!-- Clase para responsive.css -->
-                    <button type="submit" id="save-routine-btn" data-i18n="routines.editor_save">Guardar Rutina</button>
-                    <button type="button" id="cancel-edit-routine-btn" class="ghost" data-i18n="routines.editor_cancel">Cancelar</button>
-                </div>
-                <button type="button" id="delete-routine-btn" class="secondary hidden" style="margin-top:15px;" data-i18n="routines.editor_delete">Eliminar
-                    Rutina</button>
-            </form>
-        </section>        <!-- Session Detail Modal -->
-        <div id="session-detail-modal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span class="modal-close">&times;</span>
-                    <h3 id="session-detail-title" data-i18n="history.detail_title">Detalle de Sesión</h3>
-                    <p id="session-detail-date"></p>
-                </div>
-                <div class="modal-body">
-                    <div class="session-detail-summary">
-                        <h4 data-i18n="history.detail_exercises_done">Ejercicios Realizados</h4>
-                    </div>
-                    <ul id="session-detail-exercises"></ul>
-                </div>
-            </div>
-        </div>    </main>    <footer>
-        <p>
-            <span data-i18n="footer.copyright">&copy; 2025 My Workout Tracker. Hecho para mantenerte en forma.</span>
-            <span aria-hidden="true">&#128170;</span>
-        </p>
-        <div class="footer-contact">
-            <p><span data-i18n="footer.contact">Para sugerencias o errores:</span> <a href="mailto:contact@codeoverdose.es">contact@codeoverdose.es</a></p>
-        </div>
-        <div class="footer-version-info">
-            <span id="app-version-info">v...</span>
-            <button id="force-update-btn" title="Forzar actualización de la aplicación" data-i18n-title="version.force_update">
-                <span aria-hidden="true">&#128260;</span>
-                <span data-i18n="version.force_update">Actualizar</span>
-            </button>
-            <button id="settings-btn" title="Ajustes de la aplicación" data-i18n-title="settings.title">
-                <span aria-hidden="true">&#9881;&#65039;</span>
-                <span data-i18n="settings.title">Ajustes</span>
-            </button>
-        </div>
-    </footer>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content settings-modal-content">
-            <div class="modal-header">
-                <span class="modal-close settings-modal-close">&times;</span>
-                <h3>
+            <div class="footer-version-info">
+                <span id="app-version-info">v...</span>
+                <button
+                    id="force-update-btn"
+                    title="Forzar actualización de la aplicación"
+                    data-i18n-title="version.force_update"
+                >
+                    <span aria-hidden="true">&#128260;</span>
+                    <span data-i18n="version.force_update">Actualizar</span>
+                </button>
+                <button id="settings-btn" title="Ajustes de la aplicación" data-i18n-title="settings.title">
                     <span aria-hidden="true">&#9881;&#65039;</span>
                     <span data-i18n="settings.title">Ajustes</span>
-                </h3>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="settings-section">
-                    <h4>
-                        <span aria-hidden="true">&#127919;</span>
-                        <span data-i18n="settings.weekly_goal_title">Objetivo semanal</span>
-                    </h4>
-                    <p class="settings-warning" data-i18n="settings.weekly_goal_help">Define cuántos días por semana quieres entrenar. Tu racha semanal se calcula con este objetivo.</p>
-                    <div class="settings-weekly-goal-controls">
-                        <label for="weekly-target-days-select" data-i18n="settings.weekly_goal_label">Días objetivo por semana</label>
-                        <select id="weekly-target-days-select">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                        </select>
-                        <button id="weekly-target-save-btn" class="btn btn-secondary">
-                            <span data-i18n="settings.weekly_goal_save_btn">Guardar objetivo semanal</span>
+        </footer>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content settings-modal-content">
+                <div class="modal-header">
+                    <span class="modal-close settings-modal-close">&times;</span>
+                    <h3>
+                        <span aria-hidden="true">&#9881;&#65039;</span>
+                        <span data-i18n="settings.title">Ajustes</span>
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <h4>
+                            <span aria-hidden="true">&#127919;</span>
+                            <span data-i18n="settings.weekly_goal_title">Objetivo semanal</span>
+                        </h4>
+                        <p class="settings-warning" data-i18n="settings.weekly_goal_help">
+                            Define cuántos días por semana quieres entrenar. Tu racha semanal se calcula con este
+                            objetivo.
+                        </p>
+                        <div class="settings-weekly-goal-controls">
+                            <label for="weekly-target-days-select" data-i18n="settings.weekly_goal_label">
+                                Días objetivo por semana
+                            </label>
+                            <select id="weekly-target-days-select">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                            </select>
+                            <button id="weekly-target-save-btn" class="btn btn-secondary">
+                                <span data-i18n="settings.weekly_goal_save_btn">Guardar objetivo semanal</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h4>
+                            <span aria-hidden="true">&#128202;</span>
+                            <span data-i18n="settings.cache_info_title">Informaci&oacute;n del Cach&eacute;</span>
+                        </h4>
+                        <div id="cache-info-container" class="cache-info-container">
+                            <p data-i18n="settings.cache_info_loading">Cargando información del caché...</p>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h4>
+                            <span aria-hidden="true">&#128465;&#65039;</span>
+                            <span data-i18n="settings.cache_manage_title">Gesti&oacute;n del Cach&eacute;</span>
+                        </h4>
+                        <p class="settings-warning" data-i18n="settings.cache_warning">
+                            Eliminar el caché borrará los datos de sugerencias de ejercicios guardados localmente. Los
+                            datos de tus sesiones en la nube no se verán afectados.
+                        </p>
+                        <button id="clear-cache-btn" class="btn btn-danger">
+                            <span aria-hidden="true">&#128465;&#65039;</span>
+                            <span data-i18n="settings.cache_delete_btn">Eliminar Cach&eacute; Local</span>
+                        </button>
+                    </div>
+                    <div class="settings-section">
+                        <h4>
+                            <span aria-hidden="true">&#128293;</span>
+                            <span data-i18n="settings.firebase_usage_title">Uso de Firebase</span>
+                        </h4>
+                        <p class="settings-warning" data-i18n="settings.firebase_usage_warning">
+                            Estas métricas muestran el uso estimado de la sesión actual para identificar lecturas y
+                            escrituras costosas.
+                        </p>
+                        <button id="reset-firebase-usage-btn" class="btn btn-secondary">
+                            <span data-i18n="settings.firebase_usage_reset_btn">Reiniciar Métricas Firebase</span>
                         </button>
                     </div>
                 </div>
-                <div class="settings-section">
-                    <h4>
-                        <span aria-hidden="true">&#128202;</span>
-                        <span data-i18n="settings.cache_info_title">Informaci&oacute;n del Cach&eacute;</span>
-                    </h4>
-                    <div id="cache-info-container" class="cache-info-container">
-                        <p data-i18n="settings.cache_info_loading">Cargando información del caché...</p>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <h4>
-                        <span aria-hidden="true">&#128465;&#65039;</span>
-                        <span data-i18n="settings.cache_manage_title">Gesti&oacute;n del Cach&eacute;</span>
-                    </h4>
-                    <p class="settings-warning" data-i18n="settings.cache_warning">Eliminar el caché borrará los datos de sugerencias de ejercicios guardados localmente. Los datos de tus sesiones en la nube no se verán afectados.</p>
-                    <button id="clear-cache-btn" class="btn btn-danger">
-                        <span aria-hidden="true">&#128465;&#65039;</span>
-                        <span data-i18n="settings.cache_delete_btn">Eliminar Cach&eacute; Local</span>
-                    </button>
-                </div>
-                <div class="settings-section">
-                    <h4>
-                        <span aria-hidden="true">&#128293;</span>
-                        <span data-i18n="settings.firebase_usage_title">Uso de Firebase</span>
-                    </h4>
-                    <p class="settings-warning" data-i18n="settings.firebase_usage_warning">Estas métricas muestran el uso estimado de la sesión actual para identificar lecturas y escrituras costosas.</p>
-                    <button id="reset-firebase-usage-btn" class="btn btn-secondary">
-                        <span data-i18n="settings.firebase_usage_reset_btn">Reiniciar Métricas Firebase</span>
-                    </button>
-                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Chart.js for progress charts (UMD version) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    <script type="module" src="js/app.js"></script>
-    <!-- firebase-diagnostics.js is loaded dynamically when needed -->
-    <!-- El botón scroll-to-top se crea dinámicamente en app.js, no necesita estar aquí -->
-</body>
-
+        <!-- Chart.js for progress charts (UMD version) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+        <script type="module" src="js/app.js"></script>
+        <!-- firebase-diagnostics.js is loaded dynamically when needed -->
+        <!-- El botón scroll-to-top se crea dinámicamente en app.js, no necesita estar aquí -->
+    </body>
 </html>
-

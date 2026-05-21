@@ -35,15 +35,14 @@
 - [ ] [minor] (new backward-compatible feature)
 - [ ] [major] (breaking change)
 
-## Required Gate Status
+## Merge Contract Status
 
-<!-- Mark only when each gate is green for this PR revision. -->
+<!-- Mark only when merge-safe criteria are met on the latest commit. -->
 
-- [ ] `npm run lint:ratchet`
-- [ ] `npm run test:app`
-- [ ] `npm run test:app:offline`
-- [ ] `npm run test:coverage:gate`
-- [ ] `npm run test:no-skips`
+- [ ] `merge-ready` status check is green
+- [ ] All PR conversations are resolved
+- [ ] Branch is up to date with `main`
+- [ ] Local preflight was run (`npm run merge:ready:local`) or equivalent CI verification was reviewed
 
 ## Testing and Validation
 

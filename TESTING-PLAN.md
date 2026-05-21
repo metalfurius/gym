@@ -1,21 +1,39 @@
 # Testing Policy and Enforcement Plan
 
-Last updated: March 25, 2026
+Last updated: May 21, 2026
 
 ## Purpose
 
-This document defines testing policy and enforcement rules for the 6-week stabilization cycle (March 30, 2026 to May 10, 2026).
+This document defines testing policy and enforcement rules for post-cycle stabilization and feature work.
 It is policy-first by design; detailed test inventory remains in `tests/README.md`.
 
-## Hard Quality Gates
+## Deterministic PR Merge Contract
 
-These gates are required for both PR and `main` validation:
+Every PR to `main` uses one canonical required status check: `merge-ready`.
+
+`merge-ready` passes only when:
+
+1. `quality` gates succeed.
+2. `security` CodeQL analysis succeeds.
+3. The final `merge-ready` aggregator confirms both jobs succeeded.
+
+Merge approval also requires:
+
+1. All PR conversations resolved.
+2. Branch up to date with `main`.
+
+## Hard Quality and Security Gates
+
+These gates are required by the merge contract:
 
 1. `npm run lint:ratchet` (zero warnings)
-2. `npm run test:app` (lint errors gate + app journeys)
-3. `npm run test:app:offline` (offline recovery/retry journeys)
-4. `npm run test:coverage:gate` meeting the active staged threshold
+2. `npm run format:check` (no formatting drift)
+3. `npm run test:app` (lint errors gate + app journeys)
+4. `npm run test:app:offline` (offline recovery/retry journeys)
 5. No new skipped tests (`.skip`, `xit`, `xdescribe`)
+6. `npm run test:coverage:gate` meeting the active staged threshold
+7. CodeQL JavaScript analysis with `security-extended` queries
+8. Read-usage regression coverage when Daily Hub/Firestore read paths change
 
 ## Staged Coverage Thresholds
 
@@ -30,11 +48,11 @@ These gates are required for both PR and `main` validation:
 
 Every PR must meet all of the following:
 
-1. Hard quality gates are green.
+1. `merge-ready` is green on the latest commit.
 2. Tests are updated for changed behavior in touched areas.
-3. Offline reliability gate remains green (`npm run test:app:offline`) and is required on PR checks.
-4. If session/version/offline flows are touched, related regression tests are included or updated.
-5. Documentation is kept consistent when plan or policy behavior changes.
+3. If session/version/offline flows are touched, related regression tests are included or updated.
+4. Documentation is kept consistent when plan or policy behavior changes.
+5. PR conversations are resolved and branch is up to date with `main`.
 
 ## Required Checks Per Release Candidate
 
@@ -42,8 +60,8 @@ A release candidate requires:
 
 1. All PR-level requirements.
 2. `npm run test:all` passes in release validation.
-3. Coverage meets the active staged gate for the release week.
-4. No unresolved hard-gate failures in the current cycle.
+3. Coverage meets the active staged gate.
+4. No unresolved hard-gate failures in the release branch.
 
 ## Freeze Rule
 
@@ -55,10 +73,18 @@ If any hard quality gate fails on PR or `main`:
 
 ## Command Reference
 
+- `npm run merge:ready:local`
 - `npm run lint:ratchet`
+- `npm run format:check`
 - `npm run test:app`
 - `npm run test:app:offline`
 - `npm run test:coverage`
 - `npm run test:coverage:gate`
 - `npm run test:no-skips`
 - `npm run test:all`
+
+## Emergency Admin Bypass (Hotfix Only)
+
+- Admin bypass or direct push to `main` is hotfix-only.
+- Run `npm run merge:ready:local` before bypass when possible.
+- Open a follow-up PR immediately after bypass to restore the normal merge contract record.

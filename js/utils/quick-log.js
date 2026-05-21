@@ -76,7 +76,7 @@ function toLocalDateKey(value) {
     return [
         date.getFullYear(),
         String(date.getMonth() + 1).padStart(2, '0'),
-        String(date.getDate()).padStart(2, '0')
+        String(date.getDate()).padStart(2, '0'),
     ].join('-');
 }
 
@@ -110,7 +110,7 @@ function normalizeWeeklyTargetsByWeek(value) {
 
         normalized[weekKey] = {
             targetDays,
-            savesUsed
+            savesUsed,
         };
     });
 
@@ -128,27 +128,21 @@ function normalizeWeeklyOutcomesByWeek(value) {
         if (!record || typeof record !== 'object') return;
 
         const activeDaysRaw = Number.parseInt(record.activeDays, 10);
-        const activeDays = Number.isInteger(activeDaysRaw)
-            ? Math.max(0, activeDaysRaw)
-            : null;
+        const activeDays = Number.isInteger(activeDaysRaw) ? Math.max(0, activeDaysRaw) : null;
         if (activeDays === null || typeof record.met !== 'boolean') {
             return;
         }
 
         normalized[weekKey] = {
             activeDays,
-            met: record.met === true
+            met: record.met === true,
         };
     });
 
     return normalized;
 }
 
-function resolveBaselineWeeklyTarget({
-    normalizedWeeklyTargetsByWeek,
-    windowStartKey,
-    fallbackTargetDays
-}) {
+function resolveBaselineWeeklyTarget({ normalizedWeeklyTargetsByWeek, windowStartKey, fallbackTargetDays }) {
     const fallbackTarget = normalizeWeeklyTargetDays(fallbackTargetDays, WEEKLY_TARGET_DEFAULT);
     const historicalTargets = Object.entries(normalizedWeeklyTargetsByWeek)
         .filter(([weekKey]) => weekKey < windowStartKey)
@@ -177,7 +171,7 @@ export function getWeeklyConsistencyWindowStartDate(now = new Date(), lookbackWe
     const resolvedLookbackWeeks = normalizeLookbackWeeks(lookbackWeeks);
     const currentWeekStart = getWeekStartMonday(resolvedNow);
     const windowStart = new Date(currentWeekStart);
-    windowStart.setDate(windowStart.getDate() - ((resolvedLookbackWeeks - 1) * 7));
+    windowStart.setDate(windowStart.getDate() - (resolvedLookbackWeeks - 1) * 7);
     return windowStart;
 }
 
@@ -194,7 +188,7 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
     const normalizedWeeklyOutcomesByWeek = normalizeWeeklyOutcomesByWeek(input.weeklyOutcomesByWeek);
 
     const activeDaysByWeek = new Map();
-    sessions.forEach((session) => {
+    sessions.forEach(session => {
         const sessionDate = resolveSessionDate(session);
         if (!sessionDate) return;
 
@@ -214,13 +208,13 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
     let effectiveTargetDays = resolveBaselineWeeklyTarget({
         normalizedWeeklyTargetsByWeek,
         windowStartKey,
-        fallbackTargetDays: input.weeklyTargetDays
+        fallbackTargetDays: input.weeklyTargetDays,
     });
 
     const timeline = [];
     for (let index = 0; index < lookbackWeeks; index += 1) {
         const weekStart = new Date(windowStart);
-        weekStart.setDate(windowStart.getDate() + (index * 7));
+        weekStart.setDate(windowStart.getDate() + index * 7);
         const weekKey = toWeekKey(weekStart);
         const weekTargetRecord = normalizedWeeklyTargetsByWeek[weekKey];
         if (weekTargetRecord?.targetDays !== undefined) {
@@ -231,10 +225,8 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
         const frozenOutcome = !isCurrentWeek ? normalizedWeeklyOutcomesByWeek[weekKey] : null;
         const activeDays = frozenOutcome
             ? Math.max(0, frozenOutcome.activeDays)
-            : (activeDaysByWeek.get(weekKey)?.size || 0);
-        const met = frozenOutcome
-            ? frozenOutcome.met === true
-            : activeDays >= effectiveTargetDays;
+            : activeDaysByWeek.get(weekKey)?.size || 0;
+        const met = frozenOutcome ? frozenOutcome.met === true : activeDays >= effectiveTargetDays;
 
         timeline.push({
             weekKey,
@@ -244,14 +236,14 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
             activeDays,
             met,
             isFrozen: !!frozenOutcome,
-            savesUsed: weekTargetRecord?.savesUsed || 0
+            savesUsed: weekTargetRecord?.savesUsed || 0,
         });
     }
 
     return {
         timeline,
         currentWeekKey,
-        windowStart
+        windowStart,
     };
 }
 
@@ -265,9 +257,7 @@ export function normalizeQuickLogDate(value, fallbackDate = new Date()) {
 
 export function splitQuickLogNotes(value) {
     if (Array.isArray(value)) {
-        return value
-            .map((entry) => normalizeText(entry))
-            .filter(Boolean);
+        return value.map(entry => normalizeText(entry)).filter(Boolean);
     }
 
     const rawText = normalizeText(value);
@@ -275,7 +265,7 @@ export function splitQuickLogNotes(value) {
 
     return rawText
         .split(/\r?\n/)
-        .map((line) => normalizeText(line))
+        .map(line => normalizeText(line))
         .filter(Boolean);
 }
 
@@ -290,7 +280,7 @@ export function normalizeQuickLogPayload(input = {}, options = {}) {
         return {
             isValid: false,
             errors: ['at_least_one_note_required'],
-            value: null
+            value: null,
         };
     }
 
@@ -307,14 +297,14 @@ export function normalizeQuickLogPayload(input = {}, options = {}) {
                 objetivoReps: null,
                 objetivoDuracion: null,
                 sets: [],
-                notasEjercicio: note
+                notasEjercicio: note,
             })),
             quickLog: {
                 source: 'quick_log',
                 noteCount: notes.length,
-                createdAtIso: now.toISOString()
-            }
-        }
+                createdAtIso: now.toISOString(),
+            },
+        },
     };
 }
 
@@ -323,16 +313,21 @@ export function buildQuickLogSessionModel(userId, normalizedPayload, timestampFa
         throw new Error('buildQuickLogSessionModel requires userId');
     }
 
-    if (!normalizedPayload || !Array.isArray(normalizedPayload.ejercicios) || normalizedPayload.ejercicios.length === 0) {
+    if (
+        !normalizedPayload ||
+        !Array.isArray(normalizedPayload.ejercicios) ||
+        normalizedPayload.ejercicios.length === 0
+    ) {
         throw new Error('buildQuickLogSessionModel requires a normalized payload with exercises');
     }
 
     const entryDate = normalizeQuickLogDate(normalizedPayload.fechaIso, new Date());
-    const timestamp = typeof timestampFactory?.fromDate === 'function'
-        ? timestampFactory.fromDate(entryDate)
-        : {
-            toDate: () => entryDate
-        };
+    const timestamp =
+        typeof timestampFactory?.fromDate === 'function'
+            ? timestampFactory.fromDate(entryDate)
+            : {
+                  toDate: () => entryDate,
+              };
 
     return {
         fecha: timestamp,
@@ -343,24 +338,23 @@ export function buildQuickLogSessionModel(userId, normalizedPayload, timestampFa
         pesoUsuario: null,
         quickLog: normalizedPayload.quickLog || {
             source: 'quick_log',
-            noteCount: normalizedPayload.ejercicios.length
-        }
+            noteCount: normalizedPayload.ejercicios.length,
+        },
     };
 }
 
 function toLocalMonthKey(dateValue) {
     const date = normalizeQuickLogDate(dateValue, new Date());
-    return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, '0')
-    ].join('-');
+    return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0')].join('-');
 }
 
 function resolveSessionDate(session = {}) {
-    return parseDateCandidate(session.fecha)
-        || parseDateCandidate(session.fechaIso)
-        || parseDateCandidate(session.quickLog?.createdAtIso)
-        || null;
+    return (
+        parseDateCandidate(session.fecha) ||
+        parseDateCandidate(session.fechaIso) ||
+        parseDateCandidate(session.quickLog?.createdAtIso) ||
+        null
+    );
 }
 
 function formatLastWorkoutLabel(lastWorkoutDate) {
@@ -373,24 +367,23 @@ function formatLastWorkoutLabel(lastWorkoutDate) {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 }
 
 export function computeWeeklyConsistencyMetrics(input = {}) {
     const timelineResult = buildWeeklyConsistencyTimeline(input);
-    const qualifiedWeeks = timelineResult.timeline.map((entry) => entry.met === true);
-    const currentWeekEntry = timelineResult.timeline.find((entry) => entry.isCurrentWeek)
-        || timelineResult.timeline[timelineResult.timeline.length - 1]
-        || {
+    const qualifiedWeeks = timelineResult.timeline.map(entry => entry.met === true);
+    const currentWeekEntry = timelineResult.timeline.find(entry => entry.isCurrentWeek) ||
+        timelineResult.timeline[timelineResult.timeline.length - 1] || {
             targetDays: normalizeWeeklyTargetDays(input.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
             activeDays: 0,
-            met: false
+            met: false,
         };
 
     let bestWeeklyStreak = 0;
     let runningStreak = 0;
-    qualifiedWeeks.forEach((qualified) => {
+    qualifiedWeeks.forEach(qualified => {
         if (!qualified) {
             runningStreak = 0;
             return;
@@ -412,10 +405,7 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
     }
 
     const weeklyProgressDays = currentWeekEntry.activeDays || 0;
-    const weeklyTargetDays = normalizeWeeklyTargetDays(
-        currentWeekEntry.targetDays,
-        input.weeklyTargetDays
-    );
+    const weeklyTargetDays = normalizeWeeklyTargetDays(currentWeekEntry.targetDays, input.weeklyTargetDays);
 
     return {
         weeklyTargetDays,
@@ -423,7 +413,7 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
         weeklyProgressLabel: `${weeklyProgressDays}/${weeklyTargetDays}`,
         weeklyProgressMet: weeklyProgressDays >= weeklyTargetDays,
         currentWeeklyStreak,
-        bestWeeklyStreak
+        bestWeeklyStreak,
     };
 }
 
@@ -441,7 +431,7 @@ export function computeDailyHubState(input = {}) {
     let logsMonthCount = 0;
     const currentMonthKey = toLocalMonthKey(now);
 
-    sessions.forEach((session) => {
+    sessions.forEach(session => {
         const sessionDate = resolveSessionDate(session);
         if (!sessionDate) return;
 
@@ -455,7 +445,7 @@ export function computeDailyHubState(input = {}) {
     });
 
     const selectedRoutine = selectedRoutineId
-        ? routines.find((routine) => normalizeText(routine?.id) === selectedRoutineId)
+        ? routines.find(routine => normalizeText(routine?.id) === selectedRoutineId)
         : null;
     const fallbackRoutine = selectedRoutine || routines[0] || null;
     const routineShortcut = normalizeText(fallbackRoutine?.name) || t('dashboard.routine_none');
@@ -478,7 +468,7 @@ export function computeDailyHubState(input = {}) {
         now,
         weeklyTargetDays: input.weeklyTargetDays,
         weeklyTargetsByWeek: input.weeklyTargetsByWeek,
-        weeklyOutcomesByWeek: input.weeklyOutcomesByWeek
+        weeklyOutcomesByWeek: input.weeklyOutcomesByWeek,
     });
 
     return {
@@ -496,7 +486,7 @@ export function computeDailyHubState(input = {}) {
         weeklyProgressLabel: weeklyConsistency.weeklyProgressLabel,
         weeklyProgressMet: weeklyConsistency.weeklyProgressMet,
         currentWeeklyStreak: weeklyConsistency.currentWeeklyStreak,
-        bestWeeklyStreak: weeklyConsistency.bestWeeklyStreak
+        bestWeeklyStreak: weeklyConsistency.bestWeeklyStreak,
     };
 }
 

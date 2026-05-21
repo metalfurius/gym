@@ -5,11 +5,11 @@
 
 // Validation limits
 export const LIMITS = {
-    WEIGHT: { min: 0, max: 500 },           // Exercise weight in kg
-    REPS: { min: 0, max: 1000 },            // Repetitions
-    SERIES: { min: 1, max: 20 },            // Number of series/sets
-    USER_WEIGHT: { min: 20, max: 300 },     // User body weight in kg
-    CALORIES: { min: 0, max: 10000 },       // Daily calorie intake
+    WEIGHT: { min: 0, max: 500 }, // Exercise weight in kg
+    REPS: { min: 0, max: 1000 }, // Repetitions
+    SERIES: { min: 1, max: 20 }, // Number of series/sets
+    USER_WEIGHT: { min: 20, max: 300 }, // User body weight in kg
+    CALORIES: { min: 0, max: 10000 }, // Daily calorie intake
 };
 
 /**
@@ -42,7 +42,7 @@ export function validateNumber(value, min, max, fieldName = 'Valor') {
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} debe ser un número válido`
+            error: `${fieldName} debe ser un número válido`,
         };
     }
 
@@ -50,7 +50,7 @@ export function validateNumber(value, min, max, fieldName = 'Valor') {
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} no puede ser menor que ${min}`
+            error: `${fieldName} no puede ser menor que ${min}`,
         };
     }
 
@@ -58,7 +58,7 @@ export function validateNumber(value, min, max, fieldName = 'Valor') {
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} no puede ser mayor que ${max}`
+            error: `${fieldName} no puede ser mayor que ${max}`,
         };
     }
 
@@ -81,12 +81,12 @@ export function validateWeight(value) {
  */
 export function validateReps(value) {
     const result = validateNumber(value, LIMITS.REPS.min, LIMITS.REPS.max, 'Las repeticiones');
-    
+
     // Reps should be integers
     if (result.isValid && result.value !== null) {
         result.value = Math.round(result.value);
     }
-    
+
     return result;
 }
 
@@ -97,12 +97,12 @@ export function validateReps(value) {
  */
 export function validateSeries(value) {
     const result = validateNumber(value, LIMITS.SERIES.min, LIMITS.SERIES.max, 'El número de series');
-    
+
     // Series should be integers
     if (result.isValid && result.value !== null) {
         result.value = Math.round(result.value);
     }
-    
+
     return result;
 }
 
@@ -113,12 +113,12 @@ export function validateSeries(value) {
  */
 export function validateUserWeight(value) {
     const result = validateNumber(value, LIMITS.USER_WEIGHT.min, LIMITS.USER_WEIGHT.max, 'Tu peso');
-    
+
     // Round to 1 decimal place
     if (result.isValid && result.value !== null) {
         result.value = Math.round(result.value * 10) / 10;
     }
-    
+
     return result;
 }
 
@@ -129,12 +129,12 @@ export function validateUserWeight(value) {
  */
 export function validateCalories(value) {
     const result = validateNumber(value, LIMITS.CALORIES.min, LIMITS.CALORIES.max, 'Las calorías');
-    
+
     // Calories should be integers
     if (result.isValid && result.value !== null) {
         result.value = Math.round(result.value);
     }
-    
+
     return result;
 }
 
@@ -150,17 +150,17 @@ export function validateText(value, fieldName = 'El campo', maxLength = 500) {
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} es obligatorio`
+            error: `${fieldName} es obligatorio`,
         };
     }
 
     const trimmed = value.trim();
-    
+
     if (trimmed.length === 0) {
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} no puede estar vacío`
+            error: `${fieldName} no puede estar vacío`,
         };
     }
 
@@ -168,7 +168,7 @@ export function validateText(value, fieldName = 'El campo', maxLength = 500) {
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} no puede tener más de ${maxLength} caracteres`
+            error: `${fieldName} no puede tener más de ${maxLength} caracteres`,
         };
     }
 
@@ -193,7 +193,7 @@ export function validateOptionalText(value, fieldName = 'El campo', maxLength = 
         return {
             isValid: false,
             value: null,
-            error: `${fieldName} no puede tener más de ${maxLength} caracteres`
+            error: `${fieldName} no puede tener más de ${maxLength} caracteres`,
         };
     }
 
@@ -209,5 +209,5 @@ export default {
     validateUserWeight,
     validateCalories,
     validateText,
-    validateOptionalText
+    validateOptionalText,
 };

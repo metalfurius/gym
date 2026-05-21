@@ -1,4 +1,5 @@
-{    "name": "My Workout Tracker",
+{
+    "name": "My Workout Tracker",
     "short_name": "WorkoutApp",
     "version": "2.7.0",
     "description": "Tu compañero de entrenamiento personal para registrar y personalizar tus progresos.",
@@ -8,17 +9,17 @@
     "theme_color": "#2c3e50",
     "orientation": "portrait-primary",
     "icons": [
-      {
-        "src": "assets/icons/icon-192x192.png",
-        "type": "image/png",
-        "sizes": "192x192",
-        "purpose": "any maskable"
-      },
-      {
-        "src": "assets/icons/icon-512x512.png",
-        "type": "image/png",
-        "sizes": "512x512",
-        "purpose": "any maskable"
-      }
+        {
+            "src": "assets/icons/icon-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "assets/icons/icon-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
     ]
-  }
+}
