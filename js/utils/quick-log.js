@@ -142,18 +142,23 @@ function normalizeWeeklyOutcomesByWeek(value) {
     return normalized;
 }
 
-function resolveBaselineWeeklyTarget({ normalizedWeeklyTargetsByWeek, windowStartKey, fallbackTargetDays }) {
-    const fallbackTarget = normalizeWeeklyTargetDays(fallbackTargetDays, WEEKLY_TARGET_DEFAULT);
+function resolveBaselineWeeklyTarget({ normalizedWeeklyTargetsByWeek, windowStartKey }) {
     const historicalTargets = Object.entries(normalizedWeeklyTargetsByWeek)
         .filter(([weekKey]) => weekKey < windowStartKey)
         .sort(([weekKeyA], [weekKeyB]) => weekKeyA.localeCompare(weekKeyB));
 
     if (historicalTargets.length === 0) {
-        return fallbackTarget;
+        return {
+            targetDays: WEEKLY_TARGET_DEFAULT,
+            hasTargetRecord: false,
+        };
     }
 
     const [, latestRecord] = historicalTargets[historicalTargets.length - 1];
-    return normalizeWeeklyTargetDays(latestRecord?.targetDays, fallbackTarget);
+    return {
+        targetDays: normalizeWeeklyTargetDays(latestRecord?.targetDays, WEEKLY_TARGET_DEFAULT),
+        hasTargetRecord: true,
+    };
 }
 
 export function getWeekKeyForDate(value) {
@@ -205,23 +210,28 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
         daySet.add(toLocalDateKey(sessionDay));
     });
 
-    let effectiveTargetDays = resolveBaselineWeeklyTarget({
+    const baselineWeeklyTarget = resolveBaselineWeeklyTarget({
         normalizedWeeklyTargetsByWeek,
         windowStartKey,
-        fallbackTargetDays: input.weeklyTargetDays,
     });
+    let effectiveTargetDays = baselineWeeklyTarget.targetDays;
+    let hasResolvedWeeklyTargetRecord = baselineWeeklyTarget.hasTargetRecord;
+    const currentFallbackTargetDays = normalizeWeeklyTargetDays(input.weeklyTargetDays, WEEKLY_TARGET_DEFAULT);
 
     const timeline = [];
     for (let index = 0; index < lookbackWeeks; index += 1) {
         const weekStart = new Date(windowStart);
         weekStart.setDate(windowStart.getDate() + index * 7);
         const weekKey = toWeekKey(weekStart);
+        const isCurrentWeek = weekKey === currentWeekKey;
         const weekTargetRecord = normalizedWeeklyTargetsByWeek[weekKey];
         if (weekTargetRecord?.targetDays !== undefined) {
             effectiveTargetDays = normalizeWeeklyTargetDays(weekTargetRecord.targetDays, effectiveTargetDays);
+            hasResolvedWeeklyTargetRecord = true;
+        } else if (isCurrentWeek && !hasResolvedWeeklyTargetRecord) {
+            effectiveTargetDays = currentFallbackTargetDays;
         }
 
-        const isCurrentWeek = weekKey === currentWeekKey;
         const frozenOutcome = !isCurrentWeek ? normalizedWeeklyOutcomesByWeek[weekKey] : null;
         const activeDays = frozenOutcome
             ? Math.max(0, frozenOutcome.activeDays)
@@ -396,8 +406,14 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
     });
 
     let currentWeeklyStreak = 0;
-    for (let index = qualifiedWeeks.length - 1; index >= 0; index -= 1) {
-        if (!qualifiedWeeks[index]) {
+    let currentStreakIndex = timelineResult.timeline.length - 1;
+    const trailingWeek = timelineResult.timeline[currentStreakIndex];
+    if (trailingWeek?.isCurrentWeek && trailingWeek.met !== true) {
+        currentStreakIndex -= 1;
+    }
+
+    for (let index = currentStreakIndex; index >= 0; index -= 1) {
+        if (timelineResult.timeline[index]?.met !== true) {
             break;
         }
 

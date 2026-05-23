@@ -223,7 +223,7 @@ describe('quick-log utils', () => {
         expect(metrics.weeklyProgressDays).toBe(2);
         expect(metrics.weeklyProgressLabel).toBe('2/3');
         expect(metrics.weeklyProgressMet).toBe(false);
-        expect(metrics.currentWeeklyStreak).toBe(0);
+        expect(metrics.currentWeeklyStreak).toBe(2);
         expect(metrics.bestWeeklyStreak).toBe(2);
     });
 
@@ -267,7 +267,7 @@ describe('quick-log utils', () => {
 
         expect(stricterState.weeklyProgressLabel).toBe('3/4');
         expect(stricterState.weeklyProgressMet).toBe(false);
-        expect(stricterState.currentWeeklyStreak).toBe(0);
+        expect(stricterState.currentWeeklyStreak).toBe(1);
     });
 
     it('uses week-scoped targets with carry-over across weeks', () => {
@@ -306,9 +306,54 @@ describe('quick-log utils', () => {
         expect(metrics.weeklyProgressDays).toBe(3);
         expect(metrics.weeklyProgressLabel).toBe('3/4');
         expect(metrics.weeklyProgressMet).toBe(false);
-        expect(metrics.currentWeeklyStreak).toBe(0);
+        expect(metrics.currentWeeklyStreak).toBe(2);
         expect(metrics.bestWeeklyStreak).toBe(2);
         expect(getWeekKeyForDate(currentWeekMonday)).toBe(getWeekKeyForDate(now));
+    });
+
+    it('keeps the previous completed week in the current streak while this week is incomplete', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 17, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 3
+        });
+
+        expect(metrics.weeklyProgressLabel).toBe('1/3');
+        expect(metrics.weeklyProgressMet).toBe(false);
+        expect(metrics.currentWeeklyStreak).toBe(1);
+        expect(metrics.bestWeeklyStreak).toBe(1);
+    });
+
+    it('does not apply a current-week target change to past weeks without explicit targets', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const currentWeekMonday = new Date(2026, 3, 20, 10, 0, 0);
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 17, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 5,
+            weeklyTargetsByWeek: {
+                [getWeekKeyForDate(currentWeekMonday)]: { targetDays: 5, savesUsed: 1 }
+            }
+        });
+
+        expect(metrics.weeklyTargetDays).toBe(5);
+        expect(metrics.weeklyProgressLabel).toBe('1/5');
+        expect(metrics.weeklyProgressMet).toBe(false);
+        expect(metrics.currentWeeklyStreak).toBe(1);
+        expect(metrics.bestWeeklyStreak).toBe(1);
     });
 
     it('uses frozen outcomes for past weeks and ignores backdated-session effects', () => {

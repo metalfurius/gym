@@ -1,6 +1,6 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last updated: May 21, 2026
+Last updated: May 23, 2026
 
 ## Purpose
 
@@ -97,8 +97,9 @@ Execution split:
 1. Stabilize merge readiness: deterministic `merge-ready`, blocking format check, weekly replay timestamp preservation, and documentation alignment.
 2. Implement "Read-Optimized Weekly Consistency (v1.1)" (`docs/read-optimized-weekly-consistency-plan.md`) to reduce repeated Daily Hub Firestore reads via local-first session caching and bounded sync strategy.
 3. Handle Dependabot maintenance PRs separately from feature work (`#67` dev dependencies, `#70` GitHub Actions).
-4. Refresh Feature/Fun backlog after v1.1 validation.
-5. Size streaks/challenges/social mechanics discovery after gates remain green.
+4. Refactor Daily Hub, Quick Log, and weekly consistency module responsibilities so shared streak logic no longer lives under Quick Log utilities.
+5. Refresh Feature/Fun backlog after v1.1 validation.
+6. Size streaks/challenges/social mechanics discovery after gates remain green.
 
 ## Hard Exit Criteria for Post-Cycle Implementation
 

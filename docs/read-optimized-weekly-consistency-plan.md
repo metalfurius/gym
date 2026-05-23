@@ -1,6 +1,6 @@
 # Read-Optimized Weekly Consistency Plan
 
-Last updated: May 21, 2026
+Last updated: May 23, 2026
 Status: Active (v1.1 stabilization and read reduction)
 
 ## Purpose
@@ -31,6 +31,11 @@ Implemented in this iteration:
 2. Normal dashboard navigation reuses fresh Daily Hub cache instead of forcing a Firestore read.
 3. Offline Daily Hub rendering can use stale cached weekly-window sessions when no history cache is available.
 4. Replayed weekly-target writes preserve their queued `updatedAtIso` and skip immediate outcome-freezing writes that would overwrite replay metadata.
+
+Follow-up refactor:
+
+1. Split Quick Log capture utilities, Daily Hub state assembly, and weekly consistency calculations into clearer modules.
+2. Keep public behavior and Firestore contracts unchanged while moving shared streak logic out of `js/utils/quick-log.js`.
 
 Out of scope:
 
