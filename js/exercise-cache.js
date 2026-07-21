@@ -1,5 +1,6 @@
 // Exercise Cache Manager
-// Manages local caching of exercise history for better UX and reduced Firebase calls
+// Manages short-lived exercise suggestion data for better UX and reduced Firebase calls.
+// Progress analytics use the bounded session-history cache in progress.js.
 
 import { logger } from './utils/logger.js';
 import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
@@ -21,7 +22,7 @@ export class ExerciseCacheManager {
         this.integrityCheckKey = 'gym-tracker-exercise-cache-integrity';
         this.integrityCheckIntervalMs = 6 * 60 * 60 * 1000;
         this.maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 días en milisegundos
-        // NOTE: Exercise history is unlimited by count but subject to 7-day age cleanup via cleanOldEntries()
+        // NOTE: This cache is suggestion data and is intentionally age-limited.
     }
 
     /**
@@ -167,7 +168,7 @@ export class ExerciseCacheManager {
         // Añadir al principio del array (más reciente primero)
         cache[cacheKey].history.unshift(historyEntry);
 
-        // No limitar el historial - necesitamos todos los datos para gráficos de progreso. El historial se limpará automáticamente por edad usando cleanOldEntries()
+        // Keep recent suggestion history until cleanOldEntries() applies the age bound.
 
         this.saveFullCache(cache);
     }
@@ -434,7 +435,7 @@ export class ExerciseCacheManager {
     }
 
     /**
-     * Limpia entradas antiguas del cache
+     * Limpia entradas antiguas del cache de sugerencias
      */
     cleanOldEntries() {
         const cache = this.getFullCache();

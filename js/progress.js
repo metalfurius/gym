@@ -126,32 +126,6 @@ function buildExerciseDescriptor(
     return parseExerciseSelectionValue(buildExerciseSelectionValue(exerciseName, mode, normalizedLoadType));
 }
 
-function inferExecutionModeFromCacheEntry(entry = {}, cacheKey = '') {
-    if (entry.executionMode) {
-        return normalizeExecutionMode(entry.executionMode);
-    }
-
-    const modeMatch = cacheKey.match(/__(one_hand|two_hand|machine|pulley|other)(?:__(external|bodyweight))?$/);
-    if (modeMatch && modeMatch[1]) {
-        return normalizeExecutionMode(modeMatch[1]);
-    }
-
-    return DEFAULT_EXECUTION_MODE;
-}
-
-function inferLoadTypeFromCacheEntry(entry = {}, cacheKey = '') {
-    if (entry.loadType) {
-        return normalizeLoadType(entry.loadType);
-    }
-
-    const loadTypeMatch = cacheKey.match(/__(external|bodyweight)$/);
-    if (loadTypeMatch && loadTypeMatch[1]) {
-        return normalizeLoadType(loadTypeMatch[1]);
-    }
-
-    return DEFAULT_LOAD_TYPE;
-}
-
 function resolveSetWeightForMetrics(set = {}, loadType = DEFAULT_LOAD_TYPE, fallbackBodyweight = null) {
     const normalizedLoadType = normalizeLoadType(loadType);
 
@@ -179,6 +153,10 @@ function isProgressCacheValid() {
 
     const cacheAge = Date.now() - progressTabCache.lastCacheTime;
     return cacheAge < progressTabCache.cacheValidityTime;
+}
+
+function isProgressOnline() {
+    return typeof navigator === 'undefined' || navigator.onLine !== false;
 }
 
 export function invalidateProgressCache() {
@@ -300,57 +278,8 @@ export async function loadExerciseList() {
     showProgressLoading();
 
     try {
-        const { exerciseCache } = await import('./exercise-cache.js');
-        let fullCache = exerciseCache.exportCache();
-
-        if (Object.keys(fullCache).length === 0) {
-            const { getCurrentUser } = await import('./auth.js');
-            const { db } = await import('./firebase-config.js');
-            const user = getCurrentUser();
-
-            if (user && db) {
-                await exerciseCache.validateAndRebuildCache(user.uid, db);
-                fullCache = exerciseCache.exportCache();
-            }
-        }
-
-        const exercisesWithCount = [];
-        Object.keys(fullCache).forEach((exerciseKey) => {
-            const exercise = fullCache[exerciseKey];
-            if (!exercise.originalName || !exercise.history || exercise.history.length < 3) {
-                return;
-            }
-
-            const executionMode = inferExecutionModeFromCacheEntry(exercise, exerciseKey);
-            const loadType = inferLoadTypeFromCacheEntry(exercise, exerciseKey);
-            const descriptor = buildExerciseDescriptor(exercise.originalName, executionMode, loadType);
-            exercisesWithCount.push({
-                ...descriptor,
-                sessionCount: exercise.history.length
-            });
-        });
-
-        exercisesWithCount.sort((a, b) => {
-            if (b.sessionCount !== a.sessionCount) {
-                return b.sessionCount - a.sessionCount;
-            }
-            return a.label.localeCompare(b.label);
-        });
-
-        const sortedExercises = exercisesWithCount.map((exercise) => ({
-            value: exercise.value,
-            label: exercise.label,
-            name: exercise.name,
-            executionMode: exercise.executionMode,
-            loadType: exercise.loadType
-        }));
-
-        if (sortedExercises.length === 0) {
-            const fallbackData = await loadExercisesFromSessions();
-            populateExerciseSelector(fallbackData.names, false, fallbackData.withCounts);
-        } else {
-            populateExerciseSelector(sortedExercises, false, exercisesWithCount);
-        }
+        const sessionHistory = await loadExercisesFromSessionHistory();
+        populateExerciseSelector(sessionHistory.names, false, sessionHistory.withCounts);
     } catch (error) {
         logger.error('Error loading exercise list:', error);
         progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.loading_error')}</option>`;
@@ -419,81 +348,7 @@ async function getExerciseData(exerciseSelection, period) {
             return exerciseDataCache.get(cacheKey);
         }
 
-        const { exerciseCache } = await import('./exercise-cache.js');
-        const fullCache = exerciseCache.exportCache();
-
-        const normalizedSelectedName = normalizeExerciseName(exerciseSelection.name);
-        const selectedMode = normalizeExecutionMode(exerciseSelection.executionMode);
-        const selectedLoadType = normalizeLoadType(exerciseSelection.loadType);
-
-        const exerciseKey = Object.keys(fullCache).find((key) => {
-            const cacheEntry = fullCache[key];
-            const normalizedName = normalizeExerciseName(cacheEntry.originalName);
-            const cacheMode = inferExecutionModeFromCacheEntry(cacheEntry, key);
-            const cacheLoadType = inferLoadTypeFromCacheEntry(cacheEntry, key);
-            return (
-                normalizedName === normalizedSelectedName
-                && cacheMode === selectedMode
-                && cacheLoadType === selectedLoadType
-            );
-        });
-
-        if (!exerciseKey || !fullCache[exerciseKey].history) {
-            return await getExerciseDataFromSessions(exerciseSelection, period);
-        }
-
-        let exerciseHistory = fullCache[exerciseKey].history;
-
-        const now = new Date();
-        let startDate = new Date();
-        switch (period) {
-            case '3m':
-                startDate.setMonth(now.getMonth() - 3);
-                break;
-            case '6m':
-                startDate.setMonth(now.getMonth() - 6);
-                break;
-            case '1y':
-                startDate.setFullYear(now.getFullYear() - 1);
-                break;
-            case 'all':
-            default:
-                startDate = new Date('2020-01-01');
-                break;
-        }
-
-        exerciseHistory = exerciseHistory.filter((record) => {
-            const recordDate = record.date instanceof Date ? record.date : new Date(record.date);
-            return recordDate >= startDate;
-        });
-
-        const processedData = exerciseHistory.map((record) => {
-            const recordDate = record.date instanceof Date ? record.date : new Date(record.date);
-            let maxWeight = Number.NEGATIVE_INFINITY;
-            let totalVolume = 0;
-            let maxReps = 0;
-
-            if (record.sets && Array.isArray(record.sets)) {
-                record.sets.forEach((set) => {
-                    const weight = resolveSetWeightForMetrics(set, selectedLoadType);
-                    const reps = parseInt(set.reps || set.repeticiones || 0, 10);
-
-                    if (weight > maxWeight) maxWeight = weight;
-                    if (reps > maxReps) maxReps = reps;
-                    totalVolume += weight * reps;
-                });
-            }
-
-            return {
-                date: recordDate,
-                weight: maxWeight === Number.NEGATIVE_INFINITY ? 0 : maxWeight,
-                volume: totalVolume,
-                reps: maxReps,
-                sets: record.sets
-            };
-        });
-
-        processedData.sort((a, b) => a.date - b.date);
+        const processedData = await getExerciseDataFromSessionHistory(exerciseSelection, period);
         exerciseDataCache.set(cacheKey, processedData);
 
         return processedData;
@@ -510,9 +365,20 @@ async function loadSessionHistoryForProgress() {
 
     const cacheKey = `progress:sessions:${user.uid}`;
     const cachedEntry = await localFirstCache.getEntry(cacheKey);
+    const hasCachedSessions = Array.isArray(cachedEntry?.value);
+    const cachedSessions = hasCachedSessions
+        ? deserializeSessionsFromCache(cachedEntry.value).slice(0, MAX_PROGRESS_SESSIONS)
+        : [];
 
-    if (cachedEntry?.value && Array.isArray(cachedEntry.value) && localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS)) {
-        return deserializeSessionsFromCache(cachedEntry.value);
+    if (hasCachedSessions && (
+        localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS)
+        || !isProgressOnline()
+    )) {
+        return cachedSessions;
+    }
+
+    if (!isProgressOnline()) {
+        return cachedSessions;
     }
 
     const { db } = await import('./firebase-config.js');
@@ -526,7 +392,9 @@ async function loadSessionHistoryForProgress() {
         limit: MAX_PROGRESS_SESSIONS
     });
 
-    const sessions = querySnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    const sessions = querySnapshot.docs
+        .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+        .slice(0, MAX_PROGRESS_SESSIONS);
 
     await localFirstCache.set(cacheKey, serializeSessionsForCache(sessions), {
         metadata: {
@@ -538,9 +406,9 @@ async function loadSessionHistoryForProgress() {
     return sessions;
 }
 
-async function getExerciseDataFromSessions(exerciseSelection, period) {
+async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
     try {
-        logger.info(`Fallback: Loading ${exerciseSelection.label} data directly from sessions`);
+        logger.info(`Analytical history: Loading ${exerciseSelection.label} data from bounded sessions`);
         const sessions = await loadSessionHistoryForProgress();
 
         const exerciseData = [];
@@ -628,7 +496,7 @@ async function getExerciseDataFromSessions(exerciseSelection, period) {
 
         return filteredData;
     } catch (error) {
-        logger.error('Error in fallback exercise data loading:', error);
+        logger.error('Error in analytical exercise history loading:', error);
         return [];
     }
 }
@@ -910,7 +778,7 @@ export function resetProgressView() {
     }
 }
 
-async function loadExercisesFromSessions() {
+async function loadExercisesFromSessionHistory() {
     try {
         const sessions = await loadSessionHistoryForProgress();
 
@@ -921,7 +789,12 @@ async function loadExercisesFromSessions() {
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
                 sessionData.ejercicios.forEach((ejercicio) => {
                     const exerciseName = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
-                    if (exerciseName && ejercicio.tipoEjercicio === 'strength') {
+                    if (
+                        exerciseName
+                        && ejercicio.tipoEjercicio === 'strength'
+                        && Array.isArray(ejercicio.sets)
+                        && ejercicio.sets.length > 0
+                    ) {
                         const executionMode = resolveExerciseExecutionMode(ejercicio);
                         const loadType = normalizeLoadType(resolveExerciseLoadType(ejercicio));
                         const descriptor = buildExerciseDescriptor(exerciseName, executionMode, loadType);
@@ -967,7 +840,7 @@ async function loadExercisesFromSessions() {
             withCounts: exercisesWithCount
         };
     } catch (error) {
-        logger.error('Error in fallback exercise loading:', error);
+        logger.error('Error in analytical exercise history selector loading:', error);
         return { names: [], withCounts: [] };
     }
 }

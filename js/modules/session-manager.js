@@ -128,6 +128,7 @@ offlineManager.registerOperationHandler('session.save', async (payload) => {
     const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
     await addDoc(userSessionsCollectionRef, hydratedSession);
     firebaseUsageTracker.trackWrite(1, 'session.save.replayed');
+    invalidateProgressCache();
 });
 
 offlineManager.registerOperationHandler('quicklog.save', async (payload) => {
@@ -139,6 +140,7 @@ offlineManager.registerOperationHandler('quicklog.save', async (payload) => {
     const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
     await addDoc(userSessionsCollectionRef, hydratedSession);
     firebaseUsageTracker.trackWrite(1, 'quicklog.save.replayed');
+    invalidateProgressCache();
 });
 
 /**
@@ -479,6 +481,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             }
         );
 
+        invalidateProgressCache();
         invalidatePostSaveCaches(user.uid);
         toast.success(t('quicklog.saved_success'));
 
