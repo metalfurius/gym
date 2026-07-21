@@ -36,9 +36,9 @@ node --experimental-vm-modules node_modules\\jest\\bin\\jest.js tests\\unit\\exe
 
 These passing tests do not cover long-history retention after login, restart, or offline Progress loading. Existing source telemetry labels the narrow integrity query as `exerciseCache.verifyIntegrity` and the bounded rebuild as `exerciseCache.buildFromHistory`; the Progress fallback is labeled `progress.sessionHistoryFallback` with a 300-session limit.
 
-## Pre-existing validation failures
+## Pre-existing validation failure and approved scope exception
 
-The full integration/app gates were run after the baseline and implementation checkpoint. The same unrelated failure occurred in both runs:
+The full integration/app gates were run before the CI repair. The same unrelated failure occurred locally and in CI:
 
 ```text
 tests/integration/app-offline-recovery.test.js:212
@@ -46,4 +46,21 @@ Expected: 2026-04-22T08:00:00.000Z
 Received: current wall-clock timestamp
 ```
 
-The failure is in the weekly-target timestamp fixture; `js/app.js` is unchanged by this task. The remaining integration result was 6 suites passed, 44 tests passed, 1 test failed. `app-offline-retry.test.js`, the app user journey, auth/navigation, language, and Firebase integration suites passed. Repository-wide `format:check` also reports 57 pre-existing files, while `lint:ratchet`, the focused suites, and the unit suite remain green.
+The queued payload retained the fixed weekly-rule timestamp, but `refreshDailyHub()` finalized past weekly outcomes with the wall clock and overwrote the preference document's `updatedAt` during replay. The approved scope exception was the smallest causal repair: pass the existing `getCurrentDateForWeeklyRules()` clock only to `finalizePastWeeklyOutcomes()`. Daily Hub's ordinary month-count clock remains unchanged; no schema, stored data, read bounds, or product scope changed.
+
+## Regression evidence after the repair
+
+The offline replay assertion now passes and proves that the persisted preference timestamp remains identical to the queued timestamp. Clean-install validation on July 21, 2026 produced:
+
+```text
+npm ci                                      passed
+npm run lint:ratchet                        passed
+npm run test:no-skips                       passed
+npm run test:unit                           35 suites, 644 tests passed
+npm run test:integration                    7 suites, 45 tests passed
+npm run test:coverage:gate                  42 suites, 689 tests passed; 72.63% statements; gate passed
+npm run test:app                            5 suites, 5 tests passed
+npm run test:app:offline                    2 suites, 2 tests passed
+```
+
+Repository-wide `format:check` remains a pre-existing baseline failure across 57 files. `npm audit --audit-level=high` remains a pre-existing dependency-tree failure with six high-severity advisories; neither gate was weakened or changed for this task.
