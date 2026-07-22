@@ -146,13 +146,17 @@ Commands:
 - `npm run release:check` (same release contract check used by CI and release automation)
 - `npm run test:e2e:upgrade` (real Chromium old-to-new update, offline recovery, and visual evidence)
 - `npm run test:e2e:upgrade:firefox` (real Firefox old-to-new update, offline recovery, accessibility, and visual evidence)
+- `npm run production:release:smoke` (no-query production metadata, cache headers, and every declared asset hash)
 
 ### Release and update contract
 
 Every release has one revision, `vX.Y.Z`, recorded in `manifest.json`, `release.json`,
 the shell metadata, and `sw.js`. The service worker precaches a complete revision-scoped
 asset set before it can activate. Release metadata is fetched network-first and the deployed
-`_headers` policy prevents Cloudflare/browser caches from pinning a canonical metadata response.
+`_headers` policy documents the no-store intent for canonical metadata. GitHub Pages still emits
+its own cache headers, so `.github/workflows/cloudflare-cache.yml` runs after the Pages deployment,
+validates the restricted production purge token without printing it, purges the canonical no-query
+URLs and declared asset set, and verifies the deployed hashes before the release is considered ready.
 
 An installed client activates a waiting worker through `SKIP_WAITING`, backs up the in-progress
 workout, reloads after `controllerchange`, and restores the session from local storage. Old
