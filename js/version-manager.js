@@ -5,8 +5,8 @@ import { t } from './i18n.js';
 const VERSION_KEY = 'gym-tracker-version';
 const REVISION_KEY = 'gym-tracker-release-revision';
 const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
-const DEFAULT_VERSION = '2.7.1';
-const DEFAULT_REVISION = 'v2.7.1';
+const DEFAULT_VERSION = '2.7.2';
+const DEFAULT_REVISION = 'v2.7.2';
 
 function getDocumentRevision() {
     if (typeof document === 'undefined') return DEFAULT_REVISION;
