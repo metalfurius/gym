@@ -218,7 +218,7 @@ class DevToolsClient {
             userGesture: true
         });
         if (result.exceptionDetails) {
-            throw new Error(result.exceptionDetails.text || 'Browser evaluation failed');
+            throw new Error(result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed');
         }
         return result.result?.value;
     }
@@ -254,7 +254,7 @@ async function openChrome(url, userDataDirectory) {
     chrome.once('exit', (code, signal) => console.log(`[browser-upgrade-smoke] Chrome exited (${code ?? 'null'}/${signal ?? 'none'})`));
 
     let versionResponse;
-    for (let attempt = 0; attempt < 50; attempt += 1) {
+    for (let attempt = 0; attempt < 300; attempt += 1) {
         try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 500);
@@ -273,7 +273,7 @@ async function openChrome(url, userDataDirectory) {
     }
 
     let pageTarget;
-    for (let attempt = 0; attempt < 50; attempt += 1) {
+    for (let attempt = 0; attempt < 300; attempt += 1) {
         const targets = await fetch(`http://127.0.0.1:${remotePort}/json/list`).then((response) => response.json());
         pageTarget = targets.find(
             (target) => target.type === 'page' && target.webSocketDebuggerUrl && target.url?.startsWith(url)
@@ -323,7 +323,8 @@ async function pageState(client) {
         const metadata = await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json());
         const progressResponse = await fetch('./js/progress.js', { cache: 'no-store' });
         const progressBytes = new Uint8Array(await progressResponse.arrayBuffer());
-        const digest = await crypto.subtle.digest('SHA-256', progressBytes);
+        const progressText = new TextDecoder().decode(progressBytes).replace(/\\r\\n?/g, '\\n');
+        const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(progressText));
         const progressHash = Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
         return {
             revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
@@ -396,15 +397,20 @@ async function run() {
             data: { ejercicios: [{ nombreEjercicio: 'Bench Press', series: [{ peso: '60', reps: '8' }] }] },
             timestamp: Date.now()
         };
+        console.log('[browser-upgrade-smoke] storing in-progress workout');
         await browser.client.evaluate(`localStorage.setItem('${SESSION_KEY}', ${JSON.stringify(JSON.stringify(workout))})`);
+        console.log('[browser-upgrade-smoke] capturing release A state');
         const beforeUpdate = await pageState(browser.client);
 
         server.setRoot(releases.releaseBDirectory);
+        console.log('[browser-upgrade-smoke] requesting release B service-worker update');
         await browser.client.evaluate("navigator.serviceWorker.ready.then((registration) => registration.update())");
+        console.log('[browser-upgrade-smoke] waiting for release B cache');
         await waitFor(browser.client, async function releaseBCacheReady() {
             const metadata = await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json());
             return metadata.revision === 'v2.7.1' && (await caches.keys()).includes('gym-tracker-v2.7.1');
         });
+        console.log('[browser-upgrade-smoke] release B cache ready; reloading');
         await browser.client.send('Page.reload', { ignoreCache: false });
 
         let afterUpdate;
@@ -427,6 +433,7 @@ async function run() {
             throw error;
         }
         console.log('[browser-upgrade-smoke] release B activated and session preserved');
+        console.log('[browser-upgrade-smoke] restarting offline');
         await browser.client.send('Network.emulateNetworkConditions', {
             offline: true,
             latency: 0,
@@ -443,6 +450,7 @@ async function run() {
             return state.revision === 'v2.7.1' && state.metadata.revision === 'v2.7.1' && state.session;
         });
         const offlineState = await pageState(browser.client);
+        console.log('[browser-upgrade-smoke] offline restart preserved release B');
         await browser.client.send('Network.emulateNetworkConditions', {
             offline: false,
             latency: 0,
