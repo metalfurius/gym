@@ -9,7 +9,10 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const CHROME_PATH = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const CHROME_PATH_OVERRIDE = process.env.CHROME_PATH;
+const CHROME_PATH_CANDIDATES = process.platform === 'win32'
+    ? ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe']
+    : ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser'];
 const SESSION_KEY = 'gymTracker_inProgressSession';
 const RELEASE_A = 'v2.7.0';
 const RELEASE_B = 'v2.7.1';
@@ -25,6 +28,19 @@ async function copyRelease(targetDirectory) {
     for (const entry of copyEntries) {
         await fs.cp(path.join(ROOT, entry), path.join(targetDirectory, entry), { recursive: true });
     }
+}
+
+async function resolveChromePath() {
+    const candidates = CHROME_PATH_OVERRIDE ? [CHROME_PATH_OVERRIDE] : CHROME_PATH_CANDIDATES;
+    for (const candidate of candidates) {
+        try {
+            await fs.access(candidate);
+            return candidate;
+        } catch {
+            // Try the next runner-specific installation path.
+        }
+    }
+    throw new Error(`Chrome executable not found. Set CHROME_PATH; tried ${candidates.join(', ')}`);
 }
 
 async function writeUpgradeFixture(directory, revision) {
@@ -209,10 +225,11 @@ class DevToolsClient {
 }
 
 async function openChrome(url, userDataDirectory) {
+    const chromePath = await resolveChromePath();
     const remotePort = CHROME_DEBUG_PORT;
-    console.log(`[browser-upgrade-smoke] starting Chrome remote port ${remotePort}`);
+    console.log(`[browser-upgrade-smoke] starting Chrome ${chromePath} on remote port ${remotePort}`);
 
-    const chrome = spawn(CHROME_PATH, [
+    const chrome = spawn(chromePath, [
         '--headless=new',
         '--disable-gpu',
         '--in-process-gpu',
