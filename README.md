@@ -146,7 +146,7 @@ Commands:
 - `npm run release:check` (same release contract check used by CI and release automation)
 - `npm run test:e2e:upgrade` (real Chromium old-to-new update, offline recovery, and visual evidence)
 - `npm run test:e2e:upgrade:firefox` (real Firefox old-to-new update, offline recovery, accessibility, and visual evidence)
-- `npm run production:release:smoke` (no-query production metadata, cache headers, and every declared asset hash)
+- `npm run production:release:smoke` (no-query production metadata, cache headers, every declared asset hash, and disagreement classification)
 
 ### Release and update contract
 
