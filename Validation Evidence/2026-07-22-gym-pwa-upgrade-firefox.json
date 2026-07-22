@@ -8,13 +8,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
-          "request": "67",
-          "url": "http://127.0.0.1:63722/release.json",
+          "request": "68",
+          "url": "http://127.0.0.1:58059/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 425,
@@ -23,7 +23,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -58,7 +58,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -116,7 +116,7 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720778411.653,
+            "requestTime": 1784721263110.963,
             "redirectStart": 0,
             "redirectEnd": 0,
             "fetchStart": 0,
@@ -126,14 +126,14 @@
             "connectEnd": 0,
             "tlsStart": 0,
             "tlsEnd": 0,
-            "requestStart": 1784720778417.821,
-            "responseStart": 1784720778419.124,
-            "responseEnd": 1784720778419.2
+            "requestStart": 1784721263117.754,
+            "responseStart": 1784721263118.898,
+            "responseEnd": 1784721263118.966
           }
         },
-        "timestamp": 1784720778421,
+        "timestamp": 1784721263121,
         "response": {
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -171,7 +171,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:18 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:23 GMT"
               }
             },
             {
@@ -210,13 +210,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "72",
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -225,7 +225,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -260,7 +260,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -297,10 +297,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720781863.179,
+            "requestTime": 1784721264986.06,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720781864.49,
+            "fetchStart": 1784721264987.372,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -312,9 +312,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720781871,
+        "timestamp": 1784721264995,
         "response": {
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -352,7 +352,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:21 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:24 GMT"
               }
             },
             {
@@ -391,13 +391,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "74",
-          "url": "http://127.0.0.1:63722/js/progress.js",
+          "url": "http://127.0.0.1:58059/js/progress.js",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -406,7 +406,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -441,7 +441,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -478,10 +478,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720781871.123,
+            "requestTime": 1784721264995.084,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720781872.607,
+            "fetchStart": 1784721264996.331,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -493,9 +493,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720781877,
+        "timestamp": 1784721265000,
         "response": {
-          "url": "http://127.0.0.1:63722/js/progress.js",
+          "url": "http://127.0.0.1:58059/js/progress.js",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -533,7 +533,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:17 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:22 GMT"
               }
             },
             {
@@ -572,13 +572,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "133",
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -587,7 +587,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -622,7 +622,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -659,10 +659,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720782951.829,
+            "requestTime": 1784721266083.327,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720783045.588,
+            "fetchStart": 1784721266175.103,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -674,9 +674,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720783055,
+        "timestamp": 1784721266185,
         "response": {
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -714,7 +714,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:23 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:26 GMT"
               }
             },
             {
@@ -753,13 +753,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "144",
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -768,7 +768,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -803,7 +803,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -840,10 +840,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720783520.118,
+            "requestTime": 1784721266643.067,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720783521.706,
+            "fetchStart": 1784721266644.305,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -855,9 +855,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720783528,
+        "timestamp": 1784721266650,
         "response": {
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -895,7 +895,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:23 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:26 GMT"
               }
             },
             {
@@ -934,13 +934,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "148",
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -949,7 +949,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -984,7 +984,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -1021,10 +1021,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720783548.313,
+            "requestTime": 1784721266674.064,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720783550.368,
+            "fetchStart": 1784721266675.534,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -1036,9 +1036,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720783572,
+        "timestamp": 1784721266693,
         "response": {
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -1076,7 +1076,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:22 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:26 GMT"
               }
             },
             {
@@ -1115,13 +1115,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "150",
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -1130,7 +1130,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -1165,7 +1165,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -1202,10 +1202,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720783573.062,
+            "requestTime": 1784721266695.063,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720783574.495,
+            "fetchStart": 1784721266696.434,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -1217,9 +1217,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720783581,
+        "timestamp": 1784721266704,
         "response": {
-          "url": "http://127.0.0.1:63722/release.json",
+          "url": "http://127.0.0.1:58059/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -1257,7 +1257,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:23 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:26 GMT"
               }
             },
             {
@@ -1296,13 +1296,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "6f22fd89-2e39-4181-8f3c-dd44d7246e71",
+        "context": "3771fc0d-61a1-477a-b7e6-b2a92500e2d9",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "152",
-          "url": "http://127.0.0.1:63722/js/progress.js",
+          "url": "http://127.0.0.1:58059/js/progress.js",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -1311,7 +1311,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63722"
+                "value": "127.0.0.1:58059"
               }
             },
             {
@@ -1346,7 +1346,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63722/"
+                "value": "http://127.0.0.1:58059/"
               }
             },
             {
@@ -1383,10 +1383,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784720783581.081,
+            "requestTime": 1784721266704.457,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784720783582.376,
+            "fetchStart": 1784721266706.311,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -1398,9 +1398,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784720783586,
+        "timestamp": 1784721266710,
         "response": {
-          "url": "http://127.0.0.1:63722/js/progress.js",
+          "url": "http://127.0.0.1:58059/js/progress.js",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -1438,7 +1438,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:46:22 GMT"
+                "value": "Wed, 22 Jul 2026 11:54:26 GMT"
               }
             },
             {
@@ -1476,7 +1476,7 @@
   ],
   "serviceWorker": [
     {
-      "controller": "http://127.0.0.1:63722/sw.js",
+      "controller": "http://127.0.0.1:58059/sw.js",
       "activeState": "activated",
       "caches": [
         "gym-tracker-v2.7.1"
@@ -1486,12 +1486,12 @@
   "status": "passed",
   "beforeUpdate": {
     "revision": "v2.7.0",
-    "controller": "http://127.0.0.1:63722/sw.js",
+    "controller": "http://127.0.0.1:58059/sw.js",
     "activeWorker": "activated",
     "cacheNames": [
       "gym-tracker-v2.7.0"
     ],
-    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720781860}",
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721264984}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.0",
@@ -1562,12 +1562,12 @@
   },
   "afterUpdate": {
     "revision": "v2.7.1",
-    "controller": "http://127.0.0.1:63722/sw.js",
+    "controller": "http://127.0.0.1:58059/sw.js",
     "activeWorker": "activated",
     "cacheNames": [
       "gym-tracker-v2.7.1"
     ],
-    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720781860}",
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721264984}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.1",
@@ -1701,6 +1701,6 @@
         "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
       }
     },
-    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720781860}"
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721264984}"
   }
 }

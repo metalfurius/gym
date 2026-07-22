@@ -6,7 +6,7 @@
   "exceptions": [],
   "network": [
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -15,12 +15,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:08 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:12 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -29,12 +29,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:10 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:14 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/js/progress.js",
+      "url": "http://127.0.0.1:60995/js/progress.js",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -43,12 +43,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:08 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:12 GMT",
         "Content-Type": "application/javascript; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -57,12 +57,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:10 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:14 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -71,12 +71,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:10 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:14 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -85,12 +85,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:11 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:15 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -99,12 +99,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:11 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:15 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/release.json",
+      "url": "http://127.0.0.1:60995/release.json",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -113,12 +113,12 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:11 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:15 GMT",
         "Content-Type": "application/json; charset=utf-8"
       }
     },
     {
-      "url": "http://127.0.0.1:51369/js/progress.js",
+      "url": "http://127.0.0.1:60995/js/progress.js",
       "status": 200,
       "headers": {
         "Transfer-Encoding": "chunked",
@@ -127,7 +127,7 @@
         "Service-Worker-Allowed": "/",
         "Connection": "keep-alive",
         "Keep-Alive": "timeout=5",
-        "Date": "Wed, 22 Jul 2026 11:46:10 GMT",
+        "Date": "Wed, 22 Jul 2026 11:54:14 GMT",
         "Content-Type": "application/javascript; charset=utf-8"
       }
     }
@@ -146,7 +146,7 @@
             "scriptLastModified": 0,
             "scriptResponseTime": 0,
             "controlledClients": [],
-            "targetId": "2647EEEFD6C64994D8CFDD991D1CDD65"
+            "targetId": "C11F17A9597747018F79E773669AD5D8"
           }
         ]
       }
@@ -176,7 +176,7 @@
             "scriptLastModified": 0,
             "scriptResponseTime": 0,
             "controlledClients": [],
-            "targetId": "2647EEEFD6C64994D8CFDD991D1CDD65"
+            "targetId": "C11F17A9597747018F79E773669AD5D8"
           }
         ]
       }
@@ -194,7 +194,7 @@
             "scriptLastModified": 0,
             "scriptResponseTime": 0,
             "controlledClients": [],
-            "targetId": "2647EEEFD6C64994D8CFDD991D1CDD65"
+            "targetId": "C11F17A9597747018F79E773669AD5D8"
           }
         ]
       }
@@ -212,7 +212,7 @@
             "scriptLastModified": 0,
             "scriptResponseTime": 0,
             "controlledClients": [],
-            "targetId": "2647EEEFD6C64994D8CFDD991D1CDD65"
+            "targetId": "C11F17A9597747018F79E773669AD5D8"
           }
         ]
       }
@@ -230,7 +230,7 @@
             "scriptLastModified": 0,
             "scriptResponseTime": 0,
             "controlledClients": [],
-            "targetId": "2647EEEFD6C64994D8CFDD991D1CDD65"
+            "targetId": "C11F17A9597747018F79E773669AD5D8"
           }
         ]
       }
@@ -241,7 +241,7 @@
         "registrations": [
           {
             "registrationId": "1",
-            "scopeURL": "http://127.0.0.1:51369/",
+            "scopeURL": "http://127.0.0.1:60995/",
             "isDeleted": false
           }
         ]
@@ -254,13 +254,13 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "installed",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -272,13 +272,13 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activating",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -290,15 +290,15 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activating",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [
-              "A3A01F15B821BF29842B931D666137DF"
+              "09E64D51E482B50F690D8F98D68CD107"
             ],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -310,15 +310,15 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [
-              "A3A01F15B821BF29842B931D666137DF"
+              "09E64D51E482B50F690D8F98D68CD107"
             ],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -330,7 +330,7 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "stopped",
             "status": "new",
             "scriptLastModified": 0,
@@ -347,7 +347,7 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "starting",
             "status": "new",
             "scriptLastModified": 0,
@@ -364,13 +364,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "starting",
             "status": "new",
             "scriptLastModified": 0,
             "scriptResponseTime": 0,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -382,13 +382,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "starting",
             "status": "new",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -400,13 +400,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "starting",
             "status": "installing",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -418,13 +418,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "installing",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -436,15 +436,15 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [
-              "A3A01F15B821BF29842B931D666137DF"
+              "09E64D51E482B50F690D8F98D68CD107"
             ],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -456,13 +456,13 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -474,13 +474,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "installed",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -491,7 +491,7 @@
         "registrations": [
           {
             "registrationId": "1",
-            "scopeURL": "http://127.0.0.1:51369/",
+            "scopeURL": "http://127.0.0.1:60995/",
             "isDeleted": false
           }
         ]
@@ -504,13 +504,13 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "stopping",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": [],
-            "targetId": "4F2D77E32C8DEDB8839905C1738DD2DC"
+            "targetId": "7A2ECBBB84EA07040CAE520669BCE40B"
           }
         ]
       }
@@ -522,11 +522,11 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "stopped",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": []
           }
         ]
@@ -539,11 +539,11 @@
           {
             "versionId": "1",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "stopped",
             "status": "redundant",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720768.157596,
+            "scriptResponseTime": 1784721252.550589,
             "controlledClients": []
           }
         ]
@@ -556,13 +556,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activating",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -574,15 +574,15 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activating",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [
-              "A3A01F15B821BF29842B931D666137DF"
+              "09E64D51E482B50F690D8F98D68CD107"
             ],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -594,15 +594,15 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [
-              "A3A01F15B821BF29842B931D666137DF"
+              "09E64D51E482B50F690D8F98D68CD107"
             ],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -614,15 +614,15 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [
-              "A3A01F15B821BF29842B931D666137DF"
+              "09E64D51E482B50F690D8F98D68CD107"
             ],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -634,13 +634,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -651,7 +651,7 @@
         "registrations": [
           {
             "registrationId": "1",
-            "scopeURL": "http://127.0.0.1:51369/",
+            "scopeURL": "http://127.0.0.1:60995/",
             "isDeleted": false
           }
         ]
@@ -664,13 +664,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -682,13 +682,13 @@
           {
             "versionId": "2",
             "registrationId": "1",
-            "scriptURL": "http://127.0.0.1:51369/sw.js",
+            "scriptURL": "http://127.0.0.1:60995/sw.js",
             "runningStatus": "running",
             "status": "activated",
             "scriptLastModified": 0,
-            "scriptResponseTime": 1784720770.169602,
+            "scriptResponseTime": 1784721254.654189,
             "controlledClients": [],
-            "targetId": "750F19FC7AEA6945BE5B5320DCEC49F4"
+            "targetId": "77238A86A88894A6CC758C88C11051A8"
           }
         ]
       }
@@ -699,7 +699,7 @@
         "registrations": [
           {
             "registrationId": "1",
-            "scopeURL": "http://127.0.0.1:51369/",
+            "scopeURL": "http://127.0.0.1:60995/",
             "isDeleted": false
           }
         ]
@@ -708,11 +708,11 @@
   ],
   "beforeUpdate": {
     "revision": "v2.7.0",
-    "controller": "http://127.0.0.1:51369/sw.js",
+    "controller": "http://127.0.0.1:60995/sw.js",
     "cacheNames": [
       "gym-tracker-v2.7.0"
     ],
-    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720770102}",
+    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721254468}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.0",
@@ -780,11 +780,11 @@
   },
   "afterUpdate": {
     "revision": "v2.7.1",
-    "controller": "http://127.0.0.1:51369/sw.js",
+    "controller": "http://127.0.0.1:60995/sw.js",
     "cacheNames": [
       "gym-tracker-v2.7.1"
     ],
-    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720770102}",
+    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721254468}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.1",
@@ -852,11 +852,11 @@
   },
   "offlineRestart": {
     "revision": "v2.7.1",
-    "controller": "http://127.0.0.1:51369/sw.js",
+    "controller": "http://127.0.0.1:60995/sw.js",
     "cacheNames": [
       "gym-tracker-v2.7.1"
     ],
-    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720770102}",
+    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721254468}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.1",
@@ -922,6 +922,6 @@
     },
     "progressHash": "4610b2e4bfb04d5e82baaec508d3a22b85301f4180a3b288080f40179160d181"
   },
-  "waitResult": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784720770102}",
+  "waitResult": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721254468}",
   "status": "passed"
 }

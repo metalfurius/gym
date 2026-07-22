@@ -2,7 +2,7 @@
 
 Date: 2026-07-22
 Base reviewed: `2ea99c4be165155538a48639b61f735fb62b9fbe` (`main`, v2.7.1)
-Review head: `d33c6a0`
+Review head: `d33c6a0` plus the resolved CodeQL finding in the follow-up head.
 
 ## Review coverage
 
@@ -17,6 +17,7 @@ Review head: `d33c6a0`
 - Made Chromium startup tolerate slower hosted runners and made the browser hash assertion use the same canonical text bytes as release-integrity.
 - Updated fallback release metadata with the current revision and made future version bumps update those fallbacks.
 - Restricted service-worker external caching to the explicit CDN asset allowlist.
+- Added same-origin client verification before accepting the service-worker `SKIP_WAITING` message.
 
 ## Validation
 
