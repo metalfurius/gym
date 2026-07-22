@@ -17,7 +17,7 @@ Review head: `d33c6a0` plus the resolved CodeQL finding in the follow-up head.
 - Made Chromium startup tolerate slower hosted runners and made the browser hash assertion use the same canonical text bytes as release-integrity.
 - Updated fallback release metadata with the current revision and made future version bumps update those fallbacks.
 - Restricted service-worker external caching to the explicit CDN asset allowlist.
-- Added same-origin client verification before accepting the service-worker `SKIP_WAITING` message.
+- Added explicit `event.origin` and same-origin client verification before accepting the service-worker `SKIP_WAITING` message.
 
 ## Validation
 

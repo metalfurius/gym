@@ -156,6 +156,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('message', (event) => {
+    if (event.origin !== self.location.origin) return;
     const sourceUrl = event.source?.url;
     const sameOrigin = sourceUrl && new URL(sourceUrl).origin === self.location.origin;
     if (sameOrigin && event.data?.type === 'SKIP_WAITING') {
