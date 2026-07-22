@@ -68,6 +68,7 @@ const urlsToCache = [
     'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'
 ];
 
+const externalCacheUrls = new Set(urlsToCache.filter((url) => !url.startsWith('./')));
 const localCachePaths = new Set(
     urlsToCache
         .filter((url) => url.startsWith('./'))
@@ -92,7 +93,7 @@ function isReleaseMetadataRequest(request) {
 function isStaticAssetRequest(request) {
     if (request.method !== 'GET') return false;
     const requestUrl = new URL(request.url);
-    if (requestUrl.origin !== self.location.origin) return true;
+    if (requestUrl.origin !== self.location.origin) return externalCacheUrls.has(request.url);
     return localCachePaths.has(getScopedPath(request));
 }
 

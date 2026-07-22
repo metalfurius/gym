@@ -65,6 +65,18 @@ function updateReleaseContract(version) {
         `$1${revision}$2`,
         'service-worker release revision'
     );
+    replaceOnce(
+        'js/version-manager.js',
+        /(const DEFAULT_VERSION = ['"])[^'"]+(['"])/,
+        `$1${version}$2`,
+        'version fallback'
+    );
+    replaceOnce(
+        'js/version-manager.js',
+        /(const DEFAULT_REVISION = ['"])[^'"]+(['"])/,
+        `$1${revision}$2`,
+        'revision fallback'
+    );
 
     execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'release-integrity.mjs'), '--write'], {
         cwd: ROOT,

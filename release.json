@@ -57,7 +57,7 @@
     "js/utils/quick-log.js": "97034dbf6356964c16ce2b3de7c31862a3545bea9b101d0ecb5ba4d0ada76d68",
     "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
     "js/utils/validation.js": "30b6eda1802ebca358e5b9d8b3f4f236bb9a406e3a936a177e42e1f853770816",
-    "js/version-manager.js": "e3c152ff3d97eadab05f1b1c8b4aa375a5702d9392bf58841644d88f2bba7edb",
+    "js/version-manager.js": "8e2d56d3ec485b30dd2c53333612816fbd0546c80ba8b96aee08eb75784c452d",
     "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
   }
 }
