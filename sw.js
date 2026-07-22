@@ -1,22 +1,14 @@
-// Versión dinámica obtenida del manifest al instalar el service worker
-let APP_VERSION = '1.1.0'; // Fallback version
-const CACHE_NAME = `gym-tracker-v${APP_VERSION}`;
+// This value is rewritten by update-version.cjs and is part of the release contract.
+const RELEASE_REVISION = 'v2.7.1';
+const CACHE_NAME = `gym-tracker-${RELEASE_REVISION}`;
+const RELEASE_METADATA_PATHS = new Set(['manifest.json', 'release.json']);
+const OPTIONAL_ASSET_TIMEOUT_MS = 5_000;
 
-// Función para obtener la versión del manifest
-async function getVersionFromManifest() {
-    try {
-        const response = await fetch('./manifest.json');
-        const manifest = await response.json();
-        return manifest.version;
-    } catch (error) {
-        console.error('SW: Error fetching version from manifest:', error);
-        return APP_VERSION; // Usar fallback
-    }
-}
 const urlsToCache = [
     './',
     './index.html',
-    // CSS Components
+    './manifest.json',
+    './release.json',
     './css/components/variables.css',
     './css/components/base.css',
     './css/components/header.css',
@@ -34,9 +26,9 @@ const urlsToCache = [
     './css/components/exercise-cache.css',
     './css/components/progress.css',
     './css/components/timer.css',
+    './css/components/daily-hub.css',
     './css/components/responsive.css',
     './css/user-weight.css',
-    // JavaScript modules
     './js/app.js',
     './js/auth.js',
     './js/ui.js',
@@ -48,148 +40,154 @@ const urlsToCache = [
     './js/progress.js',
     './js/timer.js',
     './js/theme-manager.js',
-    // Utility modules
     './js/utils/logger.js',
     './js/utils/validation.js',
     './js/utils/notifications.js',
     './js/utils/debounce.js',
     './js/utils/event-manager.js',
     './js/utils/offline-manager.js',
-    // Feature modules
+    './js/utils/bodyweight.js',
+    './js/utils/firestore-serialization.js',
+    './js/utils/execution-mode.js',
+    './js/utils/load-type.js',
+    './js/utils/local-first-cache.js',
+    './js/utils/quick-log.js',
+    './js/utils/session-variant-overrides.js',
     './js/modules/scroll-to-top.js',
     './js/modules/settings.js',
     './js/modules/calendar.js',
     './js/modules/session-manager.js',
     './js/modules/history-manager.js',
     './js/modules/pagination.js',
-    // Assets
-    './manifest.json',
     './assets/icons/icon-192x192.png',
     './assets/icons/icon-512x512.png',
     './assets/icons/favicon.ico',
-    // Firebase CDN (external dependencies)
+    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
     'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',
     'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js',
     'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'
 ];
 
-self.addEventListener('install', async event => {
+const externalCacheUrls = new Set(urlsToCache.filter((url) => !url.startsWith('./')));
+const localCachePaths = new Set(
+    urlsToCache
+        .filter((url) => url.startsWith('./'))
+        .map((url) => url.replace(/^\.\//, '') || 'index.html')
+);
+
+function getScopedPath(request) {
+    const requestUrl = new URL(request.url);
+    if (requestUrl.origin !== self.location.origin) return null;
+
+    const scopeUrl = new URL('./', self.registration.scope);
+    if (!requestUrl.pathname.startsWith(scopeUrl.pathname)) return null;
+
+    return requestUrl.pathname.slice(scopeUrl.pathname.length) || 'index.html';
+}
+
+function isReleaseMetadataRequest(request) {
+    const scopedPath = getScopedPath(request);
+    return scopedPath !== null && RELEASE_METADATA_PATHS.has(scopedPath);
+}
+
+function isStaticAssetRequest(request) {
+    if (request.method !== 'GET') return false;
+    const requestUrl = new URL(request.url);
+    if (requestUrl.origin !== self.location.origin) return externalCacheUrls.has(request.url);
+    return localCachePaths.has(getScopedPath(request));
+}
+
+function cacheOptionalAsset(cache, url) {
+    let timeoutId;
+    const timeout = new Promise((resolve) => {
+        timeoutId = setTimeout(resolve, OPTIONAL_ASSET_TIMEOUT_MS);
+    });
+    const request = cache.add(url).catch(() => undefined);
+    return Promise.race([request, timeout]).finally(() => clearTimeout(timeoutId));
+}
+
+async function getCachedResponse(request) {
+    const cache = await caches.open(CACHE_NAME);
+    return cache.match(request);
+}
+
+async function fetchReleaseMetadata(request) {
+    try {
+        const response = await fetch(new Request(request, { cache: 'no-store' }));
+        if (response.ok) return response;
+        throw new Error(`Metadata request failed with status ${response.status}`);
+    } catch (error) {
+        console.warn('SW: release metadata unavailable online; using current release cache', error);
+        return (await getCachedResponse(request)) || Response.error();
+    }
+}
+
+async function cacheFirst(request) {
+    const cachedResponse = await getCachedResponse(request);
+    if (cachedResponse) return cachedResponse;
+
+    try {
+        const networkResponse = await fetch(request);
+        if (networkResponse.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+    } catch (error) {
+        console.warn('SW: static asset unavailable:', request.url, error);
+        return (await getCachedResponse(request)) || Response.error();
+    }
+}
+
+self.addEventListener('install', (event) => {
     event.waitUntil(
         (async () => {
-            try {
-                // Obtener la versión actual del manifest
-                const manifestVersion = await getVersionFromManifest();
-                APP_VERSION = manifestVersion;
-        
-                // Crear el nombre del caché con la versión actualizada
-                const dynamicCacheName = `gym-tracker-v${APP_VERSION}`;
-        
-                const cache = await caches.open(dynamicCacheName);
-                console.log(`SW: Opened cache with version ${APP_VERSION}`);
-                await cache.addAll(urlsToCache);
-        
-                // Auto-activar el nuevo service worker
-                self.skipWaiting();
-            } catch (error) {
-                console.error('SW: Error during install:', error);
-                // Fallback al comportamiento anterior
-                const cache = await caches.open(CACHE_NAME);
-                console.log('SW: Opened fallback cache');
-                await cache.addAll(urlsToCache);
-            }
+            const cache = await caches.open(CACHE_NAME);
+            const localUrls = urlsToCache.filter((url) => url.startsWith('./'));
+            const optionalExternalUrls = urlsToCache.filter((url) => !url.startsWith('./'));
+
+            // The new cache is complete before the worker can be activated. Metadata
+            // remains network-first at runtime so an old CDN response cannot become
+            // the source of truth for a later update.
+            await cache.addAll(localUrls);
+            await Promise.all(optionalExternalUrls.map((url) => cacheOptionalAsset(cache, url)));
         })()
     );
 });
 
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                // Cache hit - return response
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-
-                // Not in cache, fetch from network
-                return fetch(event.request).then(
-                    networkResponse => {
-                        // IMPORTANT: Check if we received a valid response AND if it's something we WANT to cache.
-                        // This is the crucial part that fixes the errors.
-                        if (
-                            networkResponse &&                          // We got a response
-              networkResponse.status === 200 &&           // It's a successful response
-              event.request.method === 'GET' &&           // <<< ONLY cache GET requests
-              (event.request.url.startsWith('http:') ||   // <<< ONLY cache http or https schemes
-               event.request.url.startsWith('https:')) &&
-              !event.request.url.includes('firestore.googleapis.com') && // Don't cache Firestore API calls
-              !event.request.url.includes('firebaseapp.com') // Generally, don't cache auth domain interactions unless specific static assets
-                        // This also helps avoid caching other potential Firebase service calls.
-                        ) {              // Clone the response to use it in the cache and to return to the browser.
-                            const responseToCache = networkResponse.clone();
-              
-                            // Obtener el nombre del caché actual dinámicamente
-                            getVersionFromManifest().then(manifestVersion => {
-                                const currentCacheName = `gym-tracker-v${manifestVersion}`;
-                                caches.open(currentCacheName)
-                                    .then(cache => {
-                                        cache.put(event.request, responseToCache);
-                                    });
-                            });
-                        }
-                        return networkResponse; // Return the original network response
-                    }
-                ).catch(error => {
-                    // Handle fetch errors, e.g., when offline.
-                    // For GET requests, you might want to return a fallback page.
-                    console.warn('SW: Network fetch failed for:', event.request.url, error);
-                    // Example: if (event.request.mode === 'navigate') return caches.match('/offline.html');
-                    // For now, just rethrow to let the browser handle it or show its default offline page.
-                    // This prevents the SW from breaking on POST/PUT errors when offline if not handled.
-                    // throw error; // Uncomment if you want the browser's default error for fetch failures.
-                });
-            })
-    );
+self.addEventListener('message', (event) => {
+    if (event.origin !== self.location.origin) return;
+    const sourceUrl = event.source?.url;
+    const sameOrigin = sourceUrl && new URL(sourceUrl).origin === self.location.origin;
+    if (sameOrigin && event.data?.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
-self.addEventListener('activate', async event => {
+self.addEventListener('fetch', (event) => {
+    if (event.request.method !== 'GET') return;
+
+    if (isReleaseMetadataRequest(event.request)) {
+        event.respondWith(fetchReleaseMetadata(event.request));
+        return;
+    }
+
+    if (isStaticAssetRequest(event.request)) {
+        event.respondWith(cacheFirst(event.request));
+    }
+});
+
+self.addEventListener('activate', (event) => {
     event.waitUntil(
         (async () => {
-            try {
-                // Obtener la versión actual del manifest
-                const manifestVersion = await getVersionFromManifest();
-                const currentCacheName = `gym-tracker-v${manifestVersion}`;
-        
-                const cacheWhitelist = [currentCacheName];
-                const cacheNames = await caches.keys();
-        
-                await Promise.all(
-                    cacheNames.map(cacheName => {
-                        if (cacheWhitelist.indexOf(cacheName) === -1) {
-                            console.log('SW: Deleting old cache:', cacheName);
-                            return caches.delete(cacheName);
-                        }
-                    })
-                );
-        
-                console.log(`SW: Activated with version ${manifestVersion}`);
-            } catch (error) {
-                console.error('SW: Error during activate:', error);
-                // Fallback al comportamiento anterior
-                const cacheWhitelist = [CACHE_NAME];
-                const cacheNames = await caches.keys();
-        
-                await Promise.all(
-                    cacheNames.map(cacheName => {
-                        if (cacheWhitelist.indexOf(cacheName) === -1) {
-                            console.log('SW: Deleting old cache:', cacheName);
-                            return caches.delete(cacheName);
-                        }
-                    })
-                );
-            }
-      
-            // Force the SW to become active immediately
-            return self.clients.claim();
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames
+                    .filter((cacheName) => cacheName.startsWith('gym-tracker-') && cacheName !== CACHE_NAME)
+                    .map((cacheName) => caches.delete(cacheName))
+            );
+
+            await self.clients.claim();
         })()
     );
 });

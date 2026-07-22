@@ -66,7 +66,7 @@ jobs:
 
       - name: Commit version bump
         run: |
-          git add manifest.json
+          git add manifest.json release.json index.html sw.js
           git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }} [skip ci]" || echo "No changes to commit"
           git push
 

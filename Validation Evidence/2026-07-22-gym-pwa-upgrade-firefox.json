@@ -1,0 +1,1706 @@
+{
+  "browser": "Firefox",
+  "releaseA": "v2.7.0",
+  "releaseB": "v2.7.1",
+  "console": [],
+  "network": [
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "67",
+          "url": "http://127.0.0.1:63647/release.json",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 425,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Priority",
+              "value": {
+                "type": "string",
+                "value": "u=4"
+              }
+            },
+            {
+              "name": "Pragma",
+              "value": {
+                "type": "string",
+                "value": "no-cache"
+              }
+            },
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-cache"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721496385.49,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 0,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 1784721496389.532,
+            "responseStart": 1784721496390.534,
+            "responseEnd": 1784721496390.608
+          }
+        },
+        "timestamp": 1784721496392,
+        "response": {
+          "url": "http://127.0.0.1:63647/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": false,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:16 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": "application/json;charset=utf-8",
+          "bytesReceived": 5892,
+          "headersSize": 286,
+          "bodySize": 5593,
+          "content": {
+            "size": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "72",
+          "url": "http://127.0.0.1:63647/release.json",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721500087.076,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721500088.489,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721500096,
+        "response": {
+          "url": "http://127.0.0.1:63647/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:20 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "74",
+          "url": "http://127.0.0.1:63647/js/progress.js",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721500096.088,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721500097.664,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721500102,
+        "response": {
+          "url": "http://127.0.0.1:63647/js/progress.js",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/javascript; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:15 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 28791
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "133",
+          "url": "http://127.0.0.1:63647/release.json",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721501175.908,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721501273.492,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721501283,
+        "response": {
+          "url": "http://127.0.0.1:63647/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "144",
+          "url": "http://127.0.0.1:63647/release.json",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721501495.349,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721501497.003,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721501509,
+        "response": {
+          "url": "http://127.0.0.1:63647/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "148",
+          "url": "http://127.0.0.1:63647/release.json",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721501531.141,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721501532.251,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721501550,
+        "response": {
+          "url": "http://127.0.0.1:63647/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "150",
+          "url": "http://127.0.0.1:63647/release.json",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721501553.075,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721501554.522,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721501562,
+        "response": {
+          "url": "http://127.0.0.1:63647/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "152",
+          "url": "http://127.0.0.1:63647/js/progress.js",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:63647"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:63647/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784721501562.13,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784721501564.029,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784721501568,
+        "response": {
+          "url": "http://127.0.0.1:63647/js/progress.js",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/javascript; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 28791
+          }
+        }
+      }
+    }
+  ],
+  "serviceWorker": [
+    {
+      "controller": "http://127.0.0.1:63647/sw.js",
+      "activeState": "activated",
+      "caches": [
+        "gym-tracker-v2.7.1"
+      ]
+    }
+  ],
+  "status": "passed",
+  "beforeUpdate": {
+    "revision": "v2.7.0",
+    "controller": "http://127.0.0.1:63647/sw.js",
+    "activeWorker": "activated",
+    "cacheNames": [
+      "gym-tracker-v2.7.0"
+    ],
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721500085}",
+    "metadata": {
+      "schemaVersion": 1,
+      "version": "2.7.0",
+      "revision": "v2.7.0",
+      "cacheName": "gym-tracker-v2.7.0",
+      "assets": {
+        "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
+        "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
+        "assets/icons/icon-512x512.png": "b3bdf6020506bd3cf06df44919603e369f8e406addffca194ed23040782432bc",
+        "css/components/auth.css": "b936349b4b2dfda8bd826f2800b270c88ab91a04ff94cd53953fa1ec489439ea",
+        "css/components/base.css": "841a7d59d989b676041addae061b2b324c1f763cd87a6925cf8a5b5e4da76547",
+        "css/components/buttons.css": "4668cef24e75d93af44ffa1d2d8e4e3a4e32beb4fcc06bf387f7750e1a6c9eac",
+        "css/components/calendar.css": "d5ce59299e8936abf4e4aae5bc64938944e3fef1ef45f1df704eaaf418a28b03",
+        "css/components/daily-hub.css": "4f5aa178a8d3c062960f9f6b0ba7da72dba123d96382e987d27902b048f8ed31",
+        "css/components/exercise-cache.css": "eed2335a3cfb0e87bd04943768d42497a20a75f4b1f7871169811b6e5b0a2837",
+        "css/components/footer.css": "98609c0fb7e7134759805da53161c3cf9457edcb327b94cbb810ba49e12ade16",
+        "css/components/forms.css": "8ac1bd0b9b3f0e06cc7d58acfd11b241f8ce59f032c2e3a71cd7f8ced09846c4",
+        "css/components/header.css": "a699c9b90db46b44b4492531740e32f937d744ee14477f61400cf9baf00b3ee4",
+        "css/components/history.css": "6b44ce13b2989e712df5606251b1ced399b730b3f1cd1c789bd2293a633fd435",
+        "css/components/layout.css": "9533f278efaf16336dd004a5cb839f3fdbf458ac26ac9258136c2f6a15933cd2",
+        "css/components/modal.css": "1898da31bf772ed3699b94ff56341f5c9ddc9ebfaa111b0dadbe42fcc58d6eed",
+        "css/components/progress.css": "b466b4a1b229b80f6e07c4bd68a07d6f232f406f5aea63c1b531d55b00a97681",
+        "css/components/responsive.css": "53061c6e1b6b00b63f0a0d285606977ae50b0b44db376da12482d88610adb4c6",
+        "css/components/routines.css": "0a64633110b88ab64964c41fbf1d59ed77e84eea4b7e4427b18ed92369c33bf3",
+        "css/components/scroll-to-top.css": "2f1ee2cfda6d681e5120e40dbcdfe82f702767282c0ad58b639b3c1a4a76d9b3",
+        "css/components/spinner.css": "fdbf7f769b7b1f4200232070c275671a6cd19a43fd186c8366f942482e718fe7",
+        "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
+        "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
+        "css/user-weight.css": "e7bdf377d10f7ecf766e2f5b5190ffe82a4d44961b8dbcb0d440361c5974d4ea",
+        "index.html": "b10da7808f894698c843175c1c977805010b00f53c620a92b731730e7e6b3aae",
+        "js/app.js": "254772d4bb47edfa7e0e9716245e95c8d51f505cf754ad133125e28d6f949565",
+        "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
+        "js/exercise-cache.js": "073c9483d77f63001e779a1f5ed80868ff87db2232279732ab0d2c75711960a2",
+        "js/firebase-config.js": "3188081eda986d81f9631490ff32074a96e6b5f6d609058ef42cf3c0da58cbd0",
+        "js/firebase-diagnostics.js": "07479ed45ab6d24ecae4ae7ea5fc62a2fdd8168f5dacb08b9188c9eb925732d7",
+        "js/modules/calendar.js": "e0241626bd8c74d700cc6dfe8684ad95de44290d58ef924199ee05afa94ca1bd",
+        "js/modules/history-manager.js": "ea58fbecfc3d30b268cae2743d602ab128a8f4b9e31a754d00ce35aa31d97718",
+        "js/modules/pagination.js": "ea61fc5c4d05ba39347551fa5d3b67391d546a22a0b8543677b2bb33da9c4905",
+        "js/modules/scroll-to-top.js": "109544403dade6bfd1ba0490a6353aa8c784f8c261763004fa52723c326b5481",
+        "js/modules/session-manager.js": "fb1468e2d02a4c3be8db18aa25a1c1569131a50a0fd63e73b2058cdddab559d7",
+        "js/modules/settings.js": "ed8bcedc1e57d63884ceef459316c0f2d8d52dafc64ede3cc3b456e8eed534db",
+        "js/progress.js": "4610b2e4bfb04d5e82baaec508d3a22b85301f4180a3b288080f40179160d181",
+        "js/storage-manager.js": "2cbc62562ffaf2fa01f4b5aaaa32ded1e3cabe18e19524291883adabf6f4f9e7",
+        "js/theme-manager.js": "9a4fc89d69fe220a7df593675628fed896bd491e9474cd5c050a2699d130a3c9",
+        "js/timer.js": "0150948fa2b426832aac87409d4142a6d60b05b1569553d759dbc274c04c83cd",
+        "js/ui.js": "4ba4d0fa269d26e91489353e4b1c8afb803eb0d35cf7f9da1b70e734ea006c75",
+        "js/utils/bodyweight.js": "9852792ec85bb554ed9c09512459e0ca5f4e71bfbdbf38ddd79f10def602bf67",
+        "js/utils/debounce.js": "3a9cfac02f264edb9903e0304ca9fd5b3bff67602fc02e19bc1cd97d8c463ce5",
+        "js/utils/event-manager.js": "e190553f9e585083cfd4de9fa08268b0269380414ae4e86b1179b8898fafb044",
+        "js/utils/execution-mode.js": "52a5b60e04a0de25935f08891f71cdcebc4cdd6030e252070b625004e8197f4f",
+        "js/utils/firestore-serialization.js": "d0a9ebe912a556602c7f32bc1a06bc61ebcc1d0ff0a0e1e844d8d417ed1be43a",
+        "js/utils/load-type.js": "f2ee7e25718ebb764042331a0c728bf819d96bd7649b5e00c00baa3d3fa47427",
+        "js/utils/local-first-cache.js": "8a888477b16bbbf3147c024c320ee4be4ff66b2841acd29df732ec010a3494e0",
+        "js/utils/logger.js": "a157659881aa95343b07c3d923ca1a5d37987da978a76699639741e2cb3cb601",
+        "js/utils/notifications.js": "e77e31877b6205cb9c24c79897a1f6eccebdaae5372fb255e8324703f09d7d5c",
+        "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
+        "js/utils/quick-log.js": "97034dbf6356964c16ce2b3de7c31862a3545bea9b101d0ecb5ba4d0ada76d68",
+        "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
+        "js/utils/validation.js": "30b6eda1802ebca358e5b9d8b3f4f236bb9a406e3a936a177e42e1f853770816",
+        "js/version-manager.js": "e3c152ff3d97eadab05f1b1c8b4aa375a5702d9392bf58841644d88f2bba7edb",
+        "manifest.json": "ff1f7978dff8c11187541a303f8591ff5029db04c646c7db208a98de2873e099"
+      }
+    },
+    "progressHash": "4610b2e4bfb04d5e82baaec508d3a22b85301f4180a3b288080f40179160d181",
+    "statusRole": "status",
+    "statusLive": "polite",
+    "labelFor": "workout"
+  },
+  "afterUpdate": {
+    "revision": "v2.7.1",
+    "controller": "http://127.0.0.1:63647/sw.js",
+    "activeWorker": "activated",
+    "cacheNames": [
+      "gym-tracker-v2.7.1"
+    ],
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721500085}",
+    "metadata": {
+      "schemaVersion": 1,
+      "version": "2.7.1",
+      "revision": "v2.7.1",
+      "cacheName": "gym-tracker-v2.7.1",
+      "assets": {
+        "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
+        "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
+        "assets/icons/icon-512x512.png": "b3bdf6020506bd3cf06df44919603e369f8e406addffca194ed23040782432bc",
+        "css/components/auth.css": "b936349b4b2dfda8bd826f2800b270c88ab91a04ff94cd53953fa1ec489439ea",
+        "css/components/base.css": "841a7d59d989b676041addae061b2b324c1f763cd87a6925cf8a5b5e4da76547",
+        "css/components/buttons.css": "4668cef24e75d93af44ffa1d2d8e4e3a4e32beb4fcc06bf387f7750e1a6c9eac",
+        "css/components/calendar.css": "d5ce59299e8936abf4e4aae5bc64938944e3fef1ef45f1df704eaaf418a28b03",
+        "css/components/daily-hub.css": "4f5aa178a8d3c062960f9f6b0ba7da72dba123d96382e987d27902b048f8ed31",
+        "css/components/exercise-cache.css": "eed2335a3cfb0e87bd04943768d42497a20a75f4b1f7871169811b6e5b0a2837",
+        "css/components/footer.css": "98609c0fb7e7134759805da53161c3cf9457edcb327b94cbb810ba49e12ade16",
+        "css/components/forms.css": "8ac1bd0b9b3f0e06cc7d58acfd11b241f8ce59f032c2e3a71cd7f8ced09846c4",
+        "css/components/header.css": "a699c9b90db46b44b4492531740e32f937d744ee14477f61400cf9baf00b3ee4",
+        "css/components/history.css": "6b44ce13b2989e712df5606251b1ced399b730b3f1cd1c789bd2293a633fd435",
+        "css/components/layout.css": "9533f278efaf16336dd004a5cb839f3fdbf458ac26ac9258136c2f6a15933cd2",
+        "css/components/modal.css": "1898da31bf772ed3699b94ff56341f5c9ddc9ebfaa111b0dadbe42fcc58d6eed",
+        "css/components/progress.css": "b466b4a1b229b80f6e07c4bd68a07d6f232f406f5aea63c1b531d55b00a97681",
+        "css/components/responsive.css": "53061c6e1b6b00b63f0a0d285606977ae50b0b44db376da12482d88610adb4c6",
+        "css/components/routines.css": "0a64633110b88ab64964c41fbf1d59ed77e84eea4b7e4427b18ed92369c33bf3",
+        "css/components/scroll-to-top.css": "2f1ee2cfda6d681e5120e40dbcdfe82f702767282c0ad58b639b3c1a4a76d9b3",
+        "css/components/spinner.css": "fdbf7f769b7b1f4200232070c275671a6cd19a43fd186c8366f942482e718fe7",
+        "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
+        "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
+        "css/user-weight.css": "e7bdf377d10f7ecf766e2f5b5190ffe82a4d44961b8dbcb0d440361c5974d4ea",
+        "index.html": "67958ee4013c26e6ca31ea631129f5243cf8055a14bdcd9f16f5d4b0365cab13",
+        "js/app.js": "254772d4bb47edfa7e0e9716245e95c8d51f505cf754ad133125e28d6f949565",
+        "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
+        "js/exercise-cache.js": "073c9483d77f63001e779a1f5ed80868ff87db2232279732ab0d2c75711960a2",
+        "js/firebase-config.js": "3188081eda986d81f9631490ff32074a96e6b5f6d609058ef42cf3c0da58cbd0",
+        "js/firebase-diagnostics.js": "07479ed45ab6d24ecae4ae7ea5fc62a2fdd8168f5dacb08b9188c9eb925732d7",
+        "js/modules/calendar.js": "e0241626bd8c74d700cc6dfe8684ad95de44290d58ef924199ee05afa94ca1bd",
+        "js/modules/history-manager.js": "ea58fbecfc3d30b268cae2743d602ab128a8f4b9e31a754d00ce35aa31d97718",
+        "js/modules/pagination.js": "ea61fc5c4d05ba39347551fa5d3b67391d546a22a0b8543677b2bb33da9c4905",
+        "js/modules/scroll-to-top.js": "109544403dade6bfd1ba0490a6353aa8c784f8c261763004fa52723c326b5481",
+        "js/modules/session-manager.js": "fb1468e2d02a4c3be8db18aa25a1c1569131a50a0fd63e73b2058cdddab559d7",
+        "js/modules/settings.js": "ed8bcedc1e57d63884ceef459316c0f2d8d52dafc64ede3cc3b456e8eed534db",
+        "js/progress.js": "4610b2e4bfb04d5e82baaec508d3a22b85301f4180a3b288080f40179160d181",
+        "js/storage-manager.js": "2cbc62562ffaf2fa01f4b5aaaa32ded1e3cabe18e19524291883adabf6f4f9e7",
+        "js/theme-manager.js": "9a4fc89d69fe220a7df593675628fed896bd491e9474cd5c050a2699d130a3c9",
+        "js/timer.js": "0150948fa2b426832aac87409d4142a6d60b05b1569553d759dbc274c04c83cd",
+        "js/ui.js": "4ba4d0fa269d26e91489353e4b1c8afb803eb0d35cf7f9da1b70e734ea006c75",
+        "js/utils/bodyweight.js": "9852792ec85bb554ed9c09512459e0ca5f4e71bfbdbf38ddd79f10def602bf67",
+        "js/utils/debounce.js": "3a9cfac02f264edb9903e0304ca9fd5b3bff67602fc02e19bc1cd97d8c463ce5",
+        "js/utils/event-manager.js": "e190553f9e585083cfd4de9fa08268b0269380414ae4e86b1179b8898fafb044",
+        "js/utils/execution-mode.js": "52a5b60e04a0de25935f08891f71cdcebc4cdd6030e252070b625004e8197f4f",
+        "js/utils/firestore-serialization.js": "d0a9ebe912a556602c7f32bc1a06bc61ebcc1d0ff0a0e1e844d8d417ed1be43a",
+        "js/utils/load-type.js": "f2ee7e25718ebb764042331a0c728bf819d96bd7649b5e00c00baa3d3fa47427",
+        "js/utils/local-first-cache.js": "8a888477b16bbbf3147c024c320ee4be4ff66b2841acd29df732ec010a3494e0",
+        "js/utils/logger.js": "a157659881aa95343b07c3d923ca1a5d37987da978a76699639741e2cb3cb601",
+        "js/utils/notifications.js": "e77e31877b6205cb9c24c79897a1f6eccebdaae5372fb255e8324703f09d7d5c",
+        "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
+        "js/utils/quick-log.js": "97034dbf6356964c16ce2b3de7c31862a3545bea9b101d0ecb5ba4d0ada76d68",
+        "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
+        "js/utils/validation.js": "30b6eda1802ebca358e5b9d8b3f4f236bb9a406e3a936a177e42e1f853770816",
+        "js/version-manager.js": "8e2d56d3ec485b30dd2c53333612816fbd0546c80ba8b96aee08eb75784c452d",
+        "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
+      }
+    },
+    "progressHash": "4610b2e4bfb04d5e82baaec508d3a22b85301f4180a3b288080f40179160d181",
+    "statusRole": "status",
+    "statusLive": "polite",
+    "labelFor": "workout"
+  },
+  "offlineRestart": {
+    "revision": "v2.7.1",
+    "metadata": {
+      "schemaVersion": 1,
+      "version": "2.7.1",
+      "revision": "v2.7.1",
+      "cacheName": "gym-tracker-v2.7.1",
+      "assets": {
+        "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
+        "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
+        "assets/icons/icon-512x512.png": "b3bdf6020506bd3cf06df44919603e369f8e406addffca194ed23040782432bc",
+        "css/components/auth.css": "b936349b4b2dfda8bd826f2800b270c88ab91a04ff94cd53953fa1ec489439ea",
+        "css/components/base.css": "841a7d59d989b676041addae061b2b324c1f763cd87a6925cf8a5b5e4da76547",
+        "css/components/buttons.css": "4668cef24e75d93af44ffa1d2d8e4e3a4e32beb4fcc06bf387f7750e1a6c9eac",
+        "css/components/calendar.css": "d5ce59299e8936abf4e4aae5bc64938944e3fef1ef45f1df704eaaf418a28b03",
+        "css/components/daily-hub.css": "4f5aa178a8d3c062960f9f6b0ba7da72dba123d96382e987d27902b048f8ed31",
+        "css/components/exercise-cache.css": "eed2335a3cfb0e87bd04943768d42497a20a75f4b1f7871169811b6e5b0a2837",
+        "css/components/footer.css": "98609c0fb7e7134759805da53161c3cf9457edcb327b94cbb810ba49e12ade16",
+        "css/components/forms.css": "8ac1bd0b9b3f0e06cc7d58acfd11b241f8ce59f032c2e3a71cd7f8ced09846c4",
+        "css/components/header.css": "a699c9b90db46b44b4492531740e32f937d744ee14477f61400cf9baf00b3ee4",
+        "css/components/history.css": "6b44ce13b2989e712df5606251b1ced399b730b3f1cd1c789bd2293a633fd435",
+        "css/components/layout.css": "9533f278efaf16336dd004a5cb839f3fdbf458ac26ac9258136c2f6a15933cd2",
+        "css/components/modal.css": "1898da31bf772ed3699b94ff56341f5c9ddc9ebfaa111b0dadbe42fcc58d6eed",
+        "css/components/progress.css": "b466b4a1b229b80f6e07c4bd68a07d6f232f406f5aea63c1b531d55b00a97681",
+        "css/components/responsive.css": "53061c6e1b6b00b63f0a0d285606977ae50b0b44db376da12482d88610adb4c6",
+        "css/components/routines.css": "0a64633110b88ab64964c41fbf1d59ed77e84eea4b7e4427b18ed92369c33bf3",
+        "css/components/scroll-to-top.css": "2f1ee2cfda6d681e5120e40dbcdfe82f702767282c0ad58b639b3c1a4a76d9b3",
+        "css/components/spinner.css": "fdbf7f769b7b1f4200232070c275671a6cd19a43fd186c8366f942482e718fe7",
+        "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
+        "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
+        "css/user-weight.css": "e7bdf377d10f7ecf766e2f5b5190ffe82a4d44961b8dbcb0d440361c5974d4ea",
+        "index.html": "67958ee4013c26e6ca31ea631129f5243cf8055a14bdcd9f16f5d4b0365cab13",
+        "js/app.js": "254772d4bb47edfa7e0e9716245e95c8d51f505cf754ad133125e28d6f949565",
+        "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
+        "js/exercise-cache.js": "073c9483d77f63001e779a1f5ed80868ff87db2232279732ab0d2c75711960a2",
+        "js/firebase-config.js": "3188081eda986d81f9631490ff32074a96e6b5f6d609058ef42cf3c0da58cbd0",
+        "js/firebase-diagnostics.js": "07479ed45ab6d24ecae4ae7ea5fc62a2fdd8168f5dacb08b9188c9eb925732d7",
+        "js/modules/calendar.js": "e0241626bd8c74d700cc6dfe8684ad95de44290d58ef924199ee05afa94ca1bd",
+        "js/modules/history-manager.js": "ea58fbecfc3d30b268cae2743d602ab128a8f4b9e31a754d00ce35aa31d97718",
+        "js/modules/pagination.js": "ea61fc5c4d05ba39347551fa5d3b67391d546a22a0b8543677b2bb33da9c4905",
+        "js/modules/scroll-to-top.js": "109544403dade6bfd1ba0490a6353aa8c784f8c261763004fa52723c326b5481",
+        "js/modules/session-manager.js": "fb1468e2d02a4c3be8db18aa25a1c1569131a50a0fd63e73b2058cdddab559d7",
+        "js/modules/settings.js": "ed8bcedc1e57d63884ceef459316c0f2d8d52dafc64ede3cc3b456e8eed534db",
+        "js/progress.js": "4610b2e4bfb04d5e82baaec508d3a22b85301f4180a3b288080f40179160d181",
+        "js/storage-manager.js": "2cbc62562ffaf2fa01f4b5aaaa32ded1e3cabe18e19524291883adabf6f4f9e7",
+        "js/theme-manager.js": "9a4fc89d69fe220a7df593675628fed896bd491e9474cd5c050a2699d130a3c9",
+        "js/timer.js": "0150948fa2b426832aac87409d4142a6d60b05b1569553d759dbc274c04c83cd",
+        "js/ui.js": "4ba4d0fa269d26e91489353e4b1c8afb803eb0d35cf7f9da1b70e734ea006c75",
+        "js/utils/bodyweight.js": "9852792ec85bb554ed9c09512459e0ca5f4e71bfbdbf38ddd79f10def602bf67",
+        "js/utils/debounce.js": "3a9cfac02f264edb9903e0304ca9fd5b3bff67602fc02e19bc1cd97d8c463ce5",
+        "js/utils/event-manager.js": "e190553f9e585083cfd4de9fa08268b0269380414ae4e86b1179b8898fafb044",
+        "js/utils/execution-mode.js": "52a5b60e04a0de25935f08891f71cdcebc4cdd6030e252070b625004e8197f4f",
+        "js/utils/firestore-serialization.js": "d0a9ebe912a556602c7f32bc1a06bc61ebcc1d0ff0a0e1e844d8d417ed1be43a",
+        "js/utils/load-type.js": "f2ee7e25718ebb764042331a0c728bf819d96bd7649b5e00c00baa3d3fa47427",
+        "js/utils/local-first-cache.js": "8a888477b16bbbf3147c024c320ee4be4ff66b2841acd29df732ec010a3494e0",
+        "js/utils/logger.js": "a157659881aa95343b07c3d923ca1a5d37987da978a76699639741e2cb3cb601",
+        "js/utils/notifications.js": "e77e31877b6205cb9c24c79897a1f6eccebdaae5372fb255e8324703f09d7d5c",
+        "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
+        "js/utils/quick-log.js": "97034dbf6356964c16ce2b3de7c31862a3545bea9b101d0ecb5ba4d0ada76d68",
+        "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
+        "js/utils/validation.js": "30b6eda1802ebca358e5b9d8b3f4f236bb9a406e3a936a177e42e1f853770816",
+        "js/version-manager.js": "8e2d56d3ec485b30dd2c53333612816fbd0546c80ba8b96aee08eb75784c452d",
+        "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
+      }
+    },
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721500085}"
+  }
+}

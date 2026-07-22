@@ -1,71 +1,29 @@
 #!/usr/bin/env node
-// update-version.cjs - Version update script for the workout tracker app
 
-/**
- * Script para actualizar la versión de la aplicación en todos los archivos relevantes
- * Uso: node update-version.cjs [nueva-version]
- * Ejemplo: node update-version.cjs 1.0.2
- */
-
-console.log('🚀 Iniciando script de actualización de versión...');
+// Update the complete release contract. A version bump must make the worker
+// bytes, shell metadata, manifest metadata, and cache namespace change together.
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
-// Archivos que contienen información de versión
-// Ahora solo necesitamos actualizar el manifest.json ya que todos los demás archivos
-// obtienen la versión dinámicamente del manifest
-const VERSION_FILES = [
-    {
-        file: 'manifest.json',
-        pattern: /"version":\s*"[^"]+"/,
-        replacement: (version) => `"version": "${version}"`
-    }
-];
+const ROOT = __dirname;
 
-function updateVersionInFile(filePath, pattern, replacement, newVersion) {
-    try {
-        const fullPath = path.resolve(__dirname, filePath);
-        const content = fs.readFileSync(fullPath, 'utf8');
-        const updatedContent = content.replace(pattern, replacement(newVersion));
-        
-        if (content === updatedContent) {
-            console.warn(`⚠️  No se encontró el patrón de versión en ${filePath}`);
-            return false;
-        }
-        
-        fs.writeFileSync(fullPath, updatedContent, 'utf8');
-        console.log(`✅ Actualizado ${filePath}`);
-        return true;
-    } catch (error) {
-        console.error(`❌ Error actualizando ${filePath}:`, error.message);
-        return false;
-    }
+function readJson(filePath) {
+    return JSON.parse(fs.readFileSync(path.join(ROOT, filePath), 'utf8'));
+}
+
+function writeJson(filePath, value) {
+    fs.writeFileSync(path.join(ROOT, filePath), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
 function validateVersion(version) {
-    const versionRegex = /^\d+\.\d+\.\d+$/;
-    if (!versionRegex.test(version)) {
-        console.error('❌ Formato de versión inválido. Use el formato X.Y.Z (ej: 1.0.2)');
-        return false;
-    }
-    return true;
-}
-
-function getCurrentVersion() {
-    try {
-        const manifestPath = path.resolve(__dirname, 'manifest.json');
-        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        return manifest.version;
-    } catch (error) {
-        console.error('❌ No se pudo leer la versión actual del manifest.json');
-        return null;
-    }
+    return /^\d+\.\d+\.\d+$/.test(version);
 }
 
 function incrementVersion(currentVersion, type = 'patch') {
-    const [major, minor, patch] = currentVersion.split('.').map(Number);
-    
+    const [major, minor, patchVersion] = currentVersion.split('.').map(Number);
+
     switch (type) {
         case 'major':
             return `${major + 1}.0.0`;
@@ -73,80 +31,76 @@ function incrementVersion(currentVersion, type = 'patch') {
             return `${major}.${minor + 1}.0`;
         case 'patch':
         default:
-            return `${major}.${minor}.${patch + 1}`;
+            return `${major}.${minor}.${patchVersion + 1}`;
     }
+}
+
+function replaceOnce(filePath, pattern, replacement, label) {
+    const absolutePath = path.join(ROOT, filePath);
+    const content = fs.readFileSync(absolutePath, 'utf8');
+    if (!pattern.test(content)) {
+        throw new Error(`Could not find ${label} in ${filePath}`);
+    }
+
+    const updated = content.replace(pattern, replacement);
+    fs.writeFileSync(absolutePath, updated, 'utf8');
+}
+
+function updateReleaseContract(version) {
+    const revision = `v${version}`;
+    const manifest = readJson('manifest.json');
+    manifest.version = version;
+    manifest.release_revision = revision;
+    writeJson('manifest.json', manifest);
+
+    replaceOnce(
+        'index.html',
+        /(<meta\s+name=["']gym-release-revision["']\s+content=["'])[^"']+(["'])/i,
+        `$1${revision}$2`,
+        'shell release revision'
+    );
+    replaceOnce(
+        'sw.js',
+        /(const RELEASE_REVISION = ['"])[^'"]+(['"])/,
+        `$1${revision}$2`,
+        'service-worker release revision'
+    );
+    replaceOnce(
+        'js/version-manager.js',
+        /(const DEFAULT_VERSION = ['"])[^'"]+(['"])/,
+        `$1${version}$2`,
+        'version fallback'
+    );
+    replaceOnce(
+        'js/version-manager.js',
+        /(const DEFAULT_REVISION = ['"])[^'"]+(['"])/,
+        `$1${revision}$2`,
+        'revision fallback'
+    );
+
+    execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'release-integrity.mjs'), '--write'], {
+        cwd: ROOT,
+        stdio: 'inherit'
+    });
 }
 
 function main() {
-    const args = process.argv.slice(2);
-    let newVersion;
-    
-    if (args.length === 0) {
-        // Si no se proporciona versión, incrementar automáticamente el patch
-        const currentVersion = getCurrentVersion();
-        if (!currentVersion) {
-            process.exit(1);
-        }
-        newVersion = incrementVersion(currentVersion, 'patch');
-        console.log(`📦 Incrementando versión automáticamente: ${currentVersion} → ${newVersion}`);
-    } else if (args.length === 1) {
-        const versionArg = args[0];
-        
-        // Check si es un tipo de incremento (major, minor, patch)
-        if (['major', 'minor', 'patch'].includes(versionArg)) {
-            const currentVersion = getCurrentVersion();
-            if (!currentVersion) {
-                process.exit(1);
-            }
-            newVersion = incrementVersion(currentVersion, versionArg);
-            console.log(`📦 Incrementando versión (${versionArg}): ${currentVersion} → ${newVersion}`);
-        } else {
-            // Es una versión específica
-            newVersion = versionArg;
-            console.log(`📦 Actualizando a versión específica: ${newVersion}`);
-        }
-    } else {
-        console.error('❌ Uso: node update-version.cjs [version|major|minor|patch]');
-        console.error('   Ejemplos:');
-        console.error('     node update-version.cjs            # Incrementa patch automáticamente');
-        console.error('     node update-version.cjs patch      # Incrementa patch');
-        console.error('     node update-version.cjs minor      # Incrementa minor');
-        console.error('     node update-version.cjs major      # Incrementa major');
-        console.error('     node update-version.cjs 1.2.3      # Establece versión específica');
-        process.exit(1);
-    }
-    
+    const [versionArgument] = process.argv.slice(2);
+    const currentVersion = readJson('manifest.json').version;
+    const requestedVersion = versionArgument || 'patch';
+    const newVersion = ['major', 'minor', 'patch'].includes(requestedVersion)
+        ? incrementVersion(currentVersion, requestedVersion)
+        : requestedVersion;
+
     if (!validateVersion(newVersion)) {
-        process.exit(1);
+        console.error('Invalid version. Use X.Y.Z, major, minor, or patch.');
+        process.exitCode = 1;
+        return;
     }
-    
-    console.log(`\n🔄 Actualizando aplicación a la versión ${newVersion}...\n`);
-    
-    let allSuccessful = true;
-    
-    for (const versionFile of VERSION_FILES) {
-        const success = updateVersionInFile(
-            versionFile.file,
-            versionFile.pattern,
-            versionFile.replacement,
-            newVersion
-        );
-        allSuccessful = allSuccessful && success;
-    }
-    
-    if (allSuccessful) {
-        console.log(`\n🎉 ¡Versión actualizada exitosamente a ${newVersion}!`);
-        console.log('\n📝 Próximos pasos:');
-        console.log('   1. Verifica los cambios con git diff');
-        console.log('   2. Prueba la aplicación localmente');
-        console.log('   3. Haz commit y deploy de los cambios');
-        console.log('\n💡 Los usuarios móviles verán automáticamente la notificación de actualización');
-    } else {
-        console.log('\n⚠️  La actualización se completó con algunos errores. Revisa los archivos manualmente.');
-        process.exit(1);
-    }
+
+    console.log(`Updating Gym release ${currentVersion} -> ${newVersion}`);
+    updateReleaseContract(newVersion);
+    console.log(`Release contract updated to v${newVersion}`);
 }
 
-if (require.main === module) {
-    main();
-}
+main();

@@ -1,6 +1,11 @@
 # Commit Versioning Rules (`major` / `minor` / `patch`)
 
-This repository uses the GitHub Action in [`.github/workflows/version-bump.yml`](../.github/workflows/version-bump.yml) to bump `manifest.json` version **on every push to `main`**.
+This repository uses the GitHub Action in [`.github/workflows/version-bump.yml`](../.github/workflows/version-bump.yml) to bump the complete release contract **on every push to `main`**.
+
+The bump updates `manifest.json`, `release.json`, the `gym-release-revision` shell metadata,
+and the embedded `sw.js` revision. `release.json` records SHA-256 hashes for every local asset
+in the service-worker cache manifest. A release is not publishable unless `npm run release:check`
+passes.
 
 The workflow reads the **head commit message** and looks for these keywords:
 

@@ -14,7 +14,13 @@ import {
     hideSessionDetail, registerViewInitializer
 } from './ui.js';
 import { storageManager } from './storage-manager.js';
-import { initVersionControl, checkForBackupSession, forceAppUpdate, getCurrentVersion } from './version-manager.js';
+import {
+    initVersionControl,
+    checkForBackupSession,
+    forceAppUpdate,
+    getCurrentVersion,
+    registerServiceWorkerUpdates
+} from './version-manager.js';
 import ThemeManager from './theme-manager.js';
 import { initializeProgressView, loadExerciseList, updateChart, resetProgressView, handleExerciseChange } from './progress.js';
 import {
@@ -1697,11 +1703,26 @@ document.addEventListener('editRoutineClicked', (event) => {
 // PWA Service Worker and Storage Manager Initialization
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
-        // Initialize version control first - this handles app updates and cache management
+        // Register before version detection so a waiting worker can be activated
+        // through one coherent release transition.
+        try {
+            const swPath = new URL('sw.js', window.location.href).pathname;
+            const registration = await navigator.serviceWorker.register(swPath);
+            registerServiceWorkerUpdates(registration);
+            logger.info('ServiceWorker registered.', registration);
+        } catch (error) {
+            logger.error('ServiceWorker registration failed:', error);
+            if (error.name === 'TypeError' && error.message.includes('Failed to register') && error.message.includes('404')) {
+                logger.warn('This may be due to a missing service worker file or an ad blocker.');
+            }
+        }
+
+        // Initialize version control after registration so metadata is checked
+        // against the same update lifecycle as the installed client.
         try {
             const versionResult = await initVersionControl();
             logger.info('Version control initialized:', versionResult);
-            
+
             // Check for backup session that might need restoration after update
             checkForBackupSession();
         } catch (error) {
@@ -1714,17 +1735,6 @@ if ('serviceWorker' in navigator) {
         } catch (error) {
             logger.error('Storage manager initialization failed:', error);
         }
-
-        // Use a relative path that works regardless of deployment location
-        const swPath = new URL('sw.js', window.location.href).pathname;
-        navigator.serviceWorker.register(swPath)
-            .then(reg => logger.info('ServiceWorker registered.', reg))
-            .catch(err => {
-                logger.error('ServiceWorker registration failed:', err);
-                if (err.name === 'TypeError' && err.message.includes('Failed to register') && err.message.includes('404')) {
-                    logger.warn('This may be due to a missing service worker file or an ad blocker.');
-                }
-            });
     });
     
     // Add an error handler for Firestore connection errors

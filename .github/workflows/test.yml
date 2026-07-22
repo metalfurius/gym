@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify release revision and cache manifest
+        run: npm run build:check
+
+      - name: Run two-version PWA upgrade smoke
+        run: npm run test:e2e:upgrade
+
       - name: Run app journey tests
         run: npm run test:app
 
