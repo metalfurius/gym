@@ -142,3 +142,21 @@ Commands:
 - `npm run lint`
 - `npm run lint:ratchet`
 - `npm run lint:errors`
+- `npm run build:check` (release revision, cache manifest, and two-build integrity)
+- `npm run release:check` (same release contract check used by CI and release automation)
+- `npm run test:e2e:upgrade` (real Chromium old-to-new update, offline recovery, and visual evidence)
+
+### Release and update contract
+
+Every release has one revision, `vX.Y.Z`, recorded in `manifest.json`, `release.json`,
+the shell metadata, and `sw.js`. The service worker precaches a complete revision-scoped
+asset set before it can activate. Release metadata is fetched network-first and the deployed
+`_headers` policy prevents Cloudflare/browser caches from pinning a canonical metadata response.
+
+An installed client activates a waiting worker through `SKIP_WAITING`, backs up the in-progress
+workout, reloads after `controllerchange`, and restores the session from local storage. Old
+revision caches are deleted only from the new worker's activation after its precache succeeds.
+
+Run `npm run release:check` before publishing. The check verifies metadata agreement, every
+cached local asset and SHA-256 hash, shell references, and two consecutive deterministic build
+revisions without query-string cache busting.

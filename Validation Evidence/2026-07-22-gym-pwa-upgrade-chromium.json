@@ -1,0 +1,927 @@
+{
+  "browser": "Chromium",
+  "releaseA": "v2.7.0",
+  "releaseB": "v2.7.1",
+  "console": [],
+  "exceptions": [],
+  "network": [
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "CDN-Cache-Control": "no-store",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:40 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:40 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/js/progress.js",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:40 GMT",
+        "Content-Type": "application/javascript; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:42 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:42 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:43 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:43 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/release.json",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:43 GMT",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:63946/js/progress.js",
+      "status": 200,
+      "headers": {
+        "Transfer-Encoding": "chunked",
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Service-Worker-Allowed": "/",
+        "Connection": "keep-alive",
+        "Keep-Alive": "timeout=5",
+        "Date": "Wed, 22 Jul 2026 10:39:42 GMT",
+        "Content-Type": "application/javascript; charset=utf-8"
+      }
+    }
+  ],
+  "serviceWorkerEvents": [
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "0",
+            "registrationId": "0",
+            "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+            "runningStatus": "starting",
+            "status": "installing",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": [],
+            "targetId": "2983EC2654C1CE432A2021DBDA4E14A0"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerRegistrationUpdated",
+      "params": {
+        "registrations": [
+          {
+            "registrationId": "0",
+            "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+            "isDeleted": false
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "0",
+            "registrationId": "0",
+            "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+            "runningStatus": "running",
+            "status": "installing",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": [],
+            "targetId": "2983EC2654C1CE432A2021DBDA4E14A0"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "0",
+            "registrationId": "0",
+            "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+            "runningStatus": "running",
+            "status": "installed",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": [],
+            "targetId": "2983EC2654C1CE432A2021DBDA4E14A0"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "0",
+            "registrationId": "0",
+            "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+            "runningStatus": "running",
+            "status": "activating",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": [],
+            "targetId": "2983EC2654C1CE432A2021DBDA4E14A0"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "0",
+            "registrationId": "0",
+            "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": [],
+            "targetId": "2983EC2654C1CE432A2021DBDA4E14A0"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerRegistrationUpdated",
+      "params": {
+        "registrations": [
+          {
+            "registrationId": "1",
+            "scopeURL": "http://127.0.0.1:63946/",
+            "isDeleted": false
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "installed",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activating",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activating",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [
+              "958C71C5212ACAECDBDA20157B52C187"
+            ],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [
+              "958C71C5212ACAECDBDA20157B52C187"
+            ],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "stopped",
+            "status": "new",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": []
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "starting",
+            "status": "new",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": []
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "starting",
+            "status": "new",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 0,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "starting",
+            "status": "new",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "starting",
+            "status": "installing",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "installing",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [
+              "958C71C5212ACAECDBDA20157B52C187"
+            ],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "installed",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerRegistrationUpdated",
+      "params": {
+        "registrations": [
+          {
+            "registrationId": "1",
+            "scopeURL": "http://127.0.0.1:63946/",
+            "isDeleted": false
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "stopping",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": [],
+            "targetId": "13877172D9E3CF13A0F98BF59966590C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "stopped",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": []
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "1",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "stopped",
+            "status": "redundant",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716779.988803,
+            "controlledClients": []
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activating",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activating",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [
+              "958C71C5212ACAECDBDA20157B52C187"
+            ],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [
+              "958C71C5212ACAECDBDA20157B52C187"
+            ],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [
+              "958C71C5212ACAECDBDA20157B52C187"
+            ],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerRegistrationUpdated",
+      "params": {
+        "registrations": [
+          {
+            "registrationId": "1",
+            "scopeURL": "http://127.0.0.1:63946/",
+            "isDeleted": false
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerVersionUpdated",
+      "params": {
+        "versions": [
+          {
+            "versionId": "2",
+            "registrationId": "1",
+            "scriptURL": "http://127.0.0.1:63946/sw.js",
+            "runningStatus": "running",
+            "status": "activated",
+            "scriptLastModified": 0,
+            "scriptResponseTime": 1784716782.087545,
+            "controlledClients": [],
+            "targetId": "19CC66627CA9EED80FD8F105C84E9D5C"
+          }
+        ]
+      }
+    },
+    {
+      "method": "ServiceWorker.workerRegistrationUpdated",
+      "params": {
+        "registrations": [
+          {
+            "registrationId": "1",
+            "scopeURL": "http://127.0.0.1:63946/",
+            "isDeleted": false
+          }
+        ]
+      }
+    }
+  ],
+  "beforeUpdate": {
+    "revision": "v2.7.0",
+    "controller": "http://127.0.0.1:63946/sw.js",
+    "cacheNames": [
+      "gym-tracker-v2.7.0"
+    ],
+    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784716780593}",
+    "metadata": {
+      "schemaVersion": 1,
+      "version": "2.7.0",
+      "revision": "v2.7.0",
+      "cacheName": "gym-tracker-v2.7.0",
+      "assets": {
+        "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
+        "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
+        "assets/icons/icon-512x512.png": "b3bdf6020506bd3cf06df44919603e369f8e406addffca194ed23040782432bc",
+        "css/components/auth.css": "3e0dd60e43cd1de6f00537abe841f3657cd7cfc6201ea434627019b50e0066bd",
+        "css/components/base.css": "9b2cff995aa07cd546243eb0cb53c683abdb70ec8fbaea0b711604772bb9203c",
+        "css/components/buttons.css": "af9210eb5230618231d750d30c191ce72e9557ef456ffcc54abd3b16198a46c0",
+        "css/components/calendar.css": "ef9cd3fcf0493867f4d474d9d2a45443af718f9923c028d7390ef44844ead393",
+        "css/components/daily-hub.css": "3671a315a9e25800a633ccba87ce58d81bf7580886a0a8ccf19e3a72c82db9e4",
+        "css/components/exercise-cache.css": "1ed203f492cb0da937c2e37a8c45a245e2613bddfcab643d088fb5d3a93cc553",
+        "css/components/footer.css": "ce9a4f5042a4ac663b15ecda051812deea7e83654ec377346a9b975e1e8f2fd9",
+        "css/components/forms.css": "19e148f9d115f5ac6cb314a26783ffc7e1d4604b7097c91d6fb013b094419585",
+        "css/components/header.css": "4a6e5e82f65084bb50f234e88393f05ef84f78bddd6e9e9a936c46e0f39ddce5",
+        "css/components/history.css": "f2c59f846afc7adeb7a3c7016855d8f79e16bba2acb4aeeeb5d7f38b1065be8d",
+        "css/components/layout.css": "ae71f61c700ba0da6b4b723027e35f1c6f57fa356244354d3ee7b4694c78bf04",
+        "css/components/modal.css": "b750c30bbf830be1f5b4bf694acd314833c9679cbeb15378ea356c7d368ba435",
+        "css/components/progress.css": "81555daac03a80b005108745219cd12dff11d1a340d6ca99ac4413e622134f30",
+        "css/components/responsive.css": "7331b86f3bfe5e86eac150c829a18cbe66829f7f795f5ebbb4418d93792cfe85",
+        "css/components/routines.css": "b4aa41548500c1e37c2ba9735baeeb1f972110925f00ffcfbb4585097988137b",
+        "css/components/scroll-to-top.css": "b6ae5bec1b449a616436812758a6a4a966151a038e7b466427d862d6716856fe",
+        "css/components/spinner.css": "5ba2450709ea65db57e1656d1c3923210e14e0c9083fd38f85aad19010fa6ff3",
+        "css/components/timer.css": "40ed35b7a83592e161f5db45ba4820a0c4ad0bbf063cea76e52d313e46b5f365",
+        "css/components/variables.css": "1f6e6a432b8e8a1fe992d46fb33ea3c7edde5d94531da3d242ac8fdbbfc9d0bb",
+        "css/user-weight.css": "e6808811f65ebef7cbea099408d2f84447c840e1d9a18b857de3f2f46a3023c5",
+        "index.html": "3b276c1e4c283a17dd01230ff2301853b0ef859da41f8cf406b7a1380a85fc95",
+        "js/app.js": "062007fd16c802d600a4eca8d9ed71ed44cf086af2434cdaafda2c38a55b68fb",
+        "js/auth.js": "02a91e4ae9133600cde833cecc79a99dc1287dbdb99540ada03019545efe07a5",
+        "js/exercise-cache.js": "32ec32337d82a27742a460c517c26ed6637ae8bd768e0acc415061650936c54e",
+        "js/firebase-config.js": "ca64a6c4a23bd9f84d5836829b9413e56ee3a2f2f47bd01b4f5c10be41e8b4d8",
+        "js/firebase-diagnostics.js": "9a05436b0252403a16557066839a3e1e36f055bd6b78116dba8b45833f2dd1af",
+        "js/modules/calendar.js": "6307611f88dd281c0af117f1825281df183c2941b350eeda38acdd262417a908",
+        "js/modules/history-manager.js": "16f658b4979e114f17cd5e0f9702422c27ebeff5a55511f34e6ef69172ff355f",
+        "js/modules/pagination.js": "626a5d82ccd144c2a0ab7f032c47b290e028fd9410b3814b70ae866f0411ac74",
+        "js/modules/scroll-to-top.js": "ce35664e40914ccc78d3039f64d37c7b97ac12868785ad148fffc001f4968c1b",
+        "js/modules/session-manager.js": "65b58ef654696cecbac8f47bd2d3ef5902dba43f17aecba0dee7bea90e2bd853",
+        "js/modules/settings.js": "3fc2f0c7c25e8111ae21c6dae5c015c3f641a80f43b4893bf6111ae7d22da914",
+        "js/progress.js": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5",
+        "js/storage-manager.js": "dc214c4e46632627daedc86ff95f91ce94d6adadf19d3fa5e252b96fca857aa4",
+        "js/theme-manager.js": "7a57fbab72c17d492ce0ca9fd2e9990faf53c4b4516b60bdeb7ca45ebab3e3e5",
+        "js/timer.js": "b4c67359d3f0c6834aefcd558438fbe1058691b4cc24f47571f0813243bbd297",
+        "js/ui.js": "4258ea2104574b7dfc440867654b22b9e7e41d2a380f1ec8563e2584a58b95f0",
+        "js/utils/bodyweight.js": "1bcbf10df1bcbed2811e97a01fde43324af790d6e70ac66a871e783d1aee7c42",
+        "js/utils/debounce.js": "a51b6b1c0d9a898bcc4bc2c8fc2dd2a56c64bc88ac42b035aa816d1e033b7e40",
+        "js/utils/event-manager.js": "86cf8f9935703703f8c456b813b1ca98be0c649d009cf039a009f6c3b19d8c79",
+        "js/utils/execution-mode.js": "b26280c6c33052acf16193bf4138d53317ef1b620e34535e78aa9ce621866381",
+        "js/utils/firestore-serialization.js": "167d62e79006f10de858a6f241b1935e3c42bfa2266c4c08fc7798997be00913",
+        "js/utils/load-type.js": "85fc2c3bdf3ca6fe9a857cb456e9ce4602725a2bfc17a057697dfc4154281857",
+        "js/utils/local-first-cache.js": "dc944a14eca14bd625c08a8403b30b2db5e94bf0d8dbdafe85777244339ff9db",
+        "js/utils/logger.js": "362d5b297ab50078a19e7431e4f22517795001964c8052036e655c61b6bf8033",
+        "js/utils/notifications.js": "733fd69caf9ed19fa04031b64326aa94161449f5cbc0417053af5da18a547bb6",
+        "js/utils/offline-manager.js": "c1946aed451429a49e5a528fd2ecc9e2605fc36d83efc12bb88ac77f401c4820",
+        "js/utils/quick-log.js": "bff3e12a35dc41b917389ee4598cb157d5334cad91be7b87e1804d207c12fd64",
+        "js/utils/session-variant-overrides.js": "058d4452e2d32963ffab3238acd19a888e2042ef10db1a2c33aa7a1fc95ee2a5",
+        "js/utils/validation.js": "003933c2f40921cc3b115caf37c3c1c3d37e86944f74ed41f03dc5f2b98ccada",
+        "js/version-manager.js": "e3c152ff3d97eadab05f1b1c8b4aa375a5702d9392bf58841644d88f2bba7edb",
+        "manifest.json": "01714954a033861106697d4d861748aa05f3d3e1c24c5b40f2276753d92e2980"
+      }
+    },
+    "progressHash": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5"
+  },
+  "afterUpdate": {
+    "revision": "v2.7.1",
+    "controller": "http://127.0.0.1:63946/sw.js",
+    "cacheNames": [
+      "gym-tracker-v2.7.1"
+    ],
+    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784716780593}",
+    "metadata": {
+      "schemaVersion": 1,
+      "version": "2.7.1",
+      "revision": "v2.7.1",
+      "cacheName": "gym-tracker-v2.7.1",
+      "assets": {
+        "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
+        "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
+        "assets/icons/icon-512x512.png": "b3bdf6020506bd3cf06df44919603e369f8e406addffca194ed23040782432bc",
+        "css/components/auth.css": "3e0dd60e43cd1de6f00537abe841f3657cd7cfc6201ea434627019b50e0066bd",
+        "css/components/base.css": "9b2cff995aa07cd546243eb0cb53c683abdb70ec8fbaea0b711604772bb9203c",
+        "css/components/buttons.css": "af9210eb5230618231d750d30c191ce72e9557ef456ffcc54abd3b16198a46c0",
+        "css/components/calendar.css": "ef9cd3fcf0493867f4d474d9d2a45443af718f9923c028d7390ef44844ead393",
+        "css/components/daily-hub.css": "3671a315a9e25800a633ccba87ce58d81bf7580886a0a8ccf19e3a72c82db9e4",
+        "css/components/exercise-cache.css": "1ed203f492cb0da937c2e37a8c45a245e2613bddfcab643d088fb5d3a93cc553",
+        "css/components/footer.css": "ce9a4f5042a4ac663b15ecda051812deea7e83654ec377346a9b975e1e8f2fd9",
+        "css/components/forms.css": "19e148f9d115f5ac6cb314a26783ffc7e1d4604b7097c91d6fb013b094419585",
+        "css/components/header.css": "4a6e5e82f65084bb50f234e88393f05ef84f78bddd6e9e9a936c46e0f39ddce5",
+        "css/components/history.css": "f2c59f846afc7adeb7a3c7016855d8f79e16bba2acb4aeeeb5d7f38b1065be8d",
+        "css/components/layout.css": "ae71f61c700ba0da6b4b723027e35f1c6f57fa356244354d3ee7b4694c78bf04",
+        "css/components/modal.css": "b750c30bbf830be1f5b4bf694acd314833c9679cbeb15378ea356c7d368ba435",
+        "css/components/progress.css": "81555daac03a80b005108745219cd12dff11d1a340d6ca99ac4413e622134f30",
+        "css/components/responsive.css": "7331b86f3bfe5e86eac150c829a18cbe66829f7f795f5ebbb4418d93792cfe85",
+        "css/components/routines.css": "b4aa41548500c1e37c2ba9735baeeb1f972110925f00ffcfbb4585097988137b",
+        "css/components/scroll-to-top.css": "b6ae5bec1b449a616436812758a6a4a966151a038e7b466427d862d6716856fe",
+        "css/components/spinner.css": "5ba2450709ea65db57e1656d1c3923210e14e0c9083fd38f85aad19010fa6ff3",
+        "css/components/timer.css": "40ed35b7a83592e161f5db45ba4820a0c4ad0bbf063cea76e52d313e46b5f365",
+        "css/components/variables.css": "1f6e6a432b8e8a1fe992d46fb33ea3c7edde5d94531da3d242ac8fdbbfc9d0bb",
+        "css/user-weight.css": "e6808811f65ebef7cbea099408d2f84447c840e1d9a18b857de3f2f46a3023c5",
+        "index.html": "d35fd81aa53e21b979477f710b347c909ac98edf32f18ea1c2d06fcb74f11d31",
+        "js/app.js": "062007fd16c802d600a4eca8d9ed71ed44cf086af2434cdaafda2c38a55b68fb",
+        "js/auth.js": "02a91e4ae9133600cde833cecc79a99dc1287dbdb99540ada03019545efe07a5",
+        "js/exercise-cache.js": "32ec32337d82a27742a460c517c26ed6637ae8bd768e0acc415061650936c54e",
+        "js/firebase-config.js": "ca64a6c4a23bd9f84d5836829b9413e56ee3a2f2f47bd01b4f5c10be41e8b4d8",
+        "js/firebase-diagnostics.js": "9a05436b0252403a16557066839a3e1e36f055bd6b78116dba8b45833f2dd1af",
+        "js/modules/calendar.js": "6307611f88dd281c0af117f1825281df183c2941b350eeda38acdd262417a908",
+        "js/modules/history-manager.js": "16f658b4979e114f17cd5e0f9702422c27ebeff5a55511f34e6ef69172ff355f",
+        "js/modules/pagination.js": "626a5d82ccd144c2a0ab7f032c47b290e028fd9410b3814b70ae866f0411ac74",
+        "js/modules/scroll-to-top.js": "ce35664e40914ccc78d3039f64d37c7b97ac12868785ad148fffc001f4968c1b",
+        "js/modules/session-manager.js": "65b58ef654696cecbac8f47bd2d3ef5902dba43f17aecba0dee7bea90e2bd853",
+        "js/modules/settings.js": "3fc2f0c7c25e8111ae21c6dae5c015c3f641a80f43b4893bf6111ae7d22da914",
+        "js/progress.js": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5",
+        "js/storage-manager.js": "dc214c4e46632627daedc86ff95f91ce94d6adadf19d3fa5e252b96fca857aa4",
+        "js/theme-manager.js": "7a57fbab72c17d492ce0ca9fd2e9990faf53c4b4516b60bdeb7ca45ebab3e3e5",
+        "js/timer.js": "b4c67359d3f0c6834aefcd558438fbe1058691b4cc24f47571f0813243bbd297",
+        "js/ui.js": "4258ea2104574b7dfc440867654b22b9e7e41d2a380f1ec8563e2584a58b95f0",
+        "js/utils/bodyweight.js": "1bcbf10df1bcbed2811e97a01fde43324af790d6e70ac66a871e783d1aee7c42",
+        "js/utils/debounce.js": "a51b6b1c0d9a898bcc4bc2c8fc2dd2a56c64bc88ac42b035aa816d1e033b7e40",
+        "js/utils/event-manager.js": "86cf8f9935703703f8c456b813b1ca98be0c649d009cf039a009f6c3b19d8c79",
+        "js/utils/execution-mode.js": "b26280c6c33052acf16193bf4138d53317ef1b620e34535e78aa9ce621866381",
+        "js/utils/firestore-serialization.js": "167d62e79006f10de858a6f241b1935e3c42bfa2266c4c08fc7798997be00913",
+        "js/utils/load-type.js": "85fc2c3bdf3ca6fe9a857cb456e9ce4602725a2bfc17a057697dfc4154281857",
+        "js/utils/local-first-cache.js": "dc944a14eca14bd625c08a8403b30b2db5e94bf0d8dbdafe85777244339ff9db",
+        "js/utils/logger.js": "362d5b297ab50078a19e7431e4f22517795001964c8052036e655c61b6bf8033",
+        "js/utils/notifications.js": "733fd69caf9ed19fa04031b64326aa94161449f5cbc0417053af5da18a547bb6",
+        "js/utils/offline-manager.js": "c1946aed451429a49e5a528fd2ecc9e2605fc36d83efc12bb88ac77f401c4820",
+        "js/utils/quick-log.js": "bff3e12a35dc41b917389ee4598cb157d5334cad91be7b87e1804d207c12fd64",
+        "js/utils/session-variant-overrides.js": "058d4452e2d32963ffab3238acd19a888e2042ef10db1a2c33aa7a1fc95ee2a5",
+        "js/utils/validation.js": "003933c2f40921cc3b115caf37c3c1c3d37e86944f74ed41f03dc5f2b98ccada",
+        "js/version-manager.js": "e3c152ff3d97eadab05f1b1c8b4aa375a5702d9392bf58841644d88f2bba7edb",
+        "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
+      }
+    },
+    "progressHash": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5"
+  },
+  "offlineRestart": {
+    "revision": "v2.7.1",
+    "controller": "http://127.0.0.1:63946/sw.js",
+    "cacheNames": [
+      "gym-tracker-v2.7.1"
+    ],
+    "session": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784716780593}",
+    "metadata": {
+      "schemaVersion": 1,
+      "version": "2.7.1",
+      "revision": "v2.7.1",
+      "cacheName": "gym-tracker-v2.7.1",
+      "assets": {
+        "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
+        "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
+        "assets/icons/icon-512x512.png": "b3bdf6020506bd3cf06df44919603e369f8e406addffca194ed23040782432bc",
+        "css/components/auth.css": "3e0dd60e43cd1de6f00537abe841f3657cd7cfc6201ea434627019b50e0066bd",
+        "css/components/base.css": "9b2cff995aa07cd546243eb0cb53c683abdb70ec8fbaea0b711604772bb9203c",
+        "css/components/buttons.css": "af9210eb5230618231d750d30c191ce72e9557ef456ffcc54abd3b16198a46c0",
+        "css/components/calendar.css": "ef9cd3fcf0493867f4d474d9d2a45443af718f9923c028d7390ef44844ead393",
+        "css/components/daily-hub.css": "3671a315a9e25800a633ccba87ce58d81bf7580886a0a8ccf19e3a72c82db9e4",
+        "css/components/exercise-cache.css": "1ed203f492cb0da937c2e37a8c45a245e2613bddfcab643d088fb5d3a93cc553",
+        "css/components/footer.css": "ce9a4f5042a4ac663b15ecda051812deea7e83654ec377346a9b975e1e8f2fd9",
+        "css/components/forms.css": "19e148f9d115f5ac6cb314a26783ffc7e1d4604b7097c91d6fb013b094419585",
+        "css/components/header.css": "4a6e5e82f65084bb50f234e88393f05ef84f78bddd6e9e9a936c46e0f39ddce5",
+        "css/components/history.css": "f2c59f846afc7adeb7a3c7016855d8f79e16bba2acb4aeeeb5d7f38b1065be8d",
+        "css/components/layout.css": "ae71f61c700ba0da6b4b723027e35f1c6f57fa356244354d3ee7b4694c78bf04",
+        "css/components/modal.css": "b750c30bbf830be1f5b4bf694acd314833c9679cbeb15378ea356c7d368ba435",
+        "css/components/progress.css": "81555daac03a80b005108745219cd12dff11d1a340d6ca99ac4413e622134f30",
+        "css/components/responsive.css": "7331b86f3bfe5e86eac150c829a18cbe66829f7f795f5ebbb4418d93792cfe85",
+        "css/components/routines.css": "b4aa41548500c1e37c2ba9735baeeb1f972110925f00ffcfbb4585097988137b",
+        "css/components/scroll-to-top.css": "b6ae5bec1b449a616436812758a6a4a966151a038e7b466427d862d6716856fe",
+        "css/components/spinner.css": "5ba2450709ea65db57e1656d1c3923210e14e0c9083fd38f85aad19010fa6ff3",
+        "css/components/timer.css": "40ed35b7a83592e161f5db45ba4820a0c4ad0bbf063cea76e52d313e46b5f365",
+        "css/components/variables.css": "1f6e6a432b8e8a1fe992d46fb33ea3c7edde5d94531da3d242ac8fdbbfc9d0bb",
+        "css/user-weight.css": "e6808811f65ebef7cbea099408d2f84447c840e1d9a18b857de3f2f46a3023c5",
+        "index.html": "d35fd81aa53e21b979477f710b347c909ac98edf32f18ea1c2d06fcb74f11d31",
+        "js/app.js": "062007fd16c802d600a4eca8d9ed71ed44cf086af2434cdaafda2c38a55b68fb",
+        "js/auth.js": "02a91e4ae9133600cde833cecc79a99dc1287dbdb99540ada03019545efe07a5",
+        "js/exercise-cache.js": "32ec32337d82a27742a460c517c26ed6637ae8bd768e0acc415061650936c54e",
+        "js/firebase-config.js": "ca64a6c4a23bd9f84d5836829b9413e56ee3a2f2f47bd01b4f5c10be41e8b4d8",
+        "js/firebase-diagnostics.js": "9a05436b0252403a16557066839a3e1e36f055bd6b78116dba8b45833f2dd1af",
+        "js/modules/calendar.js": "6307611f88dd281c0af117f1825281df183c2941b350eeda38acdd262417a908",
+        "js/modules/history-manager.js": "16f658b4979e114f17cd5e0f9702422c27ebeff5a55511f34e6ef69172ff355f",
+        "js/modules/pagination.js": "626a5d82ccd144c2a0ab7f032c47b290e028fd9410b3814b70ae866f0411ac74",
+        "js/modules/scroll-to-top.js": "ce35664e40914ccc78d3039f64d37c7b97ac12868785ad148fffc001f4968c1b",
+        "js/modules/session-manager.js": "65b58ef654696cecbac8f47bd2d3ef5902dba43f17aecba0dee7bea90e2bd853",
+        "js/modules/settings.js": "3fc2f0c7c25e8111ae21c6dae5c015c3f641a80f43b4893bf6111ae7d22da914",
+        "js/progress.js": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5",
+        "js/storage-manager.js": "dc214c4e46632627daedc86ff95f91ce94d6adadf19d3fa5e252b96fca857aa4",
+        "js/theme-manager.js": "7a57fbab72c17d492ce0ca9fd2e9990faf53c4b4516b60bdeb7ca45ebab3e3e5",
+        "js/timer.js": "b4c67359d3f0c6834aefcd558438fbe1058691b4cc24f47571f0813243bbd297",
+        "js/ui.js": "4258ea2104574b7dfc440867654b22b9e7e41d2a380f1ec8563e2584a58b95f0",
+        "js/utils/bodyweight.js": "1bcbf10df1bcbed2811e97a01fde43324af790d6e70ac66a871e783d1aee7c42",
+        "js/utils/debounce.js": "a51b6b1c0d9a898bcc4bc2c8fc2dd2a56c64bc88ac42b035aa816d1e033b7e40",
+        "js/utils/event-manager.js": "86cf8f9935703703f8c456b813b1ca98be0c649d009cf039a009f6c3b19d8c79",
+        "js/utils/execution-mode.js": "b26280c6c33052acf16193bf4138d53317ef1b620e34535e78aa9ce621866381",
+        "js/utils/firestore-serialization.js": "167d62e79006f10de858a6f241b1935e3c42bfa2266c4c08fc7798997be00913",
+        "js/utils/load-type.js": "85fc2c3bdf3ca6fe9a857cb456e9ce4602725a2bfc17a057697dfc4154281857",
+        "js/utils/local-first-cache.js": "dc944a14eca14bd625c08a8403b30b2db5e94bf0d8dbdafe85777244339ff9db",
+        "js/utils/logger.js": "362d5b297ab50078a19e7431e4f22517795001964c8052036e655c61b6bf8033",
+        "js/utils/notifications.js": "733fd69caf9ed19fa04031b64326aa94161449f5cbc0417053af5da18a547bb6",
+        "js/utils/offline-manager.js": "c1946aed451429a49e5a528fd2ecc9e2605fc36d83efc12bb88ac77f401c4820",
+        "js/utils/quick-log.js": "bff3e12a35dc41b917389ee4598cb157d5334cad91be7b87e1804d207c12fd64",
+        "js/utils/session-variant-overrides.js": "058d4452e2d32963ffab3238acd19a888e2042ef10db1a2c33aa7a1fc95ee2a5",
+        "js/utils/validation.js": "003933c2f40921cc3b115caf37c3c1c3d37e86944f74ed41f03dc5f2b98ccada",
+        "js/version-manager.js": "e3c152ff3d97eadab05f1b1c8b4aa375a5702d9392bf58841644d88f2bba7edb",
+        "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
+      }
+    },
+    "progressHash": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5"
+  },
+  "waitResult": "{\"routineId\":\"upgrade-fixture-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784716780593}",
+  "status": "passed"
+}

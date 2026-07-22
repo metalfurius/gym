@@ -1,0 +1,20 @@
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: no-store
+  X-Gym-Cache-Policy: revisioned-service-worker
+
+/manifest.json
+  Cache-Control: no-store, no-cache, must-revalidate
+  CDN-Cache-Control: no-store
+
+/release.json
+  Cache-Control: no-store, no-cache, must-revalidate
+  CDN-Cache-Control: no-store
+
+/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate
+  CDN-Cache-Control: no-store
+
+/index.html
+  Cache-Control: no-store, no-cache, must-revalidate
+  CDN-Cache-Control: no-store
