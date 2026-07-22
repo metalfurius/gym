@@ -12,9 +12,10 @@ permissions:
 jobs:
     purge-and-verify:
         name: Purge Cloudflare and verify release
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        runs-on: ubuntu-latest
-        environment:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
             name: production
         steps:
             - name: Checkout deployed Pages revision
