@@ -49,8 +49,12 @@ async function readText(relativePath) {
 }
 
 async function sha256(relativePath) {
-    const data = await fs.readFile(path.join(ROOT, relativePath));
-    return crypto.createHash('sha256').update(data).digest('hex');
+    const filePath = path.join(ROOT, relativePath);
+    const data = await fs.readFile(filePath);
+    const normalized = /\.(?:css|cjs|html|js|json|mjs|svg|txt)$/i.test(relativePath)
+        ? Buffer.from(data.toString('utf8').replace(/\r\n?/g, '\n'), 'utf8')
+        : data;
+    return crypto.createHash('sha256').update(normalized).digest('hex');
 }
 
 function getRevisionFromVersion(version) {

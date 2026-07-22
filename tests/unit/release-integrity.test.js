@@ -14,7 +14,7 @@ describe('release integrity contract', () => {
             encoding: 'utf8'
         });
 
-        expect(output).toContain('two-build check passed: v2.7.0 -> v2.7.1');
-        expect(output).toContain('verified v2.7.0 with');
+        expect(output).toContain('two-build check passed: v2.7.1 -> v2.7.2');
+        expect(output).toContain('verified v2.7.1 with');
     });
 });
