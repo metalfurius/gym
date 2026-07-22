@@ -8,215 +8,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
-          "request": "67",
-          "url": "http://127.0.0.1:63647/release.json",
-          "method": "GET",
-          "bodySize": 0,
-          "headersSize": 425,
-          "headers": [
-            {
-              "name": "Host",
-              "value": {
-                "type": "string",
-                "value": "127.0.0.1:63647"
-              }
-            },
-            {
-              "name": "User-Agent",
-              "value": {
-                "type": "string",
-                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
-              }
-            },
-            {
-              "name": "Accept",
-              "value": {
-                "type": "string",
-                "value": "*/*"
-              }
-            },
-            {
-              "name": "Accept-Language",
-              "value": {
-                "type": "string",
-                "value": "en-US,en;q=0.5"
-              }
-            },
-            {
-              "name": "Accept-Encoding",
-              "value": {
-                "type": "string",
-                "value": "gzip, deflate, br, zstd"
-              }
-            },
-            {
-              "name": "Referer",
-              "value": {
-                "type": "string",
-                "value": "http://127.0.0.1:63647/"
-              }
-            },
-            {
-              "name": "Connection",
-              "value": {
-                "type": "string",
-                "value": "keep-alive"
-              }
-            },
-            {
-              "name": "Sec-Fetch-Dest",
-              "value": {
-                "type": "string",
-                "value": "empty"
-              }
-            },
-            {
-              "name": "Sec-Fetch-Mode",
-              "value": {
-                "type": "string",
-                "value": "cors"
-              }
-            },
-            {
-              "name": "Sec-Fetch-Site",
-              "value": {
-                "type": "string",
-                "value": "same-origin"
-              }
-            },
-            {
-              "name": "Priority",
-              "value": {
-                "type": "string",
-                "value": "u=4"
-              }
-            },
-            {
-              "name": "Pragma",
-              "value": {
-                "type": "string",
-                "value": "no-cache"
-              }
-            },
-            {
-              "name": "Cache-Control",
-              "value": {
-                "type": "string",
-                "value": "no-cache"
-              }
-            }
-          ],
-          "cookies": [],
-          "destination": "",
-          "initiatorType": "fetch",
-          "timings": {
-            "timeOrigin": 0,
-            "requestTime": 1784721496385.49,
-            "redirectStart": 0,
-            "redirectEnd": 0,
-            "fetchStart": 0,
-            "dnsStart": 0,
-            "dnsEnd": 0,
-            "connectStart": 0,
-            "connectEnd": 0,
-            "tlsStart": 0,
-            "tlsEnd": 0,
-            "requestStart": 1784721496389.532,
-            "responseStart": 1784721496390.534,
-            "responseEnd": 1784721496390.608
-          }
-        },
-        "timestamp": 1784721496392,
-        "response": {
-          "url": "http://127.0.0.1:63647/release.json",
-          "protocol": "http/1.1",
-          "status": 200,
-          "statusText": "OK",
-          "fromCache": false,
-          "headers": [
-            {
-              "name": "Cache-Control",
-              "value": {
-                "type": "string",
-                "value": "no-store, no-cache, must-revalidate"
-              }
-            },
-            {
-              "name": "CDN-Cache-Control",
-              "value": {
-                "type": "string",
-                "value": "no-store"
-              }
-            },
-            {
-              "name": "Content-Type",
-              "value": {
-                "type": "string",
-                "value": "application/json; charset=utf-8"
-              }
-            },
-            {
-              "name": "Service-Worker-Allowed",
-              "value": {
-                "type": "string",
-                "value": "/"
-              }
-            },
-            {
-              "name": "Date",
-              "value": {
-                "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:16 GMT"
-              }
-            },
-            {
-              "name": "Connection",
-              "value": {
-                "type": "string",
-                "value": "keep-alive"
-              }
-            },
-            {
-              "name": "Keep-Alive",
-              "value": {
-                "type": "string",
-                "value": "timeout=5"
-              }
-            },
-            {
-              "name": "Transfer-Encoding",
-              "value": {
-                "type": "string",
-                "value": "chunked"
-              }
-            }
-          ],
-          "mimeType": "application/json;charset=utf-8",
-          "bytesReceived": 5892,
-          "headersSize": 286,
-          "bodySize": 5593,
-          "content": {
-            "size": 0
-          }
-        }
-      }
-    },
-    {
-      "type": "event",
-      "method": "network.responseCompleted",
-      "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
-        "isBlocked": false,
-        "navigation": null,
-        "redirectCount": 0,
-        "request": {
-          "request": "72",
-          "url": "http://127.0.0.1:63647/release.json",
+          "request": "71",
+          "url": "http://127.0.0.1:59007/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -225,7 +23,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63647"
+                "value": "127.0.0.1:59007"
               }
             },
             {
@@ -260,7 +58,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63647/"
+                "value": "http://127.0.0.1:59007/"
               }
             },
             {
@@ -297,10 +95,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784721500087.076,
+            "requestTime": 1784744937342.819,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784721500088.489,
+            "fetchStart": 1784744937346.494,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -312,9 +110,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784721500096,
+        "timestamp": 1784744937366,
         "response": {
-          "url": "http://127.0.0.1:63647/release.json",
+          "url": "http://127.0.0.1:59007/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -352,7 +150,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:20 GMT"
+                "value": "Wed, 22 Jul 2026 18:28:57 GMT"
               }
             },
             {
@@ -391,13 +189,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
-          "request": "74",
-          "url": "http://127.0.0.1:63647/js/progress.js",
+          "request": "75",
+          "url": "http://127.0.0.1:59007/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -406,7 +204,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63647"
+                "value": "127.0.0.1:59007"
               }
             },
             {
@@ -441,7 +239,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63647/"
+                "value": "http://127.0.0.1:59007/"
               }
             },
             {
@@ -478,10 +276,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784721500096.088,
+            "requestTime": 1784744937444.514,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784721500097.664,
+            "fetchStart": 1784744937452.298,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -493,9 +291,190 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784721500102,
+        "timestamp": 1784744937469,
         "response": {
-          "url": "http://127.0.0.1:63647/js/progress.js",
+          "url": "http://127.0.0.1:59007/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 18:28:57 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "77",
+          "url": "http://127.0.0.1:59007/js/progress.js",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:59007"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:59007/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784744937471.172,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784744937472.92,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784744937481,
+        "response": {
+          "url": "http://127.0.0.1:59007/js/progress.js",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -533,7 +512,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:15 GMT"
+                "value": "Wed, 22 Jul 2026 18:28:56 GMT"
               }
             },
             {
@@ -572,13 +551,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
-          "request": "133",
-          "url": "http://127.0.0.1:63647/release.json",
+          "request": "142",
+          "url": "http://127.0.0.1:59007/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -587,7 +566,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63647"
+                "value": "127.0.0.1:59007"
               }
             },
             {
@@ -622,7 +601,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63647/"
+                "value": "http://127.0.0.1:59007/"
               }
             },
             {
@@ -659,10 +638,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784721501175.908,
+            "requestTime": 1784744938755.097,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784721501273.492,
+            "fetchStart": 1784744938757.913,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -674,9 +653,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784721501283,
+        "timestamp": 1784744938766,
         "response": {
-          "url": "http://127.0.0.1:63647/release.json",
+          "url": "http://127.0.0.1:59007/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -714,7 +693,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+                "value": "Wed, 22 Jul 2026 18:28:58 GMT"
               }
             },
             {
@@ -753,13 +732,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
-          "request": "144",
-          "url": "http://127.0.0.1:63647/release.json",
+          "request": "146",
+          "url": "http://127.0.0.1:59007/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -768,7 +747,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63647"
+                "value": "127.0.0.1:59007"
               }
             },
             {
@@ -803,7 +782,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63647/"
+                "value": "http://127.0.0.1:59007/"
               }
             },
             {
@@ -840,10 +819,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784721501495.349,
+            "requestTime": 1784744938808.171,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784721501497.003,
+            "fetchStart": 1784744938809.483,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -855,9 +834,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784721501509,
+        "timestamp": 1784744938817,
         "response": {
-          "url": "http://127.0.0.1:63647/release.json",
+          "url": "http://127.0.0.1:59007/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -895,7 +874,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+                "value": "Wed, 22 Jul 2026 18:28:58 GMT"
               }
             },
             {
@@ -934,194 +913,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
-        "isBlocked": false,
-        "navigation": null,
-        "redirectCount": 0,
-        "request": {
-          "request": "148",
-          "url": "http://127.0.0.1:63647/release.json",
-          "method": "GET",
-          "bodySize": 0,
-          "headersSize": 0,
-          "headers": [
-            {
-              "name": "Host",
-              "value": {
-                "type": "string",
-                "value": "127.0.0.1:63647"
-              }
-            },
-            {
-              "name": "User-Agent",
-              "value": {
-                "type": "string",
-                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
-              }
-            },
-            {
-              "name": "Accept",
-              "value": {
-                "type": "string",
-                "value": "*/*"
-              }
-            },
-            {
-              "name": "Accept-Language",
-              "value": {
-                "type": "string",
-                "value": "en-US,en;q=0.5"
-              }
-            },
-            {
-              "name": "Accept-Encoding",
-              "value": {
-                "type": "string",
-                "value": "gzip, deflate, br, zstd"
-              }
-            },
-            {
-              "name": "Referer",
-              "value": {
-                "type": "string",
-                "value": "http://127.0.0.1:63647/"
-              }
-            },
-            {
-              "name": "Sec-Fetch-Dest",
-              "value": {
-                "type": "string",
-                "value": "empty"
-              }
-            },
-            {
-              "name": "Sec-Fetch-Mode",
-              "value": {
-                "type": "string",
-                "value": "cors"
-              }
-            },
-            {
-              "name": "Sec-Fetch-Site",
-              "value": {
-                "type": "string",
-                "value": "same-origin"
-              }
-            },
-            {
-              "name": "Connection",
-              "value": {
-                "type": "string",
-                "value": "keep-alive"
-              }
-            }
-          ],
-          "cookies": [],
-          "destination": "",
-          "initiatorType": "fetch",
-          "timings": {
-            "timeOrigin": 0,
-            "requestTime": 1784721501531.141,
-            "redirectStart": 0,
-            "redirectEnd": 0,
-            "fetchStart": 1784721501532.251,
-            "dnsStart": 0,
-            "dnsEnd": 0,
-            "connectStart": 0,
-            "connectEnd": 0,
-            "tlsStart": 0,
-            "tlsEnd": 0,
-            "requestStart": 0,
-            "responseStart": 0,
-            "responseEnd": 0
-          }
-        },
-        "timestamp": 1784721501550,
-        "response": {
-          "url": "http://127.0.0.1:63647/release.json",
-          "protocol": "http/1.1",
-          "status": 200,
-          "statusText": "OK",
-          "fromCache": true,
-          "headers": [
-            {
-              "name": "Cache-Control",
-              "value": {
-                "type": "string",
-                "value": "no-store, no-cache, must-revalidate"
-              }
-            },
-            {
-              "name": "CDN-Cache-Control",
-              "value": {
-                "type": "string",
-                "value": "no-store"
-              }
-            },
-            {
-              "name": "Content-Type",
-              "value": {
-                "type": "string",
-                "value": "application/json; charset=utf-8"
-              }
-            },
-            {
-              "name": "Service-Worker-Allowed",
-              "value": {
-                "type": "string",
-                "value": "/"
-              }
-            },
-            {
-              "name": "Date",
-              "value": {
-                "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
-              }
-            },
-            {
-              "name": "Connection",
-              "value": {
-                "type": "string",
-                "value": "keep-alive"
-              }
-            },
-            {
-              "name": "Keep-Alive",
-              "value": {
-                "type": "string",
-                "value": "timeout=5"
-              }
-            },
-            {
-              "name": "Transfer-Encoding",
-              "value": {
-                "type": "string",
-                "value": "chunked"
-              }
-            }
-          ],
-          "mimeType": ";charset=utf-8",
-          "bytesReceived": 0,
-          "headersSize": 0,
-          "bodySize": 0,
-          "content": {
-            "size": 5593
-          }
-        }
-      }
-    },
-    {
-      "type": "event",
-      "method": "network.responseCompleted",
-      "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "150",
-          "url": "http://127.0.0.1:63647/release.json",
+          "url": "http://127.0.0.1:59007/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -1130,7 +928,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63647"
+                "value": "127.0.0.1:59007"
               }
             },
             {
@@ -1165,7 +963,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63647/"
+                "value": "http://127.0.0.1:59007/"
               }
             },
             {
@@ -1202,10 +1000,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784721501553.075,
+            "requestTime": 1784744938851.32,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784721501554.522,
+            "fetchStart": 1784744938852.583,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -1217,9 +1015,9 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784721501562,
+        "timestamp": 1784744938870,
         "response": {
-          "url": "http://127.0.0.1:63647/release.json",
+          "url": "http://127.0.0.1:59007/release.json",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -1257,7 +1055,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+                "value": "Wed, 22 Jul 2026 18:28:58 GMT"
               }
             },
             {
@@ -1296,13 +1094,13 @@
       "type": "event",
       "method": "network.responseCompleted",
       "params": {
-        "context": "5f10d5c8-eaca-4d96-b49b-cb411a351d06",
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
         "isBlocked": false,
         "navigation": null,
         "redirectCount": 0,
         "request": {
           "request": "152",
-          "url": "http://127.0.0.1:63647/js/progress.js",
+          "url": "http://127.0.0.1:59007/release.json",
           "method": "GET",
           "bodySize": 0,
           "headersSize": 0,
@@ -1311,7 +1109,7 @@
               "name": "Host",
               "value": {
                 "type": "string",
-                "value": "127.0.0.1:63647"
+                "value": "127.0.0.1:59007"
               }
             },
             {
@@ -1346,7 +1144,7 @@
               "name": "Referer",
               "value": {
                 "type": "string",
-                "value": "http://127.0.0.1:63647/"
+                "value": "http://127.0.0.1:59007/"
               }
             },
             {
@@ -1383,10 +1181,10 @@
           "initiatorType": "fetch",
           "timings": {
             "timeOrigin": 0,
-            "requestTime": 1784721501562.13,
+            "requestTime": 1784744938874.082,
             "redirectStart": 0,
             "redirectEnd": 0,
-            "fetchStart": 1784721501564.029,
+            "fetchStart": 1784744938876.027,
             "dnsStart": 0,
             "dnsEnd": 0,
             "connectStart": 0,
@@ -1398,9 +1196,190 @@
             "responseEnd": 0
           }
         },
-        "timestamp": 1784721501568,
+        "timestamp": 1784744938883,
         "response": {
-          "url": "http://127.0.0.1:63647/js/progress.js",
+          "url": "http://127.0.0.1:59007/release.json",
+          "protocol": "http/1.1",
+          "status": 200,
+          "statusText": "OK",
+          "fromCache": true,
+          "headers": [
+            {
+              "name": "Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store, no-cache, must-revalidate"
+              }
+            },
+            {
+              "name": "CDN-Cache-Control",
+              "value": {
+                "type": "string",
+                "value": "no-store"
+              }
+            },
+            {
+              "name": "Content-Type",
+              "value": {
+                "type": "string",
+                "value": "application/json; charset=utf-8"
+              }
+            },
+            {
+              "name": "Service-Worker-Allowed",
+              "value": {
+                "type": "string",
+                "value": "/"
+              }
+            },
+            {
+              "name": "Date",
+              "value": {
+                "type": "string",
+                "value": "Wed, 22 Jul 2026 18:28:58 GMT"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            },
+            {
+              "name": "Keep-Alive",
+              "value": {
+                "type": "string",
+                "value": "timeout=5"
+              }
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": {
+                "type": "string",
+                "value": "chunked"
+              }
+            }
+          ],
+          "mimeType": ";charset=utf-8",
+          "bytesReceived": 0,
+          "headersSize": 0,
+          "bodySize": 0,
+          "content": {
+            "size": 5593
+          }
+        }
+      }
+    },
+    {
+      "type": "event",
+      "method": "network.responseCompleted",
+      "params": {
+        "context": "214cc72c-7876-4701-a4ac-7de3bfbc8feb",
+        "isBlocked": false,
+        "navigation": null,
+        "redirectCount": 0,
+        "request": {
+          "request": "154",
+          "url": "http://127.0.0.1:59007/js/progress.js",
+          "method": "GET",
+          "bodySize": 0,
+          "headersSize": 0,
+          "headers": [
+            {
+              "name": "Host",
+              "value": {
+                "type": "string",
+                "value": "127.0.0.1:59007"
+              }
+            },
+            {
+              "name": "User-Agent",
+              "value": {
+                "type": "string",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
+              }
+            },
+            {
+              "name": "Accept",
+              "value": {
+                "type": "string",
+                "value": "*/*"
+              }
+            },
+            {
+              "name": "Accept-Language",
+              "value": {
+                "type": "string",
+                "value": "en-US,en;q=0.5"
+              }
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": {
+                "type": "string",
+                "value": "gzip, deflate, br, zstd"
+              }
+            },
+            {
+              "name": "Referer",
+              "value": {
+                "type": "string",
+                "value": "http://127.0.0.1:59007/"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": {
+                "type": "string",
+                "value": "empty"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": {
+                "type": "string",
+                "value": "cors"
+              }
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": {
+                "type": "string",
+                "value": "same-origin"
+              }
+            },
+            {
+              "name": "Connection",
+              "value": {
+                "type": "string",
+                "value": "keep-alive"
+              }
+            }
+          ],
+          "cookies": [],
+          "destination": "",
+          "initiatorType": "fetch",
+          "timings": {
+            "timeOrigin": 0,
+            "requestTime": 1784744938884.101,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 1784744938885.564,
+            "dnsStart": 0,
+            "dnsEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "tlsStart": 0,
+            "tlsEnd": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 0
+          }
+        },
+        "timestamp": 1784744938892,
+        "response": {
+          "url": "http://127.0.0.1:59007/js/progress.js",
           "protocol": "http/1.1",
           "status": 200,
           "statusText": "OK",
@@ -1438,7 +1417,7 @@
               "name": "Date",
               "value": {
                 "type": "string",
-                "value": "Wed, 22 Jul 2026 11:58:21 GMT"
+                "value": "Wed, 22 Jul 2026 18:28:58 GMT"
               }
             },
             {
@@ -1476,7 +1455,7 @@
   ],
   "serviceWorker": [
     {
-      "controller": "http://127.0.0.1:63647/sw.js",
+      "controller": "http://127.0.0.1:59007/sw.js",
       "activeState": "activated",
       "caches": [
         "gym-tracker-v2.7.1"
@@ -1486,12 +1465,12 @@
   "status": "passed",
   "beforeUpdate": {
     "revision": "v2.7.0",
-    "controller": "http://127.0.0.1:63647/sw.js",
+    "controller": "http://127.0.0.1:59007/sw.js",
     "activeWorker": "activated",
     "cacheNames": [
       "gym-tracker-v2.7.0"
     ],
-    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721500085}",
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784744937434}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.0",
@@ -1562,12 +1541,12 @@
   },
   "afterUpdate": {
     "revision": "v2.7.1",
-    "controller": "http://127.0.0.1:63647/sw.js",
+    "controller": "http://127.0.0.1:59007/sw.js",
     "activeWorker": "activated",
     "cacheNames": [
       "gym-tracker-v2.7.1"
     ],
-    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721500085}",
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784744937434}",
     "metadata": {
       "schemaVersion": 1,
       "version": "2.7.1",
@@ -1701,6 +1680,6 @@
         "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
       }
     },
-    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784721500085}"
+    "session": "{\"routineId\":\"firefox-upgrade-routine\",\"data\":{\"ejercicios\":[{\"nombreEjercicio\":\"Bench Press\",\"series\":[{\"peso\":\"60\",\"reps\":\"8\"}]}]},\"timestamp\":1784744937434}"
   }
 }

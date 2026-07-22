@@ -10,21 +10,36 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHROME_PATH_OVERRIDE = process.env.CHROME_PATH;
-const CHROME_PATH_CANDIDATES = process.platform === 'win32'
-    ? ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe']
-    : ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser'];
+const CHROME_PATH_CANDIDATES =
+    process.platform === 'win32'
+        ? [
+              'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+              'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+          ]
+        : ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser'];
 const SESSION_KEY = 'gymTracker_inProgressSession';
+const UPDATE_MESSAGE_KEY = 'gym-tracker-update-message-seen';
 const RELEASE_A = 'v2.7.0';
 const RELEASE_B = 'v2.7.1';
 const RELEASE_B_VERSION = '2.7.1';
 const CHROME_DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9271);
 const evidenceDirectory = path.join(ROOT, 'Validation Evidence');
 
-const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 async function copyRelease(targetDirectory) {
     await fs.mkdir(targetDirectory, { recursive: true });
-    const copyEntries = ['assets', 'css', 'js', 'index.html', 'manifest.json', 'release.json', 'sw.js', 'scripts', 'update-version.cjs'];
+    const copyEntries = [
+        'assets',
+        'css',
+        'js',
+        'index.html',
+        'manifest.json',
+        'release.json',
+        'sw.js',
+        'scripts',
+        'update-version.cjs',
+    ];
     for (const entry of copyEntries) {
         await fs.cp(path.join(ROOT, entry), path.join(targetDirectory, entry), { recursive: true });
     }
@@ -62,6 +77,7 @@ async function writeUpgradeFixture(directory, revision) {
   </main>
   <script>
     const sessionKey = '${SESSION_KEY}';
+    const updateMessageKey = '${UPDATE_MESSAGE_KEY}';
     const backupKey = 'gym-tracker-backup-session';
     const hadController = Boolean(navigator.serviceWorker.controller);
     const workout = document.getElementById('workout');
@@ -74,6 +90,7 @@ async function writeUpgradeFixture(directory, revision) {
     function activateWaiting(registration) {
       if (!registration.waiting) return;
       preserveSession();
+      sessionStorage.setItem(updateMessageKey, 'true');
       document.getElementById('status').textContent = 'Update available; preserving workout and activating safely';
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       if (hadController) {
@@ -108,36 +125,38 @@ async function createReleases() {
     await copyRelease(releaseADirectory);
     execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
         cwd: releaseADirectory,
-        stdio: 'pipe'
+        stdio: 'pipe',
     });
     await writeUpgradeFixture(releaseADirectory, RELEASE_A);
     execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
         cwd: releaseADirectory,
-        stdio: 'pipe'
+        stdio: 'pipe',
     });
     await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
     execFileSync(process.execPath, [path.join(releaseBDirectory, 'update-version.cjs'), RELEASE_B_VERSION], {
         cwd: releaseBDirectory,
-        stdio: 'pipe'
+        stdio: 'pipe',
     });
     await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
     execFileSync(process.execPath, [path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
         cwd: releaseBDirectory,
-        stdio: 'pipe'
+        stdio: 'pipe',
     });
     return { temporaryDirectory, releaseADirectory, releaseBDirectory };
 }
 
 function contentType(filePath) {
     const extension = path.extname(filePath).toLowerCase();
-    return {
-        '.css': 'text/css; charset=utf-8',
-        '.html': 'text/html; charset=utf-8',
-        '.ico': 'image/x-icon',
-        '.js': 'application/javascript; charset=utf-8',
-        '.json': 'application/json; charset=utf-8',
-        '.png': 'image/png'
-    }[extension] || 'application/octet-stream';
+    return (
+        {
+            '.css': 'text/css; charset=utf-8',
+            '.html': 'text/html; charset=utf-8',
+            '.ico': 'image/x-icon',
+            '.js': 'application/javascript; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
+            '.png': 'image/png',
+        }[extension] || 'application/octet-stream'
+    );
 }
 
 async function createSwitchingServer(initialRoot) {
@@ -158,7 +177,7 @@ async function createSwitchingServer(initialRoot) {
                 'Cache-Control': 'no-store, no-cache, must-revalidate',
                 'CDN-Cache-Control': 'no-store',
                 'Content-Type': contentType(filePath),
-                'Service-Worker-Allowed': '/'
+                'Service-Worker-Allowed': '/',
             });
             response.end(body);
         } catch (error) {
@@ -167,14 +186,14 @@ async function createSwitchingServer(initialRoot) {
         }
     });
 
-    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const address = server.address();
     return {
         server,
         url: `http://127.0.0.1:${address.port}/`,
         setRoot(nextRoot) {
             activeRoot = nextRoot;
-        }
+        },
     };
 }
 
@@ -184,7 +203,7 @@ class DevToolsClient {
         this.pending = new Map();
         this.events = [];
         this.socket = new WebSocket(webSocketUrl);
-        this.socket.addEventListener('message', (event) => {
+        this.socket.addEventListener('message', event => {
             const message = JSON.parse(event.data);
             if (message.id && this.pending.has(message.id)) {
                 const pending = this.pending.get(message.id);
@@ -215,10 +234,12 @@ class DevToolsClient {
             expression,
             awaitPromise: true,
             returnByValue: true,
-            userGesture: true
+            userGesture: true,
         });
         if (result.exceptionDetails) {
-            throw new Error(result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed');
+            throw new Error(
+                result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed'
+            );
         }
         return result.result?.value;
     }
@@ -233,25 +254,31 @@ async function openChrome(url, userDataDirectory) {
     const remotePort = CHROME_DEBUG_PORT;
     console.log(`[browser-upgrade-smoke] starting Chrome ${chromePath} on remote port ${remotePort}`);
 
-    const chrome = spawn(chromePath, [
-        '--headless=new',
-        '--disable-gpu',
-        '--in-process-gpu',
-        '--disable-gpu-compositing',
-        '--disable-dev-shm-usage',
-        '--disable-extensions',
-        '--no-first-run',
-        '--no-default-browser-check',
-        '--remote-allow-origins=*',
-        '--remote-debugging-address=127.0.0.1',
-        `--remote-debugging-port=${remotePort}`,
-        `--user-data-dir=${userDataDirectory}`,
-        '--window-size=1440,900',
-        url
-    ], { stdio: ['ignore', 'ignore', 'pipe'] });
-    chrome.stderr.on('data', (data) => console.error(`[browser-upgrade-smoke] Chrome: ${String(data).trim()}`));
-    chrome.once('error', (error) => console.error(`[browser-upgrade-smoke] Chrome process error: ${error.message}`));
-    chrome.once('exit', (code, signal) => console.log(`[browser-upgrade-smoke] Chrome exited (${code ?? 'null'}/${signal ?? 'none'})`));
+    const chrome = spawn(
+        chromePath,
+        [
+            '--headless=new',
+            '--disable-gpu',
+            '--in-process-gpu',
+            '--disable-gpu-compositing',
+            '--disable-dev-shm-usage',
+            '--disable-extensions',
+            '--no-first-run',
+            '--no-default-browser-check',
+            '--remote-allow-origins=*',
+            '--remote-debugging-address=127.0.0.1',
+            `--remote-debugging-port=${remotePort}`,
+            `--user-data-dir=${userDataDirectory}`,
+            '--window-size=1440,900',
+            url,
+        ],
+        { stdio: ['ignore', 'ignore', 'pipe'] }
+    );
+    chrome.stderr.on('data', data => console.error(`[browser-upgrade-smoke] Chrome: ${String(data).trim()}`));
+    chrome.once('error', error => console.error(`[browser-upgrade-smoke] Chrome process error: ${error.message}`));
+    chrome.once('exit', (code, signal) =>
+        console.log(`[browser-upgrade-smoke] Chrome exited (${code ?? 'null'}/${signal ?? 'none'})`)
+    );
 
     let versionResponse;
     for (let attempt = 0; attempt < 300; attempt += 1) {
@@ -274,13 +301,18 @@ async function openChrome(url, userDataDirectory) {
 
     let pageTarget;
     for (let attempt = 0; attempt < 300; attempt += 1) {
-        const targets = await fetch(`http://127.0.0.1:${remotePort}/json/list`).then((response) => response.json());
+        const targets = await fetch(`http://127.0.0.1:${remotePort}/json/list`).then(response => response.json());
         pageTarget = targets.find(
-            (target) => target.type === 'page' && target.webSocketDebuggerUrl && target.url?.startsWith(url)
+            target => target.type === 'page' && target.webSocketDebuggerUrl && target.url?.startsWith(url)
         );
         if (!pageTarget) {
             pageTarget = targets.find(
-                (target) => target.type === 'page' && target.webSocketDebuggerUrl && target.url && !target.url.startsWith('chrome-extension://') && target.url !== 'about:blank'
+                target =>
+                    target.type === 'page' &&
+                    target.webSocketDebuggerUrl &&
+                    target.url &&
+                    !target.url.startsWith('chrome-extension://') &&
+                    target.url !== 'about:blank'
             );
         }
         if (pageTarget) break;
@@ -315,7 +347,9 @@ async function waitFor(client, predicate, timeout = 20_000) {
         }
         await sleep(250);
     }
-    throw new Error(`Timed out waiting for browser condition ${predicate.name || 'anonymous'}${lastError ? `: ${lastError.message}` : ''}`);
+    throw new Error(
+        `Timed out waiting for browser condition ${predicate.name || 'anonymous'}${lastError ? `: ${lastError.message}` : ''}`
+    );
 }
 
 async function pageState(client) {
@@ -329,10 +363,12 @@ async function pageState(client) {
         return {
             revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
             displayedVersion: document.getElementById('app-version-info')?.textContent,
-            controller: navigator.serviceWorker.controller?.scriptURL || null,
-            cacheNames: await caches.keys(),
-            session: localStorage.getItem('${SESSION_KEY}'),
-            metadata,
+         controller: navigator.serviceWorker.controller?.scriptURL || null,
+         cacheNames: await caches.keys(),
+         session: localStorage.getItem('${SESSION_KEY}'),
+         updateMessageSeen: sessionStorage.getItem('${UPDATE_MESSAGE_KEY}') === 'true',
+         status: document.getElementById('status')?.textContent || null,
+         metadata,
             progressHash
         };
     })()`);
@@ -343,7 +379,7 @@ async function captureScreenshot(client, filePath, width, height, mobile) {
         width,
         height,
         deviceScaleFactor: 1,
-        mobile
+        mobile,
     });
     const screenshot = await client.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
     await fs.writeFile(filePath, Buffer.from(screenshot.data, 'base64'));
@@ -361,7 +397,7 @@ async function run() {
         console: [],
         exceptions: [],
         network: [],
-        serviceWorkerEvents: []
+        serviceWorkerEvents: [],
     };
 
     try {
@@ -369,13 +405,17 @@ async function run() {
         console.log(`[browser-upgrade-smoke] serving release A at ${server.url}`);
         browser = await openChrome(server.url, browserProfile);
         console.log('[browser-upgrade-smoke] Chromium connected');
-        browser.client.events.push = ((originalPush) => (event) => {
+        browser.client.events.push = (originalPush => event => {
             if (event.method === 'Runtime.consoleAPICalled') evidence.console.push(event.params);
             if (event.method === 'Runtime.exceptionThrown') evidence.exceptions.push(event.params);
             if (event.method === 'Network.responseReceived') {
                 const responseUrl = event.params.response.url;
                 if (/manifest|release|sw\.js|progress\.js/.test(responseUrl)) {
-                    evidence.network.push({ url: responseUrl, status: event.params.response.status, headers: event.params.response.headers });
+                    evidence.network.push({
+                        url: responseUrl,
+                        status: event.params.response.status,
+                        headers: event.params.response.headers,
+                    });
                 }
             }
             if (event.method.startsWith('ServiceWorker.')) evidence.serviceWorkerEvents.push(event);
@@ -383,7 +423,10 @@ async function run() {
         })(browser.client.events.push.bind(browser.client.events));
 
         await waitFor(browser.client, async function firstReleaseReady() {
-            return (await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json())).revision === 'v2.7.0';
+            return (
+                (await fetch('./release.json', { cache: 'no-store' }).then(response => response.json())).revision ===
+                'v2.7.0'
+            );
         });
         console.log('[browser-upgrade-smoke] release A loaded; reloading to establish control');
         await browser.client.send('Page.reload', { ignoreCache: false });
@@ -395,38 +438,57 @@ async function run() {
         const workout = {
             routineId: 'upgrade-fixture-routine',
             data: { ejercicios: [{ nombreEjercicio: 'Bench Press', series: [{ peso: '60', reps: '8' }] }] },
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         console.log('[browser-upgrade-smoke] storing in-progress workout');
-        await browser.client.evaluate(`localStorage.setItem('${SESSION_KEY}', ${JSON.stringify(JSON.stringify(workout))})`);
+        await browser.client.evaluate(
+            `localStorage.setItem('${SESSION_KEY}', ${JSON.stringify(JSON.stringify(workout))})`
+        );
         console.log('[browser-upgrade-smoke] capturing release A state');
         const beforeUpdate = await pageState(browser.client);
 
         server.setRoot(releases.releaseBDirectory);
         console.log('[browser-upgrade-smoke] requesting release B service-worker update');
-        await browser.client.evaluate("navigator.serviceWorker.ready.then((registration) => registration.update())");
+        await browser.client.evaluate('navigator.serviceWorker.ready.then((registration) => registration.update())');
         console.log('[browser-upgrade-smoke] waiting for release B cache');
         await waitFor(browser.client, async function releaseBCacheReady() {
-            const metadata = await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json());
+            const metadata = await fetch('./release.json', { cache: 'no-store' }).then(response => response.json());
             return metadata.revision === 'v2.7.1' && (await caches.keys()).includes('gym-tracker-v2.7.1');
         });
+        await fs.mkdir(evidenceDirectory, { recursive: true });
+        await captureScreenshot(
+            browser.client,
+            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-update-available.png'),
+            1440,
+            900,
+            false
+        );
         console.log('[browser-upgrade-smoke] release B cache ready; reloading');
         await browser.client.send('Page.reload', { ignoreCache: false });
 
         let afterUpdate;
         try {
             afterUpdate = await waitFor(browser.client, async function releaseBActivated() {
-            const state = await (async () => {
-                const metadata = await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json());
-                return {
-                    revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
-                    controller: navigator.serviceWorker.controller?.scriptURL || null,
-                    cacheNames: await caches.keys(),
-                    session: localStorage.getItem('gymTracker_inProgressSession'),
-                    metadata
-                };
-            })();
-            return state.revision === 'v2.7.1' && state.metadata.revision === 'v2.7.1' && state.cacheNames.includes('gym-tracker-v2.7.1') && state.session;
+                const state = await (async () => {
+                    const metadata = await fetch('./release.json', { cache: 'no-store' }).then(response =>
+                        response.json()
+                    );
+                    return {
+                        revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
+                        controller: navigator.serviceWorker.controller?.scriptURL || null,
+                        cacheNames: await caches.keys(),
+                        session: localStorage.getItem('gymTracker_inProgressSession'),
+                        updateMessageSeen: sessionStorage.getItem('gym-tracker-update-message-seen') === 'true',
+                        metadata,
+                    };
+                })();
+                return state.revision === 'v2.7.1' &&
+                    state.metadata.revision === 'v2.7.1' &&
+                    state.cacheNames.includes('gym-tracker-v2.7.1') &&
+                    state.session &&
+                    state.updateMessageSeen
+                    ? state
+                    : false;
             });
         } catch (error) {
             console.error('[browser-upgrade-smoke] update state:', JSON.stringify(await pageState(browser.client)));
@@ -438,14 +500,14 @@ async function run() {
             offline: true,
             latency: 0,
             downloadThroughput: -1,
-            uploadThroughput: -1
+            uploadThroughput: -1,
         });
         await browser.client.send('Page.reload', { ignoreCache: false });
         await waitFor(browser.client, async function offlineReleaseBReady() {
             const state = await (async () => ({
                 revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
                 session: localStorage.getItem('gymTracker_inProgressSession'),
-                metadata: await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json())
+                metadata: await fetch('./release.json', { cache: 'no-store' }).then(response => response.json()),
             }))();
             return state.revision === 'v2.7.1' && state.metadata.revision === 'v2.7.1' && state.session;
         });
@@ -455,27 +517,50 @@ async function run() {
             offline: false,
             latency: 0,
             downloadThroughput: -1,
-            uploadThroughput: -1
+            uploadThroughput: -1,
         });
-        const completeState = offlineState;
+        const onlineRecoveryState = await waitFor(browser.client, async function onlineRecovery() {
+            const metadata = await fetch('./release.json', { cache: 'no-store' }).then(response => response.json());
+            const session = localStorage.getItem('gymTracker_inProgressSession');
+            return metadata.revision === 'v2.7.1' && session ? { metadata, session } : false;
+        });
+        const completeState = await pageState(browser.client);
 
         if (completeState.progressHash !== completeState.metadata.assets['js/progress.js']) {
             throw new Error('Activated browser loaded a Progress module whose hash disagrees with release.json');
         }
-        if (!completeState.session || JSON.parse(completeState.session).data.ejercicios[0].nombreEjercicio !== 'Bench Press') {
+        if (
+            !completeState.session ||
+            JSON.parse(completeState.session).data.ejercicios[0].nombreEjercicio !== 'Bench Press'
+        ) {
             throw new Error('In-progress workout was not preserved through activation and reload');
         }
-        if (completeState.cacheNames.some((name) => name === 'gym-tracker-v2.7.0')) {
+        if (!completeState.updateMessageSeen) {
+            throw new Error('Accessible update-available messaging was not shown before activation');
+        }
+        if (completeState.cacheNames.some(name => name === 'gym-tracker-v2.7.0')) {
             throw new Error('Obsolete release cache remained after replacement activation');
         }
 
-        await fs.mkdir(evidenceDirectory, { recursive: true });
-        await captureScreenshot(browser.client, path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-desktop.png'), 1440, 900, false);
-        await captureScreenshot(browser.client, path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-mobile.png'), 390, 844, true);
+        await captureScreenshot(
+            browser.client,
+            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-desktop.png'),
+            1440,
+            900,
+            false
+        );
+        await captureScreenshot(
+            browser.client,
+            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-mobile.png'),
+            390,
+            844,
+            true
+        );
 
         evidence.beforeUpdate = beforeUpdate;
         evidence.afterUpdate = completeState;
         evidence.offlineRestart = offlineState;
+        evidence.onlineRecovery = onlineRecoveryState;
         evidence.waitResult = afterUpdate;
         evidence.status = 'passed';
         await fs.writeFile(
@@ -493,13 +578,13 @@ async function run() {
                 // Chrome may already have exited after the test.
             }
         }
-        if (server) await new Promise((resolve) => server.server.close(resolve));
+        if (server) await new Promise(resolve => server.server.close(resolve));
         await fs.rm(releases.temporaryDirectory, { recursive: true, force: true }).catch(() => {});
         await fs.rm(browserProfile, { recursive: true, force: true }).catch(() => {});
     }
 }
 
-run().catch(async (error) => {
+run().catch(async error => {
     console.error(`[browser-upgrade-smoke] ${error.message}`);
     process.exitCode = 1;
 });

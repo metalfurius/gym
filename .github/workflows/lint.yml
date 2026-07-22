@@ -2,7 +2,7 @@ name: Lint
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/gym-pwa-update-delivery-v1]
   pull_request:
     branches: [main]
 
