@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { readFileSync } from 'node:fs';
 
 const saveInProgressSessionMock = jest.fn();
 const loadInProgressSessionMock = jest.fn(() => null);
@@ -17,7 +18,7 @@ const {
 describe('Version Manager', () => {
     const VERSION_KEY = 'gym-tracker-version';
     const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
-    const DEFAULT_VERSION = '2.7.1';
+    const DEFAULT_VERSION = JSON.parse(readFileSync(new URL('../../manifest.json', import.meta.url), 'utf8')).version;
 
     beforeEach(() => {
         localStorage.clear();
