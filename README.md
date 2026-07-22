@@ -145,6 +145,7 @@ Commands:
 - `npm run build:check` (release revision, cache manifest, and two-build integrity)
 - `npm run release:check` (same release contract check used by CI and release automation)
 - `npm run test:e2e:upgrade` (real Chromium old-to-new update, offline recovery, and visual evidence)
+- `npm run test:e2e:upgrade:firefox` (real Firefox old-to-new update, offline recovery, accessibility, and visual evidence)
 
 ### Release and update contract
 
