@@ -17,7 +17,7 @@ const {
 describe('Version Manager', () => {
     const VERSION_KEY = 'gym-tracker-version';
     const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
-    const DEFAULT_VERSION = '2.7.1';
+    const DEFAULT_VERSION = '2.7.2';
 
     beforeEach(() => {
         localStorage.clear();

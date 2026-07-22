@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from '@jest/globals';
@@ -13,8 +14,9 @@ describe('release integrity contract', () => {
             cwd: projectRoot,
             encoding: 'utf8'
         });
+        const currentVersion = JSON.parse(readFileSync(path.join(projectRoot, 'manifest.json'), 'utf8')).version;
 
-        expect(output).toContain('two-build check passed: v2.7.1 -> v2.7.2');
-        expect(output).toContain('verified v2.7.1 with');
+        expect(output).toContain(`two-build check passed: v${currentVersion} ->`);
+        expect(output).toContain(`verified v${currentVersion} with`);
     });
 });
