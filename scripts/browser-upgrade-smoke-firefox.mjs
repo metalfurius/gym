@@ -49,11 +49,6 @@ async function createReleases() {
     const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-firefox-'));
     const releaseADirectory = path.join(temporaryDirectory, 'release-a');
     const releaseBDirectory = path.join(temporaryDirectory, 'release-b');
-    await copyRelease(releaseADirectory);
-    await writeUpgradeFixture(releaseADirectory, RELEASE_A);
-    await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
-    const releaseIntegrity = path.join(releaseADirectory, 'scripts', 'release-integrity.mjs');
-    const updateVersion = path.join(releaseBDirectory, 'update-version.cjs');
     const run = (file, args, cwd) => new Promise((resolve, reject) => {
         const child = spawn(process.execPath, [file, ...args], { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
         let stderr = '';
@@ -61,8 +56,15 @@ async function createReleases() {
         child.once('error', reject);
         child.once('exit', (code) => code === 0 ? resolve() : reject(new Error(stderr || `Child exited ${code}`)));
     });
+    await copyRelease(releaseADirectory);
+    const updateVersion = path.join(releaseADirectory, 'update-version.cjs');
+    await writeUpgradeFixture(releaseADirectory, RELEASE_A);
+    await run(updateVersion, ['2.7.0'], releaseADirectory);
+    await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
+    const releaseIntegrity = path.join(releaseADirectory, 'scripts', 'release-integrity.mjs');
+    const releaseBUpdateVersion = path.join(releaseBDirectory, 'update-version.cjs');
     await run(releaseIntegrity, ['--write'], releaseADirectory);
-    await run(updateVersion, [RELEASE_B_VERSION], releaseBDirectory);
+    await run(releaseBUpdateVersion, [RELEASE_B_VERSION], releaseBDirectory);
     await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
     await run(path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), ['--write'], releaseBDirectory);
     return { temporaryDirectory, releaseADirectory, releaseBDirectory };

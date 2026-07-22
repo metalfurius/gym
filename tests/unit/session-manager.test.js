@@ -444,6 +444,7 @@ describe('Session Manager', () => {
             })
         );
         expect(mockTrackWrite).toHaveBeenCalledWith(1, 'quicklog.save');
+        expect(mockInvalidateProgressCache).toHaveBeenCalled();
         expect(mockClearByPrefix).toHaveBeenCalledWith(`history:${user.uid}:`);
         expect(mockClearByPrefix).toHaveBeenCalledWith(`calendar:${user.uid}:`);
         expect(onSuccess).toHaveBeenCalled();

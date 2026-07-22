@@ -962,7 +962,7 @@ async function refreshDailyHub(user, options = {}) {
                 'Skipping weekly outcome freezing because Daily Hub weekly-window query was truncated; avoiding persistence of incomplete historical outcomes.'
             );
         } else {
-            await finalizePastWeeklyOutcomes(user, sessions, now);
+            await finalizePastWeeklyOutcomes(user, sessions, getCurrentDateForWeeklyRules());
         }
     }
     const state = computeDailyHubState({

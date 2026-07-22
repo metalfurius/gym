@@ -106,6 +106,10 @@ async function createReleases() {
     const releaseADirectory = path.join(temporaryDirectory, 'release-a');
     const releaseBDirectory = path.join(temporaryDirectory, 'release-b');
     await copyRelease(releaseADirectory);
+    execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
+        cwd: releaseADirectory,
+        stdio: 'pipe'
+    });
     await writeUpgradeFixture(releaseADirectory, RELEASE_A);
     execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
         cwd: releaseADirectory,

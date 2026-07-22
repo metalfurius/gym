@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "2.7.0",
-  "revision": "v2.7.0",
-  "cacheName": "gym-tracker-v2.7.0",
+  "version": "2.7.1",
+  "revision": "v2.7.1",
+  "cacheName": "gym-tracker-v2.7.1",
   "assets": {
     "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
     "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
@@ -27,19 +27,19 @@
     "css/components/timer.css": "40ed35b7a83592e161f5db45ba4820a0c4ad0bbf063cea76e52d313e46b5f365",
     "css/components/variables.css": "1f6e6a432b8e8a1fe992d46fb33ea3c7edde5d94531da3d242ac8fdbbfc9d0bb",
     "css/user-weight.css": "e6808811f65ebef7cbea099408d2f84447c840e1d9a18b857de3f2f46a3023c5",
-    "index.html": "58b745c9dfe4781908df1cf7a37f08c6331adb3bdcc91e74c438b8962a0625b2",
-    "js/app.js": "062007fd16c802d600a4eca8d9ed71ed44cf086af2434cdaafda2c38a55b68fb",
+    "index.html": "9800f0cfcb625947f5c60dd693c70cf39fece45e0c781710714dc9a6f92bad06",
+    "js/app.js": "deb05cfcf725bd1d88b616d561c72cc0fd4e061dee3e4c2f46a424ea57bf23f5",
     "js/auth.js": "02a91e4ae9133600cde833cecc79a99dc1287dbdb99540ada03019545efe07a5",
-    "js/exercise-cache.js": "32ec32337d82a27742a460c517c26ed6637ae8bd768e0acc415061650936c54e",
+    "js/exercise-cache.js": "fba7bee06e8cafdb9a6af9f983bbcbe5c37fbb979fd1421d077b8f593f245214",
     "js/firebase-config.js": "ca64a6c4a23bd9f84d5836829b9413e56ee3a2f2f47bd01b4f5c10be41e8b4d8",
     "js/firebase-diagnostics.js": "9a05436b0252403a16557066839a3e1e36f055bd6b78116dba8b45833f2dd1af",
     "js/modules/calendar.js": "6307611f88dd281c0af117f1825281df183c2941b350eeda38acdd262417a908",
     "js/modules/history-manager.js": "16f658b4979e114f17cd5e0f9702422c27ebeff5a55511f34e6ef69172ff355f",
     "js/modules/pagination.js": "626a5d82ccd144c2a0ab7f032c47b290e028fd9410b3814b70ae866f0411ac74",
     "js/modules/scroll-to-top.js": "ce35664e40914ccc78d3039f64d37c7b97ac12868785ad148fffc001f4968c1b",
-    "js/modules/session-manager.js": "65b58ef654696cecbac8f47bd2d3ef5902dba43f17aecba0dee7bea90e2bd853",
+    "js/modules/session-manager.js": "715328789fada086a3e3e2de38f56b5c3d57ac9a98ba0140c7647cb050733af5",
     "js/modules/settings.js": "3fc2f0c7c25e8111ae21c6dae5c015c3f641a80f43b4893bf6111ae7d22da914",
-    "js/progress.js": "dbd475a281e8b094a119c3a1fa4c187123567693c88ec6d86f78309cf03087b5",
+    "js/progress.js": "d95f8aac40de8338643afa12b0926ebfe9f6cd466786ae64b415aba2e55af9a0",
     "js/storage-manager.js": "dc214c4e46632627daedc86ff95f91ce94d6adadf19d3fa5e252b96fca857aa4",
     "js/theme-manager.js": "7a57fbab72c17d492ce0ca9fd2e9990faf53c4b4516b60bdeb7ca45ebab3e3e5",
     "js/timer.js": "b4c67359d3f0c6834aefcd558438fbe1058691b4cc24f47571f0813243bbd297",
@@ -58,6 +58,6 @@
     "js/utils/session-variant-overrides.js": "058d4452e2d32963ffab3238acd19a888e2042ef10db1a2c33aa7a1fc95ee2a5",
     "js/utils/validation.js": "003933c2f40921cc3b115caf37c3c1c3d37e86944f74ed41f03dc5f2b98ccada",
     "js/version-manager.js": "e3c152ff3d97eadab05f1b1c8b4aa375a5702d9392bf58841644d88f2bba7edb",
-    "manifest.json": "01714954a033861106697d4d861748aa05f3d3e1c24c5b40f2276753d92e2980"
+    "manifest.json": "66d2b74130f7d63f1c937e9db0aa32fa29ebb32defbccb2dcc263472d777714c"
   }
 }
