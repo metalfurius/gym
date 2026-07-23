@@ -171,3 +171,6 @@ revisions without query-string cache busting.
 Production verification repeats the no-query canonical check and reuses a previously-installed
 client to confirm update activation, preserved workout state, offline recovery, and reconnect
 without manual cache clearing.
+
+Transient Cloudflare 403/5xx responses are retried and reported as edge-layer diagnostics; asset,
+metadata, service-worker, and Pages disagreements remain hard failures.
