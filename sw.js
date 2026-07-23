@@ -1,5 +1,5 @@
 // This value is rewritten by update-version.cjs and is part of the release contract.
-const RELEASE_REVISION = 'v2.7.9';
+const RELEASE_REVISION = 'v2.7.10';
 const CACHE_NAME = `gym-tracker-${RELEASE_REVISION}`;
 const RELEASE_METADATA_PATHS = new Set(['manifest.json', 'release.json']);
 const OPTIONAL_ASSET_TIMEOUT_MS = 5_000;
