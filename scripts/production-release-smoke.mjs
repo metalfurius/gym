@@ -24,6 +24,88 @@ function normalizeText(buffer) {
     return Buffer.from(buffer).toString('utf8').replace(/\r\n?/g, '\n');
 }
 
+function transformHtmlElements(value, tagName, transform) {
+    const lowerValue = value.toLowerCase();
+    const openingToken = `<${tagName}`;
+    const closingToken = `</${tagName}`;
+    let cursor = 0;
+    let result = '';
+
+    while (cursor < value.length) {
+        const start = lowerValue.indexOf(openingToken, cursor);
+        if (start === -1) return result + value.slice(cursor);
+
+        const tagSuffix = lowerValue[start + openingToken.length];
+        if (tagSuffix && tagSuffix !== '>' && !' \t\r\n\f'.includes(tagSuffix)) {
+            cursor = start + openingToken.length;
+            continue;
+        }
+
+        const openingEnd = lowerValue.indexOf('>', start + openingToken.length);
+        if (openingEnd === -1) return result + value.slice(cursor);
+        const closingStart = lowerValue.indexOf(closingToken, openingEnd + 1);
+        if (closingStart === -1) return result + value.slice(cursor);
+        const closingEnd = lowerValue.indexOf('>', closingStart + closingToken.length);
+        if (closingEnd === -1) return result + value.slice(cursor);
+
+        result += value.slice(cursor, start);
+        result += transform(value.slice(start, closingEnd + 1));
+        cursor = closingEnd + 1;
+    }
+
+    return result;
+}
+
+function stripHtmlElements(value, tagName) {
+    return transformHtmlElements(value, tagName, () => '');
+}
+
+function normalizeCloudflareScripts(value) {
+    return transformHtmlElements(value, 'script', element => {
+        const lowerElement = element.toLowerCase();
+        if (lowerElement.includes('/cdn-cgi/') || lowerElement.includes('__cf$cv_params')) return '';
+        return element
+            .replace(/ type="[^"]+-text\/javascript"/gi, '')
+            .replace(/ type="[^"]+-module"/gi, ' type="module"')
+            .replace(/ data-cf-settings="[^"]+"/gi, '');
+    });
+}
+
+function normalizeCloudflareEmailSpans(value) {
+    return transformHtmlElements(value, 'span', element =>
+        element.toLowerCase().includes('class="__cf_email__"') ? '[email-protected]' : element
+    );
+}
+
+function normalizeShellHtml(value) {
+    return normalizeCloudflareScripts(normalizeCloudflareEmailSpans(stripHtmlElements(value, 'style')))
+        .replace(
+            /<a\s+href="https:\/\/codeoverdose\.es\/cdn-cgi\/content\?id=[^"]+"[^>]*aria-hidden="true"[^>]*><\/a>/gi,
+            ''
+        )
+        .replace(/<link\s+rel="preconnect"\s+href="https:\/\/fonts\.googleapis\.com"\s*\/?>/gi, '')
+        .replace(/<link\s+rel="preconnect"\s+href="https:\/\/fonts\.gstatic\.com"\s+crossorigin\s*\/?>/gi, '')
+        .replace(/<link\s+href="https:\/\/fonts\.googleapis\.com\/css2\?[^\"]+"\s+rel="stylesheet"\s*\/?>/gi, '')
+        .replace(/\[email&#160;protected\]/gi, '[email-protected]')
+        .replace(
+            /<a\s+href="mailto:contact@codeoverdose\.es">contact@codeoverdose\.es<\/a>/gi,
+            '<a href="[cloudflare-email-protection]">[email-protected]</a>'
+        )
+        .replace(/\s+data-cfemail="[^"]*"/gi, '')
+        .replace(/href="\/cdn-cgi\/(?:l\/)?email-protection#[^"]+"/gi, 'href="[cloudflare-email-protection]"')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function shellDifferenceSummary(expected, actual) {
+    let firstDifference = 0;
+    while (firstDifference < Math.min(expected.length, actual.length)) {
+        if (expected[firstDifference] !== actual[firstDifference]) break;
+        firstDifference += 1;
+    }
+    return `normalized-lengths=${expected.length}/${actual.length}, first-difference=${firstDifference}`;
+}
+
 function sha256(buffer, relativePath) {
     const normalized = /\.(?:css|cjs|html|js|json|mjs|svg|txt)$/i.test(relativePath)
         ? Buffer.from(normalizeText(buffer), 'utf8')
@@ -71,6 +153,7 @@ async function fetchAsset(base, relativePath) {
             headers: {
                 'Cache-Control': 'no-cache',
                 Pragma: 'no-cache',
+                'User-Agent': 'gym-production-release-smoke/1.0',
             },
         });
     } catch (error) {
@@ -79,7 +162,12 @@ async function fetchAsset(base, relativePath) {
 
     const buffer = Buffer.from(await response.arrayBuffer());
     if (!response.ok) {
-        fail('pages', `${relativePath} returned HTTP ${response.status}`);
+        const layer = response.status === 403 || response.status >= 500 ? 'cloudflare' : 'pages';
+        const headers = selectedHeaders(response);
+        fail(
+            layer,
+            `${relativePath} returned HTTP ${response.status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, server=${headers.server || 'unknown'})`
+        );
     }
 
     return { relativePath, url: url.toString(), buffer, headers: selectedHeaders(response) };
@@ -93,7 +181,7 @@ async function readProduction(base, expectedAssets) {
     return assets;
 }
 
-function validateRelease(release, assets) {
+function validateRelease(release, assets, checkedOutIndexHtml) {
     if (release.schemaVersion !== 1 || !/^v\d+\.\d+\.\d+$/.test(release.revision)) {
         fail('manifest', 'production release.json has an invalid schema or revision');
     }
@@ -131,8 +219,14 @@ function validateRelease(release, assets) {
     if (indexHtml.match(META_PATTERN)?.[1] !== expectedRevision) {
         fail('pages', `index.html shell revision disagrees with ${expectedRevision}`);
     }
-    if (rootHtml !== indexHtml) {
-        fail('cloudflare', 'the canonical /gym/ entry shell differs from /gym/index.html');
+    if (rootHtml.match(META_PATTERN)?.[1] !== expectedRevision) {
+        fail('cloudflare', `the canonical /gym/ entry revision disagrees with ${expectedRevision}`);
+    }
+    if (normalizeShellHtml(rootHtml) !== normalizeShellHtml(indexHtml)) {
+        fail(
+            'cloudflare',
+            'the canonical /gym/ entry shell differs from /gym/index.html after Cloudflare markup normalization'
+        );
     }
     if (serviceWorker.match(REVISION_PATTERN)?.[1] !== expectedRevision) {
         fail('service-worker', `sw.js revision disagrees with ${expectedRevision}`);
@@ -150,10 +244,20 @@ function validateRelease(release, assets) {
         if (!asset) fail('asset', `declared asset was not fetched: ${relativePath}`);
         const expectedHash = remoteRelease.assets[relativePath];
         const actualHash = sha256(asset.buffer, relativePath);
-        if (actualHash !== expectedHash) {
+        const edgeTransformedShellMatches = relativePath === 'index.html';
+        const normalizedExpectedShell = edgeTransformedShellMatches ? normalizeShellHtml(checkedOutIndexHtml) : null;
+        const normalizedActualShell = edgeTransformedShellMatches
+            ? normalizeShellHtml(normalizeText(asset.buffer))
+            : null;
+        const normalizedShellMatches = edgeTransformedShellMatches && normalizedExpectedShell === normalizedActualShell;
+        if (actualHash !== expectedHash && !normalizedShellMatches) {
+            const layer = relativePath === 'index.html' ? 'cloudflare' : 'asset';
+            const detail = normalizedExpectedShell
+                ? ` (${shellDifferenceSummary(normalizedExpectedShell, normalizedActualShell)})`
+                : '';
             fail(
-                'asset',
-                `${relativePath} hash disagrees with release.json (expected ${expectedHash}, got ${actualHash})`
+                layer,
+                `${relativePath} hash disagrees with release.json (expected ${expectedHash}, got ${actualHash})${detail}`
             );
         }
     }
@@ -199,7 +303,8 @@ async function run() {
     for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
         try {
             const assets = await readProduction(base, expectedAssets);
-            const validation = validateRelease(release, assets);
+            const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(ROOT, 'index.html')));
+            const validation = validateRelease(release, assets, checkedOutIndexHtml);
             const evidence = buildEvidence(release, assets, validation);
             const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
             if (evidencePath) {
