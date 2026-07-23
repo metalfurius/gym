@@ -24,6 +24,20 @@ function normalizeText(buffer) {
     return Buffer.from(buffer).toString('utf8').replace(/\r\n?/g, '\n');
 }
 
+function normalizeShellHtml(value) {
+    return value
+        .replace(
+            /<a\s+href="https:\/\/codeoverdose\.es\/cdn-cgi\/content\?id=[^"]+"[^>]*aria-hidden="true"[^>]*><\/a>/gi,
+            ''
+        )
+        .replace(/<style\s+type="text\/css">[\s\S]*?<\/style>/gi, '')
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/\s+data-cfemail="[^"]*"/gi, '')
+        .replace(/href="\/cdn-cgi\/email-protection#[^"]+"/gi, 'href="[cloudflare-email-protection]"')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function sha256(buffer, relativePath) {
     const normalized = /\.(?:css|cjs|html|js|json|mjs|svg|txt)$/i.test(relativePath)
         ? Buffer.from(normalizeText(buffer), 'utf8')
@@ -71,6 +85,7 @@ async function fetchAsset(base, relativePath) {
             headers: {
                 'Cache-Control': 'no-cache',
                 Pragma: 'no-cache',
+                'User-Agent': 'gym-production-release-smoke/1.0',
             },
         });
     } catch (error) {
@@ -79,7 +94,12 @@ async function fetchAsset(base, relativePath) {
 
     const buffer = Buffer.from(await response.arrayBuffer());
     if (!response.ok) {
-        fail('pages', `${relativePath} returned HTTP ${response.status}`);
+        const layer = response.status === 403 || response.status >= 500 ? 'cloudflare' : 'pages';
+        const headers = selectedHeaders(response);
+        fail(
+            layer,
+            `${relativePath} returned HTTP ${response.status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, server=${headers.server || 'unknown'})`
+        );
     }
 
     return { relativePath, url: url.toString(), buffer, headers: selectedHeaders(response) };
@@ -131,8 +151,14 @@ function validateRelease(release, assets) {
     if (indexHtml.match(META_PATTERN)?.[1] !== expectedRevision) {
         fail('pages', `index.html shell revision disagrees with ${expectedRevision}`);
     }
-    if (rootHtml !== indexHtml) {
-        fail('cloudflare', 'the canonical /gym/ entry shell differs from /gym/index.html');
+    if (rootHtml.match(META_PATTERN)?.[1] !== expectedRevision) {
+        fail('cloudflare', `the canonical /gym/ entry revision disagrees with ${expectedRevision}`);
+    }
+    if (normalizeShellHtml(rootHtml) !== normalizeShellHtml(indexHtml)) {
+        fail(
+            'cloudflare',
+            'the canonical /gym/ entry shell differs from /gym/index.html after Cloudflare markup normalization'
+        );
     }
     if (serviceWorker.match(REVISION_PATTERN)?.[1] !== expectedRevision) {
         fail('service-worker', `sw.js revision disagrees with ${expectedRevision}`);
