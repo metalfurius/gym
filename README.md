@@ -174,3 +174,6 @@ without manual cache clearing.
 
 Transient Cloudflare 403/5xx responses are retried and reported as edge-layer diagnostics; asset,
 metadata, service-worker, and Pages disagreements remain hard failures.
+
+The installed-client smoke waits for both the replacement controller and application-level session
+restoration before checking offline and reconnect behavior.
