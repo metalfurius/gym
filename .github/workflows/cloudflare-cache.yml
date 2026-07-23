@@ -18,7 +18,7 @@ permissions:
 jobs:
   purge-and-verify:
     name: Purge Cloudflare and verify release
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
@@ -34,12 +34,11 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Validate scoped cache token and purge canonical URLs
+      - name: Validate scoped cache token, policy, and purge canonical URLs
         run: npm run cloudflare:cache:purge
         env:
           CLOUDFLARE_CACHE_API_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_API_TOKEN }}
-          CLOUDFLARE_ZONE_NAME: codeoverdose.es
-          GYM_PUBLIC_BASE_URL: https://codeoverdose.es/gym/
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Verify no-query production release coherence
         run: npm run production:release:smoke
