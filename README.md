@@ -167,3 +167,7 @@ revision caches are deleted only from the new worker's activation after its prec
 Run `npm run release:check` before publishing. The check verifies metadata agreement, every
 cached local asset and SHA-256 hash, shell references, and two consecutive deterministic build
 revisions without query-string cache busting.
+
+Production verification repeats the no-query canonical check and reuses a previously-installed
+client to confirm update activation, preserved workout state, offline recovery, and reconnect
+without manual cache clearing.
