@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "2.7.7",
-  "revision": "v2.7.7",
-  "cacheName": "gym-tracker-v2.7.7",
+  "version": "2.7.8",
+  "revision": "v2.7.8",
+  "cacheName": "gym-tracker-v2.7.8",
   "assets": {
     "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
     "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
@@ -27,7 +27,7 @@
     "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
     "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
     "css/user-weight.css": "e7bdf377d10f7ecf766e2f5b5190ffe82a4d44961b8dbcb0d440361c5974d4ea",
-    "index.html": "e54e52dc85277afecd04cdb75e3f21d4eb841b6a2d9036d1b3dd6d7c02276621",
+    "index.html": "e29fc3f2a93f7b2d6b910dbb4f6b6434dadb93a6cf2dd4d43810c87a6d25ffc8",
     "js/app.js": "254772d4bb47edfa7e0e9716245e95c8d51f505cf754ad133125e28d6f949565",
     "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
     "js/exercise-cache.js": "073c9483d77f63001e779a1f5ed80868ff87db2232279732ab0d2c75711960a2",
@@ -57,7 +57,7 @@
     "js/utils/quick-log.js": "97034dbf6356964c16ce2b3de7c31862a3545bea9b101d0ecb5ba4d0ada76d68",
     "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
     "js/utils/validation.js": "30b6eda1802ebca358e5b9d8b3f4f236bb9a406e3a936a177e42e1f853770816",
-    "js/version-manager.js": "aa8ae1e6be91de89d2cee4cda63060b82412a27667687ad7e8fe5399b2c809d7",
-    "manifest.json": "19af570064c0f5f2aa1981ed7baa4744a7970630251b4858c2e8f27fbaa0d8f6"
+    "js/version-manager.js": "4e5514f0de4b209f064efb94cc4015df2805b8ec1f9b843af3cdaa302a140017",
+    "manifest.json": "ed3b58f8c4afe7a3081c749ebe39fbbe63722355278bdedf9de35bc182dc0cfb"
   }
 }
