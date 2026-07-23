@@ -10,7 +10,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_BASE_URL = process.env.GYM_PUBLIC_BASE_URL || 'https://codeoverdose.es/gym/';
 const RETRY_COUNT = Number(process.env.PRODUCTION_SMOKE_RETRY_COUNT || 12);
 const RETRY_DELAY_MS = Number(process.env.PRODUCTION_SMOKE_RETRY_DELAY_MS || 5_000);
-const CORE_ASSETS = ['index.html', 'manifest.json', 'release.json', 'sw.js', 'js/progress.js'];
+const CORE_ASSETS = ['', 'index.html', 'manifest.json', 'release.json', 'sw.js', 'js/progress.js'];
 const REVISION_PATTERN = /const RELEASE_REVISION = ['"]([^'"]+)['"]/;
 const META_PATTERN = /<meta\s+name=["']gym-release-revision["']\s+content=["']([^"']+)["']/i;
 
@@ -118,6 +118,7 @@ function validateRelease(release, assets) {
     }
 
     const indexHtml = normalizeText(assets['index.html'].buffer);
+    const rootHtml = normalizeText(assets[''].buffer);
     const serviceWorker = normalizeText(assets['sw.js'].buffer);
     const expectedRevision = `v${manifest.version}`;
 
@@ -130,6 +131,9 @@ function validateRelease(release, assets) {
     if (indexHtml.match(META_PATTERN)?.[1] !== expectedRevision) {
         fail('pages', `index.html shell revision disagrees with ${expectedRevision}`);
     }
+    if (rootHtml !== indexHtml) {
+        fail('cloudflare', 'the canonical /gym/ entry shell differs from /gym/index.html');
+    }
     if (serviceWorker.match(REVISION_PATTERN)?.[1] !== expectedRevision) {
         fail('service-worker', `sw.js revision disagrees with ${expectedRevision}`);
     }
@@ -139,7 +143,7 @@ function validateRelease(release, assets) {
 
     const declaredAssets = Object.keys(remoteRelease.assets).sort();
     const fetchedAssets = Object.keys(assets)
-        .filter(asset => asset !== 'release.json' && asset !== 'sw.js')
+        .filter(asset => asset !== '' && asset !== 'release.json' && asset !== 'sw.js')
         .sort();
     for (const relativePath of declaredAssets) {
         const asset = assets[relativePath];
