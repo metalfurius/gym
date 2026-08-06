@@ -54,7 +54,7 @@
     "js/utils/logger.js": "a157659881aa95343b07c3d923ca1a5d37987da978a76699639741e2cb3cb601",
     "js/utils/notifications.js": "e77e31877b6205cb9c24c79897a1f6eccebdaae5372fb255e8324703f09d7d5c",
     "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
-    "js/utils/quick-log.js": "97034dbf6356964c16ce2b3de7c31862a3545bea9b101d0ecb5ba4d0ada76d68",
+    "js/utils/quick-log.js": "7cb763286734a50d16d68bbd10f81e85dcb48f0d388e893f98476827668c5711",
     "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
     "js/utils/validation.js": "30b6eda1802ebca358e5b9d8b3f4f236bb9a406e3a936a177e42e1f853770816",
     "js/version-manager.js": "102c8ce7f9cd9d050aa127a9757e66b981b75190ba63659525ed7b2c8dc35905",
