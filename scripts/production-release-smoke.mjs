@@ -149,10 +149,55 @@ function getExpectedAssets(release) {
 
 function selectedHeaders(response) {
     return Object.fromEntries(
-        ['cache-control', 'cdn-cache-control', 'cf-cache-status', 'etag', 'age', 'server', 'via', 'x-cache'].map(
-            name => [name, response.headers.get(name)]
-        )
+        [
+            'cache-control',
+            'cdn-cache-control',
+            'cf-cache-status',
+            'cf-mitigated',
+            'cf-ray',
+            'content-type',
+            'date',
+            'etag',
+            'age',
+            'server',
+            'via',
+            'x-cache',
+        ].map(name => [name, response.headers.get(name)])
     );
+}
+
+function browserHeaders(base, relativePath) {
+    const document = relativePath === '' || relativePath === 'index.html';
+    const extension = path.extname(relativePath).toLowerCase();
+    let accept = 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
+    let fetchDest = 'image';
+    if (document) {
+        accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
+        fetchDest = 'document';
+    } else if (extension === '.css') {
+        accept = 'text/css,*/*;q=0.1';
+        fetchDest = 'style';
+    } else if (extension === '.js') {
+        accept = '*/*';
+        fetchDest = 'script';
+    } else if (extension === '.json') {
+        accept = 'application/json,text/plain,*/*;q=0.8';
+        fetchDest = 'empty';
+    }
+    const headers = {
+        Accept: accept,
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+        'Sec-Fetch-Dest': fetchDest,
+        'Sec-Fetch-Mode': document ? 'navigate' : 'no-cors',
+        'Sec-Fetch-Site': document ? 'none' : 'same-origin',
+        'User-Agent':
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    };
+    if (document) headers['Sec-Fetch-User'] = '?1';
+    else headers.Referer = base.toString();
+    return headers;
 }
 
 async function fetchAsset(base, relativePath) {
@@ -162,14 +207,7 @@ async function fetchAsset(base, relativePath) {
     let response;
     try {
         response = await fetch(url, {
-            headers: {
-                Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Cache-Control': 'no-cache',
-                Pragma: 'no-cache',
-                'User-Agent':
-                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-            },
+            headers: browserHeaders(base, relativePath),
         });
     } catch (error) {
         fail('cloudflare', `request failed for ${relativePath}: ${error.message}`);
@@ -181,7 +219,7 @@ async function fetchAsset(base, relativePath) {
         const headers = selectedHeaders(response);
         fail(
             layer,
-            `${relativePath} returned HTTP ${response.status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, server=${headers.server || 'unknown'})`
+            `${relativePath} returned HTTP ${response.status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, cf-mitigated=${headers['cf-mitigated'] || 'unknown'}, cf-ray=${headers['cf-ray'] || 'unknown'}, server=${headers.server || 'unknown'})`
         );
     }
 
