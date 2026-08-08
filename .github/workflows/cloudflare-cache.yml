@@ -1,55 +1,97 @@
 name: Purge and Verify Canonical Cache
 
 on:
-  workflow_dispatch:
-    inputs:
-      revision_sha:
-        description: 'Deployed main commit to purge and verify'
-        required: true
-        type: string
-  workflow_run:
-    workflows: ['Create Release']
-    types: [completed]
-    branches: [main]
+    workflow_dispatch:
+        inputs:
+            target:
+                description: Fixed application target to reconcile
+                required: true
+                type: choice
+                options:
+                    - gym
+                    - portfolio
+                default: gym
+            revision_sha:
+                description: Deployed commit SHA of the selected target repository
+                required: true
+                type: string
+            expected_revision:
+                description: Expected immutable application revision from the selected target manifest
+                required: true
+                type: string
+    workflow_run:
+        workflows: ['Create Release']
+        types: [completed]
+        branches: [main]
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  purge-and-verify:
-    name: Purge Cloudflare and verify release
-    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment:
-      name: production
-    steps:
-      - name: Checkout deployed Pages revision
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.revision_sha || github.event.workflow_run.head_sha }}
+    purge-and-verify:
+        name: Purge Cloudflare and verify release
+        if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && (inputs.target == 'gym' || inputs.target == 'portfolio')) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success') }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        environment:
+            name: production
+        steps:
+            - name: Checkout Gym cache-control surface
+              uses: actions/checkout@v6
+              with:
+                  repository: metalfurius/gym
+                  ref: main
+                  path: control-plane
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
+            - name: Checkout deployed Gym revision
+              if: ${{ github.event_name == 'workflow_run' || inputs.target == 'gym' }}
+              uses: actions/checkout@v6
+              with:
+                  repository: metalfurius/gym
+                  ref: ${{ github.event_name == 'workflow_dispatch' && inputs.revision_sha || github.event.workflow_run.head_sha }}
+                  path: target-gym
 
-      - name: Validate scoped cache token, policy, and purge canonical URLs
-        run: npm run cloudflare:cache:purge
-        env:
-          CLOUDFLARE_CACHE_API_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+            - name: Checkout deployed portfolio revision
+              if: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'portfolio' }}
+              uses: actions/checkout@v6
+              with:
+                  repository: metalfurius/metalfurius.github.io
+                  ref: ${{ inputs.revision_sha }}
+                  path: target-portfolio
 
-      - name: Verify no-query production release coherence
-        run: npm run production:release:smoke
-        env:
-          GYM_PUBLIC_BASE_URL: https://codeoverdose.es/gym/
-          PRODUCTION_SMOKE_EVIDENCE_PATH: production-release-smoke.json
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '22'
+                  cache: npm
+                  cache-dependency-path: control-plane/package-lock.json
 
-      - name: Upload production evidence
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: gym-production-release-smoke-${{ github.event_name == 'workflow_dispatch' && inputs.revision_sha || github.event.workflow_run.head_sha }}
-          path: production-release-smoke.json
-          if-no-files-found: ignore
+            - name: Install locked control-plane toolchain
+              working-directory: control-plane
+              run: npm ci
+
+            - name: Validate scoped cache token, policy, and purge canonical URLs
+              working-directory: control-plane
+              run: npm run cloudflare:cache:purge
+              env:
+                  CLOUDFLARE_CACHE_API_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+                  CLOUDFLARE_CACHE_TARGET: ${{ inputs.target || 'gym' }}
+                  CLOUDFLARE_EXPECTED_REVISION: ${{ inputs.expected_revision || '' }}
+
+            - name: Verify no-query production release coherence
+              working-directory: control-plane
+              run: npm run production:release:smoke
+              env:
+                  PRODUCTION_SMOKE_TARGET: ${{ inputs.target || 'gym' }}
+                  PRODUCTION_SMOKE_EVIDENCE_PATH: production-release-smoke.json
+                  PRODUCTION_SMOKE_RETRY_COUNT: '4'
+                  PRODUCTION_SMOKE_RETRY_DELAY_MS: '5000'
+
+            - name: Upload production evidence
+              if: always()
+              uses: actions/upload-artifact@v6
+              with:
+                  name: canonical-cache-smoke-${{ inputs.target || 'gym' }}-${{ inputs.revision_sha || github.event.workflow_run.head_sha }}
+                  path: control-plane/production-release-smoke.json
+                  if-no-files-found: ignore

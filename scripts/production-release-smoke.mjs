@@ -7,12 +7,24 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const PUBLIC_BASE_URL = process.env.GYM_PUBLIC_BASE_URL || 'https://codeoverdose.es/gym/';
+const SMOKE_TARGET = process.env.PRODUCTION_SMOKE_TARGET || 'gym';
+const GYM_PUBLIC_BASE_URL = 'https://codeoverdose.es/gym/';
+const PORTFOLIO_PUBLIC_BASE_URL = 'https://codeoverdose.es/';
 const RETRY_COUNT = Number(process.env.PRODUCTION_SMOKE_RETRY_COUNT || 12);
 const RETRY_DELAY_MS = Number(process.env.PRODUCTION_SMOKE_RETRY_DELAY_MS || 5_000);
 const CORE_ASSETS = ['', 'index.html', 'manifest.json', 'release.json', 'sw.js', 'js/progress.js'];
+const PORTFOLIO_MEDIA_PATHS = [
+    'assets/1.png',
+    'assets/2.png',
+    'assets/2048.webp',
+    'assets/cc.webp',
+    'assets/gym-icon.png',
+    'assets/luckbound_concept.jpg',
+    'assets/logo.png',
+];
 const REVISION_PATTERN = /const RELEASE_REVISION = ['"]([^'"]+)['"]/;
 const META_PATTERN = /<meta\s+name=["']gym-release-revision["']\s+content=["']([^"']+)["']/i;
+const PORTFOLIO_META_PATTERN = /<meta\s+name=["']codeoverdose:revision["']\s+content=["']([^"']+)["']/i;
 
 function fail(layer, message) {
     const error = new Error(`[production-smoke:${layer}] ${message}`);
@@ -85,7 +97,7 @@ function normalizeShellHtml(value) {
         )
         .replace(/<link\s+rel="preconnect"\s+href="https:\/\/fonts\.googleapis\.com"\s*\/?>/gi, '')
         .replace(/<link\s+rel="preconnect"\s+href="https:\/\/fonts\.gstatic\.com"\s+crossorigin\s*\/?>/gi, '')
-        .replace(/<link\s+href="https:\/\/fonts\.googleapis\.com\/css2\?[^\"]+"\s+rel="stylesheet"\s*\/?>/gi, '')
+        .replace(/<link\s+href="https:\/\/fonts\.googleapis\.com\/css2\?[^"]+"\s+rel="stylesheet"\s*\/?>/gi, '')
         .replace(/\[email&#160;protected\]/gi, '[email-protected]')
         .replace(
             /<a\s+href="mailto:contact@codeoverdose\.es">contact@codeoverdose\.es<\/a>/gi,
@@ -151,9 +163,12 @@ async function fetchAsset(base, relativePath) {
     try {
         response = await fetch(url, {
             headers: {
+                Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
                 'Cache-Control': 'no-cache',
                 Pragma: 'no-cache',
-                'User-Agent': 'gym-production-release-smoke/1.0',
+                'User-Agent':
+                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
             },
         });
     } catch (error) {
@@ -273,10 +288,176 @@ function validateRelease(release, assets, checkedOutIndexHtml) {
     return { revision: expectedRevision, version: manifest.version, progressHash };
 }
 
-function buildEvidence(release, assets, validation) {
+function portfolioTargetRoot() {
+    return path.resolve(ROOT, '..', 'target-portfolio');
+}
+
+async function readPortfolioTarget() {
+    const targetRoot = portfolioTargetRoot();
+    try {
+        const siteRevision = JSON.parse(await fs.readFile(path.join(targetRoot, 'site-revision.json'), 'utf8'));
+        const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(targetRoot, 'index.html')));
+        if (siteRevision.schema !== 1 || siteRevision.entrypoint !== 'index.html') {
+            fail('manifest', 'checked-out portfolio site-revision.json has an invalid shape');
+        }
+        if (!/^[a-f0-9]{12}-[a-f0-9]{12}$/.test(siteRevision.revision || '')) {
+            fail('manifest', `checked-out portfolio revision is invalid: ${siteRevision.revision}`);
+        }
+        const cssPath = siteRevision.assets?.css?.path;
+        const jsPath = siteRevision.assets?.js?.path;
+        if (!/^styles\.[a-f0-9]{12}\.css$/.test(cssPath || '') || !/^script\.[a-f0-9]{12}\.js$/.test(jsPath || '')) {
+            fail('manifest', 'checked-out portfolio assets are not content-addressed');
+        }
+        const assetPaths = [...new Set([cssPath, jsPath, ...PORTFOLIO_MEDIA_PATHS])];
+        const localHashes = {};
+        for (const relativePath of assetPaths) {
+            const bytes = await fs.readFile(path.join(targetRoot, relativePath));
+            localHashes[relativePath] = sha256(bytes, relativePath);
+        }
+        if (siteRevision.assets.css.sha256 !== localHashes[cssPath]) {
+            fail('manifest', `checked-out portfolio CSS hash disagrees with ${cssPath}`);
+        }
+        if (siteRevision.assets.js.sha256 !== localHashes[jsPath]) {
+            fail('manifest', `checked-out portfolio JS hash disagrees with ${jsPath}`);
+        }
+        return { siteRevision, checkedOutIndexHtml, localHashes };
+    } catch (error) {
+        if (error.layer) throw error;
+        fail('pages', `could not read the checked-out portfolio target: ${error.message}`);
+    }
+}
+
+function getPortfolioExpectedAssets(siteRevision) {
+    return [
+        '',
+        'index.html',
+        'site-revision.json',
+        siteRevision.assets.css.path,
+        siteRevision.assets.js.path,
+        ...PORTFOLIO_MEDIA_PATHS,
+    ].sort();
+}
+
+function validatePortfolio(siteRevision, assets, checkedOutIndexHtml, localHashes) {
+    let remoteRevision;
+    try {
+        remoteRevision = JSON.parse(normalizeText(assets['site-revision.json'].buffer));
+    } catch (error) {
+        fail('manifest', `production site-revision.json is not valid JSON: ${error.message}`);
+    }
+    if (JSON.stringify(remoteRevision) !== JSON.stringify(siteRevision)) {
+        fail('cloudflare', `site-revision.json does not match deployed portfolio revision ${siteRevision.revision}`);
+    }
+
+    const rootHtml = normalizeText(assets[''].buffer);
+    const indexHtml = normalizeText(assets['index.html'].buffer);
+    const requiredMarkers = [
+        'https://codeoverdose.es/',
+        'Taskify',
+        'Firestore',
+        'id="project-6"',
+        'hreflang="es"',
+        '<dialog',
+    ];
+    for (const marker of requiredMarkers) {
+        if (!rootHtml.includes(marker)) fail('cloudflare', `canonical portfolio root is missing ${marker}`);
+        if (!indexHtml.includes(marker)) fail('pages', `portfolio index.html is missing ${marker}`);
+    }
+    if (rootHtml.match(PORTFOLIO_META_PATTERN)?.[1] !== siteRevision.revision) {
+        fail('cloudflare', `canonical portfolio root revision disagrees with ${siteRevision.revision}`);
+    }
+    if (indexHtml.match(PORTFOLIO_META_PATTERN)?.[1] !== siteRevision.revision) {
+        fail('pages', `portfolio index.html revision disagrees with ${siteRevision.revision}`);
+    }
+    if (normalizeShellHtml(rootHtml) !== normalizeShellHtml(indexHtml)) {
+        fail('cloudflare', 'canonical portfolio root differs from /index.html after Cloudflare markup normalization');
+    }
+
+    const cssPath = siteRevision.assets.css.path;
+    const jsPath = siteRevision.assets.js.path;
+    if (!rootHtml.includes(`href="${cssPath}"`) || !indexHtml.includes(`href="${cssPath}"`)) {
+        fail('cloudflare', `portfolio HTML does not reference ${cssPath}`);
+    }
+    if (!rootHtml.includes(`src="${jsPath}"`) || !indexHtml.includes(`src="${jsPath}"`)) {
+        fail('cloudflare', `portfolio HTML does not reference ${jsPath}`);
+    }
+    if (rootHtml.includes('href="styles.css"') || indexHtml.includes('href="styles.css"')) {
+        fail('cloudflare', 'portfolio HTML still references mutable styles.css');
+    }
+    if (rootHtml.includes('src="script.js"') || indexHtml.includes('src="script.js"')) {
+        fail('cloudflare', 'portfolio HTML still references mutable script.js');
+    }
+    for (const relativePath of [cssPath, jsPath, ...PORTFOLIO_MEDIA_PATHS]) {
+        const actualHash = sha256(assets[relativePath].buffer, relativePath);
+        const expectedHash = localHashes[relativePath];
+        if (actualHash !== expectedHash) {
+            fail('cloudflare', `${relativePath} bytes do not match the checked-out portfolio revision`);
+        }
+    }
+    if (normalizeShellHtml(indexHtml) !== normalizeShellHtml(checkedOutIndexHtml)) {
+        fail('pages', 'deployed /index.html differs from the checked-out portfolio shell');
+    }
+
+    return { revision: siteRevision.revision, assetCount: Object.keys(localHashes).length };
+}
+
+function assertStableResponses(first, second) {
+    for (const relativePath of Object.keys(first)) {
+        const firstFingerprint =
+            relativePath === '' || relativePath === 'index.html'
+                ? normalizeShellHtml(normalizeText(first[relativePath].buffer))
+                : sha256(first[relativePath].buffer, relativePath);
+        const secondFingerprint =
+            relativePath === '' || relativePath === 'index.html'
+                ? normalizeShellHtml(normalizeText(second[relativePath].buffer))
+                : sha256(second[relativePath].buffer, relativePath);
+        if (firstFingerprint !== secondFingerprint) {
+            fail('cloudflare', `repeated no-query response changed for ${relativePath || '/'}`);
+        }
+    }
+}
+
+async function runPortfolio() {
+    const target = await readPortfolioTarget();
+    const base = normalizeBaseUrl(PORTFOLIO_PUBLIC_BASE_URL);
+    const expectedAssets = getPortfolioExpectedAssets(target.siteRevision);
+    let lastError;
+
+    for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
+        try {
+            const assets = await readProduction(base, expectedAssets);
+            const validation = validatePortfolio(
+                target.siteRevision,
+                assets,
+                target.checkedOutIndexHtml,
+                target.localHashes
+            );
+            const repeatedAssets = await readProduction(base, expectedAssets);
+            assertStableResponses(assets, repeatedAssets);
+            const evidence = buildEvidence(target.siteRevision, assets, validation, PORTFOLIO_PUBLIC_BASE_URL);
+            const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
+            if (evidencePath) {
+                await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+            }
+            console.log(
+                `[production-smoke] passed portfolio ${validation.revision}; verified ${expectedAssets.length} repeated no-query canonical assets`
+            );
+            return;
+        } catch (error) {
+            lastError = error;
+            if (attempt === RETRY_COUNT) break;
+            console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+        }
+    }
+
+    throw lastError;
+}
+
+function buildEvidence(release, assets, validation, publicBaseUrl = GYM_PUBLIC_BASE_URL) {
     return {
         status: 'passed',
-        publicBaseUrl: PUBLIC_BASE_URL,
+        publicBaseUrl,
         revision: validation.revision,
         version: validation.version,
         progressHash: validation.progressHash,
@@ -294,8 +475,8 @@ function buildEvidence(release, assets, validation) {
     };
 }
 
-async function run() {
-    const base = normalizeBaseUrl(PUBLIC_BASE_URL);
+async function runGym() {
+    const base = normalizeBaseUrl(GYM_PUBLIC_BASE_URL);
     const release = await readLocalRelease();
     const expectedAssets = getExpectedAssets(release);
     let lastError;
@@ -323,6 +504,12 @@ async function run() {
     }
 
     throw lastError;
+}
+
+async function run() {
+    if (SMOKE_TARGET === 'portfolio') return runPortfolio();
+    if (SMOKE_TARGET !== 'gym') fail('config', 'PRODUCTION_SMOKE_TARGET must be gym or portfolio');
+    return runGym();
 }
 
 run().catch(error => {

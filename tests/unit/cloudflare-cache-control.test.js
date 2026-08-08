@@ -15,6 +15,22 @@ const release = {
     },
 };
 
+const portfolioRevision = {
+    schema: 1,
+    revision: '8a6775e69351-8d644fa8d579',
+    entrypoint: 'index.html',
+    assets: {
+        css: {
+            path: 'styles.8a6775e69351.css',
+            sha256: '8a6775e69351' + 'a'.repeat(52),
+        },
+        js: {
+            path: 'script.8d644fa8d579.js',
+            sha256: '8d644fa8d579' + 'b'.repeat(52),
+        },
+    },
+};
+
 function success(result) {
     return {
         ok: true,
@@ -44,7 +60,16 @@ function targetRule(overrides = {}) {
     };
 }
 
-function makeFetch({ entrypoint }) {
+function portfolioRule() {
+    return targetRule({
+        ref: 'portfolio-canonical-cache-policy-v1',
+        description: 'Bypass Cloudflare caching for CodeOverdose portfolio delivery',
+        expression:
+            '(http.host eq "codeoverdose.es" and (http.request.uri.path eq "/" or http.request.uri.path eq "/index.html" or http.request.uri.path eq "/site-revision.json" or starts_with(http.request.uri.path, "/styles.") or starts_with(http.request.uri.path, "/script.") or starts_with(http.request.uri.path, "/assets/")))',
+    });
+}
+
+function makeFetch({ entrypoint, rule = targetRule() }) {
     const requests = [];
     let createdRule = null;
     const fetchMock = jest.fn(async (url, options = {}) => {
@@ -62,7 +87,7 @@ function makeFetch({ entrypoint }) {
             parsedUrl.pathname === `/client/v4/zones/${ZONE_ID}/rulesets/phases/http_request_cache_settings/entrypoint`
         ) {
             if (entrypoint === 'missing' && !createdRule) return failure(404);
-            return success({ id: RULESET_ID, rules: createdRule ? [createdRule] : [targetRule()] });
+            return success({ id: RULESET_ID, rules: createdRule ? [createdRule] : [rule] });
         }
         if (parsedUrl.pathname === `/client/v4/zones/${ZONE_ID}/rulesets` && method === 'POST') {
             createdRule = { ...JSON.parse(options.body).rules[0], id: RULE_ID };
@@ -144,5 +169,47 @@ describe('Cloudflare cache control', () => {
                 request => request.method === 'POST' && request.url.pathname.endsWith(`/rulesets/${RULESET_ID}/rules`)
             )
         ).toBe(false);
+    });
+
+    it('supports only the fixed portfolio target and purges its closed canonical path set', async () => {
+        const { fetchMock, requests } = makeFetch({ entrypoint: 'missing', rule: portfolioRule() });
+        globalThis.fetch = fetchMock;
+
+        const result = await execute({
+            target: 'portfolio',
+            expectedRevision: portfolioRevision.revision,
+            metadata: portfolioRevision,
+            token: 'test-account-token',
+            request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options),
+        });
+
+        expect(result.target).toBe('portfolio');
+        expect(result.release).toBe(portfolioRevision.revision);
+        expect(result.urlCount).toBe(14);
+
+        const purgeRequest = requests.find(request => request.url.pathname.endsWith('/purge_cache'));
+        const purgeBody = JSON.parse(purgeRequest.options.body);
+        const purgedPaths = purgeBody.files.map(url => new URL(url).pathname).sort();
+        expect(purgedPaths).toEqual([
+            '/',
+            '/assets/1.png',
+            '/assets/2.png',
+            '/assets/2048.webp',
+            '/assets/cc.webp',
+            '/assets/gym-icon.png',
+            '/assets/logo.png',
+            '/assets/luckbound_concept.jpg',
+            '/index.html',
+            '/script.8d644fa8d579.js',
+            '/script.js',
+            '/site-revision.json',
+            '/styles.8a6775e69351.css',
+            '/styles.css',
+        ]);
+        expect(purgeBody.files.every(url => new URL(url).origin === 'https://codeoverdose.es')).toBe(true);
+        expect(purgeBody.files.some(url => url.includes('?'))).toBe(false);
+        expect(requests.some(request => request.url.pathname.endsWith('/purge_everything'))).toBe(false);
+        const policyRequest = requests.find(request => request.url.pathname.endsWith('/rulesets'));
+        expect(JSON.parse(policyRequest.options.body).rules[0].ref).toBe('portfolio-canonical-cache-policy-v1');
     });
 });
