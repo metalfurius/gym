@@ -583,13 +583,21 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
         reps: t('progress.metric_reps'),
         volume: `${t('progress.metric_volume')} (${t('progress.unit_volume')})`
     };
+    const metricLabel = metricLabels[metric] || t('progress.value');
+    const chartTitle = t('progress.chart_title', { exercise: exerciseName, metric: metricLabel });
+    const accessibleData = chartData.labels
+        .map((label, index) => `${label}: ${chartData.data[index]}`)
+        .join('; ');
+
+    progressElements.chart.setAttribute('role', 'img');
+    progressElements.chart.setAttribute('aria-label', `${chartTitle}. ${accessibleData}`);
 
     progressChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: chartData.labels,
             datasets: [{
-                label: metricLabels[metric] || t('progress.value'),
+                label: metricLabel,
                 data: chartData.data,
                 borderColor: 'rgb(102, 126, 234)',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
@@ -608,7 +616,7 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
             plugins: {
                 title: {
                     display: true,
-                    text: t('progress.chart_title', { exercise: exerciseName, metric: metricLabels[metric] }),
+                    text: chartTitle,
                     font: {
                         size: 16,
                         weight: 'bold'

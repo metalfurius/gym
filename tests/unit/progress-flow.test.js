@@ -320,6 +320,9 @@ describe('progress flow', () => {
         expect(progressElements.chartContainer.classList.contains('hidden')).toBe(false);
         expect(progressElements.statsContainer.classList.contains('hidden')).toBe(false);
         expect(progressElements.noDataMessage.classList.contains('hidden')).toBe(true);
+        expect(progressElements.chart.getAttribute('role')).toBe('img');
+        expect(progressElements.chart.getAttribute('aria-label')).toContain('Bench Press');
+        expect(progressElements.chart.getAttribute('aria-label')).toContain('60');
         expect(progressElements.bestRecord.textContent).toBe('72.0 kg');
         expect(progressElements.sessionCount.textContent).toBe('4');
         expect(progressElements.totalProgress.textContent).toBe('+12.0 kg');
