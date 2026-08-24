@@ -464,6 +464,19 @@ describe('quick-log utils', () => {
         expect(previousWeek).toMatchObject({ activeDays: 3, met: true });
     });
 
+    it('keeps the weekly consistency window at 52 weeks', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const currentWeekStart = new Date(2026, 3, 20, 10, 0, 0);
+        const firstWeekStart = new Date(currentWeekStart);
+        firstWeekStart.setDate(firstWeekStart.getDate() - (51 * 7));
+
+        const timeline = buildWeeklyConsistencyTimeline({ now });
+
+        expect(timeline.timeline).toHaveLength(52);
+        expect(timeline.timeline[0].weekKey).toBe(getWeekKeyForDate(firstWeekStart));
+        expect(timeline.timeline.at(-1).weekKey).toBe(getWeekKeyForDate(currentWeekStart));
+    });
+
     it('uses frozen outcomes for past weeks and ignores backdated-session effects', () => {
         const now = new Date(2026, 3, 23, 10, 0, 0);
         const prevWeekMonday = new Date(2026, 3, 13, 10, 0, 0);
