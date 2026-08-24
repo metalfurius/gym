@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'js/**/*.js'
+      - 'scripts/**/*.mjs'
       - '!js/**/*.test.js'
 
 permissions:
@@ -37,8 +38,8 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           # Get list of changed JS files (excluding test files)
-          CHANGED_JS=$(git diff --name-only origin/${BASE_REF}...HEAD -- 'js/**/*.js' ':!js/**/*.test.js' ':!tests/**' 2>/dev/null || echo "")
-          echo "Changed JS files: $CHANGED_JS"
+          CHANGED_JS=$(git diff --name-only origin/${BASE_REF}...HEAD -- 'js/**/*.js' 'scripts/**/*.mjs' ':!js/**/*.test.js' ':!tests/**' 2>/dev/null || echo "")
+          echo "Changed JavaScript files: $CHANGED_JS"
           
           if [ -z "$CHANGED_JS" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
