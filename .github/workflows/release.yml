@@ -1,11 +1,14 @@
 name: Create Release
 
 on:
-  workflow_run:
-    workflows: ["Version Bump"]
-    types:
-      - completed
+  push:
     branches: [main]
+    paths:
+      - 'manifest.json'
+      - 'release.json'
+      - 'index.html'
+      - 'sw.js'
+      - 'js/version-manager.js'
 
 permissions:
   contents: write
@@ -14,9 +17,6 @@ jobs:
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    # Only run if the version bump workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -61,7 +61,7 @@ jobs:
         run: |
           # Get the previous tag
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
+
           if [ -z "$PREVIOUS_TAG" ]; then
             # No previous tag, get all commits
             COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges HEAD~20..HEAD 2>/dev/null || git log --pretty=format:"- %s (%h)" --no-merges -20)
@@ -69,14 +69,14 @@ jobs:
             # Get commits since last tag
             COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges ${PREVIOUS_TAG}..HEAD)
           fi
-          
+
           # Create release notes
           NOTES="## What's Changed
-          
+
           $COMMITS
-          
+
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG:-initial}...v${{ steps.version.outputs.version }}"
-          
+
           # Save to file for the release action
           echo "$NOTES" > release_notes.md
 
