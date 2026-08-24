@@ -75,7 +75,13 @@ function stripHtmlElements(value, tagName) {
 function normalizeCloudflareScripts(value) {
     return transformHtmlElements(value, 'script', element => {
         const lowerElement = element.toLowerCase();
-        if (lowerElement.includes('/cdn-cgi/') || lowerElement.includes('__cf$cv_params')) return '';
+        if (
+            lowerElement.includes('/cdn-cgi/') ||
+            lowerElement.includes('__cf$cv_params') ||
+            lowerElement.includes('static.cloudflareinsights.com/beacon.min.js')
+        ) {
+            return '';
+        }
         return element
             .replace(/ type="[^"]+-text\/javascript"/gi, '')
             .replace(/ type="[^"]+-module"/gi, ' type="module"')
