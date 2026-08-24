@@ -259,7 +259,7 @@ async function openChrome(url, userDataDirectory) {
         [
             '--headless=new',
             '--disable-gpu',
-            '--in-process-gpu',
+            '--use-angle=swiftshader',
             '--disable-gpu-compositing',
             '--disable-dev-shm-usage',
             '--disable-extensions',
