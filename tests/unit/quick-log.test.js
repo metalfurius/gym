@@ -8,6 +8,7 @@ import {
     normalizeWeeklyTargetDays,
     normalizeQuickLogPayload,
     buildQuickLogSessionModel,
+    buildWeeklyConsistencyTimeline,
     computeWeeklyConsistencyMetrics,
     computeDailyHubState,
     toDatetimeLocalValue
@@ -223,7 +224,7 @@ describe('quick-log utils', () => {
         expect(metrics.weeklyProgressDays).toBe(2);
         expect(metrics.weeklyProgressLabel).toBe('2/3');
         expect(metrics.weeklyProgressMet).toBe(false);
-        expect(metrics.currentWeeklyStreak).toBe(0);
+        expect(metrics.currentWeeklyStreak).toBe(2);
         expect(metrics.bestWeeklyStreak).toBe(2);
     });
 
@@ -267,7 +268,7 @@ describe('quick-log utils', () => {
 
         expect(stricterState.weeklyProgressLabel).toBe('3/4');
         expect(stricterState.weeklyProgressMet).toBe(false);
-        expect(stricterState.currentWeeklyStreak).toBe(0);
+        expect(stricterState.currentWeeklyStreak).toBe(1);
     });
 
     it('uses week-scoped targets with carry-over across weeks', () => {
@@ -306,9 +307,174 @@ describe('quick-log utils', () => {
         expect(metrics.weeklyProgressDays).toBe(3);
         expect(metrics.weeklyProgressLabel).toBe('3/4');
         expect(metrics.weeklyProgressMet).toBe(false);
-        expect(metrics.currentWeeklyStreak).toBe(0);
+        expect(metrics.currentWeeklyStreak).toBe(2);
         expect(metrics.bestWeeklyStreak).toBe(2);
         expect(getWeekKeyForDate(currentWeekMonday)).toBe(getWeekKeyForDate(now));
+    });
+
+    it('keeps a completed previous week in the streak while the current week is incomplete', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 17, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 3
+        });
+
+        expect(metrics.weeklyProgressLabel).toBe('1/3');
+        expect(metrics.weeklyProgressMet).toBe(false);
+        expect(metrics.currentWeeklyStreak).toBe(1);
+        expect(metrics.bestWeeklyStreak).toBe(1);
+    });
+
+    it('extends the streak when the current week reaches its target', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 17, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 22, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 23, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 3
+        });
+
+        expect(metrics.weeklyProgressLabel).toBe('3/3');
+        expect(metrics.weeklyProgressMet).toBe(true);
+        expect(metrics.currentWeeklyStreak).toBe(2);
+    });
+
+    it('breaks the current streak on a failed closed week', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const failedWeekMonday = new Date(2026, 3, 13, 10, 0, 0);
+        const olderWeekMonday = new Date(2026, 3, 6, 10, 0, 0);
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 3, 6, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 8, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 10, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 3,
+            weeklyTargetsByWeek: {
+                [getWeekKeyForDate(failedWeekMonday)]: { targetDays: 3, savesUsed: 0 },
+                [getWeekKeyForDate(olderWeekMonday)]: { targetDays: 3, savesUsed: 0 }
+            },
+            weeklyOutcomesByWeek: {
+                [getWeekKeyForDate(failedWeekMonday)]: {
+                    activeDays: 1,
+                    met: false
+                },
+                [getWeekKeyForDate(olderWeekMonday)]: {
+                    activeDays: 3,
+                    met: true
+                }
+            }
+        });
+
+        expect(metrics.currentWeeklyStreak).toBe(0);
+    });
+
+    it('keeps closed-week targets frozen when the current target changes', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const currentWeekMonday = new Date(2026, 3, 20, 10, 0, 0);
+        const timeline = buildWeeklyConsistencyTimeline({
+            sessions: [
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 17, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 5,
+            weeklyTargetsByWeek: {
+                [getWeekKeyForDate(currentWeekMonday)]: { targetDays: 5, savesUsed: 1 }
+            }
+        });
+
+        const previousWeek = timeline.timeline.find((entry) => entry.weekKey === '2026-04-13');
+        const currentWeek = timeline.timeline.find((entry) => entry.weekKey === '2026-04-20');
+        expect(previousWeek).toMatchObject({ targetDays: 3, activeDays: 3, met: true });
+        expect(currentWeek).toMatchObject({ targetDays: 5, activeDays: 1, met: false });
+        expect(computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 3, 13, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 15, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 17, 8, 0, 0) },
+                { fecha: new Date(2026, 3, 20, 8, 0, 0) }
+            ],
+            now,
+            weeklyTargetDays: 5,
+            weeklyTargetsByWeek: {
+                [getWeekKeyForDate(currentWeekMonday)]: { targetDays: 5, savesUsed: 1 }
+            }
+        }).currentWeeklyStreak).toBe(1);
+    });
+
+    it('uses Monday-local boundaries for the current streak', () => {
+        const sundayNight = new Date(2026, 2, 29, 23, 59, 0);
+        const mondayMorning = new Date(2026, 2, 30, 0, 0, 0);
+
+        expect(getWeekKeyForDate(sundayNight)).toBe('2026-03-23');
+        expect(getWeekKeyForDate(mondayMorning)).toBe('2026-03-30');
+
+        const metrics = computeWeeklyConsistencyMetrics({
+            sessions: [
+                { fecha: new Date(2026, 2, 23, 8, 0, 0) },
+                { fecha: new Date(2026, 2, 25, 8, 0, 0) },
+                { fecha: sundayNight }
+            ],
+            now: new Date(2026, 2, 30, 9, 0, 0),
+            weeklyTargetDays: 3
+        });
+
+        expect(metrics.currentWeeklyStreak).toBe(1);
+    });
+
+    it('keeps both sides of a DST transition in the same local Sunday week', () => {
+        const beforeDstJump = new Date(2026, 2, 29, 1, 30, 0);
+        const afterDstJump = new Date(2026, 2, 29, 3, 30, 0);
+
+        expect(getWeekKeyForDate(beforeDstJump)).toBe('2026-03-23');
+        expect(getWeekKeyForDate(afterDstJump)).toBe('2026-03-23');
+
+        const timeline = buildWeeklyConsistencyTimeline({
+            sessions: [
+                { fecha: new Date(2026, 2, 23, 8, 0, 0) },
+                { fecha: new Date(2026, 2, 25, 8, 0, 0) },
+                { fecha: beforeDstJump },
+                { fecha: afterDstJump }
+            ],
+            now: new Date(2026, 2, 30, 9, 0, 0),
+            weeklyTargetDays: 3
+        });
+
+        const previousWeek = timeline.timeline.find((entry) => entry.weekKey === '2026-03-23');
+        expect(previousWeek).toMatchObject({ activeDays: 3, met: true });
+    });
+
+    it('keeps the weekly consistency window at 52 weeks', () => {
+        const now = new Date(2026, 3, 23, 10, 0, 0);
+        const currentWeekStart = new Date(2026, 3, 20, 10, 0, 0);
+        const firstWeekStart = new Date(currentWeekStart);
+        firstWeekStart.setDate(firstWeekStart.getDate() - (51 * 7));
+
+        const timeline = buildWeeklyConsistencyTimeline({ now });
+
+        expect(timeline.timeline).toHaveLength(52);
+        expect(timeline.timeline[0].weekKey).toBe(getWeekKeyForDate(firstWeekStart));
+        expect(timeline.timeline.at(-1).weekKey).toBe(getWeekKeyForDate(currentWeekStart));
     });
 
     it('uses frozen outcomes for past weeks and ignores backdated-session effects', () => {
