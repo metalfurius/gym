@@ -8,7 +8,7 @@ import {
     validateUserWeight,
     validateCalories,
     validateText,
-    validateOptionalText
+    validateOptionalText,
 } from '../../js/utils/validation.js';
 
 /**
@@ -121,10 +121,11 @@ describe('Validation utilities', () => {
             expect(validateReps(100).isValid).toBe(true);
         });
 
-        it('should round reps to integers', () => {
+        it('should reject fractional reps instead of rounding them', () => {
             const result = validateReps(10.7);
-            expect(result.isValid).toBe(true);
-            expect(result.value).toBe(11);
+            expect(result.isValid).toBe(false);
+            expect(result.value).toBeNull();
+            expect(result.errorCode).toBe('format');
         });
 
         it('should reject reps above 1000', () => {

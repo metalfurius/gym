@@ -9,14 +9,10 @@ import {
     DEFAULT_EXECUTION_MODE,
     normalizeExecutionMode,
     resolveExerciseExecutionMode,
-    getExecutionModeLabel
+    getExecutionModeLabel,
 } from './utils/execution-mode.js';
-import {
-    DEFAULT_LOAD_TYPE,
-    normalizeLoadType,
-    resolveExerciseLoadType,
-    getLoadTypeLabel
-} from './utils/load-type.js';
+import { DEFAULT_LOAD_TYPE, normalizeLoadType, resolveExerciseLoadType, getLoadTypeLabel } from './utils/load-type.js';
+import { parseDecimalInput, parseIntegerInput } from './utils/numeric-input.js';
 import { t, getLocale } from './i18n.js';
 
 let progressChart = null;
@@ -30,12 +26,16 @@ const progressTabCache = {
     exercisesWithCount: null,
     lastCacheTime: null,
     isInitialized: false,
-    cacheValidityTime: 5 * 60 * 1000
+    cacheValidityTime: 5 * 60 * 1000,
 };
 
 export function normalizeExerciseName(name) {
     if (!name) return '';
-    return name.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s]/g, '')
+        .replace(/\s+/g, '_');
 }
 
 const EXERCISE_MODE_SEPARATOR = '::mode=';
@@ -49,11 +49,7 @@ function safeDecodeExerciseName(value) {
     }
 }
 
-function buildExerciseLabel(
-    exerciseName,
-    executionMode = DEFAULT_EXECUTION_MODE,
-    loadType = DEFAULT_LOAD_TYPE
-) {
+function buildExerciseLabel(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
     const mode = normalizeExecutionMode(executionMode);
     const normalizedLoadType = normalizeLoadType(loadType);
     const variants = [];
@@ -66,9 +62,7 @@ function buildExerciseLabel(
         variants.push(getLoadTypeLabel(normalizedLoadType));
     }
 
-    return variants.length > 0
-        ? `${exerciseName} (${variants.join(', ')})`
-        : exerciseName;
+    return variants.length > 0 ? `${exerciseName} (${variants.join(', ')})` : exerciseName;
 }
 
 function buildExerciseSelectionValue(
@@ -93,7 +87,7 @@ function parseExerciseSelectionValue(value) {
             name: fallbackName,
             executionMode: DEFAULT_EXECUTION_MODE,
             loadType: DEFAULT_LOAD_TYPE,
-            label: buildExerciseLabel(fallbackName, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE)
+            label: buildExerciseLabel(fallbackName, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE),
         };
     }
 
@@ -112,15 +106,11 @@ function parseExerciseSelectionValue(value) {
         name,
         executionMode,
         loadType,
-        label
+        label,
     };
 }
 
-function buildExerciseDescriptor(
-    exerciseName,
-    executionMode = DEFAULT_EXECUTION_MODE,
-    loadType = DEFAULT_LOAD_TYPE
-) {
+function buildExerciseDescriptor(exerciseName, executionMode = DEFAULT_EXECUTION_MODE, loadType = DEFAULT_LOAD_TYPE) {
     const mode = normalizeExecutionMode(executionMode);
     const normalizedLoadType = normalizeLoadType(loadType);
     return parseExerciseSelectionValue(buildExerciseSelectionValue(exerciseName, mode, normalizedLoadType));
@@ -130,20 +120,41 @@ function resolveSetWeightForMetrics(set = {}, loadType = DEFAULT_LOAD_TYPE, fall
     const normalizedLoadType = normalizeLoadType(loadType);
 
     if (normalizedLoadType === 'bodyweight') {
-        const totalWeight = Number(set.pesoTotal ?? set.totalWeight);
-        if (Number.isFinite(totalWeight)) {
-            return totalWeight;
+        const totalWeightResult = parseDecimalInput(set.pesoTotal ?? set.totalWeight, {
+            allowSign: true,
+            maxFractionDigits: null,
+            roundTo: null,
+        });
+        if (totalWeightResult.isValid && totalWeightResult.value !== null) {
+            return totalWeightResult.value;
         }
 
-        const externalLoad = Number(set.peso ?? set.weight);
-        const bodyweight = Number(fallbackBodyweight);
-        if (Number.isFinite(externalLoad) && Number.isFinite(bodyweight) && bodyweight > 0) {
-            return externalLoad + bodyweight;
+        const externalLoadResult = parseDecimalInput(set.peso ?? set.weight, {
+            allowSign: true,
+            maxFractionDigits: null,
+            roundTo: null,
+        });
+        const bodyweightResult = parseDecimalInput(fallbackBodyweight, {
+            maxFractionDigits: null,
+            roundTo: null,
+        });
+        if (
+            externalLoadResult.isValid &&
+            externalLoadResult.value !== null &&
+            bodyweightResult.isValid &&
+            bodyweightResult.value !== null &&
+            bodyweightResult.value > 0
+        ) {
+            return externalLoadResult.value + bodyweightResult.value;
         }
     }
 
-    const parsedWeight = Number(set.peso ?? set.weight);
-    return Number.isFinite(parsedWeight) ? parsedWeight : 0;
+    const parsedWeight = parseDecimalInput(set.peso ?? set.weight, {
+        allowSign: true,
+        maxFractionDigits: null,
+        roundTo: null,
+    });
+    return parsedWeight.isValid && parsedWeight.value !== null ? parsedWeight.value : 0;
 }
 
 function isProgressCacheValid() {
@@ -166,7 +177,7 @@ export function invalidateProgressCache() {
     progressTabCache.isInitialized = false;
     exerciseDataCache.clear();
 
-    localFirstCache.clearByPrefix('progress:sessions:').catch((error) => {
+    localFirstCache.clearByPrefix('progress:sessions:').catch(error => {
         logger.warn('Could not invalidate cached progress sessions:', error);
     });
 }
@@ -203,10 +214,11 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
         return;
     }
 
-    exercises.forEach((exerciseItem) => {
-        const descriptor = typeof exerciseItem === 'string'
-            ? buildExerciseDescriptor(exerciseItem, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE)
-            : exerciseItem;
+    exercises.forEach(exerciseItem => {
+        const descriptor =
+            typeof exerciseItem === 'string'
+                ? buildExerciseDescriptor(exerciseItem, DEFAULT_EXECUTION_MODE, DEFAULT_LOAD_TYPE)
+                : exerciseItem;
 
         if (!descriptor) {
             return;
@@ -216,7 +228,7 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
         option.value = descriptor.value;
 
         if (exercisesWithCount) {
-            const info = exercisesWithCount.find((exercise) => exercise.value === descriptor.value);
+            const info = exercisesWithCount.find(exercise => exercise.value === descriptor.value);
             option.textContent = `${descriptor.label} (${t('progress.sessions_suffix', { count: info ? info.sessionCount : 0 })})`;
         } else {
             option.textContent = descriptor.label;
@@ -370,10 +382,10 @@ async function loadSessionHistoryForProgress() {
         ? deserializeSessionsFromCache(cachedEntry.value).slice(0, MAX_PROGRESS_SESSIONS)
         : [];
 
-    if (hasCachedSessions && (
-        localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS)
-        || !isProgressOnline()
-    )) {
+    if (
+        hasCachedSessions &&
+        (localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS) || !isProgressOnline())
+    ) {
         return cachedSessions;
     }
 
@@ -382,25 +394,26 @@ async function loadSessionHistoryForProgress() {
     }
 
     const { db } = await import('./firebase-config.js');
-    const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+    const { collection, query, orderBy, limit, getDocs } =
+        await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
 
     const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
     const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(MAX_PROGRESS_SESSIONS));
     const querySnapshot = await getDocs(q);
 
     firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'progress.sessionHistoryFallback', {
-        limit: MAX_PROGRESS_SESSIONS
+        limit: MAX_PROGRESS_SESSIONS,
     });
 
     const sessions = querySnapshot.docs
-        .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+        .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
         .slice(0, MAX_PROGRESS_SESSIONS);
 
     await localFirstCache.set(cacheKey, serializeSessionsForCache(sessions), {
         metadata: {
             source: 'firestore',
-            limit: MAX_PROGRESS_SESSIONS
-        }
+            limit: MAX_PROGRESS_SESSIONS,
+        },
     });
 
     return sessions;
@@ -423,17 +436,22 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
             return dateA - dateB;
         });
 
-        sortedSessions.forEach((sessionData) => {
-            const sessionDate = sessionData.fecha && sessionData.fecha.toDate
-                ? sessionData.fecha.toDate()
-                : new Date();
-            const sessionBodyweight = Number(sessionData.pesoUsuario ?? sessionData.userWeight);
-            if (Number.isFinite(sessionBodyweight) && sessionBodyweight > 0) {
-                lastKnownBodyweight = sessionBodyweight;
+        sortedSessions.forEach(sessionData => {
+            const sessionDate = sessionData.fecha && sessionData.fecha.toDate ? sessionData.fecha.toDate() : new Date();
+            const sessionBodyweightResult = parseDecimalInput(sessionData.pesoUsuario ?? sessionData.userWeight, {
+                maxFractionDigits: null,
+                roundTo: null,
+            });
+            if (
+                sessionBodyweightResult.isValid &&
+                sessionBodyweightResult.value !== null &&
+                sessionBodyweightResult.value > 0
+            ) {
+                lastKnownBodyweight = sessionBodyweightResult.value;
             }
 
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
-                sessionData.ejercicios.forEach((ejercicio) => {
+                sessionData.ejercicios.forEach(ejercicio => {
                     const name = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
                     const normalizedName = normalizeExerciseName(name);
 
@@ -441,19 +459,23 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
                     const loadType = normalizeLoadType(resolveExerciseLoadType(ejercicio));
 
                     if (
-                        normalizedName === normalizedSelectedName
-                        && ejercicio.tipoEjercicio === 'strength'
-                        && executionMode === selectedMode
-                        && loadType === selectedLoadType
-                        && ejercicio.sets
+                        normalizedName === normalizedSelectedName &&
+                        ejercicio.tipoEjercicio === 'strength' &&
+                        executionMode === selectedMode &&
+                        loadType === selectedLoadType &&
+                        ejercicio.sets
                     ) {
                         let maxWeight = Number.NEGATIVE_INFINITY;
                         let totalVolume = 0;
                         let maxReps = 0;
 
-                        ejercicio.sets.forEach((set) => {
+                        ejercicio.sets.forEach(set => {
                             const weight = resolveSetWeightForMetrics(set, loadType, lastKnownBodyweight);
-                            const reps = parseInt(set.reps || set.repeticiones || 0, 10);
+                            const repsResult = parseIntegerInput(set.reps ?? set.repeticiones, {
+                                min: 0,
+                                max: 1000,
+                            });
+                            const reps = repsResult.isValid ? (repsResult.value ?? 0) : 0;
 
                             if (weight > maxWeight) maxWeight = weight;
                             if (reps > maxReps) maxReps = reps;
@@ -465,7 +487,7 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
                             weight: maxWeight === Number.NEGATIVE_INFINITY ? 0 : maxWeight,
                             volume: totalVolume,
                             reps: maxReps,
-                            sets: ejercicio.sets
+                            sets: ejercicio.sets,
                         });
                     }
                 });
@@ -491,7 +513,7 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
                 break;
         }
 
-        const filteredData = exerciseData.filter((record) => record.date >= startDate);
+        const filteredData = exerciseData.filter(record => record.date >= startDate);
         filteredData.sort((a, b) => a.date - b.date);
 
         return filteredData;
@@ -506,7 +528,7 @@ function processChartData(exerciseData, metric) {
 
     const dataByDate = new Map();
 
-    exerciseData.forEach((entry) => {
+    exerciseData.forEach(entry => {
         const dateKey = entry.date.toISOString().split('T')[0];
 
         if (!dataByDate.has(dateKey)) {
@@ -514,7 +536,7 @@ function processChartData(exerciseData, metric) {
                 date: entry.date,
                 weights: [],
                 reps: [],
-                volumes: []
+                volumes: [],
             });
         }
 
@@ -581,13 +603,11 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
     const metricLabels = {
         weight: `${t('progress.metric_weight')} (${t('progress.unit_weight')})`,
         reps: t('progress.metric_reps'),
-        volume: `${t('progress.metric_volume')} (${t('progress.unit_volume')})`
+        volume: `${t('progress.metric_volume')} (${t('progress.unit_volume')})`,
     };
     const metricLabel = metricLabels[metric] || t('progress.value');
     const chartTitle = t('progress.chart_title', { exercise: exerciseName, metric: metricLabel });
-    const accessibleData = chartData.labels
-        .map((label, index) => `${label}: ${chartData.data[index]}`)
-        .join('; ');
+    const accessibleData = chartData.labels.map((label, index) => `${label}: ${chartData.data[index]}`).join('; ');
 
     progressElements.chart.setAttribute('role', 'img');
     progressElements.chart.setAttribute('aria-label', `${chartTitle}. ${accessibleData}`);
@@ -596,19 +616,21 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
         type: 'line',
         data: {
             labels: chartData.labels,
-            datasets: [{
-                label: metricLabel,
-                data: chartData.data,
-                borderColor: 'rgb(102, 126, 234)',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                tension: 0.4,
-                pointBackgroundColor: 'rgb(102, 126, 234)',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                fill: true
-            }]
+            datasets: [
+                {
+                    label: metricLabel,
+                    data: chartData.data,
+                    borderColor: 'rgb(102, 126, 234)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(102, 126, 234)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true,
+                },
+            ],
         },
         options: {
             responsive: true,
@@ -619,46 +641,46 @@ function createOrUpdateChart(chartData, exerciseName, metric) {
                     text: chartTitle,
                     font: {
                         size: 16,
-                        weight: 'bold'
+                        weight: 'bold',
                     },
-                    color: 'var(--text-color)'
+                    color: 'var(--text-color)',
                 },
                 legend: {
-                    display: false
-                }
+                    display: false,
+                },
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    },
-                    ticks: {
-                        color: 'var(--text-secondary-color)'
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.1)',
                     },
                     ticks: {
                         color: 'var(--text-secondary-color)',
-                        maxTicksLimit: 10
-                    }
-                }
+                    },
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                    },
+                    ticks: {
+                        color: 'var(--text-secondary-color)',
+                        maxTicksLimit: 10,
+                    },
+                },
             },
             interaction: {
                 intersect: false,
-                mode: 'index'
-            }
-        }
+                mode: 'index',
+            },
+        },
     });
 }
 
 function updateProgressStats(exerciseData, metric) {
     if (!exerciseData || exerciseData.length < 3) return;
 
-    const values = exerciseData.map((entry) => {
+    const values = exerciseData.map(entry => {
         switch (metric) {
             case 'weight':
                 return entry.weight;
@@ -676,13 +698,13 @@ function updateProgressStats(exerciseData, metric) {
     const lastValue = values[values.length - 1];
     const totalProgress = lastValue - firstValue;
 
-    const uniqueDates = new Set(exerciseData.map((entry) => entry.date.toDateString()));
+    const uniqueDates = new Set(exerciseData.map(entry => entry.date.toDateString()));
     const sessionCount = uniqueDates.size;
 
     const units = {
         weight: t('progress.unit_weight'),
         reps: t('progress.unit_reps'),
-        volume: t('progress.unit_volume')
+        volume: t('progress.unit_volume'),
     };
 
     progressElements.bestRecord.textContent = `${bestRecord.toFixed(1)} ${units[metric]}`;
@@ -701,17 +723,18 @@ function updateProgressStats(exerciseData, metric) {
 
     progressElements.totalProgress.textContent = progressText;
     progressElements.trendIndicator.className = trendClass;
-    progressElements.trendIndicator.textContent = trendClass === 'trend-up'
-        ? t('progress.trend_up')
-        : trendClass === 'trend-down'
-            ? t('progress.trend_down')
-            : t('progress.trend_stable');
+    progressElements.trendIndicator.textContent =
+        trendClass === 'trend-up'
+            ? t('progress.trend_up')
+            : trendClass === 'trend-down'
+                ? t('progress.trend_down')
+                : t('progress.trend_stable');
 }
 
 function formatDateForChart(date) {
     return date.toLocaleDateString(getLocale(), {
         day: '2-digit',
-        month: 'short'
+        month: 'short',
     });
 }
 
@@ -765,7 +788,7 @@ function hideNoDataMessage() {
 
 export function clearExerciseCache() {
     exerciseDataCache.clear();
-    localFirstCache.clearByPrefix('progress:sessions:').catch((error) => {
+    localFirstCache.clearByPrefix('progress:sessions:').catch(error => {
         logger.warn('Could not clear cached progress sessions:', error);
     });
 }
@@ -793,15 +816,15 @@ async function loadExercisesFromSessionHistory() {
         const exerciseCount = new Map();
         const descriptors = new Map();
 
-        sessions.forEach((sessionData) => {
+        sessions.forEach(sessionData => {
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
-                sessionData.ejercicios.forEach((ejercicio) => {
+                sessionData.ejercicios.forEach(ejercicio => {
                     const exerciseName = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
                     if (
-                        exerciseName
-                        && ejercicio.tipoEjercicio === 'strength'
-                        && Array.isArray(ejercicio.sets)
-                        && ejercicio.sets.length > 0
+                        exerciseName &&
+                        ejercicio.tipoEjercicio === 'strength' &&
+                        Array.isArray(ejercicio.sets) &&
+                        ejercicio.sets.length > 0
                     ) {
                         const executionMode = resolveExerciseExecutionMode(ejercicio);
                         const loadType = normalizeLoadType(resolveExerciseLoadType(ejercicio));
@@ -824,7 +847,7 @@ async function loadExercisesFromSessionHistory() {
                 if (descriptor) {
                     exercisesWithCount.push({
                         ...descriptor,
-                        sessionCount: count
+                        sessionCount: count,
                     });
                 }
             }
@@ -838,14 +861,14 @@ async function loadExercisesFromSessionHistory() {
         });
 
         return {
-            names: exercisesWithCount.map((exercise) => ({
+            names: exercisesWithCount.map(exercise => ({
                 value: exercise.value,
                 label: exercise.label,
                 name: exercise.name,
                 executionMode: exercise.executionMode,
-                loadType: exercise.loadType
+                loadType: exercise.loadType,
             })),
-            withCounts: exercisesWithCount
+            withCounts: exercisesWithCount,
         };
     } catch (error) {
         logger.error('Error in analytical exercise history selector loading:', error);

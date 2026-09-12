@@ -3,7 +3,7 @@ import {
     normalizeBodyweight,
     getLastKnownBodyweight,
     saveLastKnownBodyweight,
-    computeBodyweightTotalLoad
+    computeBodyweightTotalLoad,
 } from '../../js/utils/bodyweight.js';
 
 describe('bodyweight utils', () => {
@@ -13,6 +13,7 @@ describe('bodyweight utils', () => {
 
     it('normalizes positive bodyweight and rejects invalid values', () => {
         expect(normalizeBodyweight('77.34')).toBe(77.3);
+        expect(normalizeBodyweight('77,34')).toBe(77.3);
         expect(normalizeBodyweight(80)).toBe(80);
         expect(normalizeBodyweight(0)).toBeNull();
         expect(normalizeBodyweight(-10)).toBeNull();

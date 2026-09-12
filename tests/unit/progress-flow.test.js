@@ -6,8 +6,8 @@ const mockGetEntry = jest.fn();
 const mockSet = jest.fn();
 const mockIsFresh = jest.fn();
 const mockTrackRead = jest.fn();
-const mockSerializeSessionsForCache = jest.fn((sessions) => sessions);
-const mockDeserializeSessionsFromCache = jest.fn((sessions) => sessions);
+const mockSerializeSessionsForCache = jest.fn(sessions => sessions);
+const mockDeserializeSessionsFromCache = jest.fn(sessions => sessions);
 const mockGetCurrentUser = jest.fn();
 
 const progressElements = {
@@ -22,19 +22,19 @@ const progressElements = {
     totalProgress: null,
     sessionCount: null,
     trendIndicator: null,
-    noDataMessage: null
+    noDataMessage: null,
 };
 
 jest.unstable_mockModule('../../js/ui.js', () => ({
-    progressElements
+    progressElements,
 }));
 
 jest.unstable_mockModule('../../js/utils/logger.js', () => ({
     logger: {
         info: jest.fn(),
         warn: jest.fn(),
-        error: jest.fn()
-    }
+        error: jest.fn(),
+    },
 }));
 
 jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
@@ -42,27 +42,27 @@ jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
         clearByPrefix: mockClearByPrefix,
         getEntry: mockGetEntry,
         set: mockSet,
-        isFresh: mockIsFresh
-    }
+        isFresh: mockIsFresh,
+    },
 }));
 
 jest.unstable_mockModule('../../js/utils/firebase-usage-tracker.js', () => ({
     firebaseUsageTracker: {
-        trackRead: mockTrackRead
-    }
+        trackRead: mockTrackRead,
+    },
 }));
 
 jest.unstable_mockModule('../../js/utils/firestore-serialization.js', () => ({
     serializeSessionsForCache: mockSerializeSessionsForCache,
-    deserializeSessionsFromCache: mockDeserializeSessionsFromCache
+    deserializeSessionsFromCache: mockDeserializeSessionsFromCache,
 }));
 
 jest.unstable_mockModule('../../js/auth.js', () => ({
-    getCurrentUser: mockGetCurrentUser
+    getCurrentUser: mockGetCurrentUser,
 }));
 
 jest.unstable_mockModule('../../js/firebase-config.js', () => ({
-    db: { __isMockDb: true }
+    db: { __isMockDb: true },
 }));
 
 const progressModule = await import('../../js/progress.js');
@@ -73,7 +73,7 @@ const {
     handleExerciseChange,
     invalidateProgressCache,
     clearExerciseCache,
-    resetProgressView
+    resetProgressView,
 } = progressModule;
 
 function setupProgressDom() {
@@ -116,15 +116,17 @@ function buildSessionHistory(weights, exerciseName = 'Bench Press') {
     return weights.map((weight, idx) => ({
         id: `session-${idx + 1}`,
         fecha: {
-            toDate: () => new Date(`2026-03-0${idx + 1}T08:00:00.000Z`)
+            toDate: () => new Date(`2026-03-0${idx + 1}T08:00:00.000Z`),
         },
-        ejercicios: [{
-            nombreEjercicio: exerciseName,
-            tipoEjercicio: 'strength',
-            modoEjecucion: 'two_hand',
-            tipoCarga: 'external',
-            sets: [{ peso: weight, reps: 8 }]
-        }]
+        ejercicios: [
+            {
+                nombreEjercicio: exerciseName,
+                tipoEjercicio: 'strength',
+                modoEjecucion: 'two_hand',
+                tipoCarga: 'external',
+                sets: [{ peso: weight, reps: 8 }],
+            },
+        ],
     }));
 }
 
@@ -148,34 +150,33 @@ describe('progress flow', () => {
             tipoEjercicio: 'strength',
             modoEjecucion: options.executionMode || 'two_hand',
             tipoCarga: options.loadType || 'external',
-            sets: [{
-                peso: weight,
-                reps: options.reps || 8,
-                ...(options.totalWeight === undefined ? {} : { pesoTotal: options.totalWeight })
-            }]
+            sets: [
+                {
+                    peso: weight,
+                    reps: options.reps || 8,
+                    ...(options.totalWeight === undefined ? {} : { pesoTotal: options.totalWeight }),
+                },
+            ],
         };
 
         return {
             id,
             fecha: MockTimestamp.fromDate(date),
             pesoUsuario: options.bodyweight || null,
-            ejercicios: [exercise]
+            ejercicios: [exercise],
         };
     }
 
     function seedFirestoreSessions(sessions) {
-        sessions.forEach((session) => {
-            __firestoreState.documents.set(
-                `users/user-progress-1/sesiones_entrenamiento/${session.id}`,
-                session
-            );
+        sessions.forEach(session => {
+            __firestoreState.documents.set(`users/user-progress-1/sesiones_entrenamiento/${session.id}`, session);
         });
     }
 
     function setProgressOnline(value) {
         Object.defineProperty(navigator, 'onLine', {
             configurable: true,
-            value
+            value,
         });
     }
 
@@ -183,14 +184,14 @@ describe('progress flow', () => {
         mockGetEntry.mockResolvedValue({
             value: [
                 ...buildSessionHistory([60, 65, 70, 72], 'Bench Press'),
-                ...buildSessionHistory([80, 85, 90], 'Squats')
+                ...buildSessionHistory([80, 85, 90], 'Squats'),
             ],
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
         });
 
         await loadExerciseList();
 
-        const optionLabels = Array.from(progressElements.exerciseSelect.options).map((opt) => opt.textContent);
+        const optionLabels = Array.from(progressElements.exerciseSelect.options).map(opt => opt.textContent);
         expect(optionLabels[0]).toContain('Selecciona');
         expect(optionLabels).toContain('Bench Press (4 sesiones)');
         expect(optionLabels).toContain('Squats (3 sesiones)');
@@ -207,12 +208,12 @@ describe('progress flow', () => {
         mockIsFresh.mockReturnValue(false);
         mockGetEntry.mockResolvedValue({
             value: buildSessionHistory([60, 65, 70]),
-            updatedAt: Date.now() - (30 * 24 * 60 * 60 * 1000)
+            updatedAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
         });
 
         await loadExerciseList();
 
-        const optionLabels = Array.from(progressElements.exerciseSelect.options).map((opt) => opt.textContent);
+        const optionLabels = Array.from(progressElements.exerciseSelect.options).map(opt => opt.textContent);
         expect(optionLabels).toContain('Bench Press (3 sesiones)');
         expect(mockTrackRead).not.toHaveBeenCalled();
     });
@@ -222,39 +223,38 @@ describe('progress flow', () => {
         mockIsFresh.mockReturnValue(false);
 
         const now = new Date();
-        const daysAgo = (days) => new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
-        const benchSessions = [500, 430, 330, 250, 190, 170, 130, 100, 80, 50, 20]
-            .map((days, index) => buildFirestoreSession(
-                `bench-${index + 1}`,
-                daysAgo(days),
-                'Bench Press',
-                60 + index
-            ));
-        const otherSessions = Array.from({ length: 10 }, (_, index) => buildFirestoreSession(
-            `squat-${index + 1}`,
-            daysAgo(index + 1),
-            'Squat',
-            100 + index
-        ));
+        const daysAgo = days => new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+        const benchSessions = [500, 430, 330, 250, 190, 170, 130, 100, 80, 50, 20].map((days, index) =>
+            buildFirestoreSession(`bench-${index + 1}`, daysAgo(days), 'Bench Press', 60 + index)
+        );
+        const otherSessions = Array.from({ length: 10 }, (_, index) =>
+            buildFirestoreSession(`squat-${index + 1}`, daysAgo(index + 1), 'Squat', 100 + index)
+        );
         const sessions = [...benchSessions, ...otherSessions];
         seedFirestoreSessions(sessions);
         mockGetEntry.mockResolvedValue(null);
 
         await loadExerciseList();
 
-        const benchOption = Array.from(progressElements.exerciseSelect.options)
-            .find((option) => option.textContent.startsWith('Bench Press'));
+        const benchOption = Array.from(progressElements.exerciseSelect.options).find(option =>
+            option.textContent.startsWith('Bench Press')
+        );
         expect(benchOption).toBeDefined();
         expect(benchOption.textContent).toBe('Bench Press (11 sesiones)');
         expect(mockTrackRead).toHaveBeenCalledWith(21, 'progress.sessionHistoryFallback', {
-            limit: 300
+            limit: 300,
         });
 
         mockGetEntry.mockResolvedValue({ value: sessions, updatedAt: Date.now() });
         progressElements.exerciseSelect.value = benchOption.value;
         progressElements.metricSelect.value = 'weight';
 
-        for (const [period, expectedCount] of [['3m', 3], ['6m', 6], ['1y', 9], ['all', 11]]) {
+        for (const [period, expectedCount] of [
+            ['3m', 3],
+            ['6m', 6],
+            ['1y', 9],
+            ['all', 11],
+        ]) {
             progressElements.periodSelect.value = period;
             await updateChart();
             expect(progressElements.sessionCount.textContent).toBe(String(expectedCount));
@@ -266,33 +266,39 @@ describe('progress flow', () => {
         mockIsFresh.mockReturnValue(false);
         const now = new Date();
         const sessions = [
-            ...[1, 2, 3].map((days, index) => buildFirestoreSession(
-                `one-hand-${index + 1}`,
-                new Date(now.getTime() - (days * 24 * 60 * 60 * 1000)),
-                'Bench Press',
-                60 + index,
-                { executionMode: 'one_hand' }
-            )),
-            ...[4, 5, 6].map((days, index) => buildFirestoreSession(
-                `bodyweight-${index + 1}`,
-                new Date(now.getTime() - (days * 24 * 60 * 60 * 1000)),
-                'Bench Press',
-                10 + index,
-                {
-                    executionMode: 'machine',
-                    loadType: 'bodyweight',
-                    bodyweight: 80,
-                    totalWeight: 90 + index
-                }
-            ))
+            ...[1, 2, 3].map((days, index) =>
+                buildFirestoreSession(
+                    `one-hand-${index + 1}`,
+                    new Date(now.getTime() - days * 24 * 60 * 60 * 1000),
+                    'Bench Press',
+                    60 + index,
+                    { executionMode: 'one_hand' }
+                )
+            ),
+            ...[4, 5, 6].map((days, index) =>
+                buildFirestoreSession(
+                    `bodyweight-${index + 1}`,
+                    new Date(now.getTime() - days * 24 * 60 * 60 * 1000),
+                    'Bench Press',
+                    10 + index,
+                    {
+                        executionMode: 'machine',
+                        loadType: 'bodyweight',
+                        bodyweight: 80,
+                        totalWeight: 90 + index,
+                    }
+                )
+            ),
         ];
         mockGetEntry.mockResolvedValue({ value: sessions, updatedAt: Date.now() });
 
         await loadExerciseList();
 
         const options = Array.from(progressElements.exerciseSelect.options);
-        const oneHandOption = options.find((option) => option.value.includes('mode=one_hand'));
-        const bodyweightOption = options.find((option) => option.value.includes('mode=machine') && option.value.includes('load=bodyweight'));
+        const oneHandOption = options.find(option => option.value.includes('mode=one_hand'));
+        const bodyweightOption = options.find(
+            option => option.value.includes('mode=machine') && option.value.includes('load=bodyweight')
+        );
         expect(oneHandOption).toBeDefined();
         expect(bodyweightOption).toBeDefined();
 
@@ -304,13 +310,51 @@ describe('progress flow', () => {
         expect(progressElements.bestRecord.textContent).toBe('92.0 kg');
     });
 
+    it('parses decimal commas and never truncates fractional repetitions in analytics', async () => {
+        setProgressOnline(false);
+        mockIsFresh.mockReturnValue(true);
+        const sessions = [1, 2, 3].map((days, index) =>
+            buildFirestoreSession(
+                `decimal-${index + 1}`,
+                new Date(Date.now() - days * 24 * 60 * 60 * 1000),
+                'Bench Press',
+                '-12,5',
+                {
+                    executionMode: 'machine',
+                    loadType: 'bodyweight',
+                    bodyweight: '78,4',
+                    totalWeight: '65,9',
+                    reps: '8.5',
+                }
+            )
+        );
+        mockGetEntry.mockResolvedValue({ value: sessions, updatedAt: Date.now() });
+
+        await loadExerciseList();
+        const bodyweightOption = Array.from(progressElements.exerciseSelect.options).find(
+            option => option.value.includes('mode=machine') && option.value.includes('load=bodyweight')
+        );
+        expect(bodyweightOption).toBeDefined();
+
+        progressElements.exerciseSelect.value = bodyweightOption.value;
+        progressElements.periodSelect.value = 'all';
+        progressElements.metricSelect.value = 'weight';
+        await updateChart();
+        expect(progressElements.bestRecord.textContent).toBe('65.9 kg');
+
+        progressElements.metricSelect.value = 'reps';
+        await updateChart();
+        expect(progressElements.bestRecord.textContent).toBe('0.0 reps');
+    });
+
     it('updates chart and stats when enough data points exist', async () => {
         mockGetEntry.mockResolvedValue({
             value: buildSessionHistory([60, 65, 70, 72]),
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
         });
 
-        progressElements.exerciseSelect.innerHTML = '<option value="Bench%20Press::mode=two_hand::load=external" selected>Bench Press</option>';
+        progressElements.exerciseSelect.innerHTML =
+            '<option value="Bench%20Press::mode=two_hand::load=external" selected>Bench Press</option>';
         progressElements.metricSelect.value = 'weight';
         progressElements.periodSelect.value = 'all';
 
@@ -332,10 +376,11 @@ describe('progress flow', () => {
     it('shows no-data state when fewer than three data points exist', async () => {
         mockGetEntry.mockResolvedValue({
             value: buildSessionHistory([60, 65]),
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
         });
 
-        progressElements.exerciseSelect.innerHTML = '<option value="Bench%20Press::mode=two_hand::load=external" selected>Bench Press</option>';
+        progressElements.exerciseSelect.innerHTML =
+            '<option value="Bench%20Press::mode=two_hand::load=external" selected>Bench Press</option>';
         progressElements.metricSelect.value = 'weight';
         progressElements.periodSelect.value = 'all';
 
@@ -371,10 +416,11 @@ describe('progress flow', () => {
     it('resets progress view and restores default selector placeholder', async () => {
         mockGetEntry.mockResolvedValue({
             value: buildSessionHistory([60, 65, 70]),
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
         });
 
-        progressElements.exerciseSelect.innerHTML = '<option value="Bench%20Press::mode=two_hand::load=external" selected>Bench Press</option>';
+        progressElements.exerciseSelect.innerHTML =
+            '<option value="Bench%20Press::mode=two_hand::load=external" selected>Bench Press</option>';
         progressElements.metricSelect.value = 'weight';
         progressElements.periodSelect.value = 'all';
         await updateChart();
