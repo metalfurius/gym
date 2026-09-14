@@ -29,6 +29,7 @@ const UNIX_CHROME_PATHS = [
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
 ];
+const XVFB_PATH_CANDIDATES = ['/usr/bin/xvfb-run', '/bin/xvfb-run'];
 const CHROME_PATH_CANDIDATES = [
     process.env.CHROME_PATH,
     ...(process.platform === 'win32' ? WINDOWS_CHROME_PATHS : UNIX_CHROME_PATHS),
@@ -393,6 +394,20 @@ async function resolveChromePath() {
     );
 }
 
+async function resolveXvfbPath() {
+    if (process.platform !== 'linux' || process.env.DISPLAY) return null;
+
+    for (const candidate of XVFB_PATH_CANDIDATES) {
+        try {
+            await fs.access(candidate);
+            return candidate;
+        } catch {
+            // Xvfb is optional outside the GitHub-hosted Linux runner.
+        }
+    }
+    return null;
+}
+
 async function findAvailablePort() {
     const server = createServer();
     await new Promise((resolve, reject) => {
@@ -558,38 +573,50 @@ class ChallengeBrowserSession {
 
 async function openChallengeBrowser(base, target, expectedRevision) {
     const chromePath = await resolveChromePath();
+    const xvfbPath = await resolveXvfbPath();
     const profileDirectory = await fs.mkdtemp(
         path.join(process.env.TEMP || process.env.TMP || os.tmpdir(), 'gym-production-smoke-')
     );
     const remotePort = await findAvailablePort();
+    const useHeadfulChrome = process.platform === 'linux' && Boolean(process.env.DISPLAY || xvfbPath);
+    const chromeArguments = [
+        ...(useHeadfulChrome ? [] : ['--headless=new']),
+        '--no-sandbox',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-extensions',
+        '--disable-blink-features=AutomationControlled',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--remote-allow-origins=*',
+        '--remote-debugging-address=127.0.0.1',
+        `--remote-debugging-port=${remotePort}`,
+        `--user-data-dir=${profileDirectory}`,
+        '--window-size=1440,900',
+        base.toString(),
+    ];
+    const launchCommand = xvfbPath || chromePath;
+    const launchArguments = xvfbPath
+        ? ['--auto-servernum', '--server-args=-screen 0 1440x900x24', chromePath, ...chromeArguments]
+        : chromeArguments;
     let chrome;
     let client;
     let processError;
 
     try {
         chrome = spawn(
-            chromePath,
-            [
-                '--headless=new',
-                '--no-sandbox',
-                '--disable-gpu',
-                '--disable-dev-shm-usage',
-                '--disable-extensions',
-                '--disable-blink-features=AutomationControlled',
-                '--no-first-run',
-                '--no-default-browser-check',
-                '--remote-allow-origins=*',
-                '--remote-debugging-address=127.0.0.1',
-                `--remote-debugging-port=${remotePort}`,
-                `--user-data-dir=${profileDirectory}`,
-                '--window-size=1440,900',
-                base.toString(),
-            ],
+            launchCommand,
+            launchArguments,
             { stdio: ['ignore', 'ignore', 'pipe'] }
         );
         chrome.stderr?.resume();
         chrome.once('error', error => {
             processError = error;
+        });
+        chrome.once('exit', (code, signal) => {
+            if (code !== null && code !== 0 && !processError) {
+                processError = new Error(`challenge browser exited with code ${code}${signal ? ` (${signal})` : ''}`);
+            }
         });
 
         const pageTarget = await waitForChromePageTarget(remotePort, base, () => processError);
