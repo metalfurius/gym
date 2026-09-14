@@ -236,9 +236,20 @@ class DevToolsClient {
     constructor(webSocketUrl) {
         this.nextId = 1;
         this.pending = new Map();
+        this.defaultExecutionContextId = null;
         this.socket = new WebSocket(webSocketUrl);
         this.socket.addEventListener('message', event => {
             const message = JSON.parse(String(event.data));
+            if (message.method === 'Runtime.executionContextCreated') {
+                const context = message.params?.context;
+                if (context?.auxData?.isDefault) this.defaultExecutionContextId = context.id;
+            } else if (message.method === 'Runtime.executionContextDestroyed') {
+                if (message.params?.executionContextId === this.defaultExecutionContextId) {
+                    this.defaultExecutionContextId = null;
+                }
+            } else if (message.method === 'Runtime.executionContextsCleared') {
+                this.defaultExecutionContextId = null;
+            }
             if (message.id && this.pending.has(message.id)) {
                 const pending = this.pending.get(message.id);
                 this.pending.delete(message.id);
@@ -276,6 +287,43 @@ class DevToolsClient {
         if (result.exceptionDetails) {
             throw new Error(
                 result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed'
+            );
+        }
+        return result.result?.value;
+    }
+
+    async callFunction(functionDeclaration, argumentValues = []) {
+        const params = {
+            functionDeclaration,
+            arguments: argumentValues.map(value => ({ value })),
+            awaitPromise: true,
+            returnByValue: true,
+            userGesture: true,
+        };
+        let objectId;
+        if (this.defaultExecutionContextId) {
+            params.executionContextId = this.defaultExecutionContextId;
+        } else {
+            const globalObject = await this.send('Runtime.evaluate', {
+                expression: 'globalThis',
+                returnByValue: false,
+            });
+            objectId = globalObject.result?.objectId;
+            if (!objectId) throw new Error('Browser global object did not become available');
+            params.objectId = objectId;
+        }
+
+        const result = await this.send('Runtime.callFunctionOn', params);
+        if (objectId) {
+            try {
+                await this.send('Runtime.releaseObject', { objectId });
+            } catch {
+                // The page may have navigated and released the handle already.
+            }
+        }
+        if (result.exceptionDetails) {
+            throw new Error(
+                result.exceptionDetails.description || result.exceptionDetails.text || 'Browser function failed'
             );
         }
         return result.result?.value;
@@ -350,11 +398,45 @@ async function waitForChromePageTarget(remotePort, base, getProcessError) {
     );
 }
 
-function revisionProbe(target) {
-    return target === 'portfolio'
-        ? `document.querySelector('meta[name="codeoverdose:revision"]')?.content || null`
-        : `document.querySelector('meta[name="gym-release-revision"]')?.content || null`;
+function revisionSelector(target) {
+    return target === 'portfolio' ? 'meta[name="codeoverdose:revision"]' : 'meta[name="gym-release-revision"]';
 }
+
+const BROWSER_FETCH_FUNCTION = `async function(requestedUrl) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+        const response = await fetch(requestedUrl, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+            signal: controller.signal,
+        });
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        let binary = '';
+        for (let index = 0; index < bytes.length; index += 32768) {
+            binary += String.fromCharCode(...bytes.subarray(index, index + 32768));
+        }
+        return {
+            url: response.url,
+            status: response.status,
+            ok: response.ok,
+            headers: Object.fromEntries(response.headers.entries()),
+            body: btoa(binary),
+        };
+    } finally {
+        clearTimeout(timeout);
+    }
+}`;
+
+const BROWSER_REVISION_FUNCTION = `function(selector) {
+    return {
+        href: location.href,
+        title: document.title,
+        readyState: document.readyState,
+        revision: document.querySelector(selector)?.content || null,
+    };
+}`;
 
 class ChallengeBrowserSession {
     constructor({ chrome, client, profileDirectory, target, expectedRevision }) {
@@ -367,14 +449,12 @@ class ChallengeBrowserSession {
 
     async waitForRevision() {
         const deadline = Date.now() + CHALLENGE_BROWSER_TIMEOUT_MS;
-        const probe = revisionProbe(this.target);
+        const selector = revisionSelector(this.target);
         let lastState;
         let lastError;
         while (Date.now() < deadline) {
             try {
-                lastState = await this.client.evaluate(
-                    `({href:location.href,title:document.title,readyState:document.readyState,revision:${probe}})`
-                );
+                lastState = await this.client.callFunction(BROWSER_REVISION_FUNCTION, [selector]);
                 if (lastState?.revision === this.expectedRevision) return;
             } catch (error) {
                 lastError = error;
@@ -390,8 +470,7 @@ class ChallengeBrowserSession {
 
     async fetchAsset(base, relativePath) {
         const url = new URL(relativePath, base);
-        const expression = `(async()=>{const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),15000);try{const response=await fetch(${JSON.stringify(url.toString())},{cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache',Pragma:'no-cache'},signal:controller.signal});const bytes=new Uint8Array(await response.arrayBuffer());let binary='';for(let index=0;index<bytes.length;index+=32768)binary+=String.fromCharCode(...bytes.subarray(index,index+32768));return {url:response.url,status:response.status,ok:response.ok,headers:Object.fromEntries(response.headers.entries()),body:btoa(binary)}}finally{clearTimeout(timeout)}})()`;
-        const payload = await this.client.evaluate(expression);
+        const payload = await this.client.callFunction(BROWSER_FETCH_FUNCTION, [url.toString()]);
         if (!payload || typeof payload.body !== 'string') {
             throw createProductionError(
                 'cloudflare',
