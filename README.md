@@ -173,7 +173,11 @@ client to confirm update activation, preserved workout state, offline recovery, 
 without manual cache clearing.
 
 Transient Cloudflare 403/5xx responses are retried and reported as edge-layer diagnostics; asset,
-metadata, service-worker, and Pages disagreements remain hard failures.
+metadata, service-worker, and Pages disagreements remain hard failures. If Cloudflare returns a
+managed challenge to the GitHub Actions runner, the smoke starts an isolated ephemeral Chromium
+session to obtain the browser clearance, then fetches the same no-query canonical URLs in that
+session. A challenge is never treated as a pass, and all revision, manifest, shell, service-worker,
+asset-hash, and response-stability checks still run unchanged.
 
 The installed-client smoke waits for both the replacement controller and application-level session
 restoration before checking offline and reconnect behavior.

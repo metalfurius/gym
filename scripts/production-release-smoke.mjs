@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
+import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
+import { createServer } from 'node:net';
+import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import WebSocket from 'ws';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SMOKE_TARGET = process.env.PRODUCTION_SMOKE_TARGET || 'gym';
@@ -12,6 +16,23 @@ const GYM_PUBLIC_BASE_URL = 'https://codeoverdose.es/gym/';
 const PORTFOLIO_PUBLIC_BASE_URL = 'https://codeoverdose.es/';
 const RETRY_COUNT = Number(process.env.PRODUCTION_SMOKE_RETRY_COUNT || 12);
 const RETRY_DELAY_MS = Number(process.env.PRODUCTION_SMOKE_RETRY_DELAY_MS || 5_000);
+const CHALLENGE_BROWSER_TIMEOUT_MS = 45_000;
+const BROWSER_COMMAND_TIMEOUT_MS = 10_000;
+const FORCE_BROWSER_TRANSPORT = process.env.PRODUCTION_SMOKE_FORCE_BROWSER === '1';
+const WINDOWS_CHROME_PATHS = [
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+];
+const UNIX_CHROME_PATHS = [
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+];
+const CHROME_PATH_CANDIDATES = [
+    process.env.CHROME_PATH,
+    ...(process.platform === 'win32' ? WINDOWS_CHROME_PATHS : UNIX_CHROME_PATHS),
+].filter(Boolean);
 const CORE_ASSETS = ['', 'index.html', 'manifest.json', 'release.json', 'sw.js', 'js/progress.js'];
 const PORTFOLIO_MEDIA_PATHS = [
     'assets/1.png',
@@ -25,11 +46,16 @@ const PORTFOLIO_MEDIA_PATHS = [
 const REVISION_PATTERN = /const RELEASE_REVISION = ['"]([^'"]+)['"]/;
 const META_PATTERN = /<meta\s+name=["']gym-release-revision["']\s+content=["']([^"']+)["']/i;
 const PORTFOLIO_META_PATTERN = /<meta\s+name=["']codeoverdose:revision["']\s+content=["']([^"']+)["']/i;
+const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
-function fail(layer, message) {
+function createProductionError(layer, message) {
     const error = new Error(`[production-smoke:${layer}] ${message}`);
     error.layer = layer;
-    throw error;
+    return error;
+}
+
+function fail(layer, message) {
+    throw createProductionError(layer, message);
 }
 
 function normalizeText(buffer) {
@@ -153,7 +179,8 @@ function getExpectedAssets(release) {
     return [...new Set([...CORE_ASSETS, ...Object.keys(release.assets)])].sort();
 }
 
-function selectedHeaders(response) {
+function selectedHeaders(responseOrHeaders) {
+    const headers = responseOrHeaders?.headers || responseOrHeaders;
     return Object.fromEntries(
         [
             'cache-control',
@@ -168,7 +195,7 @@ function selectedHeaders(response) {
             'server',
             'via',
             'x-cache',
-        ].map(name => [name, response.headers.get(name)])
+        ].map(name => [name, typeof headers?.get === 'function' ? headers.get(name) : headers?.[name] || null])
     );
 }
 
@@ -206,6 +233,404 @@ function browserHeaders(base, relativePath) {
     return headers;
 }
 
+class DevToolsClient {
+    constructor(webSocketUrl) {
+        this.nextId = 1;
+        this.pending = new Map();
+        this.defaultExecutionContextId = null;
+        this.rejectPending = error => {
+            for (const pending of this.pending.values()) pending.reject(error);
+            this.pending.clear();
+        };
+        this.socket = new WebSocket(webSocketUrl);
+        this.socket.addEventListener('message', event => {
+            const message = JSON.parse(String(event.data));
+            if (message.method === 'Runtime.executionContextCreated') {
+                const context = message.params?.context;
+                if (context?.auxData?.isDefault) this.defaultExecutionContextId = context.id;
+            } else if (message.method === 'Runtime.executionContextDestroyed') {
+                if (message.params?.executionContextId === this.defaultExecutionContextId) {
+                    this.defaultExecutionContextId = null;
+                }
+            } else if (message.method === 'Runtime.executionContextsCleared') {
+                this.defaultExecutionContextId = null;
+            }
+            if (message.id && this.pending.has(message.id)) {
+                const pending = this.pending.get(message.id);
+                this.pending.delete(message.id);
+                if (message.error) pending.reject(new Error(message.error.message));
+                else pending.resolve(message.result || {});
+            }
+        });
+        this.socket.addEventListener('close', () => {
+            this.defaultExecutionContextId = null;
+            this.rejectPending(new Error('Browser CDP socket closed'));
+        });
+        this.socket.addEventListener('error', event => {
+            const error = event instanceof Error ? event : new Error(event?.message || 'Browser CDP socket error');
+            this.rejectPending(error);
+        });
+        this.openPromise = new Promise((resolve, reject) => {
+            this.socket.addEventListener('open', resolve, { once: true });
+            this.socket.addEventListener(
+                'error',
+                event => {
+                    reject(event instanceof Error ? event : new Error(event?.message || 'Browser CDP socket error'));
+                },
+                { once: true }
+            );
+            this.socket.addEventListener('close', () => reject(new Error('Browser CDP socket closed')), { once: true });
+        });
+    }
+
+    async send(method, params = {}) {
+        await this.openPromise;
+        if (this.socket.readyState !== WebSocket.OPEN) throw new Error('Browser CDP socket is not open');
+        const id = this.nextId++;
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                const pending = this.pending.get(id);
+                if (!pending) return;
+                this.pending.delete(id);
+                pending.reject(new Error(`CDP command timed out: ${method}`));
+            }, BROWSER_COMMAND_TIMEOUT_MS);
+            this.pending.set(id, {
+                resolve: value => {
+                    clearTimeout(timeout);
+                    resolve(value);
+                },
+                reject: error => {
+                    clearTimeout(timeout);
+                    reject(error);
+                },
+            });
+            try {
+                this.socket.send(JSON.stringify({ id, method, params }));
+            } catch (error) {
+                const pending = this.pending.get(id);
+                if (pending) {
+                    this.pending.delete(id);
+                    pending.reject(error);
+                }
+            }
+        });
+    }
+
+    async evaluate(expression) {
+        const result = await this.send('Runtime.evaluate', {
+            expression,
+            awaitPromise: true,
+            returnByValue: true,
+            userGesture: true,
+        });
+        if (result.exceptionDetails) {
+            throw new Error(
+                result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed'
+            );
+        }
+        return result.result?.value;
+    }
+
+    async callFunction(functionDeclaration, argumentValues = []) {
+        const params = {
+            functionDeclaration,
+            arguments: argumentValues.map(value => ({ value })),
+            awaitPromise: true,
+            returnByValue: true,
+            userGesture: true,
+        };
+        let objectId;
+        if (this.defaultExecutionContextId) {
+            params.executionContextId = this.defaultExecutionContextId;
+        } else {
+            const globalObject = await this.send('Runtime.evaluate', {
+                expression: 'globalThis',
+                returnByValue: false,
+            });
+            objectId = globalObject.result?.objectId;
+            if (!objectId) throw new Error('Browser global object did not become available');
+            params.objectId = objectId;
+        }
+
+        const result = await this.send('Runtime.callFunctionOn', params);
+        if (objectId) {
+            try {
+                await this.send('Runtime.releaseObject', { objectId });
+            } catch {
+                // The page may have navigated and released the handle already.
+            }
+        }
+        if (result.exceptionDetails) {
+            throw new Error(
+                result.exceptionDetails.description || result.exceptionDetails.text || 'Browser function failed'
+            );
+        }
+        return result.result?.value;
+    }
+
+    close() {
+        this.rejectPending(new Error('Browser CDP client closed'));
+        try {
+            this.socket.close();
+        } catch {
+            // The browser may already have exited after the challenge completed.
+        }
+    }
+}
+
+async function resolveChromePath() {
+    for (const candidate of CHROME_PATH_CANDIDATES) {
+        try {
+            await fs.access(candidate);
+            return candidate;
+        } catch {
+            // Try the next runner-specific installation path.
+        }
+    }
+    throw createProductionError(
+        'cloudflare',
+        `Chrome executable not found for the Cloudflare challenge fallback; tried ${CHROME_PATH_CANDIDATES.join(', ')}`
+    );
+}
+
+async function findAvailablePort() {
+    const server = createServer();
+    await new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', resolve);
+    });
+    const address = server.address();
+    const port = typeof address === 'object' && address ? address.port : 0;
+    await new Promise(resolve => server.close(resolve));
+    if (!port) throw createProductionError('cloudflare', 'could not allocate a local port for the challenge browser');
+    return port;
+}
+
+async function waitForChromePageTarget(remotePort, base, getProcessError) {
+    const deadline = Date.now() + CHALLENGE_BROWSER_TIMEOUT_MS;
+    let lastError;
+    while (Date.now() < deadline) {
+        const processError = getProcessError();
+        if (processError) throw processError;
+        try {
+            const response = await fetch(`http://127.0.0.1:${remotePort}/json/list`);
+            if (response.ok) {
+                const targets = await response.json();
+                const pageTarget = targets.find(
+                    target =>
+                        target.type === 'page' &&
+                        target.webSocketDebuggerUrl &&
+                        target.url &&
+                        target.url !== 'about:blank' &&
+                        !target.url.startsWith('chrome-extension://')
+                );
+                if (pageTarget) return pageTarget;
+            }
+        } catch (error) {
+            lastError = error;
+        }
+        await sleep(250);
+    }
+    const detail = lastError ? `: ${lastError.message}` : '';
+    throw createProductionError(
+        'cloudflare',
+        `the Cloudflare challenge browser did not expose a page target for ${base.toString()}${detail}`
+    );
+}
+
+function revisionSelector(target) {
+    return target === 'portfolio' ? 'meta[name="codeoverdose:revision"]' : 'meta[name="gym-release-revision"]';
+}
+
+const BROWSER_FETCH_FUNCTION = `async function(requestedUrl) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+        const response = await fetch(requestedUrl, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+            signal: controller.signal,
+        });
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        let binary = '';
+        for (let index = 0; index < bytes.length; index += 32768) {
+            binary += String.fromCharCode(...bytes.subarray(index, index + 32768));
+        }
+        return {
+            url: response.url,
+            status: response.status,
+            ok: response.ok,
+            headers: Object.fromEntries(response.headers.entries()),
+            body: btoa(binary),
+        };
+    } finally {
+        clearTimeout(timeout);
+    }
+}`;
+
+const BROWSER_REVISION_FUNCTION = `function(selector) {
+    return {
+        href: location.href,
+        title: document.title,
+        readyState: document.readyState,
+        revision: document.querySelector(selector)?.content || null,
+    };
+}`;
+
+class ChallengeBrowserSession {
+    constructor({ chrome, client, profileDirectory, target, expectedRevision }) {
+        this.chrome = chrome;
+        this.client = client;
+        this.profileDirectory = profileDirectory;
+        this.target = target;
+        this.expectedRevision = expectedRevision;
+    }
+
+    async waitForRevision() {
+        const deadline = Date.now() + CHALLENGE_BROWSER_TIMEOUT_MS;
+        const selector = revisionSelector(this.target);
+        let lastState;
+        let lastError;
+        while (Date.now() < deadline) {
+            try {
+                lastState = await this.client.callFunction(BROWSER_REVISION_FUNCTION, [selector]);
+                if (lastState?.revision === this.expectedRevision) return;
+            } catch (error) {
+                lastError = error;
+            }
+            await sleep(500);
+        }
+        const detail = lastError?.message || (lastState ? JSON.stringify(lastState) : 'no browser state');
+        throw createProductionError(
+            'cloudflare',
+            `the Cloudflare challenge browser did not reach deployed ${this.target} revision ${this.expectedRevision} (${detail})`
+        );
+    }
+
+    async fetchAsset(base, relativePath) {
+        const url = new URL(relativePath, base);
+        const payload = await this.client.callFunction(BROWSER_FETCH_FUNCTION, [url.toString()]);
+        if (!payload || typeof payload.body !== 'string') {
+            throw createProductionError(
+                'cloudflare',
+                `the challenge browser returned no response body for ${relativePath}`
+            );
+        }
+
+        let responseUrl;
+        try {
+            responseUrl = new URL(payload.url || url.toString());
+        } catch {
+            throw createProductionError(
+                'cloudflare',
+                `the challenge browser returned an invalid final URL for ${relativePath}`
+            );
+        }
+        if (responseUrl.search || responseUrl.hash) {
+            throw createProductionError(
+                'cloudflare',
+                `the challenge browser redirected ${relativePath} to a URL with a query or fragment: ${responseUrl}`
+            );
+        }
+
+        const headers = selectedHeaders(payload.headers || {});
+        if (!payload.ok) throw createResponseError(relativePath, payload.status, headers);
+
+        return {
+            relativePath,
+            url: responseUrl.toString(),
+            buffer: Buffer.from(payload.body, 'base64'),
+            headers,
+        };
+    }
+
+    async close() {
+        this.client.close();
+        if (!this.chrome.killed) this.chrome.kill();
+        try {
+            await fs.rm(this.profileDirectory, { recursive: true, force: true });
+        } catch {
+            // The temporary profile is best-effort cleanup only.
+        }
+    }
+}
+
+async function openChallengeBrowser(base, target, expectedRevision) {
+    const chromePath = await resolveChromePath();
+    const profileDirectory = await fs.mkdtemp(
+        path.join(process.env.TEMP || process.env.TMP || os.tmpdir(), 'gym-production-smoke-')
+    );
+    const remotePort = await findAvailablePort();
+    let chrome;
+    let client;
+    let processError;
+
+    try {
+        chrome = spawn(
+            chromePath,
+            [
+                '--headless=new',
+                '--no-sandbox',
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--disable-extensions',
+                '--disable-blink-features=AutomationControlled',
+                '--no-first-run',
+                '--no-default-browser-check',
+                '--remote-allow-origins=*',
+                '--remote-debugging-address=127.0.0.1',
+                `--remote-debugging-port=${remotePort}`,
+                `--user-data-dir=${profileDirectory}`,
+                '--window-size=1440,900',
+                base.toString(),
+            ],
+            { stdio: ['ignore', 'ignore', 'pipe'] }
+        );
+        chrome.stderr?.resume();
+        chrome.once('error', error => {
+            processError = error;
+        });
+
+        const pageTarget = await waitForChromePageTarget(remotePort, base, () => processError);
+        client = new DevToolsClient(pageTarget.webSocketDebuggerUrl);
+        await client.send('Runtime.enable');
+        await client.send('Page.enable');
+        await client.send('Network.enable');
+        await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+
+        const session = new ChallengeBrowserSession({
+            chrome,
+            client,
+            profileDirectory,
+            target,
+            expectedRevision,
+        });
+        await session.waitForRevision();
+        return session;
+    } catch (error) {
+        client?.close();
+        if (chrome && !chrome.killed) chrome.kill();
+        try {
+            await fs.rm(profileDirectory, { recursive: true, force: true });
+        } catch {
+            // The temporary profile is best-effort cleanup only.
+        }
+        if (error.layer) throw error;
+        throw createProductionError('cloudflare', `the Cloudflare challenge browser could not start: ${error.message}`);
+    }
+}
+
+function createResponseError(relativePath, status, headers) {
+    const layer = status === 403 || status >= 500 ? 'cloudflare' : 'pages';
+    const error = createProductionError(
+        layer,
+        `${relativePath} returned HTTP ${status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, cf-mitigated=${headers['cf-mitigated'] || 'unknown'}, cf-ray=${headers['cf-ray'] || 'unknown'}, server=${headers.server || 'unknown'})`
+    );
+    error.cloudflareChallenge = headers['cf-mitigated'] === 'challenge';
+    return error;
+}
+
 async function fetchAsset(base, relativePath) {
     const url = new URL(relativePath, base);
     if (url.search || url.hash) fail('config', `generated production URL contains a query or fragment: ${url}`);
@@ -219,25 +644,67 @@ async function fetchAsset(base, relativePath) {
         fail('cloudflare', `request failed for ${relativePath}: ${error.message}`);
     }
 
-    const buffer = Buffer.from(await response.arrayBuffer());
     if (!response.ok) {
-        const layer = response.status === 403 || response.status >= 500 ? 'cloudflare' : 'pages';
         const headers = selectedHeaders(response);
-        fail(
-            layer,
-            `${relativePath} returned HTTP ${response.status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, cf-mitigated=${headers['cf-mitigated'] || 'unknown'}, cf-ray=${headers['cf-ray'] || 'unknown'}, server=${headers.server || 'unknown'})`
-        );
+        throw createResponseError(relativePath, response.status, headers);
     }
 
-    return { relativePath, url: url.toString(), buffer, headers: selectedHeaders(response) };
+    return {
+        relativePath,
+        url: url.toString(),
+        buffer: Buffer.from(await response.arrayBuffer()),
+        headers: selectedHeaders(response),
+    };
 }
 
-async function readProduction(base, expectedAssets) {
+async function readProduction(base, expectedAssets, challengeBrowser = null) {
     const assets = {};
     for (const relativePath of expectedAssets) {
-        assets[relativePath] = await fetchAsset(base, relativePath);
+        assets[relativePath] = challengeBrowser
+            ? await challengeBrowser.fetchAsset(base, relativePath)
+            : await fetchAsset(base, relativePath);
     }
     return assets;
+}
+
+async function readProductionWithChallengeFallback(
+    base,
+    expectedAssets,
+    target,
+    expectedRevision,
+    challengeBrowser = null
+) {
+    if (challengeBrowser) {
+        return {
+            assets: await readProduction(base, expectedAssets, challengeBrowser),
+            transport: 'cloudflare-challenge-browser',
+            challengeBrowser,
+        };
+    }
+
+    if (!FORCE_BROWSER_TRANSPORT) {
+        try {
+            return {
+                assets: await readProduction(base, expectedAssets),
+                transport: 'node-fetch',
+                challengeBrowser: null,
+            };
+        } catch (error) {
+            if (!error.cloudflareChallenge) throw error;
+        }
+    }
+
+    const browser = await openChallengeBrowser(base, target, expectedRevision);
+    try {
+        return {
+            assets: await readProduction(base, expectedAssets, browser),
+            transport: 'cloudflare-challenge-browser',
+            challengeBrowser: browser,
+        };
+    } catch (browserError) {
+        await browser.close();
+        throw browserError;
+    }
 }
 
 function validateRelease(release, assets, checkedOutIndexHtml) {
@@ -466,42 +933,83 @@ async function runPortfolio() {
     const base = normalizeBaseUrl(PORTFOLIO_PUBLIC_BASE_URL);
     const expectedAssets = getPortfolioExpectedAssets(target.siteRevision);
     let lastError;
+    let challengeBrowser = null;
 
-    for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
-        try {
-            const assets = await readProduction(base, expectedAssets);
-            const validation = validatePortfolio(
-                target.siteRevision,
-                assets,
-                target.checkedOutIndexHtml,
-                target.localHashes
-            );
-            const repeatedAssets = await readProduction(base, expectedAssets);
-            assertStableResponses(assets, repeatedAssets);
-            const evidence = buildEvidence(target.siteRevision, assets, validation, PORTFOLIO_PUBLIC_BASE_URL);
-            const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
-            if (evidencePath) {
-                await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+    try {
+        for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
+            try {
+                const production = await readProductionWithChallengeFallback(
+                    base,
+                    expectedAssets,
+                    'portfolio',
+                    target.siteRevision.revision,
+                    challengeBrowser
+                );
+                challengeBrowser = production.challengeBrowser;
+                const assets = production.assets;
+                const validation = validatePortfolio(
+                    target.siteRevision,
+                    assets,
+                    target.checkedOutIndexHtml,
+                    target.localHashes
+                );
+                const repeatedProduction = await readProductionWithChallengeFallback(
+                    base,
+                    expectedAssets,
+                    'portfolio',
+                    target.siteRevision.revision,
+                    challengeBrowser
+                );
+                challengeBrowser = repeatedProduction.challengeBrowser;
+                const repeatedAssets = repeatedProduction.assets;
+                assertStableResponses(assets, repeatedAssets);
+                const evidence = buildEvidence(
+                    target.siteRevision,
+                    assets,
+                    validation,
+                    PORTFOLIO_PUBLIC_BASE_URL,
+                    repeatedProduction.transport === 'cloudflare-challenge-browser' ||
+                        production.transport === 'cloudflare-challenge-browser'
+                        ? 'cloudflare-challenge-browser'
+                        : 'node-fetch'
+                );
+                const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
+                if (evidencePath) {
+                    await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+                }
+                console.log(
+                    `[production-smoke] passed portfolio ${validation.revision}; verified ${expectedAssets.length} repeated no-query canonical assets`
+                );
+                return;
+            } catch (error) {
+                lastError = error;
+                if (challengeBrowser && error.cloudflareChallenge) {
+                    await challengeBrowser.close();
+                    challengeBrowser = null;
+                }
+                if (attempt === RETRY_COUNT) break;
+                console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
+                await sleep(RETRY_DELAY_MS);
             }
-            console.log(
-                `[production-smoke] passed portfolio ${validation.revision}; verified ${expectedAssets.length} repeated no-query canonical assets`
-            );
-            return;
-        } catch (error) {
-            lastError = error;
-            if (attempt === RETRY_COUNT) break;
-            console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
         }
+    } finally {
+        await challengeBrowser?.close();
     }
 
     throw lastError;
 }
 
-function buildEvidence(release, assets, validation, publicBaseUrl = GYM_PUBLIC_BASE_URL) {
+function buildEvidence(
+    release,
+    assets,
+    validation,
+    publicBaseUrl = GYM_PUBLIC_BASE_URL,
+    verificationTransport = 'node-fetch'
+) {
     return {
         status: 'passed',
         publicBaseUrl,
+        verificationTransport,
         revision: validation.revision,
         version: validation.version,
         progressHash: validation.progressHash,
@@ -524,27 +1032,44 @@ async function runGym() {
     const release = await readLocalRelease();
     const expectedAssets = getExpectedAssets(release);
     let lastError;
+    let challengeBrowser = null;
 
-    for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
-        try {
-            const assets = await readProduction(base, expectedAssets);
-            const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(ROOT, 'index.html')));
-            const validation = validateRelease(release, assets, checkedOutIndexHtml);
-            const evidence = buildEvidence(release, assets, validation);
-            const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
-            if (evidencePath) {
-                await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+    try {
+        for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
+            try {
+                const production = await readProductionWithChallengeFallback(
+                    base,
+                    expectedAssets,
+                    'gym',
+                    release.revision,
+                    challengeBrowser
+                );
+                challengeBrowser = production.challengeBrowser;
+                const assets = production.assets;
+                const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(ROOT, 'index.html')));
+                const validation = validateRelease(release, assets, checkedOutIndexHtml);
+                const evidence = buildEvidence(release, assets, validation, GYM_PUBLIC_BASE_URL, production.transport);
+                const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
+                if (evidencePath) {
+                    await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+                }
+                console.log(
+                    `[production-smoke] passed ${validation.revision}; verified ${expectedAssets.length} no-query canonical assets`
+                );
+                return;
+            } catch (error) {
+                lastError = error;
+                if (challengeBrowser && error.cloudflareChallenge) {
+                    await challengeBrowser.close();
+                    challengeBrowser = null;
+                }
+                if (attempt === RETRY_COUNT) break;
+                console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
+                await sleep(RETRY_DELAY_MS);
             }
-            console.log(
-                `[production-smoke] passed ${validation.revision}; verified ${expectedAssets.length} no-query canonical assets`
-            );
-            return;
-        } catch (error) {
-            lastError = error;
-            if (attempt === RETRY_COUNT) break;
-            console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
         }
+    } finally {
+        await challengeBrowser?.close();
     }
 
     throw lastError;

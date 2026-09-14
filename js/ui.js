@@ -359,6 +359,8 @@ export async function renderSessionView(routine, inProgressData = null) {
     userWeightInput.pattern = '[0-9]*[.,]?[0-9]*';
     userWeightInput.autocomplete = 'off';
     userWeightInput.setAttribute('enterkeyhint', 'done');
+    userWeightDiv.appendChild(userWeightInput);
+    sessionElements.exerciseList.appendChild(userWeightDiv);
 
     const updateUserWeightEditingState = () => {
         const editResult = normalizeDecimalEditValue(userWeightInput.value);
@@ -415,9 +417,6 @@ export async function renderSessionView(routine, inProgressData = null) {
     if (userWeightInput.value) {
         commitUserWeight();
     }
-
-    userWeightDiv.appendChild(userWeightInput);
-    sessionElements.exerciseList.appendChild(userWeightDiv);
 
     for (let exerciseIndex = 0; exerciseIndex < routine.exercises.length; exerciseIndex++) {
         const exercise = routine.exercises[exerciseIndex];
