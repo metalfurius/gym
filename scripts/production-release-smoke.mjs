@@ -17,6 +17,7 @@ const PORTFOLIO_PUBLIC_BASE_URL = 'https://codeoverdose.es/';
 const RETRY_COUNT = Number(process.env.PRODUCTION_SMOKE_RETRY_COUNT || 12);
 const RETRY_DELAY_MS = Number(process.env.PRODUCTION_SMOKE_RETRY_DELAY_MS || 5_000);
 const CHALLENGE_BROWSER_TIMEOUT_MS = 45_000;
+const BROWSER_COMMAND_TIMEOUT_MS = 10_000;
 const FORCE_BROWSER_TRANSPORT = process.env.PRODUCTION_SMOKE_FORCE_BROWSER === '1';
 const WINDOWS_CHROME_PATHS = [
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -237,6 +238,10 @@ class DevToolsClient {
         this.nextId = 1;
         this.pending = new Map();
         this.defaultExecutionContextId = null;
+        this.rejectPending = error => {
+            for (const pending of this.pending.values()) pending.reject(error);
+            this.pending.clear();
+        };
         this.socket = new WebSocket(webSocketUrl);
         this.socket.addEventListener('message', event => {
             const message = JSON.parse(String(event.data));
@@ -257,22 +262,56 @@ class DevToolsClient {
                 else pending.resolve(message.result || {});
             }
         });
+        this.socket.addEventListener('close', () => {
+            this.defaultExecutionContextId = null;
+            this.rejectPending(new Error('Browser CDP socket closed'));
+        });
+        this.socket.addEventListener('error', event => {
+            const error = event instanceof Error ? event : new Error(event?.message || 'Browser CDP socket error');
+            this.rejectPending(error);
+        });
         this.openPromise = new Promise((resolve, reject) => {
             this.socket.addEventListener('open', resolve, { once: true });
-            this.socket.addEventListener('error', reject, { once: true });
+            this.socket.addEventListener(
+                'error',
+                event => {
+                    reject(event instanceof Error ? event : new Error(event?.message || 'Browser CDP socket error'));
+                },
+                { once: true }
+            );
+            this.socket.addEventListener('close', () => reject(new Error('Browser CDP socket closed')), { once: true });
         });
     }
 
     async send(method, params = {}) {
         await this.openPromise;
+        if (this.socket.readyState !== WebSocket.OPEN) throw new Error('Browser CDP socket is not open');
         const id = this.nextId++;
         return new Promise((resolve, reject) => {
-            this.pending.set(id, { resolve, reject });
+            const timeout = setTimeout(() => {
+                const pending = this.pending.get(id);
+                if (!pending) return;
+                this.pending.delete(id);
+                pending.reject(new Error(`CDP command timed out: ${method}`));
+            }, BROWSER_COMMAND_TIMEOUT_MS);
+            this.pending.set(id, {
+                resolve: value => {
+                    clearTimeout(timeout);
+                    resolve(value);
+                },
+                reject: error => {
+                    clearTimeout(timeout);
+                    reject(error);
+                },
+            });
             try {
                 this.socket.send(JSON.stringify({ id, method, params }));
             } catch (error) {
-                this.pending.delete(id);
-                reject(error);
+                const pending = this.pending.get(id);
+                if (pending) {
+                    this.pending.delete(id);
+                    pending.reject(error);
+                }
             }
         });
     }
@@ -330,6 +369,7 @@ class DevToolsClient {
     }
 
     close() {
+        this.rejectPending(new Error('Browser CDP client closed'));
         try {
             this.socket.close();
         } catch {
@@ -478,12 +518,28 @@ class ChallengeBrowserSession {
             );
         }
 
+        let responseUrl;
+        try {
+            responseUrl = new URL(payload.url || url.toString());
+        } catch {
+            throw createProductionError(
+                'cloudflare',
+                `the challenge browser returned an invalid final URL for ${relativePath}`
+            );
+        }
+        if (responseUrl.search || responseUrl.hash) {
+            throw createProductionError(
+                'cloudflare',
+                `the challenge browser redirected ${relativePath} to a URL with a query or fragment: ${responseUrl}`
+            );
+        }
+
         const headers = selectedHeaders(payload.headers || {});
         if (!payload.ok) throw createResponseError(relativePath, payload.status, headers);
 
         return {
             relativePath,
-            url: payload.url || url.toString(),
+            url: responseUrl.toString(),
             buffer: Buffer.from(payload.body, 'base64'),
             headers,
         };
@@ -515,6 +571,7 @@ async function openChallengeBrowser(base, target, expectedRevision) {
             chromePath,
             [
                 '--headless=new',
+                '--no-sandbox',
                 '--disable-gpu',
                 '--disable-dev-shm-usage',
                 '--disable-extensions',

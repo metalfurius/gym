@@ -142,6 +142,7 @@ export class ExerciseCacheManager {
                     allowSign: normalizedLoadType === 'bodyweight',
                     min: normalizedLoadType === 'bodyweight' ? -500 : 0,
                     max: 500,
+                    maxFractionDigits: null,
                     roundTo: 1,
                 });
                 const repsResult = parseIntegerInput(set.reps, { min: 0, max: 1000 });

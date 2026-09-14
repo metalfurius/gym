@@ -109,6 +109,13 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
             expect(history[0].sets).toHaveLength(1);
             expect(history[0].sets[0]).toEqual({ peso: 62.5, reps: 8 });
         });
+
+        it('should round legacy weights with more than two fractional digits', () => {
+            cacheManager.addExerciseData('Bench Press', [{ peso: '62.555', reps: '8' }]);
+
+            const history = cacheManager.getExerciseHistory('Bench Press');
+            expect(history[0].sets[0]).toEqual({ peso: 62.6, reps: 8 });
+        });
     });
 
     describe('getExerciseSuggestions', () => {

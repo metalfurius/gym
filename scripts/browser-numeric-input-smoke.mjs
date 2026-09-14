@@ -17,11 +17,10 @@ const CHROME_PATH_CANDIDATES = [
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Users\\Fran\\AppData\\Local\\ms-playwright\\chromium-1234\\chrome-win64\\chrome.exe',
 ].filter(Boolean);
-const FIREFOX_PATH =
-    process.env.FIREFOX_PATH || 'C:\\Users\\Fran\\AppData\\Local\\ms-playwright\\firefox-1490\\firefox\\firefox.exe';
 const CHROME_DEBUG_PORT = Number(process.env.CHROME_NUMERIC_DEBUG_PORT || 9272);
 const FIREFOX_DEBUG_PORT = Number(process.env.FIREFOX_NUMERIC_DEBUG_PORT || 9336);
-const REQUESTED_BROWSER = (process.env.NUMERIC_SMOKE_BROWSER || 'all').toLowerCase();
+const REQUESTED_BROWSER = (process.env.NUMERIC_SMOKE_BROWSER || 'chromium').toLowerCase();
+const SUPPORTED_BROWSERS = new Set(['all', 'chromium', 'firefox']);
 
 const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -594,8 +593,9 @@ class BidiClient {
 }
 
 async function openFirefox(url, profileDirectory) {
+    const firefoxPath = await resolveFirefoxPath();
     const firefox = spawn(
-        FIREFOX_PATH,
+        firefoxPath,
         [
             '-headless',
             '--safe-mode',
@@ -665,6 +665,57 @@ async function openFirefox(url, profileDirectory) {
     }
 }
 
+async function resolveFirefoxPath() {
+    const candidates = [
+        process.env.FIREFOX_PATH,
+        ...(process.platform === 'win32'
+            ? [
+                'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+                'C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe',
+            ]
+            : ['/usr/bin/firefox', '/usr/bin/firefox-esr', '/Applications/Firefox.app/Contents/MacOS/firefox']),
+    ].filter(Boolean);
+
+    const playwrightRoots = [
+        process.platform === 'win32' && process.env.LOCALAPPDATA
+            ? path.join(process.env.LOCALAPPDATA, 'ms-playwright')
+            : null,
+        path.join(os.homedir(), '.cache', 'ms-playwright'),
+    ].filter(Boolean);
+    for (const root of playwrightRoots) {
+        try {
+            const entries = await fs.readdir(root, { withFileTypes: true });
+            for (const entry of entries
+                .filter(candidate => candidate.isDirectory() && /^firefox-/.test(candidate.name))
+                .sort((left, right) => right.name.localeCompare(left.name, undefined, { numeric: true }))) {
+                candidates.push(
+                    path.join(root, entry.name, 'firefox', process.platform === 'win32' ? 'firefox.exe' : 'firefox')
+                );
+            }
+        } catch {
+            // The Playwright cache is optional; continue with system locations.
+        }
+    }
+
+    const pathEntries = (process.env.PATH || process.env.Path || '').split(path.delimiter).filter(Boolean);
+    for (const entry of pathEntries) {
+        candidates.push(path.join(entry, process.platform === 'win32' ? 'firefox.exe' : 'firefox'));
+        if (process.platform !== 'win32') candidates.push(path.join(entry, 'firefox-esr'));
+    }
+
+    for (const candidate of candidates) {
+        try {
+            await fs.access(candidate);
+            return candidate;
+        } catch {
+            // Try the next platform or runner-provided installation path.
+        }
+    }
+    throw new Error(
+        `Firefox executable not found; set FIREFOX_PATH or install Firefox (tried ${candidates.join(', ')})`
+    );
+}
+
 async function runFirefox(url) {
     const profileDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-numeric-firefox-'));
     let browser;
@@ -711,6 +762,8 @@ function assertSmokeState(result) {
     }
     const expectedInvalidReps = ['8.5', '8,5', '1e2', '+8', '-1'];
     if (
+        !Array.isArray(state.invalidReps) ||
+        state.invalidReps.length !== expectedInvalidReps.length ||
         state.invalidReps.some(
             (entry, index) => entry.value !== expectedInvalidReps[index] || entry.ariaInvalid !== 'true'
         )
@@ -745,6 +798,9 @@ function assertSmokeState(result) {
 }
 
 async function run() {
+    if (!SUPPORTED_BROWSERS.has(REQUESTED_BROWSER)) {
+        throw new Error(`Unsupported NUMERIC_SMOKE_BROWSER=${REQUESTED_BROWSER}; use chromium, firefox, or all`);
+    }
     const smokeServer = await createSmokeServer();
     const evidence = {
         generatedAt: new Date().toISOString(),
