@@ -1,12 +1,15 @@
+import { parseDecimalInput } from './numeric-input.js';
+
 export const LAST_KNOWN_BODYWEIGHT_KEY_PREFIX = 'gym-tracker:last-known-bodyweight:';
 
 function toFiniteNumber(value) {
-    if (value === null || value === undefined || value === '') {
-        return null;
-    }
+    const result = parseDecimalInput(value, {
+        allowSign: true,
+        maxFractionDigits: null,
+        roundTo: null,
+    });
 
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
+    return result.isValid && result.value !== null ? result.value : null;
 }
 
 function roundToSingleDecimal(value) {

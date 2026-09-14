@@ -7,7 +7,7 @@ import {
     serializeActivityMap,
     deserializeActivityMap,
     fromDbToSessionModel,
-    fromAppToSessionDbModel
+    fromAppToSessionDbModel,
 } from '../../js/utils/firestore-serialization.js';
 
 describe('firestore-serialization', () => {
@@ -19,7 +19,7 @@ describe('firestore-serialization', () => {
             name: 'Push',
             exercises: [{ name: 'Bench' }],
             createdAt,
-            updatedAt
+            updatedAt,
         };
 
         const cached = serializeRoutineForCache(routine);
@@ -35,7 +35,7 @@ describe('firestore-serialization', () => {
         const session = {
             id: 's-1',
             fecha: { toDate: () => new Date('2026-03-03T15:30:00.000Z') },
-            ejercicios: []
+            ejercicios: [],
         };
 
         const cached = serializeSessionForCache(session);
@@ -48,7 +48,7 @@ describe('firestore-serialization', () => {
     it('serializes and deserializes activity maps', () => {
         const activityMap = new Map([
             ['2026-03-01', 2],
-            ['2026-03-02', 1]
+            ['2026-03-02', 1],
         ]);
 
         const serialized = serializeActivityMap(activityMap);
@@ -72,9 +72,9 @@ describe('firestore-serialization', () => {
                     targetSets: 4,
                     targetReps: '8-10',
                     notes: 'Good session',
-                    sets: [{ weight: '80', repeticiones: '8', restTime: '01:30' }]
-                }
-            ]
+                    sets: [{ weight: '80', repeticiones: '8', restTime: '01:30' }],
+                },
+            ],
         };
 
         const normalized = fromDbToSessionModel(raw);
@@ -92,8 +92,51 @@ describe('firestore-serialization', () => {
             objetivoReps: '8-10',
             objetivoDuracion: null,
             notasEjercicio: 'Good session',
-            sets: [{ peso: 80, reps: 8, tiempoDescanso: '01:30' }]
+            sets: [{ peso: 80, reps: 8, tiempoDescanso: '01:30' }],
         });
+    });
+
+    it('round-trips decimal commas and preserves whole repetitions', () => {
+        const raw = {
+            pesoUsuario: '75,4',
+            ejercicios: [
+                {
+                    nombreEjercicio: 'Bench Press',
+                    tipoEjercicio: 'strength',
+                    tipoCarga: 'external',
+                    sets: [{ peso: '62,55', reps: '8' }],
+                },
+            ],
+        };
+
+        const normalized = fromDbToSessionModel(raw);
+        expect(normalized.pesoUsuario).toBe(75.4);
+        expect(normalized.ejercicios[0].sets[0]).toMatchObject({
+            peso: 62.55,
+            reps: 8,
+        });
+
+        const wire = fromAppToSessionDbModel(normalized);
+        expect(wire.pesoUsuario).toBe(75.4);
+        expect(wire.ejercicios[0].sets[0]).toMatchObject({
+            peso: 62.6,
+            reps: 8,
+        });
+    });
+
+    it('does not silently truncate fractional repetitions in either direction', () => {
+        const normalized = fromDbToSessionModel({
+            ejercicios: [
+                {
+                    nombreEjercicio: 'Bench Press',
+                    tipoEjercicio: 'strength',
+                    sets: [{ peso: 62, reps: '8.5' }],
+                },
+            ],
+        });
+
+        expect(normalized.ejercicios[0].sets[0].reps).toBe('8.5');
+        expect(() => fromAppToSessionDbModel(normalized)).toThrow('Invalid set repetition value');
     });
 
     it('serializes app session model into canonical Firestore contract with schemaVersion', () => {
@@ -111,9 +154,9 @@ describe('firestore-serialization', () => {
                     targetSets: 3,
                     targetReps: '10',
                     notes: 'Keep form',
-                    sets: [{ weight: 60, repeticiones: 10, restTime: '01:00' }]
-                }
-            ]
+                    sets: [{ weight: 60, repeticiones: 10, restTime: '01:00' }],
+                },
+            ],
         };
 
         const wire = fromAppToSessionDbModel(model, { schemaVersion: 2 });
@@ -131,7 +174,7 @@ describe('firestore-serialization', () => {
             objetivoReps: '10',
             objetivoDuracion: null,
             notasEjercicio: 'Keep form',
-            sets: [{ peso: 60, reps: 10, tiempoDescanso: '01:00' }]
+            sets: [{ peso: 60, reps: 10, tiempoDescanso: '01:00' }],
         });
     });
 
@@ -142,9 +185,9 @@ describe('firestore-serialization', () => {
                     nombreEjercicio: 'Dominadas',
                     tipoEjercicio: 'strength',
                     tipoCarga: 'bodyweight',
-                    sets: [{ peso: -12, reps: 8, pesoTotal: 63 }]
-                }
-            ]
+                    sets: [{ peso: -12, reps: 8, pesoTotal: 63 }],
+                },
+            ],
         };
 
         const normalized = fromDbToSessionModel(raw);
@@ -163,15 +206,15 @@ describe('firestore-serialization', () => {
                     nombreEjercicio: 'Cable Curl',
                     tipoEjercicio: 'strength',
                     executionMode: 'pulley',
-                    sets: []
+                    sets: [],
                 },
                 {
                     nombreEjercicio: 'Running',
                     tipoEjercicio: 'cardio',
                     executionMode: 'machine',
-                    sets: []
-                }
-            ]
+                    sets: [],
+                },
+            ],
         };
 
         const normalized = fromDbToSessionModel(raw);

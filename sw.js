@@ -41,6 +41,8 @@ const urlsToCache = [
     './js/timer.js',
     './js/theme-manager.js',
     './js/utils/logger.js',
+    './js/utils/numeric-input.js',
+    './js/utils/input-validation.js',
     './js/utils/validation.js',
     './js/utils/notifications.js',
     './js/utils/debounce.js',

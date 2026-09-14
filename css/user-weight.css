@@ -19,7 +19,19 @@
     color: var(--text-secondary-color);
 }
 
-.user-weight-input input[type="number"] {
+.user-weight-input input[type='number'],
+.user-weight-input input[type='text'] {
     margin-bottom: 0; /* Quitar margen inferior si es el único elemento */
     background-color: var(--input-bg); /* Asegurar consistencia con otros inputs */
+}
+
+.input-error-message {
+    margin: -8px 0 var(--spacing-md);
+    color: var(--error-color, #b91c1c);
+    font-size: 0.875rem;
+    line-height: 1.35;
+}
+
+input[aria-invalid='true'] {
+    border-color: var(--error-color, #b91c1c);
 }

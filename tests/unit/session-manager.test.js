@@ -17,28 +17,28 @@ const mockInvalidateProgressCache = jest.fn();
 const mockTrackWrite = jest.fn();
 const mockClearByPrefix = jest.fn(() => Promise.resolve());
 const mockRegisterOperationHandler = jest.fn();
-const mockExecuteWithOfflineHandling = jest.fn(async (operation) => operation());
+const mockExecuteWithOfflineHandling = jest.fn(async operation => operation());
 const mockProcessCompletedSession = jest.fn();
 const mockSyncWithFirebase = jest.fn(() => Promise.resolve());
 
 const sessionElements = {
     exerciseList: null,
     saveBtn: null,
-    form: null
+    form: null,
 };
 
 const dashboardElements = {
     resumeSessionArea: null,
     resumeSessionInfo: null,
-    resumeSessionBtn: null
+    resumeSessionBtn: null,
 };
 
 jest.unstable_mockModule('../../js/firebase-config.js', () => ({
-    db: { __isMockDb: true }
+    db: { __isMockDb: true },
 }));
 
 jest.unstable_mockModule('../../js/auth.js', () => ({
-    getCurrentUser: mockGetCurrentUser
+    getCurrentUser: mockGetCurrentUser,
 }));
 
 jest.unstable_mockModule('../../js/ui.js', () => ({
@@ -47,15 +47,15 @@ jest.unstable_mockModule('../../js/ui.js', () => ({
     dashboardElements,
     showLoading: mockShowLoading,
     hideLoading: mockHideLoading,
-    renderSessionView: mockRenderSessionView
+    renderSessionView: mockRenderSessionView,
 }));
 
 jest.unstable_mockModule('../../js/utils/logger.js', () => ({
     logger: {
         debug: jest.fn(),
         warn: jest.fn(),
-        error: jest.fn()
-    }
+        error: jest.fn(),
+    },
 }));
 
 jest.unstable_mockModule('../../js/utils/notifications.js', () => ({
@@ -63,49 +63,52 @@ jest.unstable_mockModule('../../js/utils/notifications.js', () => ({
         success: mockToastSuccess,
         error: mockToastError,
         warning: mockToastWarning,
-        info: mockToastInfo
-    }
+        info: mockToastInfo,
+    },
 }));
 
 jest.unstable_mockModule('../../js/timer.js', () => ({
-    clearTimerData: mockClearTimerData
+    clearTimerData: mockClearTimerData,
 }));
 
 jest.unstable_mockModule('../../js/progress.js', () => ({
-    invalidateProgressCache: mockInvalidateProgressCache
+    invalidateProgressCache: mockInvalidateProgressCache,
 }));
 
 jest.unstable_mockModule('../../js/utils/offline-manager.js', () => ({
     offlineManager: {
         registerOperationHandler: mockRegisterOperationHandler,
-        executeWithOfflineHandling: mockExecuteWithOfflineHandling
-    }
+        executeWithOfflineHandling: mockExecuteWithOfflineHandling,
+    },
 }));
 
 jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
     localFirstCache: {
-        clearByPrefix: mockClearByPrefix
-    }
+        clearByPrefix: mockClearByPrefix,
+    },
 }));
 
 jest.unstable_mockModule('../../js/utils/firebase-usage-tracker.js', () => ({
     firebaseUsageTracker: {
-        trackWrite: mockTrackWrite
-    }
+        trackWrite: mockTrackWrite,
+    },
 }));
 
 jest.unstable_mockModule('../../js/exercise-cache.js', () => ({
     exerciseCache: {
         processCompletedSession: mockProcessCompletedSession,
-        syncWithFirebase: mockSyncWithFirebase
-    }
+        syncWithFirebase: mockSyncWithFirebase,
+    },
 }));
 
 jest.unstable_mockModule('../../js/app.js', () => ({
-    loadFirebaseDiagnostics: jest.fn()
+    loadFirebaseDiagnostics: jest.fn(),
 }));
 
 const sessionManagerModule = await import('../../js/modules/session-manager.js');
+const sessionSaveReplayHandler = mockRegisterOperationHandler.mock.calls.find(
+    ([operationType]) => operationType === 'session.save'
+)[1];
 
 const {
     saveInProgressSession,
@@ -117,7 +120,7 @@ const {
     saveSessionData,
     saveQuickLogEntry,
     checkAndOfferResumeSession,
-    setupSessionAutoSave
+    setupSessionAutoSave,
 } = sessionManagerModule;
 
 function setupDom() {
@@ -159,7 +162,7 @@ function setupRoutineFormValuesWithSessionVariants({
     executionMode = 'machine',
     loadType = 'bodyweight',
     weight = '-10',
-    reps = '8'
+    reps = '8',
 } = {}) {
     sessionElements.exerciseList.innerHTML = `
         <div class="exercise-block" data-exercise-index="0">
@@ -188,10 +191,7 @@ function setupRoutineFormValuesWithSessionVariants({
     sessionElements.exerciseList.querySelector('select[name="session-load-type"]').value = loadType;
 }
 
-function setupRoutineFormVariantOnlyValues({
-    executionMode = 'machine',
-    loadType = 'bodyweight'
-} = {}) {
+function setupRoutineFormVariantOnlyValues({ executionMode = 'machine', loadType = 'bodyweight' } = {}) {
     sessionElements.exerciseList.innerHTML = `
         <div class="exercise-block" data-exercise-index="0">
             <select name="session-execution-mode">
@@ -232,9 +232,9 @@ describe('Session Manager', () => {
                 reps: 8,
                 duration: null,
                 executionMode: 'one_hand',
-                loadType: 'external'
-            }
-        ]
+                loadType: 'external',
+            },
+        ],
     };
 
     beforeEach(() => {
@@ -243,7 +243,7 @@ describe('Session Manager', () => {
         setupDom();
         localStorage.clear();
         mockGetCurrentUser.mockReturnValue(user);
-        mockExecuteWithOfflineHandling.mockImplementation(async (operation) => operation());
+        mockExecuteWithOfflineHandling.mockImplementation(async operation => operation());
         mockClearByPrefix.mockImplementation(() => Promise.resolve());
         mockSyncWithFirebase.mockImplementation(() => Promise.resolve());
         global.confirm = jest.fn(() => true);
@@ -301,12 +301,12 @@ describe('Session Manager', () => {
             tipoCarga: 'external',
             objetivoSets: 3,
             objetivoReps: 8,
-            notasEjercicio: 'Buen set'
+            notasEjercicio: 'Buen set',
         });
         expect(formData.ejercicios[0].sets[0]).toEqual({
             peso: 80.5,
             reps: 8,
-            tiempoDescanso: '01:30'
+            tiempoDescanso: '01:30',
         });
     });
 
@@ -316,13 +316,91 @@ describe('Session Manager', () => {
             executionMode: 'machine',
             loadType: 'bodyweight',
             weight: '-12',
-            reps: '6'
+            reps: '6',
         });
 
         const formData = getSessionFormData();
         expect(formData.ejercicios[0].modoEjecucion).toBe('machine');
         expect(formData.ejercicios[0].tipoCarga).toBe('bodyweight');
         expect(formData.ejercicios[0].sets[0].peso).toBe(-12);
+    });
+
+    it('preserves incomplete decimal text and rejects fractional repetitions in snapshots', () => {
+        setCurrentRoutineForSession(routine);
+        document.getElementById('user-weight').value = '75,4';
+        setupRoutineFormValuesWithSessionVariants({
+            loadType: 'external',
+            weight: '62,',
+            reps: '8.5',
+        });
+
+        const formData = getSessionFormData({ includeEmptyExercises: true });
+
+        expect(formData.pesoUsuario).toBe(75.4);
+        expect(formData.ejercicios[0].sets[0]).toMatchObject({
+            peso: '62.',
+            reps: '8.5',
+        });
+        expect(formData.validation.isValid).toBe(false);
+        expect(formData.validation.errors.map(error => error.fieldType)).toEqual(['weight', 'reps']);
+    });
+
+    it.each(['8.5', '8,5', '1e2', '+8', '-1'])('does not persist malformed repetition %s', async reps => {
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            loadType: 'external',
+            weight: '62.5',
+            reps,
+        });
+
+        await saveSessionData();
+
+        expect(__firestoreState.documents.size).toBe(0);
+        expect(mockToastWarning).toHaveBeenCalledWith(expect.stringContaining('Corrige'));
+        expect(mockExecuteWithOfflineHandling).not.toHaveBeenCalled();
+        expect(sessionElements.exerciseList.querySelector('input[name="reps-0-0"]').getAttribute('aria-invalid')).toBe(
+            'true'
+        );
+    });
+
+    it('rejects malformed repetitions in an offline queue replay', async () => {
+        await expect(
+            sessionSaveReplayHandler({
+                userId: user.uid,
+                sessionData: {
+                    fechaIso: '2026-09-12T10:00:00.000Z',
+                    ejercicios: [
+                        {
+                            nombreEjercicio: 'Bench Press',
+                            tipoEjercicio: 'strength',
+                            tipoCarga: 'external',
+                            sets: [{ peso: '62,5', reps: '8.5' }],
+                        },
+                    ],
+                },
+            })
+        ).rejects.toThrow('Invalid queued set repetition value');
+
+        expect(__firestoreState.documents.size).toBe(0);
+    });
+
+    it('preserves signed decimal bodyweight loads and zero repetitions', () => {
+        localStorage.setItem('gym-tracker:last-known-bodyweight:session-user-1', '78,4');
+        setCurrentRoutineForSession(routine);
+        setupRoutineFormValuesWithSessionVariants({
+            loadType: 'bodyweight',
+            weight: '-12,5',
+            reps: '0',
+        });
+
+        const formData = getSessionFormData();
+
+        expect(formData.ejercicios[0].sets[0]).toMatchObject({
+            peso: -12.5,
+            reps: 0,
+            pesoTotal: 65.9,
+        });
+        expect(formData.validation.isValid).toBe(true);
     });
 
     it('saveSessionData saves to Firestore, clears state and calls success callback', async () => {
@@ -346,7 +424,7 @@ describe('Session Manager', () => {
             true,
             expect.objectContaining({
                 type: 'session.save',
-                payload: expect.objectContaining({ userId: user.uid })
+                payload: expect.objectContaining({ userId: user.uid }),
             })
         );
         expect(mockTrackWrite).toHaveBeenCalledWith(1, 'session.save');
@@ -370,18 +448,16 @@ describe('Session Manager', () => {
             executionMode: 'pulley',
             loadType: 'bodyweight',
             weight: '10',
-            reps: '8'
+            reps: '8',
         });
 
         await saveSessionData();
 
-        const savedOverrides = JSON.parse(
-            localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`)
-        );
+        const savedOverrides = JSON.parse(localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`));
 
         expect(savedOverrides['routine-1::bench press']).toEqual({
             executionMode: 'pulley',
-            loadType: 'bodyweight'
+            loadType: 'bodyweight',
         });
     });
 
@@ -391,7 +467,7 @@ describe('Session Manager', () => {
             executionMode: 'machine',
             loadType: 'bodyweight',
             weight: '8',
-            reps: '8'
+            reps: '8',
         });
         mockExecuteWithOfflineHandling.mockImplementation(async () => {
             throw new Error('Offline: queued');
@@ -399,13 +475,11 @@ describe('Session Manager', () => {
 
         await saveSessionData();
 
-        const savedOverrides = JSON.parse(
-            localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`)
-        );
+        const savedOverrides = JSON.parse(localStorage.getItem(`gym-tracker:session-variant-overrides:${user.uid}`));
 
         expect(savedOverrides['routine-1::bench press']).toEqual({
             executionMode: 'machine',
-            loadType: 'bodyweight'
+            loadType: 'bodyweight',
         });
         expect(mockToastInfo).toHaveBeenCalled();
         expect(__firestoreState.documents.size).toBe(0);
@@ -417,11 +491,11 @@ describe('Session Manager', () => {
             {
                 label: 'Quick Morning',
                 dateTime: '2026-03-29T08:30',
-                notesText: 'Movilidad 10m\nPlancha 45s'
+                notesText: 'Movilidad 10m\nPlancha 45s',
             },
             onSuccess,
             {
-                triggerButton: sessionElements.saveBtn
+                triggerButton: sessionElements.saveBtn,
             }
         );
 
@@ -440,7 +514,7 @@ describe('Session Manager', () => {
             true,
             expect.objectContaining({
                 type: 'quicklog.save',
-                payload: expect.objectContaining({ userId: user.uid })
+                payload: expect.objectContaining({ userId: user.uid }),
             })
         );
         expect(mockTrackWrite).toHaveBeenCalledWith(1, 'quicklog.save');
@@ -458,8 +532,15 @@ describe('Session Manager', () => {
             id: 'routine-bw',
             name: 'Pull Day',
             exercises: [
-                { name: 'Dominadas', type: 'strength', sets: 1, reps: 8, executionMode: 'two_hand', loadType: 'bodyweight' }
-            ]
+                {
+                    name: 'Dominadas',
+                    type: 'strength',
+                    sets: 1,
+                    reps: 8,
+                    executionMode: 'two_hand',
+                    loadType: 'bodyweight',
+                },
+            ],
         });
 
         sessionElements.exerciseList.innerHTML = `
@@ -483,7 +564,7 @@ describe('Session Manager', () => {
         setCurrentRoutineForSession({
             id: 'routine-empty',
             name: 'Empty',
-            exercises: [{ name: 'Bench Press', type: 'strength', sets: 3, reps: 8 }]
+            exercises: [{ name: 'Bench Press', type: 'strength', sets: 3, reps: 8 }],
         });
         sessionElements.exerciseList.innerHTML = `
             <div class="exercise-block" data-exercise-index="0">
@@ -505,7 +586,7 @@ describe('Session Manager', () => {
         const inProgressData = {
             routineId: 'routine-1',
             data: { ejercicios: [{ nombreEjercicio: 'Bench Press' }] },
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(inProgressData));
 
@@ -538,7 +619,7 @@ describe('Session Manager', () => {
         setCurrentRoutineForSession(routine);
         setupRoutineFormVariantOnlyValues({
             executionMode: 'pulley',
-            loadType: 'bodyweight'
+            loadType: 'bodyweight',
         });
         setupSessionAutoSave();
 
@@ -550,7 +631,7 @@ describe('Session Manager', () => {
         expect(stored.data.ejercicios[0]).toMatchObject({
             nombreEjercicio: 'Bench Press',
             modoEjecucion: 'pulley',
-            tipoCarga: 'bodyweight'
+            tipoCarga: 'bodyweight',
         });
         expect(stored.data.ejercicios[0].sets).toHaveLength(0);
     });
@@ -559,13 +640,13 @@ describe('Session Manager', () => {
         setCurrentRoutineForSession(routine);
         setupRoutineFormVariantOnlyValues({
             executionMode: 'machine',
-            loadType: 'bodyweight'
+            loadType: 'bodyweight',
         });
         setupSessionAutoSave();
 
         const timerButton = sessionElements.exerciseList.querySelector('.timer-button');
         timerButton.dispatchEvent(new Event('click', { bubbles: true }));
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        await new Promise(resolve => setTimeout(resolve, 150));
 
         const stored = JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY));
         expect(stored.routineId).toBe('routine-1');
@@ -573,7 +654,7 @@ describe('Session Manager', () => {
         expect(stored.data.ejercicios[0]).toMatchObject({
             nombreEjercicio: 'Bench Press',
             modoEjecucion: 'machine',
-            tipoCarga: 'bodyweight'
+            tipoCarga: 'bodyweight',
         });
     });
 });

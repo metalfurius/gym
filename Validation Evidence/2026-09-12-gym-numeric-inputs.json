@@ -1,0 +1,79 @@
+{
+  "generatedAt": "2026-09-12T21:47:36.053Z",
+  "syntheticDataOnly": true,
+  "fixture": "shared numeric-input and input-validation modules",
+  "results": [
+    {
+      "browser": "Chromium",
+      "state": {
+        "incremental": [
+          "6",
+          "62",
+          "62.",
+          "62.5"
+        ],
+        "commaWeight": "62.",
+        "roundedWeight": "62.6",
+        "signedWeight": "-12.5",
+        "committedSignedWeight": "-12.5",
+        "commaUserWeight": "75.4",
+        "committedUserWeight": "75.4",
+        "invalidReps": [
+          {
+            "value": "8.5",
+            "ariaInvalid": "true"
+          },
+          {
+            "value": "8,5",
+            "ariaInvalid": "true"
+          },
+          {
+            "value": "1e2",
+            "ariaInvalid": "true"
+          },
+          {
+            "value": "+8",
+            "ariaInvalid": "true"
+          },
+          {
+            "value": "-1",
+            "ariaInvalid": "true"
+          }
+        ],
+        "blockedSubmit": {
+          "status": "blocked",
+          "valid": false
+        },
+        "correctedReps": {
+          "value": "8",
+          "ariaInvalid": null,
+          "describedBy": null
+        },
+        "invalidError": {
+          "role": "alert",
+          "live": "polite",
+          "hidden": false,
+          "text": "Las repeticiones deben ser números enteros no negativos (por ejemplo, 8)."
+        },
+        "controls": {
+          "weightType": "text",
+          "weightInputMode": "decimal",
+          "repsType": "text",
+          "repsInputMode": "numeric",
+          "repsPattern": "[0-9]*",
+          "weightLabel": "Set weight",
+          "repsLabel": "Repetitions"
+        }
+      },
+      "screenshot": "Validation Evidence\\2026-09-12-gym-numeric-inputs-chromium.png",
+      "consoleEvents": 0,
+      "exceptionEvents": 0,
+      "status": "passed"
+    },
+    {
+      "browser": "Firefox",
+      "status": "failed",
+      "error": "BiDi command timed out: session.new"
+    }
+  ]
+}

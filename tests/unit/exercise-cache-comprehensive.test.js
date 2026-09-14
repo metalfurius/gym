@@ -13,7 +13,7 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
         it('should add exercise data to cache', () => {
             const sets = [
                 { peso: 60, reps: 10 },
-                { peso: 65, reps: 8 }
+                { peso: 65, reps: 8 },
             ];
 
             cacheManager.addExerciseData('Bench Press', sets);
@@ -87,13 +87,7 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
                 'two_hand',
                 'bodyweight'
             );
-            cacheManager.addExerciseData(
-                'Pull Up',
-                [{ peso: 20, reps: 8 }],
-                new Date(),
-                'two_hand',
-                'external'
-            );
+            cacheManager.addExerciseData('Pull Up', [{ peso: 20, reps: 8 }], new Date(), 'two_hand', 'external');
 
             const bodyweightHistory = cacheManager.getExerciseHistory('Pull Up', 'two_hand', 'bodyweight');
             const externalHistory = cacheManager.getExerciseHistory('Pull Up', 'two_hand', 'external');
@@ -103,6 +97,17 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
             expect(bodyweightHistory[0].sets[0].pesoTotal).toBe(63);
             expect(externalHistory).toHaveLength(1);
             expect(externalHistory[0].sets[0].peso).toBe(20);
+        });
+
+        it('should normalize decimal commas and skip malformed repetitions', () => {
+            cacheManager.addExerciseData('Bench Press', [
+                { peso: '62,5', reps: '8' },
+                { peso: '70', reps: '8.5' },
+            ]);
+
+            const history = cacheManager.getExerciseHistory('Bench Press');
+            expect(history[0].sets).toHaveLength(1);
+            expect(history[0].sets[0]).toEqual({ peso: 62.5, reps: 8 });
         });
     });
 
@@ -119,7 +124,7 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
             const sets = [
                 { peso: 60, reps: 10 },
                 { peso: 65, reps: 8 },
-                { peso: 70, reps: 6 }
+                { peso: 70, reps: 6 },
             ];
 
             cacheManager.addExerciseData('Bench Press', sets, new Date(Date.now() - 1000 * 60 * 60 * 24)); // 1 day ago
@@ -137,7 +142,7 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
             const sets = [
                 { peso: 60, reps: 10 },
                 { peso: 80, reps: 5 },
-                { peso: 65, reps: 8 }
+                { peso: 65, reps: 8 },
             ];
 
             cacheManager.addExerciseData('Squats', sets);
@@ -150,7 +155,7 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
             const sets = [
                 { peso: 60, reps: 12 },
                 { peso: 60, reps: 10 },
-                { peso: 60, reps: 8 }
+                { peso: 60, reps: 8 },
             ];
 
             cacheManager.addExerciseData('Curls', sets);
@@ -205,9 +210,9 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
                         tipoEjercicio: 'strength',
                         modoEjecucion: 'pulley',
                         tipoCarga: 'bodyweight',
-                        sets: [{ peso: -10, reps: 10, pesoTotal: 68 }]
-                    }
-                ]
+                        sets: [{ peso: -10, reps: 10, pesoTotal: 68 }],
+                    },
+                ],
             };
 
             expect(() => cacheManager.processCompletedSession(sessionData)).not.toThrow();
@@ -218,12 +223,12 @@ describe('ExerciseCacheManager - Comprehensive Tests', () => {
 
         it('should handle session without ejercicios', () => {
             const sessionData = {
-                fecha: new Date()
+                fecha: new Date(),
             };
 
             // This should return early and not throw
             expect(() => cacheManager.processCompletedSession(sessionData)).not.toThrow();
-      
+
             const cache = cacheManager.getFullCache();
             expect(Object.keys(cache)).toHaveLength(0);
         });

@@ -6,10 +6,7 @@
 import { db } from '../firebase-config.js';
 import { collection, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
-import { 
-    showView, sessionElements, dashboardElements, 
-    showLoading, hideLoading, renderSessionView 
-} from '../ui.js';
+import { showView, sessionElements, dashboardElements, showLoading, hideLoading, renderSessionView } from '../ui.js';
 import { logger } from '../utils/logger.js';
 import { toast } from '../utils/notifications.js';
 import { clearTimerData } from '../timer.js';
@@ -20,15 +17,11 @@ import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
 import { normalizeExecutionMode } from '../utils/execution-mode.js';
 import { normalizeLoadType, resolveExerciseLoadType } from '../utils/load-type.js';
 import { saveSessionVariantOverrides } from '../utils/session-variant-overrides.js';
-import {
-    getLastKnownBodyweight,
-    saveLastKnownBodyweight,
-    computeBodyweightTotalLoad
-} from '../utils/bodyweight.js';
-import {
-    normalizeQuickLogPayload,
-    buildQuickLogSessionModel
-} from '../utils/quick-log.js';
+import { getLastKnownBodyweight, saveLastKnownBodyweight, computeBodyweightTotalLoad } from '../utils/bodyweight.js';
+import { LIMITS, getValidationMessage, validateReps, validateUserWeight, validateWeight } from '../utils/validation.js';
+import { setInputValidationState } from '../utils/input-validation.js';
+import { parseDecimalInput, parseIntegerInput } from '../utils/numeric-input.js';
+import { normalizeQuickLogPayload, buildQuickLogSessionModel } from '../utils/quick-log.js';
 import { t } from '../i18n.js';
 
 // Constants
@@ -50,7 +43,7 @@ function collectSessionVariantOverridesFromDom(
     const overrides = [];
     const exerciseBlocks = exerciseListRoot.querySelectorAll('.exercise-block');
 
-    exerciseBlocks.forEach((block) => {
+    exerciseBlocks.forEach(block => {
         const exerciseIndex = parseInt(block.dataset.exerciseIndex, 10);
         if (Number.isNaN(exerciseIndex)) {
             return;
@@ -68,15 +61,11 @@ function collectSessionVariantOverridesFromDom(
             routineId: routine.id,
             exerciseName: routineExercise.name,
             executionMode: normalizeExecutionMode(
-                executionModeInput?.value
-                ?? block.dataset.executionMode
-                ?? routineExercise.executionMode
+                executionModeInput?.value ?? block.dataset.executionMode ?? routineExercise.executionMode
             ),
             loadType: normalizeLoadType(
-                loadTypeInput?.value
-                ?? block.dataset.loadType
-                ?? resolveExerciseLoadType(routineExercise)
-            )
+                loadTypeInput?.value ?? block.dataset.loadType ?? resolveExerciseLoadType(routineExercise)
+            ),
         });
     });
 
@@ -91,21 +80,63 @@ function buildSessionQueuePayload(userId, sessionData) {
         userId,
         sessionData: {
             ...rest,
-            fechaIso
-        }
+            fechaIso,
+        },
     };
+}
+
+function validateQueuedSessionNumericFields(sessionData) {
+    const userWeightResult = parseDecimalInput(sessionData?.pesoUsuario, {
+        min: LIMITS.USER_WEIGHT.min,
+        max: LIMITS.USER_WEIGHT.max,
+        maxFractionDigits: null,
+        roundTo: null,
+    });
+    if (!userWeightResult.isValid) {
+        throw new Error('Invalid queued user bodyweight value');
+    }
+
+    const exercises = Array.isArray(sessionData?.ejercicios) ? sessionData.ejercicios : [];
+    exercises.forEach(exercise => {
+        if (exercise?.tipoEjercicio !== 'strength' || !Array.isArray(exercise.sets)) {
+            return;
+        }
+
+        const loadType = resolveExerciseLoadType(exercise);
+        exercise.sets.forEach(set => {
+            const weightResult = parseDecimalInput(set?.peso ?? set?.weight, {
+                allowSign: loadType === 'bodyweight',
+                min: loadType === 'bodyweight' ? -LIMITS.WEIGHT.max : LIMITS.WEIGHT.min,
+                max: LIMITS.WEIGHT.max,
+                maxFractionDigits: null,
+                roundTo: null,
+            });
+            if (!weightResult.isValid) {
+                throw new Error('Invalid queued set weight value');
+            }
+
+            const repsResult = parseIntegerInput(set?.reps ?? set?.repeticiones, {
+                min: LIMITS.REPS.min,
+                max: LIMITS.REPS.max,
+            });
+            if (!repsResult.isValid) {
+                throw new Error('Invalid queued set repetition value');
+            }
+        });
+    });
 }
 
 function buildSessionFromQueuePayload(payload) {
     if (!payload?.sessionData) return null;
 
     const { fechaIso, ...rest } = payload.sessionData;
+    validateQueuedSessionNumericFields(rest);
     const parsedDate = fechaIso ? new Date(fechaIso) : new Date();
     const safeDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
 
     return {
         ...rest,
-        fecha: Timestamp.fromDate(safeDate)
+        fecha: Timestamp.fromDate(safeDate),
     };
 }
 
@@ -113,13 +144,13 @@ function invalidatePostSaveCaches(userId) {
     Promise.all([
         localFirstCache.clearByPrefix(`history:${userId}:`),
         localFirstCache.clearByPrefix(`calendar:${userId}:`),
-        localFirstCache.clearByPrefix(`progress:sessions:${userId}`)
-    ]).catch((cacheError) => {
+        localFirstCache.clearByPrefix(`progress:sessions:${userId}`),
+    ]).catch(cacheError => {
         logger.warn('Could not invalidate local caches after save:', cacheError);
     });
 }
 
-offlineManager.registerOperationHandler('session.save', async (payload) => {
+offlineManager.registerOperationHandler('session.save', async payload => {
     const hydratedSession = buildSessionFromQueuePayload(payload);
     if (!hydratedSession || !payload?.userId) {
         throw new Error('Invalid queued session payload');
@@ -131,7 +162,7 @@ offlineManager.registerOperationHandler('session.save', async (payload) => {
     invalidateProgressCache();
 });
 
-offlineManager.registerOperationHandler('quicklog.save', async (payload) => {
+offlineManager.registerOperationHandler('quicklog.save', async payload => {
     const hydratedSession = buildSessionFromQueuePayload(payload);
     if (!hydratedSession || !payload?.userId) {
         throw new Error('Invalid queued quick-log payload');
@@ -162,7 +193,7 @@ export function saveInProgressSession(routineIdOrSnapshot, data) {
     const sessionToStore = {
         routineId: routineId,
         data: sessionData,
-        timestamp
+        timestamp,
     };
     localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(sessionToStore));
 }
@@ -207,6 +238,65 @@ export function setCurrentRoutineForSession(routine) {
     currentRoutineForSession = routine;
 }
 
+function buildFieldValidationError(input, fieldType, result, options = {}) {
+    return {
+        fieldId: input?.id || null,
+        fieldName: input?.name || null,
+        fieldType,
+        result,
+        options,
+        message: getValidationMessage(result, fieldType, options),
+    };
+}
+
+function findValidationInput(error) {
+    if (!error) {
+        return null;
+    }
+
+    if (error.fieldId) {
+        const byId = document.getElementById(error.fieldId);
+        if (byId) {
+            return byId;
+        }
+    }
+
+    if (error.fieldName && sessionElements.exerciseList) {
+        return (
+            Array.from(sessionElements.exerciseList.querySelectorAll('input')).find(
+                input => input.name === error.fieldName
+            ) || null
+        );
+    }
+
+    return null;
+}
+
+function clearSessionInputValidationStates() {
+    const inputs = sessionElements.exerciseList?.querySelectorAll('input[aria-invalid="true"]') || [];
+    inputs.forEach(input => setInputValidationState(input, { isValid: true }));
+}
+
+function applySessionValidationErrors(validation) {
+    clearSessionInputValidationStates();
+
+    const errors = Array.isArray(validation?.errors) ? validation.errors : [];
+    errors.forEach(error => {
+        const input = findValidationInput(error);
+        if (input) {
+            setInputValidationState(input, {
+                isValid: false,
+                message: error.message,
+            });
+        }
+    });
+
+    const firstInvalidInput = errors.map(findValidationInput).find(Boolean);
+    if (firstInvalidInput && typeof firstInvalidInput.focus === 'function') {
+        firstInvalidInput.focus();
+    }
+}
+
 /**
  * Collects form data from the current session
  * @param {Object} options - Collection options.
@@ -214,34 +304,45 @@ export function setCurrentRoutineForSession(routine) {
  * @returns {Object} The session data from the form
  */
 export function getSessionFormData(options = {}) {
-    const {
-        includeEmptyExercises = false
-    } = options;
+    const { includeEmptyExercises = false } = options;
 
     if (!currentRoutineForSession) return {};
-    
-    // Get and normalize user weight
+
+    // Keep invalid or incomplete text in the in-progress snapshot, but only
+    // expose normalized numbers when the value is valid for persistence.
     const userWeightInput = document.getElementById('user-weight');
     const userWeightValue = userWeightInput ? userWeightInput.value : '';
-    let pesoUsuario = null;
-    
-    if (userWeightValue) {
-        const normalizedWeight = userWeightValue.replace(',', '.');
-        const parsedWeight = parseFloat(normalizedWeight);
-        if (!isNaN(parsedWeight)) {
-            pesoUsuario = Math.round(parsedWeight * 10) / 10; // Round to 1 decimal
-        }
+    const userWeightResult = validateUserWeight(userWeightValue);
+    const validationErrors = [];
+
+    if (userWeightValue && !userWeightResult.isValid) {
+        validationErrors.push(
+            buildFieldValidationError(userWeightInput, 'userWeight', userWeightResult, {
+                min: LIMITS.USER_WEIGHT.min,
+                max: LIMITS.USER_WEIGHT.max,
+            })
+        );
     }
-    
+
+    const pesoUsuario = userWeightValue
+        ? userWeightResult.isValid
+            ? userWeightResult.value
+            : userWeightResult.normalized
+        : null;
+
     const sessionData = {
         ejercicios: [],
-        pesoUsuario: pesoUsuario
+        pesoUsuario,
+        validation: {
+            isValid: true,
+            errors: validationErrors,
+        },
     };
 
     const currentUser = getCurrentUser();
     const fallbackBodyweight = getLastKnownBodyweight(currentUser?.uid);
-    const effectiveBodyweight = pesoUsuario ?? fallbackBodyweight;
-    
+    const effectiveBodyweight = userWeightResult.isValid ? (userWeightResult.value ?? fallbackBodyweight) : null;
+
     const exerciseBlocks = sessionElements.exerciseList.querySelectorAll('.exercise-block');
     exerciseBlocks.forEach(block => {
         const exerciseIndex = parseInt(block.dataset.exerciseIndex, 10);
@@ -253,15 +354,15 @@ export function getSessionFormData(options = {}) {
         if (!exerciseFromRoutine) {
             return;
         }
-        
+
         const exerciseEntry = {
             nombreEjercicio: exerciseFromRoutine.name,
             tipoEjercicio: exerciseFromRoutine.type,
-            objetivoSets: exerciseFromRoutine.sets, 
+            objetivoSets: exerciseFromRoutine.sets,
             objetivoReps: exerciseFromRoutine.reps,
             objetivoDuracion: exerciseFromRoutine.duration,
             sets: [],
-            notasEjercicio: block.querySelector(`textarea[name="notes-${exerciseIndex}"]`)?.value.trim() || ''
+            notasEjercicio: block.querySelector(`textarea[name="notes-${exerciseIndex}"]`)?.value.trim() || '',
         };
 
         let shouldIncludeExercise = exerciseEntry.notasEjercicio.length > 0;
@@ -271,49 +372,62 @@ export function getSessionFormData(options = {}) {
             const loadTypeInput = block.querySelector('select[name="session-load-type"]');
 
             exerciseEntry.modoEjecucion = normalizeExecutionMode(
-                executionModeInput?.value
-                ?? block.dataset.executionMode
-                ?? exerciseFromRoutine.executionMode
+                executionModeInput?.value ?? block.dataset.executionMode ?? exerciseFromRoutine.executionMode
             );
             exerciseEntry.tipoCarga = normalizeLoadType(
-                loadTypeInput?.value
-                ?? block.dataset.loadType
-                ?? resolveExerciseLoadType(exerciseFromRoutine)
+                loadTypeInput?.value ?? block.dataset.loadType ?? resolveExerciseLoadType(exerciseFromRoutine)
             );
             const setRows = block.querySelectorAll('.set-row');
             setRows.forEach((row, setIndex) => {
                 const weightInput = row.querySelector(`input[name="weight-${exerciseIndex}-${setIndex}"]`);
                 const repsInput = row.querySelector(`input[name="reps-${exerciseIndex}-${setIndex}"]`);
-                
-                if (weightInput?.value || repsInput?.value) {
-                    // Normalize weight: replace comma with period and round to 1 decimal
-                    let peso = 0;
-                    if (weightInput?.value) {
-                        const normalizedWeight = weightInput.value.replace(',', '.');
-                        const parsedWeight = parseFloat(normalizedWeight);
-                        if (!isNaN(parsedWeight)) {
-                            const roundedWeight = Math.round(parsedWeight * 10) / 10;
-                            peso = exerciseEntry.tipoCarga === 'bodyweight'
-                                ? roundedWeight
-                                : Math.max(0, roundedWeight);
-                        }
-                    }
 
-                    const setEntry = {
-                        peso: peso,
-                        reps: parseInt(repsInput?.value, 10) || 0,
-                        tiempoDescanso: document.getElementById(`timer-display-${exerciseIndex}-${setIndex}`)?.textContent || '00:00'
-                    };
+                const weightValue = weightInput?.value || '';
+                const repsValue = repsInput?.value || '';
 
-                    if (exerciseEntry.tipoCarga === 'bodyweight') {
-                        const totalLoad = computeBodyweightTotalLoad(setEntry.peso, effectiveBodyweight);
-                        if (totalLoad !== null) {
-                            setEntry.pesoTotal = totalLoad;
-                        }
-                    }
-
-                    exerciseEntry.sets.push(setEntry);
+                if (!weightValue && !repsValue) {
+                    return;
                 }
+
+                const allowSignedLoad = exerciseEntry.tipoCarga === 'bodyweight';
+                const weightLimits = {
+                    min: allowSignedLoad ? -LIMITS.WEIGHT.max : LIMITS.WEIGHT.min,
+                    max: LIMITS.WEIGHT.max,
+                };
+                const weightResult = validateWeight(weightValue, {
+                    allowSigned: allowSignedLoad,
+                    ...weightLimits,
+                });
+                const repsResult = validateReps(repsValue);
+
+                if (weightValue && !weightResult.isValid) {
+                    validationErrors.push(buildFieldValidationError(weightInput, 'weight', weightResult, weightLimits));
+                }
+
+                if (repsValue && !repsResult.isValid) {
+                    validationErrors.push(
+                        buildFieldValidationError(repsInput, 'reps', repsResult, {
+                            min: LIMITS.REPS.min,
+                            max: LIMITS.REPS.max,
+                        })
+                    );
+                }
+
+                const setEntry = {
+                    peso: weightValue ? (weightResult.isValid ? weightResult.value : weightResult.normalized) : 0,
+                    reps: repsValue ? (repsResult.isValid ? repsResult.value : repsResult.normalized) : 0,
+                    tiempoDescanso:
+                        document.getElementById(`timer-display-${exerciseIndex}-${setIndex}`)?.textContent || '00:00',
+                };
+
+                if (exerciseEntry.tipoCarga === 'bodyweight' && weightResult.isValid && effectiveBodyweight !== null) {
+                    const totalLoad = computeBodyweightTotalLoad(setEntry.peso, effectiveBodyweight);
+                    if (totalLoad !== null) {
+                        setEntry.pesoTotal = totalLoad;
+                    }
+                }
+
+                exerciseEntry.sets.push(setEntry);
             });
 
             shouldIncludeExercise = shouldIncludeExercise || exerciseEntry.sets.length > 0;
@@ -323,7 +437,12 @@ export function getSessionFormData(options = {}) {
             sessionData.ejercicios.push(exerciseEntry);
         }
     });
-    
+
+    sessionData.validation = {
+        isValid: validationErrors.length === 0,
+        errors: validationErrors,
+    };
+
     return sessionData;
 }
 
@@ -342,13 +461,19 @@ export async function saveSessionData(onSuccess) {
         toast.info(t('session.saved_busy'));
         return;
     }
-    
+
     const sessionDataFromForm = getSessionFormData();
+    if (!sessionDataFromForm.validation?.isValid) {
+        applySessionValidationErrors(sessionDataFromForm.validation);
+        toast.warning(t('session.invalid_inputs'));
+        return;
+    }
+
     if (sessionDataFromForm.ejercicios.length === 0) {
         toast.warning(t('session.save_no_data'));
         return;
     }
-    
+
     const sessionVariantOverrides = collectSessionVariantOverridesFromDom(currentRoutineForSession);
     const finalSessionData = {
         fecha: Timestamp.now(),
@@ -356,12 +481,12 @@ export async function saveSessionData(onSuccess) {
         nombreEntrenamiento: currentRoutineForSession.name,
         userId: user.uid,
         ejercicios: sessionDataFromForm.ejercicios,
-        pesoUsuario: sessionDataFromForm.pesoUsuario ? parseFloat(sessionDataFromForm.pesoUsuario) : null
+        pesoUsuario: sessionDataFromForm.pesoUsuario ?? null,
     };
-    
+
     showLoading(sessionElements.saveBtn, t('common.saving'));
     isSavingSession = true;
-    
+
     try {
         try {
             saveSessionVariantOverrides(user.uid, sessionVariantOverrides);
@@ -375,39 +500,34 @@ export async function saveSessionData(onSuccess) {
             firebaseUsageTracker.trackWrite(1, 'session.save');
         };
 
-        await offlineManager.executeWithOfflineHandling(
-            saveOperation,
-            t('session.saved_when_online'),
-            true,
-            {
-                type: 'session.save',
-                payload: buildSessionQueuePayload(user.uid, finalSessionData)
-            }
-        );
+        await offlineManager.executeWithOfflineHandling(saveOperation, t('session.saved_when_online'), true, {
+            type: 'session.save',
+            payload: buildSessionQueuePayload(user.uid, finalSessionData),
+        });
 
         saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
-        
+
         // Update exercise cache with new session data
         const { exerciseCache } = await import('../exercise-cache.js');
         exerciseCache.processCompletedSession(finalSessionData);
-        
+
         // Invalidate progress cache to force reload with new data
         invalidateProgressCache();
-        
+
         // Sync cache with Firebase for backup (without blocking)
         exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
             logger.warn('Error syncing exercise cache:', error);
         });
 
         invalidatePostSaveCaches(user.uid);
-        
+
         toast.success(t('session.saved_success'));
         sessionElements.form.reset();
         clearInProgressSession();
         clearTimerData();
         currentRoutineForSession = null;
         showView('dashboard');
-        
+
         // Call success callback if provided
         if (typeof onSuccess === 'function') {
             onSuccess();
@@ -419,7 +539,7 @@ export async function saveSessionData(onSuccess) {
             toast.info(t('session.saved_queued'));
         } else {
             toast.error(t('session.save_error'));
-            
+
             // Load diagnostics on Firestore errors
             if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
                 const { loadFirebaseDiagnostics } = await import('../app.js');
@@ -471,15 +591,10 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             firebaseUsageTracker.trackWrite(1, 'quicklog.save');
         };
 
-        await offlineManager.executeWithOfflineHandling(
-            saveOperation,
-            t('quicklog.saved_when_online'),
-            true,
-            {
-                type: 'quicklog.save',
-                payload: buildSessionQueuePayload(user.uid, finalQuickLogData)
-            }
-        );
+        await offlineManager.executeWithOfflineHandling(saveOperation, t('quicklog.saved_when_online'), true, {
+            type: 'quicklog.save',
+            payload: buildSessionQueuePayload(user.uid, finalQuickLogData),
+        });
 
         invalidateProgressCache();
         invalidatePostSaveCaches(user.uid);
@@ -492,7 +607,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
         return {
             ok: true,
             queued: false,
-            data: finalQuickLogData
+            data: finalQuickLogData,
         };
     } catch (error) {
         logger.error('Error saving quick log:', error);
@@ -502,7 +617,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             return {
                 ok: true,
                 queued: true,
-                data: finalQuickLogData
+                data: finalQuickLogData,
             };
         }
 
@@ -516,7 +631,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
         return {
             ok: false,
             reason: 'error',
-            error
+            error,
         };
     } finally {
         hideLoading(triggerButton);
@@ -536,12 +651,12 @@ export function checkAndOfferResumeSession(userRoutines) {
 
     if (inProgress && user) {
         const routine = userRoutines.find(r => r.id === inProgress.routineId);
-        
+
         if (routine) {
             dashboardElements.resumeSessionInfo.textContent = t('session.resume_available', { name: routine.name });
             dashboardElements.resumeSessionBtn.classList.remove('hidden');
             resumeArea.classList.add('visible');
-            
+
             dashboardElements.resumeSessionBtn.onclick = async () => {
                 currentRoutineForSession = routine;
                 await renderSessionView(routine, inProgress.data);
@@ -570,7 +685,7 @@ export function checkAndOfferResumeSession(userRoutines) {
  */
 export async function startSession(routineId, userRoutines) {
     if (!routineId) return;
-    
+
     const selectedRoutine = userRoutines.find(r => r.id === routineId);
     if (!selectedRoutine) {
         toast.error(t('session.start_routine_not_found'));
@@ -584,7 +699,7 @@ export async function startSession(routineId, userRoutines) {
         }
         clearInProgressSession();
     }
-    
+
     currentRoutineForSession = selectedRoutine;
     await renderSessionView(selectedRoutine, inProgress && inProgress.routineId === routineId ? inProgress.data : null);
     dashboardElements.resumeSessionBtn.classList.add('hidden');
@@ -613,7 +728,7 @@ export function setupSessionAutoSave() {
         logger.error('Session exercise list not found');
         return;
     }
-    
+
     const persistCurrentSnapshot = () => {
         if (!currentRoutineForSession) return;
         const formData = getSessionFormData({ includeEmptyExercises: true });
@@ -623,9 +738,9 @@ export function setupSessionAutoSave() {
     // Listen for input/change events to save form data.
     sessionElements.exerciseList.addEventListener('input', persistCurrentSnapshot);
     sessionElements.exerciseList.addEventListener('change', persistCurrentSnapshot);
-    
+
     // Listen for timer events to save timer data
-    sessionElements.exerciseList.addEventListener('click', (e) => {
+    sessionElements.exerciseList.addEventListener('click', e => {
         if (e.target.classList.contains('timer-button') && currentRoutineForSession) {
             // Add a small delay to let the timer update
             setTimeout(() => {
@@ -648,7 +763,5 @@ export default {
     checkAndOfferResumeSession,
     startSession,
     cancelSession,
-    setupSessionAutoSave
+    setupSessionAutoSave,
 };
-
-
