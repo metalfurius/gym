@@ -146,35 +146,52 @@ describe('App User Journey', () => {
         expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/3');
         expect(document.getElementById('daily-hub-empty-state').classList.contains('hidden')).toBe(true);
 
+        // A second persisted session on the same local day must count as a
+        // second session everywhere while the calendar combines both entries.
+        const sameDayQuickLogDate = quickLogDateInput.value;
+        setField('#quick-log-label', 'Quick Evening');
+        setField('#quick-log-datetime', sameDayQuickLogDate);
+        setField('#quick-log-notes', 'Estiramientos 10m');
+        quickLogForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await waitForUi(650);
+
+        const sameDayQuickLogSessions = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
+        expect(sameDayQuickLogSessions).toHaveLength(2);
+        expect(document.getElementById('daily-hub-month-count').textContent).toBe('2');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/3');
+        expect(document.querySelector('#activity-calendar .day-cell.is-today')?.title).toContain('2 sesiones');
+
         click('#settings-btn');
         await waitForUi(120);
         setField('#weekly-target-days-select', '2');
         click('#weekly-target-save-btn');
         await waitForUi(220);
 
-        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/2');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/2');
 
         setField('#weekly-target-days-select', '4');
         click('#weekly-target-save-btn');
         await waitForUi(220);
-        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/4');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/4');
 
         setField('#weekly-target-days-select', '5');
         click('#weekly-target-save-btn');
         await waitForUi(220);
-        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/5');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/5');
 
         // Fourth save in the same week is blocked (max 3 total saves).
         setField('#weekly-target-days-select', '6');
         click('#weekly-target-save-btn');
         await waitForUi(220);
-        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('1/5');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/5');
 
         const appDataDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
         const userPreferencesDoc = appDataDocs.find((entry) => entry.id === 'user_preferences');
         expect(userPreferencesDoc).toBeDefined();
+        expect(userPreferencesDoc.data.weeklyTargetSessions).toBe(5);
         expect(userPreferencesDoc.data.weeklyTargetDays).toBe(5);
         expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].savesUsed).toBe(3);
+        expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].targetSessions).toBe(5);
         expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].targetDays).toBe(5);
 
         click('.settings-modal-close');
@@ -254,16 +271,19 @@ describe('App User Journey', () => {
         expect(localStorage.getItem('gymTracker_inProgressSession')).toBeNull();
 
         const createdSessions = __getMockCollectionDocuments('users/mock-user-1/sesiones_entrenamiento');
-        expect(createdSessions).toHaveLength(2);
+        expect(createdSessions).toHaveLength(3);
         const sessionNames = createdSessions.map((entry) => entry.data.nombreEntrenamiento);
         expect(sessionNames).toContain('Quick Morning');
+        expect(sessionNames).toContain('Quick Evening');
         expect(sessionNames).toContain('Push Day Updated');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('3/5');
 
         click('#nav-history');
         await waitForUi(300);
 
-        expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBeGreaterThanOrEqual(2);
+        expect(document.querySelectorAll('#history-list li[data-session-id]').length).toBeGreaterThanOrEqual(3);
         expect(document.getElementById('history-list').textContent).toContain('Quick Morning');
+        expect(document.getElementById('history-list').textContent).toContain('Quick Evening');
         expect(document.getElementById('history-list').textContent).toContain('Push Day Updated');
 
         click('#nav-manage-routines');

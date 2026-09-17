@@ -2,6 +2,9 @@ import { t, getLocale } from '../i18n.js';
 export const QUICK_LOG_DEFAULT_LABEL = 'Quick Log';
 export const QUICK_LOG_DEFAULT_NOTE_TITLE_PREFIX = 'Nota';
 export const WEEKLY_TARGET_DEFAULT = 3;
+// Keep the legacy target names while the dashboard now counts persisted
+// sessions instead of distinct calendar days.
+export const WEEKLY_TARGET_SESSIONS_DEFAULT = WEEKLY_TARGET_DEFAULT;
 export const WEEKLY_STREAK_LOOKBACK_WEEKS = 52;
 export const WEEKLY_TARGET_EDIT_WINDOW_DAYS = 3;
 export const WEEKLY_TARGET_MAX_SAVES_PER_WEEK = 3;
@@ -66,6 +69,36 @@ export function normalizeWeeklyTargetDays(value, fallback = WEEKLY_TARGET_DEFAUL
     return clampWeeklyTargetDays(parsed);
 }
 
+export function normalizeWeeklyTargetSessions(value, fallback = WEEKLY_TARGET_SESSIONS_DEFAULT) {
+    return normalizeWeeklyTargetDays(value, fallback);
+}
+
+/**
+ * Resolve a stable persisted identity for a session.
+ * Firestore query results always provide `id`; the other fields support
+ * cached and migrated records. Records without an identity remain separate
+ * legacy entries because two real sessions can share timestamp and content.
+ */
+export function getPersistedSessionIdentity(session = {}, fallbackIndex = 0) {
+    const candidate = session?.id ?? session?.sessionId ?? session?.persistedSessionId;
+    const normalizedCandidate = normalizeText(candidate);
+    return normalizedCandidate ? `persisted:${normalizedCandidate}` : `legacy:${fallbackIndex}`;
+}
+
+function dedupePersistedSessions(sessions) {
+    const identities = new Set();
+
+    return sessions.filter((session, index) => {
+        const identity = getPersistedSessionIdentity(session, index);
+        if (identities.has(identity)) {
+            return false;
+        }
+
+        identities.add(identity);
+        return true;
+    });
+}
+
 function startOfLocalDay(value) {
     const date = normalizeQuickLogDate(value, new Date());
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -102,14 +135,19 @@ function normalizeWeeklyTargetsByWeek(value) {
         if (typeof weekKey !== 'string' || !weekKey.trim()) return;
         if (!record || typeof record !== 'object') return;
 
-        const targetDays = normalizeWeeklyTargetDays(record.targetDays, WEEKLY_TARGET_DEFAULT);
+        const targetSessions = normalizeWeeklyTargetSessions(
+            record.targetSessions ?? record.targetDays,
+            WEEKLY_TARGET_SESSIONS_DEFAULT
+        );
         const savesUsedRaw = Number.parseInt(record.savesUsed, 10);
         const savesUsed = Number.isInteger(savesUsedRaw)
             ? Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, savesUsedRaw))
             : 0;
 
         normalized[weekKey] = {
-            targetDays,
+            targetSessions,
+            // Keep the legacy field available to older readers and writers.
+            targetDays: targetSessions,
             savesUsed
         };
     });
@@ -127,15 +165,24 @@ function normalizeWeeklyOutcomesByWeek(value) {
         if (typeof weekKey !== 'string' || !weekKey.trim()) return;
         if (!record || typeof record !== 'object') return;
 
+        const sessionCountRaw = Number.parseInt(
+            record.sessionCount ?? record.activeSessions ?? record.activeDays,
+            10
+        );
+        const sessionCount = Number.isInteger(sessionCountRaw)
+            ? Math.max(0, sessionCountRaw)
+            : null;
         const activeDaysRaw = Number.parseInt(record.activeDays, 10);
         const activeDays = Number.isInteger(activeDaysRaw)
             ? Math.max(0, activeDaysRaw)
-            : null;
-        if (activeDays === null || typeof record.met !== 'boolean') {
+            : sessionCount;
+        if (sessionCount === null || activeDays === null || typeof record.met !== 'boolean') {
             return;
         }
 
         normalized[weekKey] = {
+            sessionCount,
+            activeSessions: sessionCount,
             activeDays,
             met: record.met === true
         };
@@ -151,14 +198,20 @@ function resolveBaselineWeeklyTarget({ normalizedWeeklyTargetsByWeek, windowStar
 
     if (historicalTargets.length === 0) {
         return {
-            targetDays: WEEKLY_TARGET_DEFAULT,
+            targetSessions: WEEKLY_TARGET_SESSIONS_DEFAULT,
+            targetDays: WEEKLY_TARGET_SESSIONS_DEFAULT,
             hasTargetRecord: false
         };
     }
 
     const [, latestRecord] = historicalTargets[historicalTargets.length - 1];
+    const targetSessions = normalizeWeeklyTargetSessions(
+        latestRecord?.targetSessions ?? latestRecord?.targetDays,
+        WEEKLY_TARGET_SESSIONS_DEFAULT
+    );
     return {
-        targetDays: normalizeWeeklyTargetDays(latestRecord?.targetDays, WEEKLY_TARGET_DEFAULT),
+        targetSessions,
+        targetDays: targetSessions,
         hasTargetRecord: true
     };
 }
@@ -195,7 +248,9 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
     const normalizedWeeklyOutcomesByWeek = normalizeWeeklyOutcomesByWeek(input.weeklyOutcomesByWeek);
 
     const activeDaysByWeek = new Map();
-    sessions.forEach((session) => {
+    const sessionsByWeek = new Map();
+    const distinctSessions = dedupePersistedSessions(sessions);
+    distinctSessions.forEach((session, sessionIndex) => {
         const sessionDate = resolveSessionDate(session);
         if (!sessionDate) return;
 
@@ -210,15 +265,26 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
         }
 
         daySet.add(toLocalDateKey(sessionDay));
+
+        let sessionSet = sessionsByWeek.get(weekKey);
+        if (!sessionSet) {
+            sessionSet = new Set();
+            sessionsByWeek.set(weekKey, sessionSet);
+        }
+
+        sessionSet.add(getPersistedSessionIdentity(session, sessionIndex));
     });
 
     const baselineWeeklyTarget = resolveBaselineWeeklyTarget({
         normalizedWeeklyTargetsByWeek,
         windowStartKey
     });
-    let effectiveTargetDays = baselineWeeklyTarget.targetDays;
+    let effectiveTargetSessions = baselineWeeklyTarget.targetSessions;
     let hasResolvedWeeklyTargetRecord = baselineWeeklyTarget.hasTargetRecord;
-    const currentFallbackTargetDays = normalizeWeeklyTargetDays(input.weeklyTargetDays, WEEKLY_TARGET_DEFAULT);
+    const currentFallbackTargetSessions = normalizeWeeklyTargetSessions(
+        input.weeklyTargetSessions ?? input.weeklyTargetDays,
+        WEEKLY_TARGET_SESSIONS_DEFAULT
+    );
 
     const timeline = [];
     for (let index = 0; index < lookbackWeeks; index += 1) {
@@ -227,26 +293,36 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
         const weekKey = toWeekKey(weekStart);
         const isCurrentWeek = weekKey === currentWeekKey;
         const weekTargetRecord = normalizedWeeklyTargetsByWeek[weekKey];
-        if (weekTargetRecord?.targetDays !== undefined) {
-            effectiveTargetDays = normalizeWeeklyTargetDays(weekTargetRecord.targetDays, effectiveTargetDays);
+        if (weekTargetRecord?.targetSessions !== undefined) {
+            effectiveTargetSessions = normalizeWeeklyTargetSessions(
+                weekTargetRecord.targetSessions,
+                effectiveTargetSessions
+            );
             hasResolvedWeeklyTargetRecord = true;
         } else if (isCurrentWeek && !hasResolvedWeeklyTargetRecord) {
-            effectiveTargetDays = currentFallbackTargetDays;
+            effectiveTargetSessions = currentFallbackTargetSessions;
         }
 
         const frozenOutcome = !isCurrentWeek ? normalizedWeeklyOutcomesByWeek[weekKey] : null;
         const activeDays = frozenOutcome
             ? Math.max(0, frozenOutcome.activeDays)
             : (activeDaysByWeek.get(weekKey)?.size || 0);
+        const sessionCount = frozenOutcome
+            ? Math.max(0, frozenOutcome.sessionCount)
+            : (sessionsByWeek.get(weekKey)?.size || 0);
         const met = frozenOutcome
             ? frozenOutcome.met === true
-            : activeDays >= effectiveTargetDays;
+            : sessionCount >= effectiveTargetSessions;
 
         timeline.push({
             weekKey,
             weekStart,
             isCurrentWeek,
-            targetDays: effectiveTargetDays,
+            targetSessions: effectiveTargetSessions,
+            // Preserve the legacy field for callers and stored outcomes.
+            targetDays: effectiveTargetSessions,
+            sessionCount,
+            activeSessions: sessionCount,
             activeDays,
             met,
             isFrozen: !!frozenOutcome,
@@ -389,7 +465,16 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
     const currentWeekEntry = timelineResult.timeline.find((entry) => entry.isCurrentWeek)
         || timelineResult.timeline[timelineResult.timeline.length - 1]
         || {
-            targetDays: normalizeWeeklyTargetDays(input.weeklyTargetDays, WEEKLY_TARGET_DEFAULT),
+            targetSessions: normalizeWeeklyTargetSessions(
+                input.weeklyTargetSessions ?? input.weeklyTargetDays,
+                WEEKLY_TARGET_SESSIONS_DEFAULT
+            ),
+            targetDays: normalizeWeeklyTargetSessions(
+                input.weeklyTargetSessions ?? input.weeklyTargetDays,
+                WEEKLY_TARGET_SESSIONS_DEFAULT
+            ),
+            sessionCount: 0,
+            activeSessions: 0,
             activeDays: 0,
             met: false
         };
@@ -423,17 +508,21 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
         currentWeeklyStreak += 1;
     }
 
-    const weeklyProgressDays = currentWeekEntry.activeDays || 0;
-    const weeklyTargetDays = normalizeWeeklyTargetDays(
-        currentWeekEntry.targetDays,
-        input.weeklyTargetDays
+    const weeklyProgressSessions = currentWeekEntry.sessionCount ?? currentWeekEntry.activeSessions ?? 0;
+    const weeklyTargetSessions = normalizeWeeklyTargetSessions(
+        currentWeekEntry.targetSessions ?? currentWeekEntry.targetDays,
+        input.weeklyTargetSessions ?? input.weeklyTargetDays ?? WEEKLY_TARGET_SESSIONS_DEFAULT
     );
 
     return {
-        weeklyTargetDays,
-        weeklyProgressDays,
-        weeklyProgressLabel: `${weeklyProgressDays}/${weeklyTargetDays}`,
-        weeklyProgressMet: weeklyProgressDays >= weeklyTargetDays,
+        weeklyTargetSessions,
+        weeklyProgressSessions,
+        weeklyProgressLabel: `${weeklyProgressSessions}/${weeklyTargetSessions}`,
+        weeklyProgressMet: weeklyProgressSessions >= weeklyTargetSessions,
+        // Legacy aliases retain the old property names while carrying the
+        // new session-count semantics.
+        weeklyTargetDays: weeklyTargetSessions,
+        weeklyProgressDays: weeklyProgressSessions,
         currentWeeklyStreak,
         bestWeeklyStreak
     };
@@ -442,6 +531,7 @@ export function computeWeeklyConsistencyMetrics(input = {}) {
 export function computeDailyHubState(input = {}) {
     const now = normalizeQuickLogDate(input.now, new Date());
     const sessions = Array.isArray(input.sessions) ? input.sessions : [];
+    const distinctSessions = dedupePersistedSessions(sessions);
     const routines = Array.isArray(input.routines) ? input.routines : [];
     const selectedRoutineId = normalizeText(input.selectedRoutineId);
     const isOnline = input.isOnline !== false;
@@ -453,7 +543,7 @@ export function computeDailyHubState(input = {}) {
     let logsMonthCount = 0;
     const currentMonthKey = toLocalMonthKey(now);
 
-    sessions.forEach((session) => {
+    distinctSessions.forEach((session) => {
         const sessionDate = resolveSessionDate(session);
         if (!sessionDate) return;
 
@@ -486,8 +576,9 @@ export function computeDailyHubState(input = {}) {
     }
 
     const weeklyConsistency = computeWeeklyConsistencyMetrics({
-        sessions,
+        sessions: distinctSessions,
         now,
+        weeklyTargetSessions: input.weeklyTargetSessions,
         weeklyTargetDays: input.weeklyTargetDays,
         weeklyTargetsByWeek: input.weeklyTargetsByWeek,
         weeklyOutcomesByWeek: input.weeklyOutcomesByWeek
@@ -503,6 +594,8 @@ export function computeDailyHubState(input = {}) {
         syncStatus,
         syncClass,
         isEmpty: logsMonthCount === 0,
+        weeklyTargetSessions: weeklyConsistency.weeklyTargetSessions,
+        weeklyProgressSessions: weeklyConsistency.weeklyProgressSessions,
         weeklyTargetDays: weeklyConsistency.weeklyTargetDays,
         weeklyProgressDays: weeklyConsistency.weeklyProgressDays,
         weeklyProgressLabel: weeklyConsistency.weeklyProgressLabel,

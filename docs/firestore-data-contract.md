@@ -1,6 +1,6 @@
 # Firestore Data Contract
 
-Last updated: April 23, 2026
+Last updated: September 17, 2026
 Status: Active
 
 ## Purpose
@@ -56,6 +56,7 @@ Current document shape:
 
 ```json
 {
+  "sessionId": "session-<generated-id>",
   "fecha": "<Firestore Timestamp>",
   "routineId": "routine-id",
   "nombreEntrenamiento": "Push Day",
@@ -93,6 +94,7 @@ Required fields:
 
 Optional fields:
 
+- `sessionId` (string; generated for new writes and mirrored by the Firestore document ID)
 - `pesoUsuario` (number or `null`)
 - `notasEjercicio` per exercise
 - `objetivo*` fields for session context
@@ -134,9 +136,11 @@ Current document shape:
 
 ```json
 {
+  "weeklyTargetSessions": 3,
   "weeklyTargetDays": 3,
   "weeklyTargetsByWeek": {
     "2026-04-20": {
+      "targetSessions": 3,
       "targetDays": 3,
       "savesUsed": 1,
       "updatedAtIso": "2026-04-22T10:00:00.000Z"
@@ -144,7 +148,10 @@ Current document shape:
   },
   "weeklyOutcomesByWeek": {
     "2026-04-13": {
+      "targetSessions": 3,
       "targetDays": 3,
+      "sessionCount": 2,
+      "activeSessions": 2,
       "activeDays": 2,
       "met": false,
       "lockedAtIso": "2026-04-22T10:00:00.000Z"
@@ -157,9 +164,10 @@ Current document shape:
 
 Fields:
 
-- `weeklyTargetDays` (integer, clamped to `1..7`, default fallback `3`)
-- `weeklyTargetsByWeek` (object map keyed by `YYYY-MM-DD` week start, storing `targetDays`, `savesUsed`, `updatedAtIso`)
-- `weeklyOutcomesByWeek` (object map keyed by `YYYY-MM-DD` week start, storing frozen `targetDays`, `activeDays`, `met`, `lockedAtIso`)
+- `weeklyTargetSessions` (integer, clamped to `1..7`, default fallback `3`)
+- `weeklyTargetDays` (legacy alias for `weeklyTargetSessions`; new writes keep it synchronized)
+- `weeklyTargetsByWeek` (object map keyed by `YYYY-MM-DD` week start, storing `targetSessions`, legacy `targetDays`, `savesUsed`, `updatedAtIso`)
+- `weeklyOutcomesByWeek` (object map keyed by `YYYY-MM-DD` week start, storing frozen `targetSessions`, `targetDays`, `sessionCount`, `activeSessions`, `activeDays`, `met`, `lockedAtIso`)
 - `schemaVersion` (integer, currently `2`)
 - `updatedAt` (`Timestamp`)
 
@@ -191,6 +199,10 @@ Use this mapping when normalizing records for app use:
 - Session date:
 - Canonical: `fecha` (`Timestamp`)
 - Offline queue payload fallback: `fechaIso` (ISO string, rehydrated to `Timestamp`)
+
+- Session identity:
+- Canonical: Firestore document ID, mirrored in `sessionId` on new writes
+- Offline queue payload: `sessionId` (replay uses idempotent `setDoc` when present)
 
 ## Implemented Extension: Execution Mode (March 29, 2026)
 

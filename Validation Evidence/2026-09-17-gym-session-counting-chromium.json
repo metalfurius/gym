@@ -1,0 +1,12 @@
+{
+  "browser": "Chromium",
+  "state": {
+    "monthlySessions": 2,
+    "weeklyProgress": "2/2",
+    "weeklySessionCount": 2,
+    "activeDays": 1,
+    "calendarTitle": "September 17: 2 sessions",
+    "renderedStatus": "Ready"
+  },
+  "screenshot": "Validation Evidence\\2026-09-17-gym-session-counting-chromium.png"
+}

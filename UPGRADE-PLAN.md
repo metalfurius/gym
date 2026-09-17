@@ -48,7 +48,7 @@ Execution split:
 - [done] Implement "Session-Time Exercise Variants + ES/EN Language System" (`docs/session-variants-i18n-plan.md`).
   Delivered: session-time mode/load overrides, local variant memory, header ES/EN selector, unified runtime/static copy.
 - [done] Implement "Custom Weekly Consistency Streaks" (`docs/weekly-consistency-streaks-plan.md`).
-  Delivered scope: Monday-based weekly streak model, distinct active-day counting, rolling 52-week current/best streak, this-week progress card, cloud-synced weekly target (`users/{uid}/app_data/user_preferences`) with offline queue replay, plus timestamp consistency and bounded query hardening from review.
+  Delivered scope: Monday-based weekly streak model, persisted-session counting with duplicate-delivery protection, rolling 52-week current/best streak, this-week progress card, cloud-synced weekly session target (`users/{uid}/app_data/user_preferences`) with offline queue replay, plus timestamp consistency and bounded query hardening from review.
 - [deferred] Streaks/challenges/social mechanics until after this cycle gates are met.
 
 ## Weekly Milestones and Quality Gates

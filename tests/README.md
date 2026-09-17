@@ -20,6 +20,7 @@ The repository now includes an app-level automated journey test that exercises t
   - logout/login persistence + multi-routine switching
   - offline queue + online recovery for session saves
   - retry behavior when first reconnect sync fails
+  - two same-day session saves and combined calendar activity
 - Firebase URL mocks used by the app test:
   - `tests/mocks/firebase-app.js`
   - `tests/mocks/firebase-auth.js`
@@ -34,6 +35,14 @@ npm run test:app
 
 `npm run test:app` now runs ESLint in errors-only mode first. Use `npm run test:app:only` to run just the app journey tests.
 Use `npm run test:app:offline` to run only offline recovery/retry reliability journeys.
+
+Real-browser session-counting smoke:
+
+```bash
+npm run test:e2e:session-counting
+```
+
+This launches Chromium through the DevTools protocol, imports the production weekly-counting module, checks duplicate replay handling and same-day session aggregation, and writes visual evidence under `Validation Evidence/`.
 
 ## Test Structure
 

@@ -3,9 +3,11 @@ import {
     getWeekKeyForDate,
     QUICK_LOG_DEFAULT_LABEL,
     WEEKLY_TARGET_DEFAULT,
+    WEEKLY_TARGET_SESSIONS_DEFAULT,
     splitQuickLogNotes,
     normalizeQuickLogDate,
     normalizeWeeklyTargetDays,
+    normalizeWeeklyTargetSessions,
     normalizeQuickLogPayload,
     buildQuickLogSessionModel,
     buildWeeklyConsistencyTimeline,
@@ -183,7 +185,14 @@ describe('quick-log utils', () => {
         expect(normalizeWeeklyTargetDays('4')).toBe(4);
     });
 
-    it('computes weekly consistency using distinct active days and qualified-week streaks', () => {
+    it('normalizes weekly session targets and preserves the legacy default', () => {
+        expect(normalizeWeeklyTargetSessions(undefined)).toBe(WEEKLY_TARGET_SESSIONS_DEFAULT);
+        expect(normalizeWeeklyTargetSessions('0')).toBe(1);
+        expect(normalizeWeeklyTargetSessions('8')).toBe(7);
+        expect(normalizeWeeklyTargetSessions('4')).toBe(4);
+    });
+
+    it('computes weekly consistency from persisted sessions and qualified-week streaks', () => {
         const now = new Date(2026, 3, 23, 10, 0, 0);
         const currentWeekStart = new Date(now);
         const currentDay = currentWeekStart.getDay();
@@ -199,19 +208,19 @@ describe('quick-log utils', () => {
         };
 
         const sessions = [
-            // Current week: only 2 distinct active days (not qualified for target=3)
-            { fecha: atWeekOffset(0, 0, 8) },
-            { fecha: atWeekOffset(0, 2, 9) },
-            { fecha: atWeekOffset(0, 2, 18) }, // duplicate same day, should not add a day
-            // Previous 2 weeks qualified (3 distinct days each)
-            { fecha: atWeekOffset(1, 0) },
-            { fecha: atWeekOffset(1, 2) },
-            { fecha: atWeekOffset(1, 4) },
-            { fecha: atWeekOffset(2, 0) },
-            { fecha: atWeekOffset(2, 1) },
-            { fecha: atWeekOffset(2, 3) },
+            // Current week: 2 persisted sessions, one delivered twice.
+            { id: 'current-monday', fecha: atWeekOffset(0, 0, 8) },
+            { id: 'current-wednesday', fecha: atWeekOffset(0, 2, 9) },
+            { id: 'current-wednesday', fecha: atWeekOffset(0, 2, 18) },
+            // Previous 2 weeks qualified (3 persisted sessions each).
+            { id: 'previous-one-monday', fecha: atWeekOffset(1, 0) },
+            { id: 'previous-one-wednesday', fecha: atWeekOffset(1, 2) },
+            { id: 'previous-one-friday', fecha: atWeekOffset(1, 4) },
+            { id: 'previous-two-monday', fecha: atWeekOffset(2, 0) },
+            { id: 'previous-two-tuesday', fecha: atWeekOffset(2, 1) },
+            { id: 'previous-two-thursday', fecha: atWeekOffset(2, 3) },
             // Week before those is not qualified and should break streaks
-            { fecha: atWeekOffset(3, 0) }
+            { id: 'failed-week', fecha: atWeekOffset(3, 0) }
         ];
 
         const metrics = computeWeeklyConsistencyMetrics({
@@ -220,12 +229,44 @@ describe('quick-log utils', () => {
             weeklyTargetDays: 3
         });
 
+        expect(metrics.weeklyTargetSessions).toBe(3);
+        expect(metrics.weeklyProgressSessions).toBe(2);
         expect(metrics.weeklyTargetDays).toBe(3);
         expect(metrics.weeklyProgressDays).toBe(2);
         expect(metrics.weeklyProgressLabel).toBe('2/3');
         expect(metrics.weeklyProgressMet).toBe(false);
         expect(metrics.currentWeeklyStreak).toBe(2);
         expect(metrics.bestWeeklyStreak).toBe(2);
+    });
+
+    it('counts multiple persisted sessions on one day and ignores duplicate delivery', () => {
+        const now = new Date(2026, 3, 23, 20, 0, 0);
+        const sessions = [
+            { id: 'morning-session', fecha: new Date(2026, 3, 23, 7, 0, 0) },
+            { id: 'evening-session', fecha: new Date(2026, 3, 23, 19, 0, 0) },
+            { id: 'evening-session', fecha: new Date(2026, 3, 23, 19, 0, 0) }
+        ];
+
+        const state = computeDailyHubState({
+            sessions,
+            now,
+            weeklyTargetSessions: 2,
+            isOnline: true,
+            pendingCount: 0
+        });
+        const timeline = buildWeeklyConsistencyTimeline({
+            sessions,
+            now,
+            weeklyTargetSessions: 2
+        });
+        const currentWeek = timeline.timeline.find((entry) => entry.isCurrentWeek);
+
+        expect(state.logsMonthCount).toBe(2);
+        expect(state.weeklyTargetSessions).toBe(2);
+        expect(state.weeklyProgressSessions).toBe(2);
+        expect(state.weeklyProgressLabel).toBe('2/2');
+        expect(state.weeklyProgressMet).toBe(true);
+        expect(currentWeek).toMatchObject({ sessionCount: 2, activeDays: 1, met: true });
     });
 
     it('recomputes streak metrics when weekly target changes', () => {
@@ -451,17 +492,17 @@ describe('quick-log utils', () => {
 
         const timeline = buildWeeklyConsistencyTimeline({
             sessions: [
-                { fecha: new Date(2026, 2, 23, 8, 0, 0) },
-                { fecha: new Date(2026, 2, 25, 8, 0, 0) },
-                { fecha: beforeDstJump },
-                { fecha: afterDstJump }
+                { id: 'dst-monday', fecha: new Date(2026, 2, 23, 8, 0, 0) },
+                { id: 'dst-wednesday', fecha: new Date(2026, 2, 25, 8, 0, 0) },
+                { id: 'dst-before-jump', fecha: beforeDstJump },
+                { id: 'dst-after-jump', fecha: afterDstJump }
             ],
             now: new Date(2026, 2, 30, 9, 0, 0),
             weeklyTargetDays: 3
         });
 
         const previousWeek = timeline.timeline.find((entry) => entry.weekKey === '2026-03-23');
-        expect(previousWeek).toMatchObject({ activeDays: 3, met: true });
+        expect(previousWeek).toMatchObject({ sessionCount: 4, activeDays: 3, met: true });
     });
 
     it('keeps the weekly consistency window at 52 weeks', () => {

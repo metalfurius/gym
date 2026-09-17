@@ -39,7 +39,7 @@ Out of scope for this slice:
 
 1. Entry can be completed with: workout label, date/time (default now), and at least one exercise note.
 2. Save action provides immediate success or queued-offline feedback.
-3. On reconnect, queued quick-log entries sync automatically and only once.
+3. On reconnect, queued quick-log entries sync automatically and idempotently, even if replay is delivered more than once.
 4. Saved entries appear in history using existing rendering rules.
 
 ### Daily Hub
@@ -52,6 +52,13 @@ Out of scope for this slice:
    - sync status indicator (online/offline/queued)
 3. Hub gracefully handles empty-state users with a call to start logging.
 4. Hub reflects quick-log submissions without requiring full page reload.
+
+### Session-counting coherence
+
+1. Two persisted sessions on the same local day count as two weekly sessions and two monthly logs.
+2. Weekly progress uses `sessionCount/targetSessions`; the legacy `*Days` fields remain synchronized aliases.
+3. The calendar combines same-day activity and shows the total session count after an online save or queue replay.
+4. Dashboard, calendar, and visible history refresh from the same post-persistence event without a page reload.
 
 ## Quality and Reliability Gates
 
@@ -70,7 +77,8 @@ Before merge of the first implementation PR:
 1. Add unit tests for quick-log payload normalization and defaults.
 2. Add integration tests for hub state composition with empty/non-empty data.
 3. Extend app journey coverage for quick-log create and hub refresh behavior.
-4. Keep offline recovery and retry suites passing without `.skip`.
+4. Cover two same-day saves, idempotent replay, and calendar aggregation.
+5. Keep offline recovery and retry suites passing without `.skip`.
 
 ## Observability and Rollout
 

@@ -17,8 +17,8 @@ const firestoreInstance = {
     __isMockFirestore: true,
 };
 
-let addDocFailuresRemaining = 0;
-let addDocFailureError = null;
+let firestoreWriteFailuresRemaining = 0;
+let firestoreWriteFailureError = null;
 
 function ensureCollectionRef(collectionRef) {
     if (!collectionRef || collectionRef.__type !== 'collection') {
@@ -101,10 +101,10 @@ export function startAfter(snapshot) {
 export async function addDoc(collectionRef, data) {
     ensureCollectionRef(collectionRef);
 
-    if (addDocFailuresRemaining > 0) {
-        addDocFailuresRemaining -= 1;
-        if (addDocFailureError) {
-            throw addDocFailureError;
+    if (firestoreWriteFailuresRemaining > 0) {
+        firestoreWriteFailuresRemaining -= 1;
+        if (firestoreWriteFailureError) {
+            throw firestoreWriteFailureError;
         }
         throw new Error('Failed to fetch');
     }
@@ -120,17 +120,31 @@ export async function addDoc(collectionRef, data) {
 }
 
 export function __setMockAddDocFailures(count = 1, error = null) {
-    addDocFailuresRemaining = Math.max(0, Number(count) || 0);
-    addDocFailureError = error;
+    const normalizedCount = Math.max(0, Number(count) || 0);
+    firestoreWriteFailuresRemaining = normalizedCount;
+    firestoreWriteFailureError = error;
+}
+
+export function __setMockSetDocFailures(count = 1, error = null) {
+    firestoreWriteFailuresRemaining = Math.max(0, Number(count) || 0);
+    firestoreWriteFailureError = error;
 }
 
 export function __resetMockFirestoreBehavior() {
-    addDocFailuresRemaining = 0;
-    addDocFailureError = null;
+    firestoreWriteFailuresRemaining = 0;
+    firestoreWriteFailureError = null;
 }
 
 export async function setDoc(docRef, data, options = {}) {
     ensureDocRef(docRef);
+
+    if (firestoreWriteFailuresRemaining > 0) {
+        firestoreWriteFailuresRemaining -= 1;
+        if (firestoreWriteFailureError) {
+            throw firestoreWriteFailureError;
+        }
+        throw new Error('Failed to fetch');
+    }
 
     if (options.merge) {
         const current = __firestoreState.documents.get(docRef.path) || {};
