@@ -30,6 +30,7 @@ let minimumBoundMonth = null;
 let minimumBoundResolved = false;
 let minimumBoundPermissive = false;
 let minimumBoundLastAttemptAt = 0;
+let calendarRenderRequestId = 0;
 
 // DOM element references
 let calendarContainer = null;
@@ -541,6 +542,7 @@ function updateCalendarNavigation() {
  * This is the main function to refresh the calendar
  */
 async function updateCalendarViewInternal() {
+    const renderRequestId = ++calendarRenderRequestId;
     const user = getCurrentUser();
     if (!user) {
         resetMinimumBoundState();
@@ -575,6 +577,10 @@ async function updateCalendarViewInternal() {
     }
     
     const activity = await getMonthlyActivity(user.uid, currentCalendarYear, currentCalendarMonth);
+    if (renderRequestId !== calendarRenderRequestId) {
+        return;
+    }
+
     renderActivityCalendar(currentCalendarYear, currentCalendarMonth, activity);
 
     // Update navigation button states

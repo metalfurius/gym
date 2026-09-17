@@ -208,6 +208,7 @@ describe('App Offline Recovery Journey', () => {
         preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
         const weeklyPreference = preferencesDocs.find((entry) => entry.id === 'user_preferences');
         expect(weeklyPreference).toBeDefined();
+        expect(weeklyPreference.data.weeklyTargetSessions).toBe(5);
         expect(weeklyPreference.data.weeklyTargetDays).toBe(5);
         expect(weeklyPreference.data.updatedAt.toDate().toISOString()).toBe(queuedUpdatedAtIso);
         expect(offlineManager.getPendingCount()).toBe(0);
@@ -258,6 +259,8 @@ describe('App Offline Recovery Journey', () => {
         expect(routineSession.data.ejercicios[0].modoEjecucion).toBe('machine');
         expect(routineSession.data.ejercicios[0].tipoCarga).toBe('bodyweight');
         expect(offlineManager.getPendingCount()).toBe(0);
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/5');
+        expect(document.querySelector('#activity-calendar .day-cell.is-today')?.title).toContain('2 sesiones');
 
         click('#nav-history');
         await waitForUi(350);

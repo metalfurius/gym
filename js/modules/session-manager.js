@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase-config.js';
-import { collection, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { collection, addDoc, doc, setDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { showView, sessionElements, dashboardElements, showLoading, hideLoading, renderSessionView } from '../ui.js';
 import { logger } from '../utils/logger.js';
@@ -31,6 +31,55 @@ const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 let currentRoutineForSession = null;
 let isSavingSession = false;
 let isSavingQuickLog = false;
+const sessionPersistenceListeners = new Set();
+
+function normalizeSessionIdentity(value) {
+    if (typeof value !== 'string') {
+        return null;
+    }
+
+    const normalized = value.trim();
+    if (!normalized || normalized.includes('/') || normalized.length > 1500) {
+        return null;
+    }
+
+    return normalized;
+}
+
+export function createPersistedSessionId() {
+    const randomUuid = globalThis.crypto?.randomUUID?.();
+    if (typeof randomUuid === 'string' && randomUuid.trim()) {
+        return `session-${randomUuid}`;
+    }
+
+    if (typeof globalThis.crypto?.getRandomValues === 'function') {
+        const randomBytes = new Uint8Array(16);
+        globalThis.crypto.getRandomValues(randomBytes);
+        const randomPart = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('');
+        return `session-${Date.now().toString(36)}-${randomPart}`;
+    }
+
+    return `session-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+export function registerSessionPersistenceListener(listener) {
+    if (typeof listener !== 'function') {
+        throw new Error('registerSessionPersistenceListener requires a listener function');
+    }
+
+    sessionPersistenceListeners.add(listener);
+    return () => sessionPersistenceListeners.delete(listener);
+}
+
+async function notifySessionPersisted(detail) {
+    for (const listener of sessionPersistenceListeners) {
+        try {
+            await listener(detail);
+        } catch (error) {
+            logger.warn('Could not refresh surfaces after session persistence:', error);
+        }
+    }
+}
 
 function collectSessionVariantOverridesFromDom(
     routine = currentRoutineForSession,
@@ -72,17 +121,28 @@ function collectSessionVariantOverridesFromDom(
     return overrides;
 }
 
-function buildSessionQueuePayload(userId, sessionData) {
+function buildSessionQueuePayload(userId, sessionData, sessionId = null) {
     const { fecha, ...rest } = sessionData;
     const fechaIso = fecha?.toDate?.()?.toISOString?.() || new Date().toISOString();
+    const normalizedSessionId = normalizeSessionIdentity(sessionId || sessionData?.sessionId);
 
-    return {
+    const payload = {
         userId,
         sessionData: {
             ...rest,
             fechaIso,
         },
     };
+
+    if (normalizedSessionId) {
+        payload.sessionId = normalizedSessionId;
+    }
+
+    return payload;
+}
+
+function resolveQueuedSessionId(payload) {
+    return normalizeSessionIdentity(payload?.sessionId || payload?.sessionData?.sessionId);
 }
 
 function validateQueuedSessionNumericFields(sessionData) {
@@ -140,14 +200,32 @@ function buildSessionFromQueuePayload(payload) {
     };
 }
 
-function invalidatePostSaveCaches(userId) {
-    Promise.all([
-        localFirstCache.clearByPrefix(`history:${userId}:`),
-        localFirstCache.clearByPrefix(`calendar:${userId}:`),
-        localFirstCache.clearByPrefix(`progress:sessions:${userId}`),
-    ]).catch(cacheError => {
+async function invalidatePostSaveCaches(userId) {
+    try {
+        await Promise.all([
+            localFirstCache.clearByPrefix(`history:${userId}:`),
+            localFirstCache.clearByPrefix(`calendar:${userId}:`),
+            localFirstCache.clearByPrefix(`progress:sessions:${userId}`),
+        ]);
+    } catch (cacheError) {
         logger.warn('Could not invalidate local caches after save:', cacheError);
-    });
+    }
+}
+
+async function persistSessionDocument(userId, sessionId, sessionData) {
+    const userSessionsCollectionRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
+    const normalizedSessionId = normalizeSessionIdentity(sessionId);
+
+    if (!normalizedSessionId) {
+        // Older queued descriptors did not carry an identity. Keep their
+        // replay path readable while all new writes use idempotent setDoc.
+        return addDoc(userSessionsCollectionRef, sessionData);
+    }
+
+    return setDoc(
+        doc(db, 'users', userId, 'sesiones_entrenamiento', normalizedSessionId),
+        sessionData
+    );
 }
 
 offlineManager.registerOperationHandler('session.save', async payload => {
@@ -156,10 +234,17 @@ offlineManager.registerOperationHandler('session.save', async payload => {
         throw new Error('Invalid queued session payload');
     }
 
-    const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
-    await addDoc(userSessionsCollectionRef, hydratedSession);
+    const sessionId = resolveQueuedSessionId(payload);
+    await persistSessionDocument(payload.userId, sessionId, hydratedSession);
     firebaseUsageTracker.trackWrite(1, 'session.save.replayed');
     invalidateProgressCache();
+    await invalidatePostSaveCaches(payload.userId);
+    await notifySessionPersisted({
+        userId: payload.userId,
+        sessionId,
+        source: 'session',
+        replayed: true
+    });
 });
 
 offlineManager.registerOperationHandler('quicklog.save', async payload => {
@@ -168,10 +253,17 @@ offlineManager.registerOperationHandler('quicklog.save', async payload => {
         throw new Error('Invalid queued quick-log payload');
     }
 
-    const userSessionsCollectionRef = collection(db, 'users', payload.userId, 'sesiones_entrenamiento');
-    await addDoc(userSessionsCollectionRef, hydratedSession);
+    const sessionId = resolveQueuedSessionId(payload);
+    await persistSessionDocument(payload.userId, sessionId, hydratedSession);
     firebaseUsageTracker.trackWrite(1, 'quicklog.save.replayed');
     invalidateProgressCache();
+    await invalidatePostSaveCaches(payload.userId);
+    await notifySessionPersisted({
+        userId: payload.userId,
+        sessionId,
+        source: 'quick_log',
+        replayed: true
+    });
 });
 
 /**
@@ -475,7 +567,9 @@ export async function saveSessionData(onSuccess) {
     }
 
     const sessionVariantOverrides = collectSessionVariantOverridesFromDom(currentRoutineForSession);
+    const sessionId = createPersistedSessionId();
     const finalSessionData = {
+        sessionId,
         fecha: Timestamp.now(),
         routineId: currentRoutineForSession.id,
         nombreEntrenamiento: currentRoutineForSession.name,
@@ -495,14 +589,13 @@ export async function saveSessionData(onSuccess) {
         }
 
         const saveOperation = async () => {
-            const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-            await addDoc(userSessionsCollectionRef, finalSessionData);
+            await persistSessionDocument(user.uid, sessionId, finalSessionData);
             firebaseUsageTracker.trackWrite(1, 'session.save');
         };
 
         await offlineManager.executeWithOfflineHandling(saveOperation, t('session.saved_when_online'), true, {
             type: 'session.save',
-            payload: buildSessionQueuePayload(user.uid, finalSessionData),
+            payload: buildSessionQueuePayload(user.uid, finalSessionData, sessionId),
         });
 
         saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
@@ -519,7 +612,13 @@ export async function saveSessionData(onSuccess) {
             logger.warn('Error syncing exercise cache:', error);
         });
 
-        invalidatePostSaveCaches(user.uid);
+        await invalidatePostSaveCaches(user.uid);
+        await notifySessionPersisted({
+            userId: user.uid,
+            sessionId,
+            source: 'session',
+            replayed: false
+        });
 
         toast.success(t('session.saved_success'));
         sessionElements.form.reset();
@@ -578,7 +677,11 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
         return { ok: false, reason: 'validation' };
     }
 
-    const finalQuickLogData = buildQuickLogSessionModel(user.uid, normalizedResult.value, Timestamp);
+    const sessionId = createPersistedSessionId();
+    const finalQuickLogData = {
+        ...buildQuickLogSessionModel(user.uid, normalizedResult.value, Timestamp),
+        sessionId
+    };
     const triggerButton = options.triggerButton || null;
 
     showLoading(triggerButton, t('common.saving'));
@@ -586,18 +689,23 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
 
     try {
         const saveOperation = async () => {
-            const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-            await addDoc(userSessionsCollectionRef, finalQuickLogData);
+            await persistSessionDocument(user.uid, sessionId, finalQuickLogData);
             firebaseUsageTracker.trackWrite(1, 'quicklog.save');
         };
 
         await offlineManager.executeWithOfflineHandling(saveOperation, t('quicklog.saved_when_online'), true, {
             type: 'quicklog.save',
-            payload: buildSessionQueuePayload(user.uid, finalQuickLogData),
+            payload: buildSessionQueuePayload(user.uid, finalQuickLogData, sessionId),
         });
 
         invalidateProgressCache();
-        invalidatePostSaveCaches(user.uid);
+        await invalidatePostSaveCaches(user.uid);
+        await notifySessionPersisted({
+            userId: user.uid,
+            sessionId,
+            source: 'quick_log',
+            replayed: false
+        });
         toast.success(t('quicklog.saved_success'));
 
         if (typeof onSuccess === 'function') {

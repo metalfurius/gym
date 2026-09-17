@@ -109,6 +109,9 @@ const sessionManagerModule = await import('../../js/modules/session-manager.js')
 const sessionSaveReplayHandler = mockRegisterOperationHandler.mock.calls.find(
     ([operationType]) => operationType === 'session.save'
 )[1];
+const quickLogSaveReplayHandler = mockRegisterOperationHandler.mock.calls.find(
+    ([operationType]) => operationType === 'quicklog.save'
+)[1];
 
 const {
     saveInProgressSession,
@@ -119,6 +122,8 @@ const {
     getSessionFormData,
     saveSessionData,
     saveQuickLogEntry,
+    createPersistedSessionId,
+    registerSessionPersistenceListener,
     checkAndOfferResumeSession,
     setupSessionAutoSave,
 } = sessionManagerModule;
@@ -416,6 +421,9 @@ describe('Session Manager', () => {
         );
 
         expect(persisted).toHaveLength(1);
+        const persistedSessionId = persisted[0][1].sessionId;
+        expect(persistedSessionId).toMatch(/^session-/);
+        expect(persisted[0][0]).toBe(`users/${user.uid}/sesiones_entrenamiento/${persistedSessionId}`);
         expect(persisted[0][1].ejercicios[0].modoEjecucion).toBe('one_hand');
         expect(persisted[0][1].ejercicios[0].tipoCarga).toBe('external');
         expect(mockExecuteWithOfflineHandling).toHaveBeenCalledWith(
@@ -506,6 +514,8 @@ describe('Session Manager', () => {
         expect(result.ok).toBe(true);
         expect(result.queued).toBe(false);
         expect(persisted).toHaveLength(1);
+        expect(persisted[0][1].sessionId).toBe(result.data.sessionId);
+        expect(persisted[0][0]).toBe(`users/${user.uid}/sesiones_entrenamiento/${result.data.sessionId}`);
         expect(persisted[0][1].nombreEntrenamiento).toBe('Quick Morning');
         expect(persisted[0][1].quickLog.source).toBe('quick_log');
         expect(mockExecuteWithOfflineHandling).toHaveBeenCalledWith(
@@ -524,6 +534,81 @@ describe('Session Manager', () => {
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();
+    });
+
+    it('creates distinct stable IDs for two quick logs on the same day', async () => {
+        const firstResult = await saveQuickLogEntry({
+            label: 'Quick Morning',
+            dateTime: '2026-03-29T08:30',
+            notesText: 'Movilidad 10m',
+        });
+        const secondResult = await saveQuickLogEntry({
+            label: 'Quick Evening',
+            dateTime: '2026-03-29T19:30',
+            notesText: 'Estiramientos 10m',
+        });
+
+        const persisted = Array.from(__firestoreState.documents.entries()).filter(([path]) =>
+            path.startsWith(`users/${user.uid}/sesiones_entrenamiento/`)
+        );
+
+        expect(firstResult.data.sessionId).not.toBe(secondResult.data.sessionId);
+        expect(new Set(persisted.map(([path]) => path)).size).toBe(2);
+        expect(persisted.map(([, data]) => data.nombreEntrenamiento)).toEqual(
+            expect.arrayContaining(['Quick Morning', 'Quick Evening'])
+        );
+    });
+
+    it('replays a queued session idempotently when the same operation is delivered twice', async () => {
+        const payload = {
+            userId: user.uid,
+            sessionId: 'replayed-session-1',
+            sessionData: {
+                sessionId: 'replayed-session-1',
+                fechaIso: '2026-09-12T10:00:00.000Z',
+                nombreEntrenamiento: 'Retry Session',
+                ejercicios: [],
+            },
+        };
+
+        await quickLogSaveReplayHandler(payload);
+        await quickLogSaveReplayHandler(payload);
+
+        const persisted = Array.from(__firestoreState.documents.entries()).filter(([path]) =>
+            path.startsWith(`users/${user.uid}/sesiones_entrenamiento/`)
+        );
+
+        expect(persisted).toHaveLength(1);
+        expect(persisted[0][0]).toBe(
+            `users/${user.uid}/sesiones_entrenamiento/replayed-session-1`
+        );
+        expect(persisted[0][1].nombreEntrenamiento).toBe('Retry Session');
+    });
+
+    it('notifies registered listeners after a session is persisted', async () => {
+        const listener = jest.fn();
+        const unregister = registerSessionPersistenceListener(listener);
+
+        try {
+            await saveQuickLogEntry({
+                label: 'Listener Check',
+                dateTime: '2026-03-29T08:30',
+                notesText: 'Respiración',
+            });
+        } finally {
+            unregister();
+        }
+
+        expect(listener).toHaveBeenCalledWith(expect.objectContaining({
+            userId: user.uid,
+            source: 'quick_log',
+            replayed: false,
+            sessionId: expect.stringMatching(/^session-/),
+        }));
+    });
+
+    it('creates a session ID with the persisted-session prefix', () => {
+        expect(createPersistedSessionId()).toMatch(/^session-/);
     });
 
     it('computes bodyweight total load with last known bodyweight fallback', () => {

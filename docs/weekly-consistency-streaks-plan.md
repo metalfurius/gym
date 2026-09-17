@@ -8,7 +8,7 @@ Status: Implemented on branch (pending merge to `main`)
 Define the current major feature milestone after Session Variants + ES/EN:
 
 1. Show meaningful weekly consistency streaks in Daily Hub.
-2. Let each user define a custom workout-days-per-week target.
+2. Let each user define a custom workout-sessions-per-week target.
 3. Keep weekly target synced in cloud with offline replay safety.
 
 ## Delivered
@@ -16,7 +16,7 @@ Define the current major feature milestone after Session Variants + ES/EN:
 This milestone is implemented on branch with the following behaviors:
 
 1. Daily Hub weekly metrics are implemented (`this-week progress`, `current weekly streak`, `best weekly streak`).
-2. Weekly model is implemented with Monday-based weeks, distinct active-day counting, and a rolling 52-week analysis window.
+2. Weekly model is implemented with Monday-based weeks, persisted-session counting, duplicate-delivery protection, and a rolling 52-week analysis window.
 3. Weekly target preference is implemented in Settings and cloud-synced at `users/{uid}/app_data/user_preferences` with offline queue/replay.
 4. Post-review hardening is implemented for timestamp consistency in offline queued target writes and bounded Daily Hub weekly-window query reads.
 
@@ -25,15 +25,15 @@ This milestone is implemented on branch with the following behaviors:
 In scope:
 
 1. Daily Hub metrics:
-   - this-week progress (`activeDays/targetDays`)
+   - this-week progress (`sessionCount/targetSessions`)
    - current weekly streak
    - best weekly streak
 2. Weekly model:
    - Monday-based weeks
-   - distinct active days (multiple sessions same day count once)
+   - persisted session counts (multiple sessions on the same day count separately; duplicate delivery is ignored)
    - rolling 52-week analysis window
 3. Weekly target preference:
-   - default `3` days/week
+   - default `3` sessions/week
    - editable in Settings modal
    - cloud-synced at `users/{uid}/app_data/user_preferences`
 4. Offline support:
@@ -54,9 +54,11 @@ Document shape:
 
 ```json
 {
+  "weeklyTargetSessions": 3,
   "weeklyTargetDays": 3,
   "weeklyTargetsByWeek": {
     "2026-04-20": {
+      "targetSessions": 3,
       "targetDays": 3,
       "savesUsed": 1,
       "updatedAtIso": "2026-04-22T10:00:00.000Z"
@@ -64,7 +66,10 @@ Document shape:
   },
   "weeklyOutcomesByWeek": {
     "2026-04-13": {
+      "targetSessions": 3,
       "targetDays": 3,
+      "sessionCount": 2,
+      "activeSessions": 2,
       "activeDays": 2,
       "met": false,
       "lockedAtIso": "2026-04-22T10:00:00.000Z"
@@ -77,10 +82,16 @@ Document shape:
 
 Rules:
 
-1. `weeklyTargetDays` is clamped to `1..7` and resolved from carry-forward week target state.
-2. `weeklyTargetsByWeek` stores week-scoped target edits (`targetDays`, `savesUsed`, `updatedAtIso`).
-3. `weeklyOutcomesByWeek` stores frozen historical week outcomes used to prevent retroactive streak drift.
+1. `weeklyTargetSessions` is clamped to `1..7` and resolved from carry-forward week target state. `weeklyTargetDays` remains a read/write compatibility alias.
+2. `weeklyTargetsByWeek` stores week-scoped target edits (`targetSessions`, `targetDays`, `savesUsed`, `updatedAtIso`).
+3. `weeklyOutcomesByWeek` stores frozen historical week outcomes (`sessionCount`, `activeSessions`, `activeDays`, and both target aliases) used to prevent retroactive streak drift.
 4. Missing preference still falls back to `3`.
+
+Session identity and counting:
+
+- New session and Quick Log writes generate a stable `sessionId` and use it as the Firestore document ID.
+- Daily Hub weekly progress counts distinct persisted session IDs, so two sessions on the same local day count twice while a repeated queue delivery counts once.
+- `activeDays` is retained as a diagnostic/legacy field; it is not the weekly qualification metric.
 
 ## Validation Gates
 
