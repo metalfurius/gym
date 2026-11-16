@@ -157,7 +157,9 @@ Commands:
 Every release has one revision, `vX.Y.Z`, recorded in `manifest.json`, `release.json`,
 the shell metadata, and `sw.js`. The update button requests fresh URLs for release metadata
 and the worker. The worker stages the complete local asset set using fresh URLs, validates
-each SHA-256 against `release.json`, and activates only after the entire release is verified.
+asset SHA-256 hashes against `release.json`, and checks the shell revision before activation.
+Cloudflare can rewrite HTML for security and performance, so the shell is checked by revision
+rather than by byte hash; JavaScript, styles, icons, and the web manifest are hash-checked.
 It reports an error and keeps the installed release if an intermediary returns stale files.
 The deployed `_headers` policy documents the no-store intent for canonical metadata. GitHub Pages still emits
 its own cache headers, so the main-only `.github/workflows/cloudflare-cache.yml` runs after the Pages

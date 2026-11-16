@@ -1,5 +1,5 @@
 // This value is rewritten by update-version.cjs and is part of the release contract.
-const RELEASE_REVISION = 'v2.8.1';
+const RELEASE_REVISION = 'v2.8.2';
 const CACHE_NAME = `gym-tracker-${RELEASE_REVISION}`;
 const RELEASE_METADATA_PATHS = new Set(['manifest.json', 'release.json']);
 const OPTIONAL_ASSET_TIMEOUT_MS = 5_000;
@@ -155,6 +155,14 @@ async function assetDigest(response, path) {
     return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('');
 }
 
+async function matchesShellRevision(response) {
+    // Cloudflare can add security and optimization scripts to HTML in transit,
+    // so its bytes are not stable. The release marker must still match exactly.
+    const html = await response.clone().text();
+    const marker = html.match(/<meta\b(?=[^>]*\bname\s*=\s*["']gym-release-revision["'])(?=[^>]*\bcontent\s*=\s*["']([^"']+)["'])[^>]*>/i);
+    return marker?.[1] === RELEASE_REVISION;
+}
+
 async function installVerifiedRelease(localUrls) {
     const nonce = crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
     const cacheName = `gym-tracker-stage-${RELEASE_REVISION}-${nonce}`;
@@ -183,7 +191,10 @@ async function installVerifiedRelease(localUrls) {
                 const expected = release.assets[path];
                 if (!/^[a-f0-9]{64}$/.test(expected || '')) throw new Error(`Missing release hash for ${path}`);
                 const response = await fetch(fresh(url), { cache: 'no-store' });
-                if (!response.ok || await assetDigest(response, path) !== expected) {
+                const matchesRelease = response.ok && (path === 'index.html'
+                    ? await matchesShellRevision(response)
+                    : await assetDigest(response, path) === expected);
+                if (!matchesRelease) {
                     throw new Error(`Release asset does not match: ${path}`);
                 }
                 await staging.put(new URL(url, self.registration.scope), response);
