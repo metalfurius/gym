@@ -420,6 +420,108 @@
 #routine-list li:nth-child(8) { animation-delay: 0.35s; }
 #routine-list li:nth-child(9) { animation-delay: 0.4s; }
 
+/* Importación de rutinas */
+.routine-import-content {
+    margin: 3vh auto;
+    max-height: 94vh;
+    overflow-y: auto;
+}
+
+.routine-import-content h3 {
+    padding-right: 2rem;
+    margin: 0 0 0.75rem;
+}
+
+.routine-import-content p {
+    line-height: 1.5;
+}
+
+.routine-import-close {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+#routine-import-form label {
+    display: block;
+    font-weight: 600;
+    margin: 1rem 0 0.5rem;
+}
+
+#routine-import-json {
+    box-sizing: border-box;
+    width: 100%;
+    height: 12rem;
+    min-height: 8rem;
+    padding: 0.75rem;
+    resize: vertical;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-family: monospace;
+    line-height: 1.45;
+}
+
+#routine-import-json:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.routine-import-status {
+    margin: 0.75rem 0;
+}
+
+.routine-import-status:empty {
+    display: none;
+}
+
+.routine-import-status[data-kind='error'] {
+    color: var(--danger-color);
+}
+
+.routine-import-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.routine-import-actions button {
+    width: auto;
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+}
+
+#routine-import-cancel {
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+}
+
+#routine-import-submit {
+    background: var(--primary-color);
+    color: var(--button-text);
+    border-color: var(--primary-color);
+}
+
+.routine-import-actions button:disabled,
+.routine-import-close:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+@media (max-width: 480px) {
+    .routine-import-actions button {
+        flex: 1 1 100%;
+    }
+}
+
 /* ======================================
    ESTILOS PARA EL EDITOR DE RUTINAS
    ====================================== */

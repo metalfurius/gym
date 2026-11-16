@@ -31,6 +31,10 @@ A modern, responsive workout tracking web app with session management, routine c
 4. Save the session.
 5. Review history and progress charts.
 
+To copy routines between accounts, open **Manage my routines**, export them to the clipboard, and paste that JSON into
+**Import routines** while signed in. Imports require a connection and create new copies, so importing the same JSON
+again creates duplicates. Training sessions are not part of the routine export.
+
 ## Local Preview
 
 Run a local static server from the project root:

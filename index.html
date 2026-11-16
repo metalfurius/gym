@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2c3e50" />
-    <meta name="gym-release-revision" content="v2.7.12">
+    <meta name="gym-release-revision" content="v2.8.0">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -266,6 +266,10 @@
             <ul id="routine-list">            <!-- User routines will be listed here by JS -->
             </ul>
             <div class="routine-actions">
+                <button type="button" id="import-routines-btn" class="routine-action-btn">
+                        <span aria-hidden="true">&#128229;</span>
+                        <span data-i18n="routines.import_all">Importar rutinas</span>
+                    </button>
                 <button type="button" id="export-routines-btn" class="routine-action-btn primary">
                     <span aria-hidden="true">&#128203;</span>
                     <span data-i18n="routines.export_all">Exportar Todas las Rutinas</span>
@@ -406,6 +410,51 @@
             </button>
         </div>
     </footer>
+
+    <!-- Routine Import Modal -->
+        <div
+            id="routine-import-modal"
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="routine-import-title"
+        >
+            <div class="modal-content routine-import-content">
+                <button
+                    type="button"
+                    id="routine-import-close"
+                    class="modal-close routine-import-close"
+                    aria-label="Cerrar"
+                    data-i18n-aria-label="routines.import_close"
+                >
+                    &times;
+                </button>
+                <h3 id="routine-import-title" data-i18n="routines.import_title">Importar rutinas</h3>
+                <p id="routine-import-help" data-i18n="routines.import_help">
+                    Pega el JSON exportado. Se crearán copias nuevas y tus rutinas actuales no se modificarán.
+                </p>
+                <form id="routine-import-form" novalidate>
+                    <label for="routine-import-json" data-i18n="routines.import_label">JSON de las rutinas</label>
+                    <textarea
+                        id="routine-import-json"
+                        rows="12"
+                        spellcheck="false"
+                        aria-describedby="routine-import-help routine-import-status"
+                        data-i18n-placeholder="routines.import_placeholder"
+                        placeholder="Pega aquí el JSON exportado"
+                    ></textarea>
+                    <p id="routine-import-status" class="routine-import-status" role="status" aria-live="polite"></p>
+                    <div class="routine-import-actions">
+                        <button type="button" id="routine-import-cancel" data-i18n="routines.import_cancel">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="routine-import-submit" data-i18n="routines.import_submit">
+                            Importar rutinas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
