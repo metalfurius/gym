@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "2.8.0",
-  "revision": "v2.8.0",
-  "cacheName": "gym-tracker-v2.8.0",
+  "version": "2.8.1",
+  "revision": "v2.8.1",
+  "cacheName": "gym-tracker-v2.8.1",
   "assets": {
     "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
     "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
@@ -27,12 +27,13 @@
     "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
     "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
     "css/user-weight.css": "449007bcab599b8553d46c54f496768cd60e463bcab14169e690646db07a27b5",
-    "index.html": "1359b490eaa2363ef1146ad72e645969050627d18d66c6b79703c71e01cc462b",
-    "js/app.js": "d4a2c39825280b9cd864ca8c67e07d6634026e72378c004e79c9f1d81a7cb210",
+    "index.html": "d8846bb2305d7f5abd9e0940773fca08867a80d36cffc7c7d4267f860c816f6b",
+    "js/app.js": "40dfd59b86cb93583a719917ef16d86f6be4154123ce0ebf8441c309e0ace742",
     "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
     "js/exercise-cache.js": "f0585162cffe52c514bec5cc4159a63b0f11552a59297a406b4ae5cc21619770",
     "js/firebase-config.js": "3188081eda986d81f9631490ff32074a96e6b5f6d609058ef42cf3c0da58cbd0",
     "js/firebase-diagnostics.js": "07479ed45ab6d24ecae4ae7ea5fc62a2fdd8168f5dacb08b9188c9eb925732d7",
+    "js/i18n.js": "deca66cbd3b9575b8620b13ea9ad2db390b4e8be8cc5df4d4c982b2f04c2551a",
     "js/modules/calendar.js": "4984100e86f363889d7955158ef2cc89e3f5eea956189abb99471663f43d9544",
     "js/modules/history-manager.js": "ea58fbecfc3d30b268cae2743d602ab128a8f4b9e31a754d00ce35aa31d97718",
     "js/modules/pagination.js": "ea61fc5c4d05ba39347551fa5d3b67391d546a22a0b8543677b2bb33da9c4905",
@@ -48,6 +49,7 @@
     "js/utils/debounce.js": "3a9cfac02f264edb9903e0304ca9fd5b3bff67602fc02e19bc1cd97d8c463ce5",
     "js/utils/event-manager.js": "e190553f9e585083cfd4de9fa08268b0269380414ae4e86b1179b8898fafb044",
     "js/utils/execution-mode.js": "52a5b60e04a0de25935f08891f71cdcebc4cdd6030e252070b625004e8197f4f",
+    "js/utils/firebase-usage-tracker.js": "f31ec03b6eea41c21dca0bd201f8c24509112a8ac43bb4dcebe622fddd970747",
     "js/utils/firestore-serialization.js": "037a2541a48b644213e7a127cbc8f63f2a1ba396b07d970047cf6729ee9540b9",
     "js/utils/input-validation.js": "f175e8c58909561b7dd73b7f11941191044b6386d1e206f37c44c0a57d8c36be",
     "js/utils/load-type.js": "f2ee7e25718ebb764042331a0c728bf819d96bd7649b5e00c00baa3d3fa47427",
@@ -57,10 +59,11 @@
     "js/utils/numeric-input.js": "0a84f1491f6bd34e61cba6161792da7b167ec10a21b8e755cfcc007b89aa075f",
     "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
     "js/utils/quick-log.js": "e16436900b352e74b43fa20e0b63f20d2bcb2544e29c998c3696b52397a4e0a7",
+    "js/utils/release-updater.js": "893f863b974e3676da3626fdf5024404c2b54d49a18bf2fb905b61f4ba528bc0",
     "js/utils/routine-import.js": "656e7ce06535e70836ca13ff7c8149a0ecc2cb0ad6d44efd443e4908ff40a3ac",
     "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
     "js/utils/validation.js": "9c2ca6ebd41efdccc3f5b3bf863e7f67199d99019606f24abc4bb005003fe8a6",
-    "js/version-manager.js": "db683ffcbd7efa75d1555b33f3e271ecab761b4f3ecc091df312e12e3e3d5a97",
-    "manifest.json": "12fe231564a1effdb0c9f8620e8f6aca2dbb146248a82ffec44874bfd806a99d"
+    "js/version-manager.js": "cad345cca2111c726f4977256349a798800df792b7c47c98c8a43352c19e448c",
+    "manifest.json": "b2ff988a7020358ae797a2aef2c841bad15411de22e25fdc20646f428514de03"
   }
 }

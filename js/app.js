@@ -2105,7 +2105,8 @@ if ('serviceWorker' in navigator) {
         // through one coherent release transition.
         try {
             const swPath = new URL('sw.js', window.location.href).pathname;
-            const registration = await navigator.serviceWorker.register(swPath);
+            const existing = await navigator.serviceWorker.getRegistration?.(swPath);
+            const registration = existing || await navigator.serviceWorker.register(swPath, { updateViaCache: 'none' });
             registerServiceWorkerUpdates(registration);
             logger.info('ServiceWorker registered.', registration);
         } catch (error) {

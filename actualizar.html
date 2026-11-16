@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Actualizar Gym</title>
+    <style>
+        body { font: 1rem system-ui, sans-serif; max-width: 34rem; margin: 4rem auto; padding: 0 1.25rem; line-height: 1.5; }
+        button { padding: .7rem 1rem; font: inherit; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1 id="title">Actualizar Gym</h1>
+        <p id="description">Instala la versión más reciente. Tu entrenamiento guardado se conservará.</p>
+        <p id="status" role="status" aria-live="polite"></p>
+        <button id="update" type="button">Actualizar ahora</button>
+        <p><a id="back" href="./">Volver a Gym</a></p>
+    </main>
+    <script type="module">
+        const status = document.getElementById('status');
+        const button = document.getElementById('update');
+        const language = localStorage.getItem('gym-tracker-language') === 'en' ? 'en' : 'es';
+        const messages = language === 'en' ? {
+            title: 'Update Gym', description: 'Install the latest version. Your saved workout will be preserved.',
+            button: 'Update now', back: 'Return to Gym', loading: 'Checking and installing the update…',
+            done: 'Update installed. Opening Gym…', error: 'The update could not be completed. Check your connection and try again.'
+        } : {
+            title: 'Actualizar Gym', description: 'Instala la versión más reciente. Tu entrenamiento guardado se conservará.',
+            button: 'Actualizar ahora', back: 'Volver a Gym', loading: 'Comprobando e instalando la actualización…',
+            done: 'Actualización instalada. Abriendo Gym…', error: 'No se ha podido completar la actualización. Comprueba tu conexión y vuelve a intentarlo.'
+        };
+        document.documentElement.lang = language;
+        document.title = messages.title;
+        document.getElementById('title').textContent = messages.title;
+        document.getElementById('description').textContent = messages.description;
+        document.getElementById('back').textContent = messages.back;
+        button.textContent = messages.button;
+        button.addEventListener('click', async () => {
+            button.disabled = true;
+            status.textContent = messages.loading;
+            const previousBackup = localStorage.getItem('gym-tracker-backup-session');
+            let backedUp = false;
+            try {
+                const url = new URL('./js/utils/release-updater.js', location.href);
+                url.searchParams.set('gym_recovery', `${Date.now()}-${Math.random()}`);
+                const { fetchLatestRelease, prepareReleaseWorker, activateReleaseWorker, compareRevisions } = await import(url.href);
+                const release = await fetchLatestRelease();
+                const installed = localStorage.getItem('gym-tracker-release-revision');
+                if (/^v\d+\.\d+\.\d+$/.test(installed || '') && compareRevisions(release.revision, installed) < 0) {
+                    throw new Error('The latest release metadata is older than the installed application');
+                }
+                const session = localStorage.getItem('gymTracker_inProgressSession');
+                if (session) {
+                    localStorage.setItem('gym-tracker-backup-session', session);
+                    backedUp = true;
+                }
+                const { worker } = await prepareReleaseWorker(release);
+                await activateReleaseWorker(worker);
+                status.textContent = messages.done;
+                location.replace('./');
+            } catch (error) {
+                console.error('Update failed:', error);
+                if (backedUp) {
+                    if (previousBackup === null) localStorage.removeItem('gym-tracker-backup-session');
+                    else localStorage.setItem('gym-tracker-backup-session', previousBackup);
+                }
+                status.textContent = messages.error;
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

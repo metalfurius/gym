@@ -155,9 +155,11 @@ Commands:
 ### Release and update contract
 
 Every release has one revision, `vX.Y.Z`, recorded in `manifest.json`, `release.json`,
-the shell metadata, and `sw.js`. The service worker precaches a complete revision-scoped
-asset set before it can activate. Release metadata is fetched network-first and the deployed
-`_headers` policy documents the no-store intent for canonical metadata. GitHub Pages still emits
+the shell metadata, and `sw.js`. The update button requests fresh URLs for release metadata
+and the worker. The worker stages the complete local asset set using fresh URLs, validates
+each SHA-256 against `release.json`, and activates only after the entire release is verified.
+It reports an error and keeps the installed release if an intermediary returns stale files.
+The deployed `_headers` policy documents the no-store intent for canonical metadata. GitHub Pages still emits
 its own cache headers, so the main-only `.github/workflows/cloudflare-cache.yml` runs after the Pages
 deployment, validates the account-owned token through Cloudflare's account-token endpoint without
 printing it, resolves the non-secret account/zone relationship, reconciles the fixed `/gym/` Cache
@@ -165,12 +167,13 @@ Rule, purges only the canonical no-query URLs and declared asset set, and verifi
 before the release is considered ready.
 
 An installed client activates a waiting worker through `SKIP_WAITING`, backs up the in-progress
-workout, reloads after `controllerchange`, and restores the session from local storage. Old
-revision caches are deleted only from the new worker's activation after its precache succeeds.
+workout, and reloads after activation. A backup is restored only if no current workout exists.
+Old revision caches are deleted only after the verified worker activates. Clients stuck on a
+previous version can use `/gym/actualizar.html` once to install the verified current release.
 
 Run `npm run release:check` before publishing. The check verifies metadata agreement, every
-cached local asset and SHA-256 hash, shell references, and two consecutive deterministic build
-revisions without query-string cache busting.
+cached local asset and SHA-256 hash, shell and module references, and two consecutive deterministic
+build revisions.
 
 Production verification repeats the no-query canonical check and reuses a previously-installed
 client to confirm update activation, preserved workout state, offline recovery, and reconnect
