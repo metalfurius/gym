@@ -11,6 +11,7 @@ class FakeResponse {
     constructor(body) { this.body = Buffer.from(body); this.ok = true; }
     clone() { return new FakeResponse(this.body); }
     async json() { return JSON.parse(this.body.toString('utf8')); }
+    async text() { return this.body.toString('utf8'); }
     async arrayBuffer() { return Uint8Array.from(this.body).buffer; }
 }
 
@@ -21,7 +22,7 @@ class FakeCache {
     async add() {}
 }
 
-function createWorker({ staleAsset = null, wrongRevision = false } = {}) {
+function createWorker({ staleAsset = null, wrongRevision = false, transformedShell = false } = {}) {
     const handlers = {};
     const stores = new Map([['gym-tracker-v2.7.12', new FakeCache()]]);
     const caches = {
@@ -40,6 +41,9 @@ function createWorker({ staleAsset = null, wrongRevision = false } = {}) {
         if (path === staleAsset) return new FakeResponse('stale CDN response');
         if (path === 'release.json' && wrongRevision) {
             return new FakeResponse(JSON.stringify({ ...release, revision: 'v2.7.12' }));
+        }
+        if (path === 'index.html' && transformedShell) {
+            return new FakeResponse(readFileSync(new URL(path, root), 'utf8').replace('<body>', '<body><script>/* edge transformation */</script>'));
         }
         return new FakeResponse(readFileSync(new URL(path, root)));
     });
@@ -73,6 +77,19 @@ describe('verified service worker installation', () => {
         await expect(worker.dispatch('install')).rejects.toThrow('does not match: js/ui.js');
         expect(worker.stores.has('gym-tracker-v2.7.12')).toBe(true);
         expect(worker.stores.has(release.cacheName)).toBe(false);
+    });
+
+    it('rejects a stale HTML shell without changing the active cache', async () => {
+        const worker = createWorker({ staleAsset: 'index.html' });
+        await expect(worker.dispatch('install')).rejects.toThrow('does not match: index.html');
+        expect(worker.stores.has('gym-tracker-v2.7.12')).toBe(true);
+        expect(worker.stores.has(release.cacheName)).toBe(false);
+    });
+
+    it('accepts edge-transformed HTML when its release marker matches', async () => {
+        const worker = createWorker({ transformedShell: true });
+        await worker.dispatch('install');
+        expect(worker.stores.has(release.cacheName)).toBe(true);
     });
 
     it('installs only verified fresh assets and retains the old cache until activation', async () => {
