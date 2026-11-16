@@ -13,6 +13,7 @@ const CACHE_NAME_PATTERN = /const CACHE_NAME = `([^`$]+)\$\{RELEASE_REVISION\}`/
 const META_PATTERN = /<meta\s+name=["']gym-release-revision["']\s+content=["']([^"']+)["']/i;
 const CACHE_URLS_PATTERN = /const urlsToCache = \[(?<body>[\s\S]*?)\];/;
 const LOCAL_REFERENCE_PATTERN = /(?:href|src)=["']([^"']+)["']/gi;
+const JS_IMPORT_PATTERN = /(?:^\s*(?:import|export)\s+[^;]*?\bfrom\s*|^\s*import\s*|\bimport\s*\(\s*)['"](\.{1,2}\/[^'"]+)['"]/gm;
 
 function fail(message) {
     throw new Error(`[release-integrity] ${message}`);
@@ -142,6 +143,16 @@ async function validate({ write = false } = {}) {
         if (reference === 'manifest.json' || reference === 'release.json') continue;
         if (!source.cacheAssets.has(reference)) {
             fail(`index.html local asset is not in the service-worker cache set: ${reference}`);
+        }
+    }
+
+    for (const asset of expectedAssets.filter((entry) => entry.endsWith('.js'))) {
+        const text = await readText(asset);
+        for (const match of text.matchAll(JS_IMPORT_PATTERN)) {
+            const dependency = path.posix.normalize(path.posix.join(path.posix.dirname(asset), normalizeAssetPath(match[1])));
+            if (!source.cacheAssets.has(dependency)) {
+                fail(`${asset} imports ${dependency}, which is not in the service-worker cache set`);
+            }
         }
     }
 

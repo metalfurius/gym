@@ -1,5 +1,5 @@
 // This value is rewritten by update-version.cjs and is part of the release contract.
-const RELEASE_REVISION = 'v2.8.0';
+const RELEASE_REVISION = 'v2.8.1';
 const CACHE_NAME = `gym-tracker-${RELEASE_REVISION}`;
 const RELEASE_METADATA_PATHS = new Set(['manifest.json', 'release.json']);
 const OPTIONAL_ASSET_TIMEOUT_MS = 5_000;
@@ -32,6 +32,7 @@ const urlsToCache = [
     './js/app.js',
     './js/auth.js',
     './js/ui.js',
+    './js/i18n.js',
     './js/storage-manager.js',
     './js/version-manager.js',
     './js/firebase-config.js',
@@ -47,8 +48,10 @@ const urlsToCache = [
     './js/utils/notifications.js',
     './js/utils/debounce.js',
     './js/utils/event-manager.js',
+    './js/utils/firebase-usage-tracker.js',
     './js/utils/offline-manager.js',
     './js/utils/routine-import.js',
+    './js/utils/release-updater.js',
     './js/utils/bodyweight.js',
     './js/utils/firestore-serialization.js',
     './js/utils/execution-mode.js',
@@ -142,17 +145,72 @@ async function cacheFirst(request) {
     }
 }
 
+async function assetDigest(response, path) {
+    let bytes = await response.clone().arrayBuffer();
+    if (/\.(?:css|cjs|html|js|json|mjs|svg|txt)$/i.test(path)) {
+        const text = new TextDecoder('utf-8', { ignoreBOM: true }).decode(bytes).replace(/\r\n?/g, '\n');
+        bytes = new TextEncoder().encode(text);
+    }
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('');
+}
+
+async function installVerifiedRelease(localUrls) {
+    const nonce = crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+    const cacheName = `gym-tracker-stage-${RELEASE_REVISION}-${nonce}`;
+    const staging = await caches.open(cacheName);
+    const fresh = (path) => {
+        const url = new URL(path, self.registration.scope);
+        url.searchParams.set('gym_update', nonce);
+        return url;
+    };
+
+    try {
+        const metadataResponse = await fetch(fresh('./release.json'), { cache: 'no-store' });
+        if (!metadataResponse.ok) throw new Error('Release metadata is unavailable');
+        const release = await metadataResponse.clone().json();
+        if (release.schemaVersion !== 1 || release.revision !== RELEASE_REVISION ||
+            `v${release.version}` !== RELEASE_REVISION || release.cacheName !== CACHE_NAME ||
+            !release.assets || typeof release.assets !== 'object' || Array.isArray(release.assets)) {
+            throw new Error('Release metadata does not match the service worker');
+        }
+        await staging.put(new URL('./release.json', self.registration.scope), metadataResponse);
+
+        const assets = localUrls.filter(url => url !== './release.json');
+        for (let index = 0; index < assets.length; index += 8) {
+            await Promise.all(assets.slice(index, index + 8).map(async (url) => {
+                const path = url.replace(/^\.\//, '') || 'index.html';
+                const expected = release.assets[path];
+                if (!/^[a-f0-9]{64}$/.test(expected || '')) throw new Error(`Missing release hash for ${path}`);
+                const response = await fetch(fresh(url), { cache: 'no-store' });
+                if (!response.ok || await assetDigest(response, path) !== expected) {
+                    throw new Error(`Release asset does not match: ${path}`);
+                }
+                await staging.put(new URL(url, self.registration.scope), response);
+            }));
+        }
+
+        // Never replace an active release cache with unverified or incomplete files.
+        const cache = await caches.open(CACHE_NAME);
+        for (const url of localUrls) {
+            const key = new URL(url, self.registration.scope);
+            const response = await staging.match(key);
+            if (!response) throw new Error(`Verified release asset is missing: ${url}`);
+            await cache.put(key, response);
+        }
+        return cache;
+    } finally {
+        await caches.delete(cacheName);
+    }
+}
+
 self.addEventListener('install', (event) => {
     event.waitUntil(
         (async () => {
-            const cache = await caches.open(CACHE_NAME);
             const localUrls = urlsToCache.filter((url) => url.startsWith('./'));
             const optionalExternalUrls = urlsToCache.filter((url) => !url.startsWith('./'));
 
-            // The new cache is complete before the worker can be activated. Metadata
-            // remains network-first at runtime so an old CDN response cannot become
-            // the source of truth for a later update.
-            await cache.addAll(localUrls);
+            const cache = await installVerifiedRelease(localUrls);
             await Promise.all(optionalExternalUrls.map((url) => cacheOptionalAsset(cache, url)));
         })()
     );
