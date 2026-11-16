@@ -1,28 +1,35 @@
 name: PR Labeler
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+    pull_request:
+        types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
-  pull-requests: write
+    contents: read
+    pull-requests: write
 
 jobs:
-  label:
-    name: Auto-label PR
-    runs-on: ubuntu-latest
+    label:
+        name: Auto-label PR
+        runs-on: ubuntu-latest
 
-    steps:
-      # Checkout the base branch (safe) to get the labeler config
-      - name: Checkout base branch
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
+        steps:
+            # Checkout the base branch (safe) to get the labeler config
+            - name: Checkout base branch
+              if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]' }}
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  persist-credentials: false
 
-      - name: Label PR based on file changes
-        uses: actions/labeler@v6
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          configuration-path: .github/labeler.yml
-          sync-labels: true
+            - name: Label PR based on file changes
+              if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]' }}
+              uses: actions/labeler@v6
+              with:
+                  repo-token: '${{ secrets.GITHUB_TOKEN }}'
+                  configuration-path: .github/labeler.yml
+                  sync-labels: true
+
+            - name: Defer labeling for untrusted pull requests
+              if: ${{ github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login == 'dependabot[bot]' }}
+              run: echo "Labels will be applied by the trusted follow-up workflow."
