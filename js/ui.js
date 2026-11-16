@@ -163,7 +163,7 @@ export const historyElements = {
 
 export const sessionDetailModal = {
     modal: document.getElementById('session-detail-modal'),
-    closeBtn: document.querySelector('.modal-close'),
+    closeBtn: document.querySelector('#session-detail-modal .modal-close'),
     title: document.getElementById('session-detail-title'),
     date: document.getElementById('session-detail-date'),
     exercises: document.getElementById('session-detail-exercises'),
@@ -173,6 +173,14 @@ export const manageRoutinesElements = {
     list: document.getElementById('routine-list'),
     loadingSpinner: document.getElementById('routines-loading'),
     addNewBtn: document.getElementById('add-new-routine-btn'),
+    importRoutinesBtn: document.getElementById('import-routines-btn'),
+    importModal: document.getElementById('routine-import-modal'),
+    importForm: document.getElementById('routine-import-form'),
+    importInput: document.getElementById('routine-import-json'),
+    importStatus: document.getElementById('routine-import-status'),
+    importSubmitBtn: document.getElementById('routine-import-submit'),
+    importCancelBtn: document.getElementById('routine-import-cancel'),
+    importCloseBtn: document.getElementById('routine-import-close'),
     exportRoutinesBtn: document.getElementById('export-routines-btn'),
     deleteAllRoutinesBtn: document.getElementById('delete-all-routines-btn'),
 };

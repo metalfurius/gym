@@ -110,6 +110,38 @@ const dictionaries = {
         'routines.add': 'Crear nueva rutina',
         'routines.loading': 'Cargando rutinas...',
         'routines.action_requires_login': 'Debes iniciar sesi\u00f3n para realizar esta acci\u00f3n.',
+        'routines.import_all': 'Importar rutinas',
+        'routines.import_title': 'Importar rutinas',
+        'routines.import_help':
+            'Pega el JSON exportado. Se crear\u00e1n copias nuevas y tus rutinas actuales no se modificar\u00e1n.',
+        'routines.import_label': 'JSON de las rutinas',
+        'routines.import_placeholder': 'Pega aqu\u00ed el JSON exportado',
+        'routines.import_close': 'Cerrar importaci\u00f3n',
+        'routines.import_cancel': 'Cancelar',
+        'routines.import_submit': 'Importar rutinas',
+        'routines.import_retry': 'Reintentar pendientes',
+        'routines.import_loading': 'Importando...',
+        'routines.import_progress': 'Importando rutinas: {count} de {total} guardadas.',
+        'routines.import_pending_connection':
+            'Se ha perdido la conexi\u00f3n. La escritura est\u00e1 pendiente; espera a que vuelva.',
+        'routines.import_offline': 'Necesitas conexi\u00f3n a Internet para importar rutinas.',
+        'routines.import_offline_partial':
+            'Se importaron {count} rutina(s). Con\u00e9ctate para importar las {remaining} pendientes.',
+        'routines.import_error_partial':
+            'Se importaron {count} rutina(s), pero no se pudieron guardar las {remaining} pendientes. Puedes reintentarlo con el JSON restante.',
+        'routines.import_partial_cancelled':
+            'Se importaron {count} rutina(s). Puedes volver a abrir la importaci\u00f3n para guardar las {remaining} pendientes.',
+        'routines.import_error': 'No se pudieron importar las rutinas. Puedes volver a intentarlo.',
+        'routines.import_success': '{count} rutina(s) importadas con \u00e9xito.',
+        'routines.import_invalid_empty': 'Pega el JSON de las rutinas antes de importar.',
+        'routines.import_invalid_json': 'El texto no es un JSON v\u00e1lido. Rev\u00edsalo y vuelve a intentarlo.',
+        'routines.import_invalid_format': 'El JSON debe contener una lista de rutinas en el campo "routines".',
+        'routines.import_invalid_no_routines': 'El JSON no contiene ninguna rutina para importar.',
+        'routines.import_invalid_routine':
+            'La rutina {routine} debe tener un nombre y una lista de ejercicios v\u00e1lidos.',
+        'routines.import_invalid_exercise':
+            'El ejercicio {exercise} de la rutina {routine} debe tener un nombre v\u00e1lido.',
+        'routines.import_invalid_date': 'La fecha {field} de la rutina {routine} no es v\u00e1lida.',
         'routines.export_all': 'Exportar todas las rutinas',
         'routines.export_confirm':
             '\u00bfDeseas exportar todas tus rutinas al portapapeles? Se copiar\u00e1 un JSON con todas tus rutinas.',
@@ -528,6 +560,35 @@ const dictionaries = {
         'routines.add': 'Create new routine',
         'routines.loading': 'Loading routines...',
         'routines.action_requires_login': 'You must sign in to perform this action.',
+        'routines.import_all': 'Import routines',
+        'routines.import_title': 'Import routines',
+        'routines.import_help':
+            'Paste the exported JSON. New copies will be created and your existing routines will not change.',
+        'routines.import_label': 'Routines JSON',
+        'routines.import_placeholder': 'Paste the exported JSON here',
+        'routines.import_close': 'Close import',
+        'routines.import_cancel': 'Cancel',
+        'routines.import_submit': 'Import routines',
+        'routines.import_retry': 'Retry remaining',
+        'routines.import_loading': 'Importing...',
+        'routines.import_progress': 'Importing routines: {count} of {total} saved.',
+        'routines.import_pending_connection': 'Connection lost. The write is pending; please wait for it to return.',
+        'routines.import_offline': 'You need an Internet connection to import routines.',
+        'routines.import_offline_partial':
+            '{count} routine(s) imported. Reconnect to import the remaining {remaining}.',
+        'routines.import_error_partial':
+            '{count} routine(s) imported, but the remaining {remaining} could not be saved. You can retry with the remaining JSON.',
+        'routines.import_partial_cancelled':
+            '{count} routine(s) imported. Reopen the import to save the remaining {remaining}.',
+        'routines.import_error': 'The routines could not be imported. You can try again.',
+        'routines.import_success': '{count} routine(s) imported successfully.',
+        'routines.import_invalid_empty': 'Paste the routines JSON before importing.',
+        'routines.import_invalid_json': 'The text is not valid JSON. Check it and try again.',
+        'routines.import_invalid_format': 'The JSON must contain a list of routines in the "routines" field.',
+        'routines.import_invalid_no_routines': 'The JSON does not contain any routines to import.',
+        'routines.import_invalid_routine': 'Routine {routine} must have a valid name and exercise list.',
+        'routines.import_invalid_exercise': 'Exercise {exercise} in routine {routine} must have a valid name.',
+        'routines.import_invalid_date': 'The {field} date in routine {routine} is invalid.',
         'routines.export_all': 'Export all routines',
         'routines.export_confirm':
             'Do you want to export all your routines to the clipboard? A JSON payload will be copied.',

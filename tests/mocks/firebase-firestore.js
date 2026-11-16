@@ -19,6 +19,10 @@ const firestoreInstance = {
 
 let firestoreWriteFailuresRemaining = 0;
 let firestoreWriteFailureError = null;
+let batchCommitCalls = 0;
+let batchCommitFailureCall = 0;
+let batchCommitFailureError = null;
+let batchCommitGate = null;
 
 function ensureCollectionRef(collectionRef) {
     if (!collectionRef || collectionRef.__type !== 'collection') {
@@ -53,9 +57,14 @@ export function collection(_db, ...segments) {
 }
 
 export function doc(firstArg, ...segments) {
+    const path =
+        firstArg?.__type === 'collection' && segments.length === 0
+            ? `${firstArg.path}/${__createDocumentId()}`
+            : resolveDocumentPath(firstArg, segments);
     return {
         __type: 'doc',
-        path: resolveDocumentPath(firstArg, segments),
+        path,
+        id: path.split('/').pop(),
     };
 }
 
@@ -133,6 +142,20 @@ export function __setMockSetDocFailures(count = 1, error = null) {
 export function __resetMockFirestoreBehavior() {
     firestoreWriteFailuresRemaining = 0;
     firestoreWriteFailureError = null;
+    batchCommitCalls = 0;
+    batchCommitFailureCall = 0;
+    batchCommitFailureError = null;
+    batchCommitGate = null;
+}
+
+export function __setMockBatchCommitFailureOnCall(call, error = new Error('Batch commit failed')) {
+    batchCommitCalls = 0;
+    batchCommitFailureCall = call;
+    batchCommitFailureError = error;
+}
+
+export function __setMockBatchCommitGate(gate) {
+    batchCommitGate = gate;
 }
 
 export async function setDoc(docRef, data, options = {}) {
@@ -202,6 +225,12 @@ export function writeBatch(_db) {
             return this;
         },
         async commit() {
+            batchCommitCalls++;
+            if (batchCommitCalls === batchCommitFailureCall) {
+                batchCommitFailureCall = 0;
+                throw batchCommitFailureError;
+            }
+            if (batchCommitGate) await batchCommitGate;
             for (const operation of operations) {
                 if (operation.type === 'set') {
                     await setDoc(operation.docRef, operation.data, operation.options);

@@ -42,6 +42,13 @@ import { normalizeExecutionMode } from './utils/execution-mode.js';
 import { normalizeLoadType } from './utils/load-type.js';
 import { serializeRoutinesForCache, deserializeRoutinesFromCache } from './utils/firestore-serialization.js';
 import {
+    RoutineImportError,
+    parseRoutineImport,
+    prepareRoutineImport,
+    commitNextRoutineImportBatch,
+    pendingRoutineImportJson,
+} from './utils/routine-import.js';
+import {
     buildWeeklyConsistencyTimeline,
     computeDailyHubState,
     getIsoWeekday,
@@ -95,6 +102,16 @@ let themeManager = null;
 
 // State
 let currentUserRoutines = [];
+const routineImportUi = {
+    open: false,
+    busy: false,
+    awaitingWrite: false,
+    userId: null,
+    operation: null,
+    statusKey: null,
+    statusParams: {},
+    statusKind: '',
+};
 const ROUTINES_CACHE_TTL_MS = 10 * 60 * 1000;
 const DAILY_HUB_CACHE_TTL_MS = 30 * 1000;
 const DAILY_HUB_WEEKLY_WINDOW_QUERY_LIMIT = 1500;
@@ -1095,6 +1112,9 @@ registerSessionPersistenceListener(refreshPersistedSessionSurfaces);
 
 // --- App Initialization triggered by Auth ---
 export async function initializeAppAfterAuth(user) {
+    if (routineImportUi.userId && routineImportUi.userId !== user?.uid) {
+        closeRoutineImport({ force: true, restoreFocus: false });
+    }
     if (user) {
         // ThemeManager should already be initialized by DOMContentLoaded listener.
         // This is a fallback in case auth resolves before DOM is ready (rare edge case).
@@ -1206,6 +1226,7 @@ async function refreshUserRoutinesFromFirestore(user) {
     const q = query(routinesCollectionRef, orderBy('createdAt', 'asc'));
 
     const querySnapshot = await getDocs(q);
+    if (getCurrentUser()?.uid !== user.uid) return;
     firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'routines.fetch');
     currentUserRoutines = querySnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
     populateDaySelector(currentUserRoutines);
@@ -1448,6 +1469,255 @@ function setupSessionViewListeners() {
     }
 }
 
+function setRoutineImportStatus(key, params = {}, kind = '') {
+    routineImportUi.statusKey = key;
+    routineImportUi.statusParams = params;
+    routineImportUi.statusKind = kind;
+    renderRoutineImportStatus();
+}
+
+function renderRoutineImportStatus() {
+    const { importStatus, importInput } = manageRoutinesElements;
+    if (importStatus) {
+        importStatus.textContent = routineImportUi.statusKey
+            ? t(routineImportUi.statusKey, routineImportUi.statusParams)
+            : '';
+        importStatus.dataset.kind = routineImportUi.statusKind;
+    }
+    if (importInput) {
+        importInput.setAttribute(
+            'aria-invalid',
+            String(routineImportUi.statusKey?.startsWith('routines.import_invalid_') || false)
+        );
+    }
+}
+
+function renderRoutineImportControls() {
+    const { importModal, importInput, importSubmitBtn, importCancelBtn, importCloseBtn } = manageRoutinesElements;
+    if (importModal) importModal.setAttribute('aria-busy', String(routineImportUi.busy));
+    if (importInput) importInput.readOnly = routineImportUi.busy;
+    if (importCancelBtn) importCancelBtn.disabled = routineImportUi.busy;
+    if (importCloseBtn) importCloseBtn.disabled = routineImportUi.busy;
+    if (importSubmitBtn) {
+        importSubmitBtn.disabled = routineImportUi.busy;
+        let label = 'routines.import_submit';
+        if (routineImportUi.busy) {
+            label = 'routines.import_loading';
+        } else if (routineImportUi.operation) {
+            label = 'routines.import_retry';
+        }
+        importSubmitBtn.textContent = t(label);
+    }
+}
+
+function openRoutineImport() {
+    const user = getCurrentUser();
+    if (!user) {
+        toast.error(t('routines.action_requires_login'));
+        return;
+    }
+    if (!manageRoutinesElements.importModal || !manageRoutinesElements.importInput) return;
+
+    const resumePending = routineImportUi.userId === user.uid && routineImportUi.operation;
+    routineImportUi.open = true;
+    routineImportUi.userId = user.uid;
+    if (!resumePending) {
+        routineImportUi.operation = null;
+        manageRoutinesElements.importInput.value = '';
+        setRoutineImportStatus(null);
+    }
+    renderRoutineImportControls();
+    manageRoutinesElements.importModal.style.display = 'block';
+    manageRoutinesElements.importInput.focus();
+}
+
+function closeRoutineImport({ force = false, restoreFocus = true, completed = false } = {}) {
+    if (routineImportUi.busy && !force) return;
+    const operation = routineImportUi.operation;
+    const keepPending =
+        !force && !completed && operation?.nextIndex > 0 && operation.nextIndex < operation.entries.length;
+    if (keepPending) {
+        toast.info(
+            t('routines.import_partial_cancelled', {
+                count: operation.nextIndex,
+                remaining: operation.entries.length - operation.nextIndex,
+            })
+        );
+    }
+
+    routineImportUi.open = false;
+    routineImportUi.busy = false;
+    routineImportUi.awaitingWrite = false;
+    if (!keepPending) {
+        routineImportUi.userId = null;
+        routineImportUi.operation = null;
+    }
+    if (manageRoutinesElements.importModal) manageRoutinesElements.importModal.style.display = 'none';
+    if (!keepPending) {
+        if (manageRoutinesElements.importInput) manageRoutinesElements.importInput.value = '';
+        setRoutineImportStatus(null);
+    }
+    renderRoutineImportControls();
+    if (restoreFocus) manageRoutinesElements.importRoutinesBtn?.focus();
+}
+
+function handleRoutineImportKeydown(event) {
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        closeRoutineImport();
+        return;
+    }
+    if (event.key !== 'Tab') return;
+
+    const focusable = Array.from(
+        manageRoutinesElements.importModal.querySelectorAll('button:not(:disabled), textarea:not(:disabled)')
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
+async function reflectImportedRoutines(operation) {
+    const user = getCurrentUser();
+    if (!user || user.uid !== operation.userId || operation.reflectedCount === operation.nextIndex) return;
+
+    const added = operation.entries.slice(operation.reflectedCount, operation.nextIndex).map(entry => ({
+        id: entry.ref.id,
+        ...entry.data,
+    }));
+    operation.reflectedCount = operation.nextIndex;
+    const existingIds = new Set(currentUserRoutines.map(routine => routine.id));
+    currentUserRoutines = currentUserRoutines
+        .concat(added.filter(routine => !existingIds.has(routine.id)))
+        .sort((a, b) => (a.createdAt?.toDate?.()?.getTime() || 0) - (b.createdAt?.toDate?.()?.getTime() || 0));
+
+    const selectedRoutineId = dashboardElements.daySelect?.value;
+    populateDaySelector(currentUserRoutines);
+    if (selectedRoutineId && dashboardElements.daySelect) {
+        dashboardElements.daySelect.value = selectedRoutineId;
+        if (dashboardElements.startSessionBtn) dashboardElements.startSessionBtn.disabled = false;
+    }
+    if (!views.manageRoutines.classList.contains('hidden')) renderManageRoutinesView(currentUserRoutines);
+
+    try {
+        await localFirstCache.set(`routines:${user.uid}`, serializeRoutinesForCache(currentUserRoutines), {
+            metadata: { source: 'firestore' },
+        });
+        if (getCurrentUser()?.uid === user.uid && offlineManager.checkOnline()) {
+            await refreshUserRoutinesFromFirestore(user);
+            if (getCurrentUser()?.uid === user.uid && selectedRoutineId && dashboardElements.daySelect) {
+                const hasSelection = Array.from(dashboardElements.daySelect.options).some(
+                    option => option.value === selectedRoutineId
+                );
+                if (hasSelection) {
+                    dashboardElements.daySelect.value = selectedRoutineId;
+                    if (dashboardElements.startSessionBtn) dashboardElements.startSessionBtn.disabled = false;
+                }
+            }
+        }
+    } catch (error) {
+        logger.warn('Could not refresh the routines cache after import:', error);
+    }
+}
+
+async function submitRoutineImport(event) {
+    event.preventDefault();
+    if (routineImportUi.busy) return;
+    const user = getCurrentUser();
+    if (!user || user.uid !== routineImportUi.userId) {
+        setRoutineImportStatus('routines.action_requires_login', {}, 'error');
+        return;
+    }
+    if (!offlineManager.checkOnline()) {
+        setRoutineImportStatus('routines.import_offline', {}, 'error');
+        return;
+    }
+
+    let operation = routineImportUi.operation;
+    if (!operation) {
+        try {
+            const payload = parseRoutineImport(manageRoutinesElements.importInput.value);
+            operation = prepareRoutineImport(db, user.uid, payload);
+            routineImportUi.operation = operation;
+        } catch (error) {
+            if (error instanceof RoutineImportError) {
+                setRoutineImportStatus(`routines.import_invalid_${error.code}`, error.details, 'error');
+            } else {
+                logger.error('Could not prepare routine import:', error);
+                setRoutineImportStatus('routines.import_error', {}, 'error');
+            }
+            return;
+        }
+    }
+
+    routineImportUi.busy = true;
+    renderRoutineImportControls();
+    setRoutineImportStatus('routines.import_progress', { count: operation.nextIndex, total: operation.entries.length });
+    let failure = null;
+    let interruptedOffline = false;
+    try {
+        while (operation.nextIndex < operation.entries.length) {
+            if (!offlineManager.checkOnline()) {
+                interruptedOffline = true;
+                break;
+            }
+            routineImportUi.awaitingWrite = true;
+            let count;
+            try {
+                count = await commitNextRoutineImportBatch(db, operation);
+            } finally {
+                if (routineImportUi.operation === operation) routineImportUi.awaitingWrite = false;
+            }
+            firebaseUsageTracker.trackWrite(count, 'routines.import');
+            if (routineImportUi.operation !== operation || getCurrentUser()?.uid !== operation.userId) return;
+            setRoutineImportStatus('routines.import_progress', {
+                count: operation.nextIndex,
+                total: operation.entries.length,
+            });
+        }
+    } catch (error) {
+        failure = error;
+        logger.error('Error importing routines:', error);
+    } finally {
+        try {
+            await reflectImportedRoutines(operation);
+        } catch (error) {
+            logger.warn('Could not update the routines view after import:', error);
+        }
+        if (routineImportUi.operation === operation) {
+            routineImportUi.busy = false;
+            renderRoutineImportControls();
+        }
+    }
+
+    if (routineImportUi.operation !== operation || getCurrentUser()?.uid !== operation.userId) return;
+    if (failure || interruptedOffline) {
+        if (operation.nextIndex > 0) {
+            manageRoutinesElements.importInput.value = pendingRoutineImportJson(operation);
+        }
+        const remaining = operation.entries.length - operation.nextIndex;
+        let key = 'routines.import_error';
+        if (interruptedOffline) {
+            key = operation.nextIndex > 0 ? 'routines.import_offline_partial' : 'routines.import_offline';
+        } else if (operation.nextIndex > 0) {
+            key = 'routines.import_error_partial';
+        }
+        setRoutineImportStatus(key, { count: operation.nextIndex, remaining }, 'error');
+        return;
+    }
+
+    const count = operation.entries.length;
+    closeRoutineImport({ completed: true });
+    toast.success(t('routines.import_success', { count }));
+}
+
 function setupManageRoutinesViewListeners() {
     cleanupViewListeners('manageRoutines');
 
@@ -1457,6 +1727,21 @@ function setupManageRoutinesViewListeners() {
         });
     } else {
         logger.error('Add new routine button not found');
+    }
+
+    if (manageRoutinesElements.importRoutinesBtn && manageRoutinesElements.importForm) {
+        addViewListener('manageRoutines', manageRoutinesElements.importRoutinesBtn, 'click', openRoutineImport);
+        addViewListener('manageRoutines', manageRoutinesElements.importForm, 'submit', submitRoutineImport);
+        addViewListener('manageRoutines', manageRoutinesElements.importCancelBtn, 'click', () => closeRoutineImport());
+        addViewListener('manageRoutines', manageRoutinesElements.importCloseBtn, 'click', () => closeRoutineImport());
+        addViewListener('manageRoutines', manageRoutinesElements.importModal, 'keydown', handleRoutineImportKeydown);
+        addViewListener('manageRoutines', manageRoutinesElements.importInput, 'input', () => {
+            if (!routineImportUi.busy) {
+                routineImportUi.operation = null;
+                setRoutineImportStatus(null);
+                renderRoutineImportControls();
+            }
+        });
     }
 
     if (manageRoutinesElements.exportRoutinesBtn) {
@@ -1764,7 +2049,14 @@ navButtons.progress.addEventListener('click', () => {
 });
 navButtons.logout.addEventListener('click', handleLogout);
 
-offlineManager.addListener((isOnline) => {
+offlineManager.addListener(isOnline => {
+    if (routineImportUi.open && routineImportUi.busy && routineImportUi.awaitingWrite) {
+        const operation = routineImportUi.operation;
+        setRoutineImportStatus(isOnline ? 'routines.import_progress' : 'routines.import_pending_connection', {
+            count: operation?.nextIndex || 0,
+            total: operation?.entries.length || 0,
+        });
+    }
     if (isOnline) {
         updateCalendarView();
     }
@@ -1889,6 +2181,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (languageSelectElement) {
             languageSelectElement.value = getLanguage();
         }
+        renderRoutineImportStatus();
+        renderRoutineImportControls();
 
         const currentUser = getCurrentUser();
         if (currentUser && dashboardElements.currentDate) {
