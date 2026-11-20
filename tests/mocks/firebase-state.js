@@ -102,6 +102,7 @@ function createDocumentSnapshot(path, data) {
 
     return {
         id,
+        metadata: { fromCache: false, hasPendingWrites: false },
         ref: { id, path },
         exists: () => data !== undefined,
         data: () => (data === undefined ? undefined : cloneValue(data)),
@@ -243,6 +244,7 @@ function applyLimitConstraint(docs, constraints) {
 function buildQuerySnapshot(docs) {
     return {
         docs,
+        metadata: { fromCache: false, hasPendingWrites: false },
         size: docs.length,
         empty: docs.length === 0,
         forEach: (callback) => docs.forEach((docSnap) => callback(docSnap)),

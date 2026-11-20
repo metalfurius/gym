@@ -5,9 +5,11 @@ import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import {
     __getMockCollectionDocuments,
     __resetMockFirebase,
+    __authState,
+    __notifyAuthListeners,
 } from '../mocks/firebase-state.js';
 import {
-    __setMockAddDocFailures,
+    __setMockSessionWriteFailures,
     __resetMockFirestoreBehavior,
 } from '../mocks/firebase-firestore.js';
 import { offlineManager } from '../../js/utils/offline-manager.js';
@@ -171,7 +173,7 @@ describe('App Offline Retry Journey', () => {
         expect(offlineManager.getPendingCount()).toBe(1);
         expect(document.getElementById('daily-hub-sync-status').textContent).toContain('cola');
 
-        __setMockAddDocFailures(1, new Error('Failed to fetch'));
+        __setMockSessionWriteFailures(1, new Error('Failed to fetch'));
         setOnline(true);
         await waitForUi(500);
 
@@ -220,7 +222,7 @@ describe('App Offline Retry Journey', () => {
         expect(__getMockCollectionDocuments(sessionsCollectionPath)).toHaveLength(1);
         expect(offlineManager.getPendingCount()).toBe(1);
 
-        __setMockAddDocFailures(1, new Error('Failed to fetch'));
+        __setMockSessionWriteFailures(1, new Error('Failed to fetch'));
         setOnline(true);
         await waitForUi(500);
 
@@ -241,9 +243,15 @@ describe('App Offline Retry Journey', () => {
         expect(offlineManager.getPendingCount()).toBe(0);
     }, 45000);
 
-    afterAll(() => {
-        setOnline(true);
+    afterAll(async () => {
+        onlineState.value = true;
+        await offlineManager.handleOnline();
+        await offlineManager.processingPromise;
         offlineManager.clearPending();
+        await offlineManager.persistQueue();
+        __authState.currentUser = null;
+        await __notifyAuthListeners();
+        await waitForUi(20);
         __resetMockFirestoreBehavior();
         __resetMockFirebase();
         localStorage.clear();

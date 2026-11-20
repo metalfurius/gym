@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase-config.js';
-import { collection, addDoc, doc, setDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
 import { showView, sessionElements, dashboardElements, showLoading, hideLoading, renderSessionView } from '../ui.js';
 import { logger } from '../utils/logger.js';
@@ -12,8 +12,10 @@ import { toast } from '../utils/notifications.js';
 import { clearTimerData } from '../timer.js';
 import { invalidateProgressCache } from '../progress.js';
 import { offlineManager } from '../utils/offline-manager.js';
-import { localFirstCache } from '../utils/local-first-cache.js';
-import { firebaseUsageTracker } from '../utils/firebase-usage-tracker.js';
+import { registerSessionMutationListener, publishSessionMutation } from '../utils/session-mutations.js';
+import { writeSessionDocument } from '../utils/session-store.js';
+import { captureAccountScope, isAccountScopeCurrent } from '../utils/account-scope.js';
+import { calendarNow } from '../utils/calendar-clock.js';
 import { normalizeExecutionMode } from '../utils/execution-mode.js';
 import { normalizeLoadType, resolveExerciseLoadType } from '../utils/load-type.js';
 import { saveSessionVariantOverrides } from '../utils/session-variant-overrides.js';
@@ -29,9 +31,9 @@ const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 
 // State
 let currentRoutineForSession = null;
-let isSavingSession = false;
-let isSavingQuickLog = false;
-const sessionPersistenceListeners = new Set();
+const savingSessions = new Set();
+const savingQuickLogs = new Set();
+
 
 function normalizeSessionIdentity(value) {
     if (typeof value !== 'string') {
@@ -63,22 +65,12 @@ export function createPersistedSessionId() {
 }
 
 export function registerSessionPersistenceListener(listener) {
-    if (typeof listener !== 'function') {
-        throw new Error('registerSessionPersistenceListener requires a listener function');
-    }
-
-    sessionPersistenceListeners.add(listener);
-    return () => sessionPersistenceListeners.delete(listener);
+    return registerSessionMutationListener(listener);
 }
 
 async function notifySessionPersisted(detail) {
-    for (const listener of sessionPersistenceListeners) {
-        try {
-            await listener(detail);
-        } catch (error) {
-            logger.warn('Could not refresh surfaces after session persistence:', error);
-        }
-    }
+    await invalidateProgressCache(detail.userId, { durable: false });
+    await publishSessionMutation(detail);
 }
 
 function collectSessionVariantOverridesFromDom(
@@ -145,6 +137,13 @@ function resolveQueuedSessionId(payload) {
     return normalizeSessionIdentity(payload?.sessionId || payload?.sessionData?.sessionId);
 }
 
+function legacyQueuedSessionId(payload) {
+    let hash = 2166136261;
+    const source = JSON.stringify(payload);
+    for (let index = 0; index < source.length; index++) hash = Math.imul(hash ^ source.charCodeAt(index), 16777619);
+    return `legacy-session-${(hash >>> 0).toString(16)}`;
+}
+
 function validateQueuedSessionNumericFields(sessionData) {
     const userWeightResult = parseDecimalInput(sessionData?.pesoUsuario, {
         min: LIMITS.USER_WEIGHT.min,
@@ -200,32 +199,8 @@ function buildSessionFromQueuePayload(payload) {
     };
 }
 
-async function invalidatePostSaveCaches(userId) {
-    try {
-        await Promise.all([
-            localFirstCache.clearByPrefix(`history:${userId}:`),
-            localFirstCache.clearByPrefix(`calendar:${userId}:`),
-            localFirstCache.clearByPrefix(`progress:sessions:${userId}`),
-        ]);
-    } catch (cacheError) {
-        logger.warn('Could not invalidate local caches after save:', cacheError);
-    }
-}
-
 async function persistSessionDocument(userId, sessionId, sessionData) {
-    const userSessionsCollectionRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
-    const normalizedSessionId = normalizeSessionIdentity(sessionId);
-
-    if (!normalizedSessionId) {
-        // Older queued descriptors did not carry an identity. Keep their
-        // replay path readable while all new writes use idempotent setDoc.
-        return addDoc(userSessionsCollectionRef, sessionData);
-    }
-
-    return setDoc(
-        doc(db, 'users', userId, 'sesiones_entrenamiento', normalizedSessionId),
-        sessionData
-    );
+    return writeSessionDocument(db, userId, sessionId, sessionData);
 }
 
 offlineManager.registerOperationHandler('session.save', async payload => {
@@ -234,11 +209,8 @@ offlineManager.registerOperationHandler('session.save', async payload => {
         throw new Error('Invalid queued session payload');
     }
 
-    const sessionId = resolveQueuedSessionId(payload);
+    const sessionId = resolveQueuedSessionId(payload) || legacyQueuedSessionId(payload);
     await persistSessionDocument(payload.userId, sessionId, hydratedSession);
-    firebaseUsageTracker.trackWrite(1, 'session.save.replayed');
-    invalidateProgressCache();
-    await invalidatePostSaveCaches(payload.userId);
     await notifySessionPersisted({
         userId: payload.userId,
         sessionId,
@@ -253,11 +225,8 @@ offlineManager.registerOperationHandler('quicklog.save', async payload => {
         throw new Error('Invalid queued quick-log payload');
     }
 
-    const sessionId = resolveQueuedSessionId(payload);
+    const sessionId = resolveQueuedSessionId(payload) || legacyQueuedSessionId(payload);
     await persistSessionDocument(payload.userId, sessionId, hydratedSession);
-    firebaseUsageTracker.trackWrite(1, 'quicklog.save.replayed');
-    invalidateProgressCache();
-    await invalidatePostSaveCaches(payload.userId);
     await notifySessionPersisted({
         userId: payload.userId,
         sessionId,
@@ -271,47 +240,51 @@ offlineManager.registerOperationHandler('quicklog.save', async payload => {
  * @param {string|Object} routineIdOrSnapshot - The routine ID or a full snapshot object
  * @param {Object} data - The session data to save
  */
-export function saveInProgressSession(routineIdOrSnapshot, data) {
-    let routineId = routineIdOrSnapshot;
-    let sessionData = data;
-    let timestamp = Date.now();
+function draftKey(userId) { return `${IN_PROGRESS_SESSION_KEY}:${encodeURIComponent(userId)}`; }
 
-    if (routineIdOrSnapshot && typeof routineIdOrSnapshot === 'object' && data === undefined) {
-        routineId = routineIdOrSnapshot.routineId ?? null;
-        sessionData = routineIdOrSnapshot.data ?? {};
-        timestamp = routineIdOrSnapshot.timestamp ?? Date.now();
-    }
-
-    const sessionToStore = {
-        routineId: routineId,
-        data: sessionData,
-        timestamp,
-    };
-    localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(sessionToStore));
+function readDraft(key) {
+    try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : null; }
+    catch (error) { logger.warn('Could not parse saved workout draft:', error); return null; }
 }
 
-/**
- * Loads a session in progress from localStorage
- * @returns {Object|null} The stored session or null
- */
-export function loadInProgressSession() {
-    const storedSession = localStorage.getItem(IN_PROGRESS_SESSION_KEY);
-    if (storedSession) {
-        try {
-            return JSON.parse(storedSession);
-        } catch (error) {
-            logger.error('Error parsing in-progress session:', error);
-            return null;
-        }
+export function saveInProgressSession(routineIdOrSnapshot, data, { restoring = false } = {}) {
+    const userId = getCurrentUser()?.uid;
+    const snapshot = routineIdOrSnapshot && typeof routineIdOrSnapshot === 'object' && data === undefined
+        ? routineIdOrSnapshot : { routineId: routineIdOrSnapshot, data };
+    if (!userId || (snapshot.ownerId && snapshot.ownerId !== userId)) return false;
+    const sessionToStore = { routineId: snapshot.routineId ?? null, data: snapshot.data ?? {}, timestamp: snapshot.timestamp ?? Date.now() };
+    if (restoring && !snapshot.ownerId) {
+        // Legacy update backups have no provable owner. Keep the legacy record
+        // recoverable, without silently assigning it to whoever next signs in.
+        const existing = readDraft(IN_PROGRESS_SESSION_KEY);
+        if (!existing) localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(sessionToStore));
+        return !existing || !existing.ownerId;
     }
+    sessionToStore.ownerId = userId;
+    localStorage.setItem(draftKey(userId), JSON.stringify(sessionToStore));
+    // Compatibility mirror used by retained PWA shells. Its owner is mandatory.
+    localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(sessionToStore));
+    return true;
+}
+
+export function loadInProgressSession({ verifiedRoutines = [] } = {}) {
+    const userId = getCurrentUser()?.uid;
+    if (!userId) return null;
+    const primary = readDraft(draftKey(userId));
+    if (primary?.ownerId === userId) return primary;
+    const legacy = readDraft(IN_PROGRESS_SESSION_KEY);
+    if (!legacy || (legacy.ownerId && legacy.ownerId !== userId)) return null;
+    if (legacy.ownerId === userId) return legacy;
+    // Only offer a legacy draft for a routine fetched for this account. No set
+    // values are rendered or adopted until the user explicitly presses Resume.
+    if (verifiedRoutines.some(routine => routine.id === legacy.routineId)) return { ...legacy, legacyOwnerUnverified: true };
     return null;
 }
 
-/**
- * Clears the in-progress session from localStorage
- */
-export function clearInProgressSession() {
-    localStorage.removeItem(IN_PROGRESS_SESSION_KEY);
+export function clearInProgressSession(userId = getCurrentUser()?.uid) {
+    if (!userId) return;
+    localStorage.removeItem(draftKey(userId));
+    if (readDraft(IN_PROGRESS_SESSION_KEY)?.ownerId === userId) localStorage.removeItem(IN_PROGRESS_SESSION_KEY);
 }
 
 /**
@@ -544,12 +517,15 @@ export function getSessionFormData(options = {}) {
  */
 export async function saveSessionData(onSuccess) {
     const user = getCurrentUser();
+    const scope = user ? captureAccountScope(user.uid, { mutations: false }) : null;
+    const isCurrent = () => isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     if (!currentRoutineForSession || !user) {
         toast.error(t('session.no_active_routine'));
         return;
     }
 
-    if (isSavingSession) {
+    const saveKey = `${user.uid}:${scope.generation}`;
+    if (savingSessions.has(saveKey)) {
         toast.info(t('session.saved_busy'));
         return;
     }
@@ -570,7 +546,7 @@ export async function saveSessionData(onSuccess) {
     const sessionId = createPersistedSessionId();
     const finalSessionData = {
         sessionId,
-        fecha: Timestamp.now(),
+        fecha: Timestamp.fromDate(calendarNow()),
         routineId: currentRoutineForSession.id,
         nombreEntrenamiento: currentRoutineForSession.name,
         userId: user.uid,
@@ -579,7 +555,7 @@ export async function saveSessionData(onSuccess) {
     };
 
     showLoading(sessionElements.saveBtn, t('common.saving'));
-    isSavingSession = true;
+    savingSessions.add(saveKey);
 
     try {
         try {
@@ -590,7 +566,6 @@ export async function saveSessionData(onSuccess) {
 
         const saveOperation = async () => {
             await persistSessionDocument(user.uid, sessionId, finalSessionData);
-            firebaseUsageTracker.trackWrite(1, 'session.save');
         };
 
         await offlineManager.executeWithOfflineHandling(saveOperation, t('session.saved_when_online'), true, {
@@ -598,27 +573,9 @@ export async function saveSessionData(onSuccess) {
             payload: buildSessionQueuePayload(user.uid, finalSessionData, sessionId),
         });
 
+        await notifySessionPersisted({ userId: user.uid, sessionId, source: 'session', replayed: false });
+        if (!isCurrent()) return;
         saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
-
-        // Update exercise cache with new session data
-        const { exerciseCache } = await import('../exercise-cache.js');
-        exerciseCache.processCompletedSession(finalSessionData);
-
-        // Invalidate progress cache to force reload with new data
-        invalidateProgressCache();
-
-        // Sync cache with Firebase for backup (without blocking)
-        exerciseCache.syncWithFirebase(user.uid, db).catch(error => {
-            logger.warn('Error syncing exercise cache:', error);
-        });
-
-        await invalidatePostSaveCaches(user.uid);
-        await notifySessionPersisted({
-            userId: user.uid,
-            sessionId,
-            source: 'session',
-            replayed: false
-        });
 
         toast.success(t('session.saved_success'));
         sessionElements.form.reset();
@@ -632,6 +589,7 @@ export async function saveSessionData(onSuccess) {
             onSuccess();
         }
     } catch (error) {
+        if (!isCurrent()) return;
         logger.error('Error adding document:', error);
 
         if (error.message?.startsWith('Offline:')) {
@@ -646,8 +604,8 @@ export async function saveSessionData(onSuccess) {
             }
         }
     } finally {
-        hideLoading(sessionElements.saveBtn);
-        isSavingSession = false;
+        if (isCurrent()) hideLoading(sessionElements.saveBtn);
+        savingSessions.delete(saveKey);
     }
 }
 
@@ -661,17 +619,20 @@ export async function saveSessionData(onSuccess) {
  */
 export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options = {}) {
     const user = getCurrentUser();
+    const scope = user ? captureAccountScope(user.uid, { mutations: false }) : null;
+    const isCurrent = () => isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     if (!user) {
         toast.error(t('quicklog.must_login'));
         return { ok: false, reason: 'unauthenticated' };
     }
 
-    if (isSavingQuickLog) {
+    const saveKey = `${user.uid}:${scope.generation}`;
+    if (savingQuickLogs.has(saveKey)) {
         toast.info(t('quicklog.busy'));
         return { ok: false, reason: 'busy' };
     }
 
-    const normalizedResult = normalizeQuickLogPayload(quickLogInput, { now: new Date() });
+    const normalizedResult = normalizeQuickLogPayload(quickLogInput, { now: calendarNow() });
     if (!normalizedResult.isValid || !normalizedResult.value) {
         toast.warning(t('quicklog.validation_notes'));
         return { ok: false, reason: 'validation' };
@@ -685,12 +646,11 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
     const triggerButton = options.triggerButton || null;
 
     showLoading(triggerButton, t('common.saving'));
-    isSavingQuickLog = true;
+    savingQuickLogs.add(saveKey);
 
     try {
         const saveOperation = async () => {
             await persistSessionDocument(user.uid, sessionId, finalQuickLogData);
-            firebaseUsageTracker.trackWrite(1, 'quicklog.save');
         };
 
         await offlineManager.executeWithOfflineHandling(saveOperation, t('quicklog.saved_when_online'), true, {
@@ -698,14 +658,13 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             payload: buildSessionQueuePayload(user.uid, finalQuickLogData, sessionId),
         });
 
-        invalidateProgressCache();
-        await invalidatePostSaveCaches(user.uid);
         await notifySessionPersisted({
             userId: user.uid,
             sessionId,
             source: 'quick_log',
             replayed: false
         });
+        if (!isCurrent()) return { ok: true, queued: false, data: finalQuickLogData };
         toast.success(t('quicklog.saved_success'));
 
         if (typeof onSuccess === 'function') {
@@ -718,6 +677,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             data: finalQuickLogData,
         };
     } catch (error) {
+        if (!isCurrent()) return { ok: false, reason: 'owner-changed' };
         logger.error('Error saving quick log:', error);
 
         if (error.message?.startsWith('Offline:')) {
@@ -742,8 +702,8 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             error,
         };
     } finally {
-        hideLoading(triggerButton);
-        isSavingQuickLog = false;
+        if (isCurrent()) hideLoading(triggerButton);
+        savingQuickLogs.delete(saveKey);
     }
 }
 
@@ -752,8 +712,9 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
  * @param {Array} userRoutines - Array of user's routines
  */
 export function checkAndOfferResumeSession(userRoutines) {
-    const inProgress = loadInProgressSession();
+    const inProgress = loadInProgressSession({ verifiedRoutines: userRoutines });
     const user = getCurrentUser();
+    const scope = user ? captureAccountScope(user.uid, { mutations: false }) : null;
 
     const resumeArea = dashboardElements.resumeSessionArea;
 
@@ -766,8 +727,11 @@ export function checkAndOfferResumeSession(userRoutines) {
             resumeArea.classList.add('visible');
 
             dashboardElements.resumeSessionBtn.onclick = async () => {
+                if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
+                if (inProgress.legacyOwnerUnverified) saveInProgressSession(inProgress);
                 currentRoutineForSession = routine;
                 await renderSessionView(routine, inProgress.data);
+                if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
                 dashboardElements.resumeSessionBtn.classList.add('hidden');
                 dashboardElements.resumeSessionInfo.textContent = '';
                 resumeArea.classList.remove('visible');
@@ -793,6 +757,7 @@ export function checkAndOfferResumeSession(userRoutines) {
  */
 export async function startSession(routineId, userRoutines) {
     if (!routineId) return;
+    const scope = captureAccountScope(getCurrentUser()?.uid, { mutations: false });
 
     const selectedRoutine = userRoutines.find(r => r.id === routineId);
     if (!selectedRoutine) {
@@ -800,7 +765,8 @@ export async function startSession(routineId, userRoutines) {
         return;
     }
 
-    const inProgress = loadInProgressSession();
+    const inProgress = loadInProgressSession({ verifiedRoutines: userRoutines });
+    if (inProgress && inProgress.legacyOwnerUnverified && inProgress.routineId === routineId) saveInProgressSession(inProgress);
     if (inProgress && inProgress.routineId !== routineId) {
         if (!confirm(t('session.discard_other_confirm'))) {
             return;
@@ -810,6 +776,7 @@ export async function startSession(routineId, userRoutines) {
 
     currentRoutineForSession = selectedRoutine;
     await renderSessionView(selectedRoutine, inProgress && inProgress.routineId === routineId ? inProgress.data : null);
+    if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
     dashboardElements.resumeSessionBtn.classList.add('hidden');
     dashboardElements.resumeSessionInfo.textContent = '';
 }
@@ -850,10 +817,13 @@ export function setupSessionAutoSave() {
     // Listen for timer events to save timer data
     sessionElements.exerciseList.addEventListener('click', e => {
         if (e.target.classList.contains('timer-button') && currentRoutineForSession) {
+            const scope = captureAccountScope(getCurrentUser()?.uid, { mutations: false });
+            const routineId = currentRoutineForSession.id;
             // Add a small delay to let the timer update
             setTimeout(() => {
+                if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid) || currentRoutineForSession?.id !== routineId) return;
                 const formData = getSessionFormData({ includeEmptyExercises: true });
-                saveInProgressSession(currentRoutineForSession.id, formData);
+                saveInProgressSession(routineId, formData);
             }, 100);
         }
     });

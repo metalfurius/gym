@@ -72,7 +72,7 @@ describe('OfflineManager', () => {
 
         it('should process restored persisted queue on init when online', async () => {
             const replayHandler = jest.fn(async () => 'replayed');
-            offlineManager.registerOperationHandler('init.replay', replayHandler);
+            offlineManager.registerOperationHandler('init.replay', replayHandler, { scope: 'global' });
 
             await localFirstCache.set('offline:pending-operations:v1', [
                 {
@@ -127,7 +127,7 @@ describe('OfflineManager', () => {
 
         it('should clear pending operations', () => {
             offlineManager.init();
-            offlineManager.queueOperation(jest.fn(), 'Test operation');
+            offlineManager.queueOperation(jest.fn(), 'Test operation', { scope: 'global' });
             expect(offlineManager.getPendingCount()).toBe(1);
 
             offlineManager.destroy();
@@ -193,7 +193,9 @@ describe('OfflineManager', () => {
                 await offlineManager.executeWithOfflineHandling(
                     mockOperation,
                     'Operation failed',
-                    true
+                    true,
+                    null,
+                    { scope: 'global' }
                 );
             } catch {
                 // Expected to throw
@@ -278,7 +280,7 @@ describe('OfflineManager', () => {
         it('should add operation to queue', () => {
             const mockOperation = jest.fn();
 
-            offlineManager.queueOperation(mockOperation, 'Test operation');
+            offlineManager.queueOperation(mockOperation, 'Test operation', { scope: 'global' });
 
             expect(offlineManager.getPendingCount()).toBe(1);
         });
@@ -288,9 +290,9 @@ describe('OfflineManager', () => {
             const op2 = jest.fn();
             const op3 = jest.fn();
 
-            offlineManager.queueOperation(op1, 'Operation 1');
-            offlineManager.queueOperation(op2, 'Operation 2');
-            offlineManager.queueOperation(op3, 'Operation 3');
+            offlineManager.queueOperation(op1, 'Operation 1', { scope: 'global' });
+            offlineManager.queueOperation(op2, 'Operation 2', { scope: 'global' });
+            offlineManager.queueOperation(op3, 'Operation 3', { scope: 'global' });
 
             expect(offlineManager.getPendingCount()).toBe(3);
         });
@@ -301,8 +303,8 @@ describe('OfflineManager', () => {
             const op1 = jest.fn(async () => 'result1');
             const op2 = jest.fn(async () => 'result2');
 
-            offlineManager.queueOperation(op1, 'Op 1');
-            offlineManager.queueOperation(op2, 'Op 2');
+            offlineManager.queueOperation(op1, 'Op 1', { scope: 'global' });
+            offlineManager.queueOperation(op2, 'Op 2', { scope: 'global' });
 
             await offlineManager.processPendingOperations();
 
@@ -317,8 +319,8 @@ describe('OfflineManager', () => {
                 throw new Error('Operation failed');
             });
 
-            offlineManager.queueOperation(successOp, 'Success op');
-            offlineManager.queueOperation(failOp, 'Fail op');
+            offlineManager.queueOperation(successOp, 'Success op', { scope: 'global' });
+            offlineManager.queueOperation(failOp, 'Fail op', { scope: 'global' });
 
             await offlineManager.processPendingOperations();
 
@@ -345,7 +347,7 @@ describe('OfflineManager', () => {
             });
 
             const replayHandler = jest.fn(async () => 'replayed');
-            offlineManager.registerOperationHandler('test.persist', replayHandler);
+            offlineManager.registerOperationHandler('test.persist', replayHandler, { scope: 'global' });
 
             await expect(
                 offlineManager.executeWithOfflineHandling(
@@ -383,7 +385,7 @@ describe('OfflineManager', () => {
             const inlineOperation = jest.fn(async () => 'inline');
             const replayHandler = jest.fn(async () => 'handler');
 
-            offlineManager.registerOperationHandler('test.prefer.handler', replayHandler);
+            offlineManager.registerOperationHandler('test.prefer.handler', replayHandler, { scope: 'global' });
             offlineManager.queueOperation(inlineOperation, 'Prefer handler', {
                 descriptor: {
                     type: 'test.prefer.handler',
@@ -456,8 +458,8 @@ describe('OfflineManager', () => {
 
     describe('clearPending()', () => {
         it('should clear all pending operations', () => {
-            offlineManager.queueOperation(jest.fn(), 'Op 1');
-            offlineManager.queueOperation(jest.fn(), 'Op 2');
+            offlineManager.queueOperation(jest.fn(), 'Op 1', { scope: 'global' });
+            offlineManager.queueOperation(jest.fn(), 'Op 2', { scope: 'global' });
 
             expect(offlineManager.getPendingCount()).toBe(2);
 
@@ -480,7 +482,7 @@ describe('OfflineManager', () => {
 
             // Queue an operation
             const mockOp = jest.fn(async () => 'success');
-            offlineManager.queueOperation(mockOp, 'Test op');
+            offlineManager.queueOperation(mockOp, 'Test op', { scope: 'global' });
             expect(offlineManager.getPendingCount()).toBe(1);
 
             // Simulate coming back online

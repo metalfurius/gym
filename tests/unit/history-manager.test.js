@@ -1,3 +1,5 @@
+import { beginAccountSession, invalidateSessionReads } from '../../js/utils/account-scope.js';
+import { __setMockQueryResultHandler, __resetMockFirestoreBehavior } from '../mocks/firebase-firestore.js';
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { __firestoreState, __resetMockFirebase } from '../mocks/firebase-state.js';
 
@@ -80,6 +82,7 @@ jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
         getEntry: mockCacheGetEntry,
         set: mockCacheSet,
         clearByPrefix: mockCacheClearByPrefix,
+        remove: mockCacheClearByPrefix,
         isFresh: mockCacheIsFresh
     }
 }));
@@ -100,7 +103,7 @@ jest.unstable_mockModule('../../js/app.js', () => ({
     loadFirebaseDiagnostics: jest.fn()
 }));
 
-const historyManagerModule = await import('../../js/modules/history-manager.js');
+const historyManagerModule = await import(process.env.GYM_SYNC_HISTORY_MODULE || '../../js/modules/history-manager.js');
 
 const {
     fetchAndRenderHistory,
@@ -319,5 +322,84 @@ describe('History Manager', () => {
             expect(getSessionsCache()).toEqual([]);
             expect(getCurrentPageNumber()).toBe(1);
         });
+    });
+});
+
+function deferredHistoryRead() {
+    let resolve; let reject;
+    const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+    return { promise, resolve, reject };
+}
+
+describe('history deferred ownership and pagination', () => {
+    beforeEach(() => {
+        __resetMockFirebase(); __resetMockFirestoreBehavior(); jest.clearAllMocks(); setupHistoryDom();
+        mockGetCurrentUser.mockReturnValue({ uid: 'history-A' }); beginAccountSession('history-A');
+        mockCheckOnline.mockReturnValue(true); mockCacheSet.mockResolvedValue(undefined);
+        mockCacheGetEntry.mockResolvedValue(null); destroyHistoryManager();
+    });
+    afterEach(() => __resetMockFirestoreBehavior());
+
+    it.each(['success', 'error'])('ignores old-account %s after the current account has rows', async outcome => {
+        seedHistorySessions('history-A', [10, 20]); seedHistorySessions('history-B', [30]);
+        const old = deferredHistoryRead(); let oldSnapshot;
+        __setMockQueryResultHandler((snapshot, source) => {
+            if (source.source.path.includes('/history-A/')) { oldSnapshot = snapshot; return old.promise; }
+            return snapshot;
+        });
+        const first = fetchAndRenderHistory();
+        mockGetCurrentUser.mockReturnValue({ uid: 'history-B' }); beginAccountSession('history-B');
+        await fetchAndRenderHistory();
+        const calls = mockRenderHistoryList.mock.calls.length;
+        if (outcome === 'error') old.reject(new Error('old account error')); else old.resolve(oldSnapshot);
+        await first;
+        expect(mockRenderHistoryList).toHaveBeenCalledTimes(calls);
+        expect(getSessionsCache()).toHaveLength(1);
+        expect(historyElements.loadingSpinner.classList.contains('hidden')).toBe(true);
+        expect(historyElements.list.textContent).not.toContain('Error');
+        expect(mockCacheSet.mock.calls.map(([key]) => key)).toEqual(['history:history-B:page:1']);
+    });
+
+    it('keeps a single page advance when next is requested concurrently and results reverse', async () => {
+        seedHistorySessions('history-A', Array.from({ length: 25 }, (_, index) => index + 1));
+        await fetchAndRenderHistory();
+        const firstGate = deferredHistoryRead(); const secondGate = deferredHistoryRead(); const snapshots = [];
+        __setMockQueryResultHandler(snapshot => { snapshots.push(snapshot); return snapshots.length === 1 ? firstGate.promise : secondGate.promise; });
+        const first = fetchAndRenderHistory('next'); const second = fetchAndRenderHistory('next');
+        secondGate.resolve(snapshots[1]); await second;
+        const rows = getSessionsCache().map(item => item.id);
+        firstGate.resolve(snapshots[0]); await first;
+        expect(getCurrentPageNumber()).toBe(2);
+        expect(getSessionsCache().map(item => item.id)).toEqual(rows);
+        expect(historyElements.prevPageBtn.disabled).toBe(false);
+        expect(historyElements.nextPageBtn.disabled).toBe(false);
+    });
+
+    it('does not cache a stale read after a persisted mutation and document IDs win over wire IDs', async () => {
+        __firestoreState.documents.set('users/history-A/sesiones_entrenamiento/real-id', { id: 'untrusted-wire-id', fecha: 30 });
+        const gate = deferredHistoryRead(); let snapshot;
+        __setMockQueryResultHandler(value => { snapshot = value; return gate.promise; });
+        const pending = fetchAndRenderHistory();
+        invalidateSessionReads('history-A'); historyManagerModule.invalidateHistoryCache();
+        gate.resolve(snapshot); await pending;
+        expect(mockRenderHistoryList).not.toHaveBeenCalled(); expect(mockCacheSet).not.toHaveBeenCalled();
+        __setMockQueryResultHandler(null);
+        await fetchAndRenderHistory();
+        expect(getSessionsCache()[0].id).toBe('real-id');
+    });
+
+    it('retains owner-scoped offline pages without claiming a page is complete history', async () => {
+        seedHistorySessions('history-A', Array.from({ length: 11 }, (_, index) => index));
+        await fetchAndRenderHistory();
+        const saved = mockCacheSet.mock.calls[0][1];
+        expect(saved.complete).toBe(false); expect(saved.hasNext).toBe(true);
+        destroyHistoryManager(); mockCheckOnline.mockReturnValue(false);
+        mockCacheGetEntry.mockResolvedValue({ value: saved });
+        await fetchAndRenderHistory();
+        expect(getSessionsCache()).toHaveLength(10);
+        expect(historyElements.pageInfo.textContent).toContain('cach');
+        mockGetCurrentUser.mockReturnValue({ uid: 'history-B' }); beginAccountSession('history-B');
+        await fetchAndRenderHistory();
+        expect(getSessionsCache()).toEqual([]);
     });
 });

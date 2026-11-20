@@ -1,3 +1,6 @@
+import { beginAccountSession } from '../../js/utils/account-scope.js';
+import { setCalendarClock } from '../../js/utils/calendar-clock.js';
+import { __setMockQueryResultHandler, __resetMockFirestoreBehavior } from '../mocks/firebase-firestore.js';
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import {
     Timestamp
@@ -462,4 +465,65 @@ describe('Calendar module', () => {
         expect(mockAddViewListener).toHaveBeenCalledTimes(1);
         expect(mockLoggerDebug).toHaveBeenCalledWith('Calendar DOM references refreshed');
     });
+});
+
+describe('calendar delayed result ownership', () => {
+    beforeEach(() => {
+        __resetMockFirebase(); __resetMockFirestoreBehavior(); jest.clearAllMocks();
+        setupDom(); destroyCalendar(); initCalendar();
+        mockGetCurrentUser.mockReturnValue({ uid: 'calendar-A' }); beginAccountSession('calendar-A');
+        mockCacheGetEntry.mockResolvedValue(null); mockCacheIsFresh.mockReturnValue(false); mockCacheSet.mockResolvedValue(undefined);
+        Object.defineProperty(navigator, 'onLine', { configurable: true, value: true });
+        setCalendarClock(() => new Date(2026, 10, 20, 12)); jest.useFakeTimers();
+    });
+    afterEach(() => { destroyCalendar(); __resetMockFirestoreBehavior(); setCalendarClock(); jest.useRealTimers(); });
+    async function settle() { for (let index = 0; index < 30; index++) await Promise.resolve(); }
+    function deferred() { let resolve; let reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
+
+    it.each(['success', 'error'])('ignores an old-month %s during rapid month navigation', async outcome => {
+        seedSession({ userId: 'calendar-A', id: 'october', date: new Date(2026, 9, 2, 10), tipos: ['strength'] });
+        seedSession({ userId: 'calendar-A', id: 'november', date: new Date(2026, 10, 20, 10), tipos: ['strength'] });
+        const old = deferred(); let oldSnapshot;
+        __setMockQueryResultHandler((snapshot, source) => {
+            const lower = source.constraints.find(item => item.__constraint === 'where' && item.operator === '>=');
+            if (lower?.value.toDate().getMonth() === 10) { oldSnapshot = snapshot; return old.promise; }
+            return snapshot;
+        });
+        resetToCurrentMonth(); await flushDebounce(); await settle(); expect(oldSnapshot).toBeDefined();
+        clickCalendarNav('prev-month-btn');
+        if (outcome === 'success') old.resolve(oldSnapshot); else old.reject(new Error('old November error'));
+        await settle(); expect(document.getElementById('calendar-loading-spinner').classList.contains('hidden')).toBe(false);
+        await flushDebounce(); await settle();
+        expect(getCalendarState()).toEqual({ year: 2026, month: 9 });
+        expect(document.getElementById('current-month-display').textContent).toContain('octubre');
+        expect(findCalendarCellByDay(2).title).toContain('fuerza');
+        expect(document.getElementById('calendar-loading-spinner').classList.contains('hidden')).toBe(true);
+        expect(mockCacheSet.mock.calls.every(([key]) => key.includes('2026-10'))).toBe(true);
+    });
+
+    it('does not cache or render another account monthly response after auth changes', async () => {
+        seedSession({ userId: 'calendar-A', id: 'A-only', date: new Date(2026, 10, 20, 10), tipos: ['strength'] });
+        seedSession({ userId: 'calendar-B', id: 'B-only', date: new Date(2026, 10, 20, 10), tipos: ['cardio'] });
+        const old = deferred(); let snapshotA;
+        __setMockQueryResultHandler((snapshot, source) => {
+            if (source.source.path.includes('/calendar-A/') && source.constraints.some(item => item.__constraint === 'where')) { snapshotA = snapshot; return old.promise; }
+            return snapshot;
+        });
+        resetToCurrentMonth(); await flushDebounce(); await settle();
+        mockGetCurrentUser.mockReturnValue({ uid: 'calendar-B' }); beginAccountSession('calendar-B');
+        calendarModule.invalidateCalendar({ resetMonth: true }); updateCalendarView(); await flushDebounce(); await settle();
+        expect(findCalendarCellByDay(20).title).toContain('cardio');
+        old.resolve(snapshotA); await settle();
+        expect(findCalendarCellByDay(20).title).toContain('cardio');
+        expect(mockCacheSet.mock.calls.every(([key]) => key.startsWith('calendar:calendar-B:'))).toBe(true);
+    });
+    it('includes the final millisecond of the local month and excludes next-month midnight', async () => {
+        seedSession({ userId: 'calendar-A', id: 'month-end', date: new Date(2026, 10, 30, 23, 59, 59, 999), tipos: ['strength'] });
+        seedSession({ userId: 'calendar-A', id: 'next-month', date: new Date(2026, 11, 1, 0), tipos: ['cardio'] });
+        resetToCurrentMonth(); await flushDebounce(); await settle();
+        expect(findCalendarCellByDay(30).title).toContain('fuerza');
+        expect(findCalendarCellByDay(1).title).not.toContain('cardio');
+        expect(getTrackReadCallsByLabel('calendar.monthlyActivity')[0][0]).toBe(1);
+    });
+
 });

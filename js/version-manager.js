@@ -63,13 +63,12 @@ function restoreSessionSnapshot(snapshot) {
         return false;
     }
 
-    saveInProgressSession({
+    return saveInProgressSession({
+        ...snapshot,
         routineId: snapshot.routineId,
         data: snapshot.data || {},
         timestamp: snapshot.timestamp || Date.now()
-    });
-
-    return true;
+    }, undefined, { restoring: true }) !== false;
 }
 
 function backupInProgressSession() {
@@ -293,7 +292,7 @@ async function handleAppUpdate(oldVersion, newRelease) {
             logger.info('Version Manager: In-progress session preserved for update');
         }
 
-        if (!activated) localStorage.removeItem(BACKUP_SESSION_KEY);
+        if (!activated && inProgressSession) localStorage.removeItem(BACKUP_SESSION_KEY);
         if (newRelease.revision === getDocumentRevision()) showUpdateNotification(oldVersion, newRelease.version);
         logger.info('Version Manager: Update process completed successfully');
     } catch (error) {
@@ -305,12 +304,11 @@ async function handleAppUpdate(oldVersion, newRelease) {
 
         try {
             if (!loadInProgressSession() && restoreSessionSnapshot(JSON.parse(backupSession))) {
+                localStorage.removeItem(BACKUP_SESSION_KEY);
                 logger.info('Version Manager: Session restored from update backup');
             }
         } catch (restoreError) {
             logger.error('Version Manager: Could not restore session from backup:', restoreError);
-        } finally {
-            localStorage.removeItem(BACKUP_SESSION_KEY);
         }
     }
 }
@@ -367,12 +365,14 @@ export function checkForBackupSession() {
     if (!backupSession) return false;
 
     try {
-        if (loadInProgressSession()) {
-            localStorage.removeItem(BACKUP_SESSION_KEY);
+        const snapshot = JSON.parse(backupSession);
+        const current = loadInProgressSession();
+        if (current) {
+            if (!snapshot.ownerId || current.ownerId === snapshot.ownerId) localStorage.removeItem(BACKUP_SESSION_KEY);
             return false;
         }
-        const restored = restoreSessionSnapshot(JSON.parse(backupSession));
-        localStorage.removeItem(BACKUP_SESSION_KEY);
+        const restored = restoreSessionSnapshot(snapshot);
+        if (restored) localStorage.removeItem(BACKUP_SESSION_KEY);
         if (restored) logger.info('Version Manager: Backup session restored on app start');
         return restored;
     } catch (error) {
