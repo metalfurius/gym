@@ -1,29 +1,34 @@
 #!/usr/bin/env node
 
 import { createServer } from 'node:http';
-import { execFileSync, spawn } from 'node:child_process';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import WebSocket from 'ws';
+import { spawnOwnedBrowser } from './owned-browser-process.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHROME_PATH_OVERRIDE = process.env.CHROME_PATH;
 const CHROME_PATH_CANDIDATES =
     process.platform === 'win32'
         ? [
-              'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-              'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-          ]
+            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        ]
         : ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser'];
 const SESSION_KEY = 'gymTracker_inProgressSession';
 const UPDATE_MESSAGE_KEY = 'gym-tracker-update-message-seen';
 const RELEASE_A = 'v2.7.0';
 const RELEASE_B = 'v2.7.1';
 const RELEASE_B_VERSION = '2.7.1';
-const CHROME_DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9271);
-const evidenceDirectory = path.join(ROOT, 'Validation Evidence');
+const BOOTSTRAP_DELAY_MS = Number(process.env.UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS || 0);
+const NEGATIVE_CASE = process.env.UPGRADE_SMOKE_NEGATIVE_CASE || '';
+const evidenceDirectory = path.resolve(process.env.UPGRADE_SMOKE_EVIDENCE_DIR ||
+    path.join(ROOT, 'tmp', 'upgrade-smoke', `${new Date().toISOString().replace(/[:.]/g, '-')}-${process.pid}`));
 
 const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -72,45 +77,81 @@ async function writeUpgradeFixture(directory, revision) {
   <main>
     <h1>Gym release upgrade</h1>
     <p id="status" role="status" aria-live="polite">Release ${revision}</p>
+    <button id="apply-update" type="button" hidden>Apply verified update</button>
     <label for="workout">In-progress workout</label>
     <textarea id="workout" aria-describedby="status"></textarea>
   </main>
-  <script>
+  <script type="module">
     const sessionKey = '${SESSION_KEY}';
     const updateMessageKey = '${UPDATE_MESSAGE_KEY}';
     const backupKey = 'gym-tracker-backup-session';
-    const hadController = Boolean(navigator.serviceWorker.controller);
+    const traceKey = 'upgrade-fixture-trace';
+    const trace = (type, details = {}) => {
+      const entries = JSON.parse(sessionStorage.getItem(traceKey) || '[]');
+      entries.push({ type, revision: '${revision}', time: Date.now(), ...details });
+      sessionStorage.setItem(traceKey, JSON.stringify(entries));
+    };
+    window.upgradeFixture = { initialized: false, waitingReady: false };
+    trace('bootstrap.started', { delayMs: ${BOOTSTRAP_DELAY_MS} });
+    if (${BOOTSTRAP_DELAY_MS} > 0) await new Promise(resolve => setTimeout(resolve, ${BOOTSTRAP_DELAY_MS}));
+    let hasBeenControlled = Boolean(navigator.serviceWorker.controller);
+    let applyingUpdate = false;
+    let reloadRequested = false;
+    let registration;
     const workout = document.getElementById('workout');
+    const applyButton = document.getElementById('apply-update');
     workout.value = localStorage.getItem(sessionKey) || '';
     workout.addEventListener('input', () => localStorage.setItem(sessionKey, workout.value));
     function preserveSession() {
       const current = localStorage.getItem(sessionKey);
       if (current) localStorage.setItem(backupKey, current);
     }
-    function activateWaiting(registration) {
-      if (!registration.waiting) return;
-      preserveSession();
+    function showWaitingUpdate() {
+      if (registration.waiting?.state !== 'installed' || !navigator.serviceWorker.controller) return;
+      window.upgradeFixture.waitingReady = true;
       sessionStorage.setItem(updateMessageKey, 'true');
-      document.getElementById('status').textContent = 'Update available; preserving workout and activating safely';
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      if (hadController) {
-        setTimeout(() => {
-          if (navigator.serviceWorker.controller) window.location.reload();
-        }, 2000);
-      }
+      document.getElementById('status').textContent = 'Update available; apply to preserve this workout and reload';
+      applyButton.hidden = false;
+      trace('update.available');
     }
+    applyButton.addEventListener('click', event => {
+      if (registration.waiting?.state !== 'installed' || applyingUpdate) return;
+      preserveSession();
+      applyingUpdate = true;
+      applyButton.disabled = true;
+      trace('update.clicked', { trusted: event.isTrusted });
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    });
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (hadController) window.location.reload();
+      const controlled = Boolean(navigator.serviceWorker.controller);
+      trace('controller.changed', { hasBeenControlled, controlled, applyingUpdate });
+      if (!hasBeenControlled) {
+        hasBeenControlled = controlled;
+        return;
+      }
+      if (!applyingUpdate || reloadRequested) return;
+      reloadRequested = true;
+      const count = Number(sessionStorage.getItem('upgrade-fixture-reload-count') || 0) + 1;
+      sessionStorage.setItem('upgrade-fixture-reload-count', String(count));
+      trace('controller.reload', { count });
+      window.location.reload();
     });
-    navigator.serviceWorker.register('./sw.js').then((registration) => {
-      registration.addEventListener('updatefound', () => {
-        const installing = registration.installing;
-        installing?.addEventListener('statechange', () => {
-          if (installing.state === 'installed') activateWaiting(registration);
-        });
+    registration = await navigator.serviceWorker.register('./sw.js');
+    const observed = new WeakSet();
+    function observeInstalling() {
+      const installing = registration.installing;
+      if (!installing || observed.has(installing)) return;
+      observed.add(installing);
+      installing.addEventListener('statechange', () => {
+        trace('worker.state', { state: installing.state });
+        if (installing.state === 'installed') showWaitingUpdate();
       });
-      if (registration.waiting) activateWaiting(registration);
-    });
+    }
+    registration.addEventListener('updatefound', observeInstalling);
+    observeInstalling();
+    showWaitingUpdate();
+    window.upgradeFixture.initialized = true;
+    trace('bootstrap.initialized');
   </script>
 </body>
 </html>
@@ -126,21 +167,29 @@ async function createReleases() {
     execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
         cwd: releaseADirectory,
         stdio: 'pipe',
+        timeout: 20_000,
+        windowsHide: true,
     });
     await writeUpgradeFixture(releaseADirectory, RELEASE_A);
     execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
         cwd: releaseADirectory,
         stdio: 'pipe',
+        timeout: 20_000,
+        windowsHide: true,
     });
     await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
     execFileSync(process.execPath, [path.join(releaseBDirectory, 'update-version.cjs'), RELEASE_B_VERSION], {
         cwd: releaseBDirectory,
         stdio: 'pipe',
+        timeout: 20_000,
+        windowsHide: true,
     });
     await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
     execFileSync(process.execPath, [path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
         cwd: releaseBDirectory,
         stdio: 'pipe',
+        timeout: 20_000,
+        windowsHide: true,
     });
     return { temporaryDirectory, releaseADirectory, releaseBDirectory };
 }
@@ -198,25 +247,29 @@ async function createSwitchingServer(initialRoot) {
 }
 
 class DevToolsClient {
-    constructor(webSocketUrl) {
+    constructor(webSocketUrl, onEvent) {
         this.nextId = 1;
         this.pending = new Map();
-        this.events = [];
         this.socket = new WebSocket(webSocketUrl);
+        this.rejectPending = error => {
+            for (const request of this.pending.values()) request.reject(error);
+            this.pending.clear();
+        };
         this.socket.addEventListener('message', event => {
-            const message = JSON.parse(event.data);
+            const message = JSON.parse(String(event.data));
             if (message.id && this.pending.has(message.id)) {
-                const pending = this.pending.get(message.id);
+                const request = this.pending.get(message.id);
                 this.pending.delete(message.id);
-                if (message.error) pending.reject(new Error(message.error.message));
-                else pending.resolve(message.result || {});
-                return;
-            }
-            if (message.method) this.events.push(message);
+                if (message.error) request.reject(new Error(message.error.message));
+                else request.resolve(message.result || {});
+            } else if (message.method) onEvent(message);
         });
+        this.socket.addEventListener('close', () => this.rejectPending(new Error('Browser CDP socket closed')));
+        this.socket.addEventListener('error', event => this.rejectPending(new Error(event.message || 'Browser CDP socket error')));
         this.openPromise = new Promise((resolve, reject) => {
             this.socket.addEventListener('open', resolve, { once: true });
-            this.socket.addEventListener('error', reject, { once: true });
+            this.socket.addEventListener('error', event => reject(new Error(event.message || 'Browser CDP socket error')), { once: true });
+            this.socket.addEventListener('close', () => reject(new Error('Browser CDP socket closed')), { once: true });
         });
     }
 
@@ -224,121 +277,98 @@ class DevToolsClient {
         await this.openPromise;
         const id = this.nextId++;
         return new Promise((resolve, reject) => {
-            this.pending.set(id, { resolve, reject });
-            this.socket.send(JSON.stringify({ id, method, params }));
+            const timeout = setTimeout(() => {
+                this.pending.delete(id);
+                reject(new Error(`CDP command timed out: ${method}`));
+            }, 10_000);
+            this.pending.set(id, {
+                resolve: value => { clearTimeout(timeout); resolve(value); },
+                reject: error => { clearTimeout(timeout); reject(error); },
+            });
+            try {
+                this.socket.send(JSON.stringify({ id, method, params }));
+            } catch (error) {
+                this.pending.get(id)?.reject(error);
+                this.pending.delete(id);
+            }
         });
     }
 
     async evaluate(expression) {
         const result = await this.send('Runtime.evaluate', {
-            expression,
-            awaitPromise: true,
-            returnByValue: true,
-            userGesture: true,
+            expression, awaitPromise: true, returnByValue: true, userGesture: true,
         });
         if (result.exceptionDetails) {
-            throw new Error(
-                result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed'
-            );
+            throw new Error(result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed');
         }
         return result.result?.value;
     }
 
     close() {
-        this.socket.close();
+        this.rejectPending(new Error('Browser CDP client closed'));
+        this.socket.terminate();
     }
 }
 
-async function openChrome(url, userDataDirectory) {
+async function removeOwnedTemp(directory, prefix) {
+    const resolved = path.resolve(directory);
+    if (!resolved.startsWith(`${path.resolve(os.tmpdir())}${path.sep}`) || !path.basename(resolved).startsWith(prefix)) {
+        throw new Error(`Refusing unexpected temporary cleanup path: ${resolved}`);
+    }
+    await fs.rm(resolved, { recursive: true, force: true, maxRetries: 4, retryDelay: 100 });
+}
+
+async function openChrome(url, userDataDirectory, onEvent, signal) {
     const chromePath = await resolveChromePath();
-    const remotePort = CHROME_DEBUG_PORT;
-    console.log(`[browser-upgrade-smoke] starting Chrome ${chromePath} on remote port ${remotePort}`);
-
-    const chrome = spawn(
-        chromePath,
-        [
-            '--headless=new',
-            '--disable-gpu',
-            '--use-angle=swiftshader',
-            '--disable-gpu-compositing',
-            '--disable-dev-shm-usage',
-            '--disable-extensions',
-            '--no-first-run',
-            '--no-default-browser-check',
-            '--remote-allow-origins=*',
-            '--remote-debugging-address=127.0.0.1',
-            `--remote-debugging-port=${remotePort}`,
-            `--user-data-dir=${userDataDirectory}`,
-            '--window-size=1440,900',
-            url,
-        ],
-        { stdio: ['ignore', 'ignore', 'pipe'] }
-    );
-    chrome.stderr.on('data', data => console.error(`[browser-upgrade-smoke] Chrome: ${String(data).trim()}`));
-    chrome.once('error', error => console.error(`[browser-upgrade-smoke] Chrome process error: ${error.message}`));
-    chrome.once('exit', (code, signal) =>
-        console.log(`[browser-upgrade-smoke] Chrome exited (${code ?? 'null'}/${signal ?? 'none'})`)
-    );
-
-    let versionResponse;
-    for (let attempt = 0; attempt < 300; attempt += 1) {
-        try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 500);
-            versionResponse = await fetch(`http://127.0.0.1:${remotePort}/json/version`, { signal: controller.signal });
-            clearTimeout(timeout);
-            if (versionResponse.ok) break;
-        } catch {
-            // Chrome is still starting.
+    const owner = spawnOwnedBrowser(chromePath, [
+        '--headless=new', '--disable-gpu', '--use-angle=swiftshader',
+        '--disable-gpu-compositing', '--disable-dev-shm-usage', '--disable-extensions',
+        '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*',
+        '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0',
+        `--user-data-dir=${userDataDirectory}`, '--window-size=1440,900', 'about:blank',
+    ], { afterClose: () => removeOwnedTemp(userDataDirectory, 'gym-pwa-chrome-profile-') });
+    let startupError;
+    owner.process.once('error', error => { startupError = error; });
+    owner.process.once('exit', code => {
+        if (code !== 0) startupError ||= new Error(`Chrome exited with code ${code}`);
+    });
+    try {
+        const deadline = Date.now() + 30_000;
+        let pageTarget;
+        let port;
+        while (Date.now() < deadline) {
+            signal.throwIfAborted();
+            if (startupError) throw startupError;
+            try {
+                const activePort = await fs.readFile(path.join(userDataDirectory, 'DevToolsActivePort'), 'utf8');
+                port = Number(activePort.split(/\r?\n/)[0]);
+                if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid owned Chrome port');
+                const targets = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1_000) }).then(response => response.json());
+                pageTarget = targets.find(target => target.type === 'page' && target.url === 'about:blank' && target.webSocketDebuggerUrl);
+                if (pageTarget) break;
+            } catch {
+                // Only the unique profile's own DevToolsActivePort is accepted.
+            }
+            await sleep(50);
         }
-        await sleep(100);
+        if (!pageTarget) throw new Error('Owned Chrome debugging endpoint did not start');
+        const client = new DevToolsClient(pageTarget.webSocketDebuggerUrl, onEvent);
+        owner.setClient(client);
+        for (const domain of ['Runtime', 'Page', 'Network', 'Log', 'ServiceWorker']) await client.send(`${domain}.enable`);
+        await client.send('Page.setLifecycleEventsEnabled', { enabled: true });
+        await client.send('Page.navigate', { url });
+        return { owner, client, port };
+    } catch (error) {
+        await owner.close();
+        throw error;
     }
-
-    if (!versionResponse?.ok) {
-        chrome.kill();
-        throw new Error('Chrome remote debugging endpoint did not start');
-    }
-
-    let pageTarget;
-    for (let attempt = 0; attempt < 300; attempt += 1) {
-        const targets = await fetch(`http://127.0.0.1:${remotePort}/json/list`).then(response => response.json());
-        pageTarget = targets.find(
-            target => target.type === 'page' && target.webSocketDebuggerUrl && target.url?.startsWith(url)
-        );
-        if (!pageTarget) {
-            pageTarget = targets.find(
-                target =>
-                    target.type === 'page' &&
-                    target.webSocketDebuggerUrl &&
-                    target.url &&
-                    !target.url.startsWith('chrome-extension://') &&
-                    target.url !== 'about:blank'
-            );
-        }
-        if (pageTarget) break;
-        await sleep(100);
-    }
-    if (!pageTarget) {
-        chrome.kill();
-        throw new Error('Chrome page target did not start');
-    }
-
-    console.log(`[browser-upgrade-smoke] page target ${pageTarget.url}`);
-    const client = new DevToolsClient(pageTarget.webSocketDebuggerUrl);
-    console.log('[browser-upgrade-smoke] enabling Runtime');
-    await client.send('Runtime.enable');
-    console.log('[browser-upgrade-smoke] enabling Network/Log/ServiceWorker');
-    await client.send('Network.enable');
-    await client.send('Log.enable');
-    await client.send('ServiceWorker.enable');
-    await client.send('Page.setLifecycleEventsEnabled', { enabled: true });
-    return { chrome, client };
 }
 
-async function waitFor(client, predicate, timeout = 20_000) {
+async function waitFor(client, predicate, signal, timeout = 20_000) {
     const deadline = Date.now() + timeout;
     let lastError;
     while (Date.now() < deadline) {
+        signal.throwIfAborted();
         try {
             const value = await client.evaluate(`(${predicate.toString()})()`);
             if (value) return value;
@@ -355,6 +385,7 @@ async function waitFor(client, predicate, timeout = 20_000) {
 async function pageState(client) {
     return client.evaluate(`(async () => {
         const metadata = await fetch('./release.json', { cache: 'no-store' }).then((response) => response.json());
+        const registration = await navigator.serviceWorker.getRegistration();
         const progressResponse = await fetch('./js/progress.js', { cache: 'no-store' });
         const progressBytes = new Uint8Array(await progressResponse.arrayBuffer());
         const progressText = new TextDecoder().decode(progressBytes).replace(/\\r\\n?/g, '\\n');
@@ -368,6 +399,15 @@ async function pageState(client) {
          session: localStorage.getItem('${SESSION_KEY}'),
          updateMessageSeen: sessionStorage.getItem('${UPDATE_MESSAGE_KEY}') === 'true',
          status: document.getElementById('status')?.textContent || null,
+         initialized: window.upgradeFixture?.initialized === true,
+         controllerIsActive: navigator.serviceWorker.controller === registration?.active,
+         activeState: registration?.active?.state || null,
+         waitingState: registration?.waiting?.state || null,
+         installingState: registration?.installing?.state || null,
+         workoutValue: document.getElementById('workout')?.value,
+         backupSession: localStorage.getItem('gym-tracker-backup-session'),
+         fixtureReloadCount: Number(sessionStorage.getItem('upgrade-fixture-reload-count') || 0),
+         lifecycleTrace: JSON.parse(sessionStorage.getItem('upgrade-fixture-trace') || '[]'),
          metadata,
             progressHash
         };
@@ -385,206 +425,200 @@ async function captureScreenshot(client, filePath, width, height, mobile) {
     await fs.writeFile(filePath, Buffer.from(screenshot.data, 'base64'));
 }
 
-async function run() {
-    const releases = await createReleases();
-    const browserProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-chrome-profile-'));
-    let server;
-    let browser;
-    const evidence = {
-        browser: 'Chromium',
-        releaseA: RELEASE_A,
-        releaseB: RELEASE_B,
-        console: [],
-        exceptions: [],
-        network: [],
-        serviceWorkerEvents: [],
-    };
-
-    try {
-        server = await createSwitchingServer(releases.releaseADirectory);
-        console.log(`[browser-upgrade-smoke] serving release A at ${server.url}`);
-        browser = await openChrome(server.url, browserProfile);
-        console.log('[browser-upgrade-smoke] Chromium connected');
-        browser.client.events.push = (originalPush => event => {
-            if (event.method === 'Runtime.consoleAPICalled') evidence.console.push(event.params);
-            if (event.method === 'Runtime.exceptionThrown') evidence.exceptions.push(event.params);
-            if (event.method === 'Network.responseReceived') {
-                const responseUrl = event.params.response.url;
-                if (/manifest|release|sw\.js|progress\.js/.test(responseUrl)) {
-                    evidence.network.push({
-                        url: responseUrl,
-                        status: event.params.response.status,
-                        headers: event.params.response.headers,
-                    });
-                }
-            }
-            if (event.method.startsWith('ServiceWorker.')) evidence.serviceWorkerEvents.push(event);
-            return originalPush(event);
-        })(browser.client.events.push.bind(browser.client.events));
-
-        await waitFor(browser.client, async function firstReleaseReady() {
-            return (
-                (await fetch('./release.json', { cache: 'no-store' }).then(response => response.json())).revision ===
-                'v2.7.0'
-            );
-        });
-        console.log('[browser-upgrade-smoke] release A loaded; reloading to establish control');
-        await browser.client.send('Page.reload', { ignoreCache: false });
-        await waitFor(browser.client, async function controlledByReleaseA() {
-            return Boolean(navigator.serviceWorker.controller);
-        });
-        console.log('[browser-upgrade-smoke] release A controls the page; switching server to release B');
-
-        const workout = {
-            routineId: 'upgrade-fixture-routine',
-            data: { ejercicios: [{ nombreEjercicio: 'Bench Press', series: [{ peso: '60', reps: '8' }] }] },
-            timestamp: Date.now(),
-        };
-        console.log('[browser-upgrade-smoke] storing in-progress workout');
-        await browser.client.evaluate(
-            `localStorage.setItem('${SESSION_KEY}', ${JSON.stringify(JSON.stringify(workout))})`
-        );
-        console.log('[browser-upgrade-smoke] capturing release A state');
-        const beforeUpdate = await pageState(browser.client);
-
-        server.setRoot(releases.releaseBDirectory);
-        console.log('[browser-upgrade-smoke] requesting release B service-worker update');
-        await browser.client.evaluate('navigator.serviceWorker.ready.then((registration) => registration.update())');
-        console.log('[browser-upgrade-smoke] waiting for release B cache');
-        await waitFor(browser.client, async function releaseBCacheReady() {
-            const metadata = await fetch('./release.json', { cache: 'no-store' }).then(response => response.json());
-            return metadata.revision === 'v2.7.1' && (await caches.keys()).includes('gym-tracker-v2.7.1');
-        });
-        await fs.mkdir(evidenceDirectory, { recursive: true });
-        await captureScreenshot(
-            browser.client,
-            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-update-available.png'),
-            1440,
-            900,
-            false
-        );
-        console.log('[browser-upgrade-smoke] release B cache ready; reloading');
-        await browser.client.send('Page.reload', { ignoreCache: false });
-
-        let afterUpdate;
-        try {
-            afterUpdate = await waitFor(browser.client, async function releaseBActivated() {
-                const state = await (async () => {
-                    const metadata = await fetch('./release.json', { cache: 'no-store' }).then(response =>
-                        response.json()
-                    );
-                    return {
-                        revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
-                        controller: navigator.serviceWorker.controller?.scriptURL || null,
-                        cacheNames: await caches.keys(),
-                        session: localStorage.getItem('gymTracker_inProgressSession'),
-                        updateMessageSeen: sessionStorage.getItem('gym-tracker-update-message-seen') === 'true',
-                        metadata,
-                    };
-                })();
-                return state.revision === 'v2.7.1' &&
-                    state.metadata.revision === 'v2.7.1' &&
-                    state.cacheNames.includes('gym-tracker-v2.7.1') &&
-                    state.session &&
-                    state.updateMessageSeen
-                    ? state
-                    : false;
-            });
-        } catch (error) {
-            console.error('[browser-upgrade-smoke] update state:', JSON.stringify(await pageState(browser.client)));
-            throw error;
-        }
-        console.log('[browser-upgrade-smoke] release B activated and session preserved');
-        console.log('[browser-upgrade-smoke] restarting offline');
-        await browser.client.send('Network.emulateNetworkConditions', {
-            offline: true,
-            latency: 0,
-            downloadThroughput: -1,
-            uploadThroughput: -1,
-        });
-        await browser.client.send('Page.reload', { ignoreCache: false });
-        await waitFor(browser.client, async function offlineReleaseBReady() {
-            const state = await (async () => ({
-                revision: document.querySelector('meta[name="gym-release-revision"]')?.content,
-                session: localStorage.getItem('gymTracker_inProgressSession'),
-                metadata: await fetch('./release.json', { cache: 'no-store' }).then(response => response.json()),
-            }))();
-            return state.revision === 'v2.7.1' && state.metadata.revision === 'v2.7.1' && state.session;
-        });
-        const offlineState = await pageState(browser.client);
-        console.log('[browser-upgrade-smoke] offline restart preserved release B');
-        await browser.client.send('Network.emulateNetworkConditions', {
-            offline: false,
-            latency: 0,
-            downloadThroughput: -1,
-            uploadThroughput: -1,
-        });
-        const onlineRecoveryState = await waitFor(browser.client, async function onlineRecovery() {
-            const metadata = await fetch('./release.json', { cache: 'no-store' }).then(response => response.json());
-            const session = localStorage.getItem('gymTracker_inProgressSession');
-            return metadata.revision === 'v2.7.1' && session ? { metadata, session } : false;
-        });
-        const completeState = await pageState(browser.client);
-
-        if (completeState.progressHash !== completeState.metadata.assets['js/progress.js']) {
-            throw new Error('Activated browser loaded a Progress module whose hash disagrees with release.json');
-        }
-        if (
-            !completeState.session ||
-            JSON.parse(completeState.session).data.ejercicios[0].nombreEjercicio !== 'Bench Press'
-        ) {
-            throw new Error('In-progress workout was not preserved through activation and reload');
-        }
-        if (!completeState.updateMessageSeen) {
-            throw new Error('Accessible update-available messaging was not shown before activation');
-        }
-        if (completeState.cacheNames.some(name => name === 'gym-tracker-v2.7.0')) {
-            throw new Error('Obsolete release cache remained after replacement activation');
-        }
-
-        await captureScreenshot(
-            browser.client,
-            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-desktop.png'),
-            1440,
-            900,
-            false
-        );
-        await captureScreenshot(
-            browser.client,
-            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium-mobile.png'),
-            390,
-            844,
-            true
-        );
-
-        evidence.beforeUpdate = beforeUpdate;
-        evidence.afterUpdate = completeState;
-        evidence.offlineRestart = offlineState;
-        evidence.onlineRecovery = onlineRecoveryState;
-        evidence.waitResult = afterUpdate;
-        evidence.status = 'passed';
-        await fs.writeFile(
-            path.join(evidenceDirectory, '2026-07-22-gym-pwa-upgrade-chromium.json'),
-            `${JSON.stringify(evidence, null, 2)}\n`,
-            'utf8'
-        );
-        console.log('[browser-upgrade-smoke] Chromium release upgrade passed');
-    } finally {
-        if (browser) {
-            browser.chrome.kill();
-            try {
-                browser.client.close();
-            } catch {
-                // Chrome may already have exited after the test.
-            }
-        }
-        if (server) await new Promise(resolve => server.server.close(resolve));
-        await fs.rm(releases.temporaryDirectory, { recursive: true, force: true }).catch(() => {});
-        await fs.rm(browserProfile, { recursive: true, force: true }).catch(() => {});
+function assertReleaseState(state, revision, metadata, session, updated = false) {
+    assert.equal(state.revision, revision, 'Document shell revision differs from expected release');
+    assert.deepEqual(state.metadata, metadata, 'Served release manifest differs from the built target');
+    assert.equal(state.progressHash, metadata.assets['js/progress.js'], 'Progress module hash differs from target release');
+    assert.equal(state.initialized, true, 'Fixture bootstrap/listeners are not initialized');
+    assert.equal(state.activeState, 'activated');
+    assert.equal(state.controllerIsActive, true, 'Page is not controlled by the active worker');
+    assert.equal(state.session, session, 'In-progress workout differs from the exact saved session');
+    assert.equal(state.workoutValue, session, 'Reloaded workout field differs from the exact saved session');
+    assert.ok(state.cacheNames.includes(`gym-tracker-${revision}`), 'Expected release cache is absent');
+    if (updated) {
+        assert.equal(state.updateMessageSeen, true, 'Accessible update-available messaging was not shown');
+        assert.equal(state.backupSession, session, 'Activation backup differs from the exact saved session');
+        assert.equal(state.fixtureReloadCount, 1, 'The update must trigger exactly one controllerchange reload');
+        assert.ok(!state.cacheNames.includes(`gym-tracker-${RELEASE_A}`), 'Obsolete release cache remained after activation');
     }
 }
 
-run().catch(async error => {
-    console.error(`[browser-upgrade-smoke] ${error.message}`);
+async function clickApplyUpdate(client) {
+    const point = await client.evaluate(`(() => {
+        const button = document.getElementById('apply-update');
+        if (!button || button.hidden || button.disabled) throw new Error('Update action is unavailable');
+        const rect = button.getBoundingClientRect();
+        return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+    })()`);
+    await client.send('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', clickCount: 1, ...point });
+    await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, ...point });
+}
+
+async function run() {
+    if (!Number.isInteger(BOOTSTRAP_DELAY_MS) || BOOTSTRAP_DELAY_MS < 0 || BOOTSTRAP_DELAY_MS > 10_000) {
+        throw new Error('UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS must be an integer from 0 to 10000');
+    }
+    if (!['', 'corrupt-session'].includes(NEGATIVE_CASE)) throw new Error('Unknown UPGRADE_SMOKE_NEGATIVE_CASE');
+    await fs.mkdir(evidenceDirectory, { recursive: true });
+    const evidence = {
+        status: 'running', startedAt: new Date().toISOString(), browser: 'Chromium',
+        releaseA: RELEASE_A, releaseB: RELEASE_B, bootstrapDelayMs: BOOTSTRAP_DELAY_MS,
+        checkoutSha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(),
+        negativeCase: NEGATIVE_CASE || null, stages: [], console: [], exceptions: [], network: [], serviceWorkerEvents: [],
+    };
+    const trace = [];
+    const onEvent = event => {
+        trace.push({ receivedAt: new Date().toISOString(), ...event });
+        if (event.method === 'Runtime.consoleAPICalled') evidence.console.push(event.params);
+        if (event.method === 'Runtime.exceptionThrown') evidence.exceptions.push(event.params);
+        if (event.method === 'Network.responseReceived' && /manifest|release|sw\.js|progress\.js/.test(event.params.response.url)) {
+            evidence.network.push({ url: event.params.response.url, status: event.params.response.status,
+                headers: event.params.response.headers, fromServiceWorker: event.params.response.fromServiceWorker || false });
+        }
+        if (event.method.startsWith('ServiceWorker.')) evidence.serviceWorkerEvents.push(event);
+    };
+    const stage = name => {
+        evidence.stage = name;
+        evidence.stages.push({ name, at: new Date().toISOString() });
+        console.log(`[browser-upgrade-smoke] ${name}`);
+    };
+    await fs.writeFile(path.join(evidenceDirectory, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+    let releases;
+    let browserProfile;
+    let server;
+    let browser;
+    let failure;
+    const controller = new AbortController();
+    const deadline = setTimeout(() => controller.abort(new Error('Upgrade smoke exceeded its 90-second deadline')), 90_000);
+    deadline.unref();
+    try {
+        stage('build-isolated-releases');
+        releases = await createReleases();
+        const metadataA = JSON.parse(await fs.readFile(path.join(releases.releaseADirectory, 'release.json'), 'utf8'));
+        const metadataB = JSON.parse(await fs.readFile(path.join(releases.releaseBDirectory, 'release.json'), 'utf8'));
+        browserProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-chrome-profile-'));
+        server = await createSwitchingServer(releases.releaseADirectory);
+        browser = await openChrome(server.url, browserProfile, onEvent, controller.signal);
+        evidence.browserVersion = await browser.client.send('Browser.getVersion');
+        evidence.ownedDebugPort = browser.port;
+        stage('wait-for-initialized-active-controlled-A');
+        await waitFor(browser.client, async function initializedReleaseA() {
+            const registration = await navigator.serviceWorker.getRegistration();
+            return window.upgradeFixture?.initialized === true && registration?.active?.state === 'activated'
+                && navigator.serviceWorker.controller === registration.active && !registration.installing && !registration.waiting
+                && document.querySelector('meta[name="gym-release-revision"]')?.content === 'v2.7.0';
+        }, controller.signal);
+        const workout = {
+            routineId: 'upgrade-fixture-routine',
+            data: { ejercicios: [{ nombreEjercicio: 'Bench Press', series: [{ peso: '60', reps: '8' }, { peso: '62,5', reps: '6' }] }],
+                notas: 'Preserve every original field', pesoUsuario: '75,4' },
+            timestamp: Date.now(),
+        };
+        const savedSession = JSON.stringify(workout);
+        await browser.client.evaluate(`(() => {
+            const field = document.getElementById('workout');
+            field.value = ${JSON.stringify(savedSession)};
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+        })()`);
+        evidence.beforeUpdate = await pageState(browser.client);
+        assertReleaseState(evidence.beforeUpdate, RELEASE_A, metadataA, savedSession);
+        assert.equal(evidence.beforeUpdate.fixtureReloadCount, 0, 'Initial A claim must not force a reload');
+        stage('switch-server-and-request-B-update');
+        server.setRoot(releases.releaseBDirectory);
+        await browser.client.evaluate('navigator.serviceWorker.getRegistration().then(registration => registration.update())');
+        stage('wait-for-installed-waiting-B-and-update-UI');
+        await waitFor(browser.client, async function waitingReleaseB() {
+            const registration = await navigator.serviceWorker.getRegistration();
+            const button = document.getElementById('apply-update');
+            return window.upgradeFixture?.initialized && window.upgradeFixture?.waitingReady
+                && document.querySelector('meta[name="gym-release-revision"]')?.content === 'v2.7.0'
+                && registration?.waiting?.state === 'installed' && registration.active?.state === 'activated'
+                && navigator.serviceWorker.controller === registration.active && !registration.installing
+                && button && !button.hidden && !button.disabled;
+        }, controller.signal);
+        evidence.waitingUpdate = await pageState(browser.client);
+        await captureScreenshot(browser.client, path.join(evidenceDirectory, 'update-available.png'), 1440, 900, false);
+        stage('click-explicit-update-action');
+        await clickApplyUpdate(browser.client);
+        stage('wait-for-fixture-reload-and-initialized-controlled-B');
+        await waitFor(browser.client, async function initializedReleaseB() {
+            const registration = await navigator.serviceWorker.getRegistration();
+            return window.upgradeFixture?.initialized && document.querySelector('meta[name="gym-release-revision"]')?.content === 'v2.7.1'
+                && registration?.active?.state === 'activated' && navigator.serviceWorker.controller === registration.active
+                && !registration.waiting && !registration.installing;
+        }, controller.signal);
+        if (NEGATIVE_CASE === 'corrupt-session') {
+            await browser.client.evaluate(`localStorage.setItem('${SESSION_KEY}', '{"corrupted":true}')`);
+        }
+        evidence.afterUpdate = await pageState(browser.client);
+        assertReleaseState(evidence.afterUpdate, RELEASE_B, metadataB, savedSession, true);
+        const lifecycle = evidence.afterUpdate.lifecycleTrace;
+        assert.equal(lifecycle.filter(event => event.type === 'update.clicked' && event.trusted).length, 1);
+        assert.equal(lifecycle.filter(event => event.type === 'controller.reload').length, 1);
+        for (const revision of [RELEASE_A, RELEASE_B]) {
+            const started = lifecycle.find(event => event.revision === revision && event.type === 'bootstrap.started');
+            const initialized = lifecycle.find(event => event.revision === revision && event.type === 'bootstrap.initialized');
+            assert.ok(started && initialized && initialized.time - started.time >= BOOTSTRAP_DELAY_MS,
+                `Release ${revision} did not complete the requested bootstrap barrier`);
+        }
+        stage('offline-restart');
+        await browser.client.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+        // This is the deliberate offline restart, after B has already passed all update assertions.
+        await browser.client.send('Page.reload', { ignoreCache: false });
+        await waitFor(browser.client, async function offlineReleaseB() {
+            return window.upgradeFixture?.initialized && document.querySelector('meta[name="gym-release-revision"]')?.content === 'v2.7.1';
+        }, controller.signal);
+        evidence.offlineRestart = await pageState(browser.client);
+        assertReleaseState(evidence.offlineRestart, RELEASE_B, metadataB, savedSession, true);
+        stage('online-recovery');
+        await browser.client.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+        evidence.onlineRecovery = await pageState(browser.client);
+        assertReleaseState(evidence.onlineRecovery, RELEASE_B, metadataB, savedSession, true);
+        await captureScreenshot(browser.client, path.join(evidenceDirectory, 'desktop.png'), 1440, 900, false);
+        await captureScreenshot(browser.client, path.join(evidenceDirectory, 'mobile.png'), 390, 844, true);
+        stage('close-owned-browser-and-server');
+    } catch (error) {
+        failure = error;
+        evidence.error = error.stack || error.message;
+        if (browser) {
+            try { evidence.failureState = await pageState(browser.client); }
+            catch (captureError) { evidence.failureStateError = captureError.message; }
+            try { await captureScreenshot(browser.client, path.join(evidenceDirectory, 'failure.png'), 1440, 900, false); }
+            catch (captureError) { evidence.failureScreenshotError = captureError.message; }
+        }
+    } finally {
+        try {
+            if (browser) await browser.owner.close();
+            else if (browserProfile) await removeOwnedTemp(browserProfile, 'gym-pwa-chrome-profile-');
+        } catch (error) {
+            failure ||= error;
+            evidence.cleanupError = error.message;
+        }
+        try {
+            if (server) {
+                server.server.closeAllConnections();
+                await new Promise(resolve => server.server.close(resolve));
+            }
+            if (releases) await removeOwnedTemp(releases.temporaryDirectory, 'gym-pwa-upgrade-');
+        } catch (error) {
+            failure ||= error;
+            evidence.cleanupError = [evidence.cleanupError, error.message].filter(Boolean).join('; ');
+        }
+        clearTimeout(deadline);
+        if (controller.signal.aborted) {
+            failure ||= controller.signal.reason;
+            evidence.deadlineError = controller.signal.reason.message;
+        }
+        evidence.status = failure ? 'failed' : 'passed';
+        evidence.completedAt = new Date().toISOString();
+        await fs.writeFile(path.join(evidenceDirectory, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`);
+        await fs.writeFile(path.join(evidenceDirectory, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+    }
+    if (failure) throw failure;
+    console.log(`[browser-upgrade-smoke] Chromium release upgrade passed; artifacts: ${evidenceDirectory}`);
+}
+
+run().catch(error => {
+    console.error(`[browser-upgrade-smoke] ${error.stack || error.message}; artifacts: ${evidenceDirectory}`);
     process.exitCode = 1;
 });
