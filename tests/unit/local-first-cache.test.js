@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { LocalFirstCache } from '../../js/utils/local-first-cache.js';
 
 describe('LocalFirstCache', () => {
@@ -46,5 +46,45 @@ describe('LocalFirstCache', () => {
         expect(firstPage).toBeNull();
         expect(secondPage).toBeNull();
         expect(calendar).toEqual({ a: 1 });
+    });
+});
+
+describe('LocalFirstCache mutation durability', () => {
+    it('removes cold localStorage pages and preserves another owner on offline restart', async () => {
+        const first = new LocalFirstCache(); first.indexedDbEnabled = false;
+        await first.set('history:A:page:1', { sessions: ['deleted-session'] });
+        await first.set('history:B:page:1', { sessions: ['B-session'] });
+        const fresh = new LocalFirstCache(); fresh.indexedDbEnabled = false;
+        await fresh.clearByPrefix('history:A:');
+        const restarted = new LocalFirstCache(); restarted.indexedDbEnabled = false;
+        expect(await restarted.get('history:A:page:1')).toBeNull();
+        expect(await restarted.get('history:B:page:1')).toEqual({ sessions: ['B-session'] });
+    });
+
+    it('does not resurrect a removed entry when its disk read finishes late', async () => {
+        const cache = new LocalFirstCache(); cache.indexedDbEnabled = true; cache.initialized = true;
+        let release;
+        cache.readFromIndexedDb = jest.fn(() => new Promise(resolve => { release = resolve; }));
+        cache.getAllFromIndexedDb = jest.fn(async () => []); cache.deleteFromIndexedDb = jest.fn(async () => {});
+        const reading = cache.getEntry('history:A:page:1');
+        for (let index = 0; index < 10 && !release; index++) await Promise.resolve();
+        expect(typeof release).toBe('function');
+        await cache.clearByPrefix('history:A:');
+        release({ key: 'history:A:page:1', value: { sessions: ['deleted'] } });
+        expect(await reading).toBeNull(); expect(cache.memoryCache.has('history:A:page:1')).toBe(false);
+    });
+
+    it('serializes disk deletion after an already pending disk write', async () => {
+        const cache = new LocalFirstCache(); cache.indexedDbEnabled = true; cache.initialized = true;
+        let release; const records = new Map();
+        cache.writeToIndexedDb = jest.fn(entry => new Promise(resolve => { release = () => { records.set(entry.key, entry); resolve(); }; }));
+        cache.getAllFromIndexedDb = jest.fn(async () => [...records.values()]);
+        cache.deleteFromIndexedDb = jest.fn(async key => { records.delete(key); });
+        const write = cache.set('calendar:A:2026-11', ['old']);
+        for (let count = 0; count < 4; count++) await Promise.resolve();
+        const invalidation = cache.clearByPrefix('calendar:A:');
+        release(); await Promise.all([write, invalidation]);
+        expect(records.size).toBe(0); cache.readFromIndexedDb = async () => null;
+        expect(await cache.get('calendar:A:2026-11')).toBeNull();
     });
 });

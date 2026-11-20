@@ -39,6 +39,30 @@ export class LocalFirstCache {
         this.dbPromise = null;
         this.initialized = false;
         this.indexedDbEnabled = hasIndexedDbSupport();
+        this.invalidations = new Map();
+        this.invalidationCounter = 0;
+        this.persistenceTail = Promise.resolve();
+    }
+
+    generationFor(key) {
+        let generation = 0;
+        for (const [prefix, value] of this.invalidations) if (key.startsWith(prefix)) generation = Math.max(generation, value);
+        return generation;
+    }
+
+    persistInOrder(operation) {
+        const next = this.persistenceTail.then(operation);
+        this.persistenceTail = next.catch(() => {});
+        return next;
+    }
+
+    localStorageKeys(prefix = '') {
+        const keys = [];
+        for (let index = 0; index < localStorage.length; index++) {
+            const storedKey = localStorage.key(index);
+            if (storedKey?.startsWith(`${LOCAL_STORAGE_PREFIX}${prefix}`)) keys.push(storedKey.slice(LOCAL_STORAGE_PREFIX.length));
+        }
+        return keys;
     }
 
     async initialize() {
@@ -87,9 +111,9 @@ export class LocalFirstCache {
     }
 
     async writeToIndexedDb(entry) {
-        if (!this.indexedDbEnabled || !isValidEntry(entry)) return;
+        if (!this.indexedDbEnabled || !isValidEntry(entry)) return false;
         const db = await this.dbPromise;
-        if (!db) return;
+        if (!db) return false;
 
         await new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -98,6 +122,7 @@ export class LocalFirstCache {
 
             tx.objectStore(STORE_NAME).put(entry);
         });
+        return true;
     }
 
     async deleteFromIndexedDb(key) {
@@ -137,12 +162,14 @@ export class LocalFirstCache {
     writeToLocalStorage(entry) {
         const storageKey = `${LOCAL_STORAGE_PREFIX}${entry.key}`;
         const serialized = safeStringify(entry);
-        if (!serialized) return;
+        if (!serialized) return false;
 
         try {
             localStorage.setItem(storageKey, serialized);
+            return true;
         } catch (error) {
             logger.warn('LocalFirstCache: localStorage write failed', error);
+            return false;
         }
     }
 
@@ -155,12 +182,16 @@ export class LocalFirstCache {
     }
 
     async getEntry(key) {
+        const generation = this.generationFor(key);
         await this.initialize();
+        if (generation !== this.generationFor(key)) return null;
 
         if (this.memoryCache.has(key)) {
             return this.memoryCache.get(key);
         }
 
+        await this.persistenceTail;
+        if (generation !== this.generationFor(key)) return null;
         let entry = null;
 
         if (this.indexedDbEnabled) {
@@ -175,6 +206,7 @@ export class LocalFirstCache {
             entry = this.readFromLocalStorage(key);
         }
 
+        if (generation !== this.generationFor(key)) return null;
         if (isValidEntry(entry)) {
             this.memoryCache.set(key, entry);
             return entry;
@@ -203,7 +235,11 @@ export class LocalFirstCache {
     }
 
     async set(key, value, options = {}) {
+        if (options.ifCurrent && !options.ifCurrent()) return null;
+        this.invalidations.set(key, ++this.invalidationCounter);
+        const generation = this.generationFor(key);
         await this.initialize();
+        if (generation !== this.generationFor(key) || (options.ifCurrent && !options.ifCurrent())) return null;
 
         const entry = {
             key,
@@ -213,20 +249,23 @@ export class LocalFirstCache {
         };
 
         this.memoryCache.set(key, entry);
-        this.writeToLocalStorage(entry);
+        let durable = this.writeToLocalStorage(entry);
 
         if (this.indexedDbEnabled) {
             try {
-                await this.writeToIndexedDb(entry);
+                durable = (await this.persistInOrder(() => this.writeToIndexedDb(entry))) || durable;
             } catch (error) {
                 logger.warn('LocalFirstCache: IndexedDB write failed', error);
             }
         }
 
+        if (options.requireDurable && !durable) throw new Error('Durable local storage unavailable');
+
         return entry;
     }
 
     async remove(key) {
+        this.invalidations.set(key, ++this.invalidationCounter);
         await this.initialize();
 
         this.memoryCache.delete(key);
@@ -234,7 +273,7 @@ export class LocalFirstCache {
 
         if (this.indexedDbEnabled) {
             try {
-                await this.deleteFromIndexedDb(key);
+                await this.persistInOrder(() => this.deleteFromIndexedDb(key));
             } catch (error) {
                 logger.warn('LocalFirstCache: IndexedDB delete failed', error);
             }
@@ -242,6 +281,7 @@ export class LocalFirstCache {
     }
 
     async clearByPrefix(prefix) {
+        this.invalidations.set(prefix, ++this.invalidationCounter);
         await this.initialize();
 
         const memoryKeys = Array.from(this.memoryCache.keys()).filter((key) => key.startsWith(prefix));
@@ -249,27 +289,32 @@ export class LocalFirstCache {
             this.memoryCache.delete(key);
             this.deleteFromLocalStorage(key);
         });
+        // Cold localStorage entries are not necessarily present in memory.
+        this.localStorageKeys(prefix).forEach(key => this.deleteFromLocalStorage(key));
 
         if (!this.indexedDbEnabled) return;
 
         try {
-            const entries = await this.getAllFromIndexedDb();
-            const keys = entries
-                .filter((entry) => entry && typeof entry.key === 'string' && entry.key.startsWith(prefix))
-                .map((entry) => entry.key);
-
-            await Promise.all(keys.map((key) => this.deleteFromIndexedDb(key)));
+            await this.persistInOrder(async () => {
+                const entries = await this.getAllFromIndexedDb();
+                const keys = entries
+                    .filter((entry) => entry && typeof entry.key === 'string' && entry.key.startsWith(prefix))
+                    .map((entry) => entry.key);
+                await Promise.all(keys.map(key => this.deleteFromIndexedDb(key)));
+            });
         } catch (error) {
             logger.warn('LocalFirstCache: clearByPrefix failed', error);
         }
     }
 
     async clearAll() {
+        this.invalidations.set('', ++this.invalidationCounter);
         await this.initialize();
 
         const keys = Array.from(this.memoryCache.keys());
         this.memoryCache.clear();
         keys.forEach((key) => this.deleteFromLocalStorage(key));
+        this.localStorageKeys().forEach(key => this.deleteFromLocalStorage(key));
 
         if (!this.indexedDbEnabled) return;
 
@@ -277,13 +322,13 @@ export class LocalFirstCache {
             const db = await this.dbPromise;
             if (!db) return;
 
-            await new Promise((resolve, reject) => {
+            await this.persistInOrder(() => new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 const request = tx.objectStore(STORE_NAME).clear();
 
                 request.onsuccess = () => resolve();
                 request.onerror = () => reject(request.error || new Error('IndexedDB clear failed'));
-            });
+            }));
         } catch (error) {
             logger.warn('LocalFirstCache: clearAll failed', error);
         }

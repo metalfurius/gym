@@ -102,7 +102,7 @@ describe('Version Manager', () => {
             routineId: 'routine-2',
             data: { ejercicios: [] },
             timestamp: 1700000000000
-        });
+        }, undefined, { restoring: true });
     });
 
     it('returns false for invalid backup payload and clears key', () => {
@@ -179,3 +179,12 @@ describe('Version Manager', () => {
     });
 });
 
+
+it('retains an owned backup when restoration rejects another signed-in owner', () => {
+    const snapshot = { ownerId: 'A', routineId: 'A-routine', timestamp: 1, data: { private: 'A values' } };
+    localStorage.setItem('gym-tracker-backup-session', JSON.stringify(snapshot));
+    loadInProgressSessionMock.mockReturnValue(null); saveInProgressSessionMock.mockReturnValue(false);
+    expect(checkForBackupSession()).toBe(false);
+    expect(localStorage.getItem('gym-tracker-backup-session')).toBe(JSON.stringify(snapshot));
+    expect(saveInProgressSessionMock).toHaveBeenCalledWith(snapshot, undefined, { restoring: true });
+});

@@ -1,6 +1,6 @@
 # Firestore Data Contract
 
-Last updated: September 17, 2026
+Last updated: November 20, 2026
 Status: Active
 
 ## Purpose
@@ -143,6 +143,10 @@ Current document shape:
       "targetSessions": 3,
       "targetDays": 3,
       "savesUsed": 1,
+      "revision": 1,
+      "commitRevision": 1,
+      "operationId": "<immutable-operation-id>",
+      "pending": false,
       "updatedAtIso": "2026-04-22T10:00:00.000Z"
     }
   },
@@ -157,7 +161,9 @@ Current document shape:
       "lockedAtIso": "2026-04-22T10:00:00.000Z"
     }
   },
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "preferencesRevision": 1,
+  "updatedAtIso": "2026-04-22T10:00:00.000Z",
   "updatedAt": "<Firestore Timestamp>"
 }
 ```
@@ -166,10 +172,23 @@ Fields:
 
 - `weeklyTargetSessions` (integer, clamped to `1..7`, default fallback `3`)
 - `weeklyTargetDays` (legacy alias for `weeklyTargetSessions`; new writes keep it synchronized)
+- `weeklyTargetBaselineSessions` (optional preserved scalar legacy target before the first dated target; absent older maps retain default `3` for unknown earlier weeks)
 - `weeklyTargetsByWeek` (object map keyed by `YYYY-MM-DD` week start, storing `targetSessions`, legacy `targetDays`, `savesUsed`, `updatedAtIso`)
 - `weeklyOutcomesByWeek` (object map keyed by `YYYY-MM-DD` week start, storing frozen `targetSessions`, `targetDays`, `sessionCount`, `activeSessions`, `activeDays`, `met`, `lockedAtIso`)
-- `schemaVersion` (integer, currently `2`)
+- `schemaVersion` (new target writes use `3`; versionless/schema 2 documents remain readable)
+- `preferencesRevision` (atomic document commit order; independent of device clocks and `savesUsed`)
+- Per-week `revision`, `commitRevision` and `operationId` (verified-base concurrency metadata)
+- `updatedAtIso` (the original accepted user-intent timestamp; derived outcome writes preserve it)
 - `updatedAt` (`Timestamp`)
+
+### 5) Session revision and operation receipts
+
+- `users/{uid}/app_data/session_revision`: `{ "revision": <integer> }`. Session create/delete and this increment commit atomically. Duplicate delivery of an existing session ID does not increment it.
+- `users/{uid}/app_data/user_preferences/weekly_operations/{operationId}`: immutable target-operation receipt with `status` (`applied` or `conflict`), week, target, original `updatedAtIso` and accepted/current revision. Receipt and preference mutation commit atomically; retrying a receipt cannot overwrite a newer value.
+
+All paths require the same authenticated owner UID. Firestore document IDs override any `id` field inside session data. New creates are idempotent transactions; an already existing session is preserved so a delayed old create cannot undo a future same-ID correction.
+
+See [history/progress synchronization contract](history-progress-sync-contract.md) for verified-base conflict rules, durable queue migration, completeness and the required live validation sequence.
 
 ## Versioning Rules
 
@@ -202,7 +221,7 @@ Use this mapping when normalizing records for app use:
 
 - Session identity:
 - Canonical: Firestore document ID, mirrored in `sessionId` on new writes
-- Offline queue payload: `sessionId` (replay uses idempotent `setDoc` when present)
+- Offline queue payload: `sessionId` (replay uses an idempotent create transaction; legacy descriptors get a stable identity from their durable queue ID)
 
 ## Implemented Extension: Execution Mode (March 29, 2026)
 

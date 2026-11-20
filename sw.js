@@ -1,5 +1,5 @@
 // This value is rewritten by update-version.cjs and is part of the release contract.
-const RELEASE_REVISION = 'v2.8.4';
+const RELEASE_REVISION = 'v2.8.5';
 const CACHE_NAME = `gym-tracker-${RELEASE_REVISION}`;
 const RELEASE_METADATA_PATHS = new Set(['manifest.json', 'release.json']);
 const OPTIONAL_ASSET_TIMEOUT_MS = 5_000;
@@ -42,6 +42,13 @@ const urlsToCache = [
     './js/timer.js',
     './js/theme-manager.js',
     './js/utils/logger.js',
+    './js/utils/account-scope.js',
+    './js/utils/auth-state.js',
+    './js/utils/calendar-clock.js',
+    './js/utils/owned-transaction.js',
+    './js/utils/session-mutations.js',
+    './js/utils/session-store.js',
+    './js/utils/weekly-preferences.js',
     './js/utils/numeric-input.js',
     './js/utils/input-validation.js',
     './js/utils/validation.js',
