@@ -258,9 +258,15 @@ function cacheRuleMatches(rule, expectedRule) {
         rule?.ref === expectedRule.ref &&
         rule.expression === expectedRule.expression &&
         rule.action === expectedRule.action &&
-        rule.action_parameters?.cache === false &&
+        JSON.stringify(rule.action_parameters) === JSON.stringify(expectedRule.action_parameters) &&
         rule.enabled !== false
     );
+}
+
+function hasLaterCacheSettings(rules, ruleIndex) {
+    // A later matching rule wins. We cannot safely prove arbitrary expressions disjoint,
+    // so place the fixed bypass after every enabled cache-settings rule.
+    return rules.slice(ruleIndex + 1).some(rule => rule.enabled !== false && rule.action === 'set_cache_settings');
 }
 
 async function reconcileCachePolicy(target, token, zoneId, request = cloudflareRequest) {
@@ -282,7 +288,9 @@ async function reconcileCachePolicy(target, token, zoneId, request = cloudflareR
         operation = 'created';
     } else {
         const rules = Array.isArray(entrypoint.rules) ? entrypoint.rules : [];
-        const existingRule = rules.find(rule => rule?.ref === targetRule.ref);
+        const matchingRules = rules.filter(rule => rule?.ref === targetRule.ref);
+        if (matchingRules.length > 1) fail(`Cloudflare returned duplicate fixed ${target} cache policies`);
+        const existingRule = matchingRules[0];
 
         if (!existingRule) {
             if (!entrypoint.id) fail('Cloudflare cache ruleset did not return an id');
@@ -290,33 +298,41 @@ async function reconcileCachePolicy(target, token, zoneId, request = cloudflareR
                 method: 'POST',
                 body: JSON.stringify({
                     ...targetRule,
-                    position: { before: rules[0]?.id || '' },
+                    position: { after: '' },
                 }),
             });
             operation = 'added';
-        } else if (!cacheRuleMatches(existingRule, targetRule)) {
+        } else if (!cacheRuleMatches(existingRule, targetRule) || hasLaterCacheSettings(rules, rules.indexOf(existingRule))) {
+            if (!entrypoint.id) fail('Cloudflare cache ruleset did not return an id');
             if (!existingRule.id) fail(`existing ${target} cache rule did not return an id`);
+            const fieldsMatch = cacheRuleMatches(existingRule, targetRule);
             await request(token, `/zones/${zoneId}/rulesets/${entrypoint.id}/rules/${existingRule.id}`, {
                 method: 'PATCH',
-                body: JSON.stringify(targetRule),
+                body: JSON.stringify({ ...targetRule, position: { after: '' } }),
             });
-            operation = 'updated';
+            operation = fieldsMatch ? 'reordered' : 'updated';
         }
     }
 
     entrypoint = await getCacheRuleEntrypoint(token, zoneId, request);
-    const verifiedRule = entrypoint?.rules?.find(rule => rule?.ref === targetRule.ref);
-    if (!cacheRuleMatches(verifiedRule, targetRule)) {
+    const verifiedRules = entrypoint?.rules || [];
+    const matches = verifiedRules.filter(rule => rule?.ref === targetRule.ref);
+    const verifiedRule = matches[0];
+    if (matches.length !== 1 || !cacheRuleMatches(verifiedRule, targetRule)) {
         fail(`Cloudflare did not expose the expected fixed ${target} cache policy after reconciliation`);
     }
+    if (hasLaterCacheSettings(verifiedRules, verifiedRules.indexOf(verifiedRule))) {
+        fail(`Cloudflare fixed ${target} cache policy is shadowed by a later cache-settings rule`);
+    }
 
-    return { operation, rulesetId: entrypoint.id, ref: targetRule.ref };
+    return { operation, rulesetId: entrypoint.id, ref: targetRule.ref, ruleId: verifiedRule.id, index: verifiedRules.indexOf(verifiedRule) };
 }
 
-async function purgeUrls(token, zoneId, urls, request = cloudflareRequest) {
+async function purgeUrls(token, zoneId, urls, request = cloudflareRequest, beforePurge = async () => {}) {
     const purgeIds = [];
     for (let index = 0; index < urls.length; index += PURGE_BATCH_SIZE) {
         const files = urls.slice(index, index + PURGE_BATCH_SIZE);
+        await beforePurge();
         const result = await request(token, `/zones/${zoneId}/purge_cache`, {
             method: 'POST',
             body: JSON.stringify({ files }),
@@ -334,6 +350,7 @@ export async function execute({
     release = null,
     token = null,
     request = cloudflareRequest,
+    beforePurge = async () => {},
 } = {}) {
     target = getTarget(target);
     if (!process.argv.includes('--validate-and-purge') && request === cloudflareRequest) {
@@ -349,14 +366,15 @@ export async function execute({
     const cacheToken = token || getToken();
     const zone = await resolveZone(cacheToken, request);
     const accountId = resolveAccountId(zone.accountId);
-    await verifyAccountToken(cacheToken, accountId, request);
+    const verification = await verifyAccountToken(cacheToken, accountId, request);
     const policy = await reconcileCachePolicy(target, cacheToken, zone.id, request);
-    const purgeIds = await purgeUrls(cacheToken, zone.id, urls, request);
+    const purgeIds = await purgeUrls(cacheToken, zone.id, urls, request, beforePurge);
     const manifest = crypto.createHash('sha256').update(JSON.stringify(targetMetadata)).digest('hex').slice(0, 12);
 
     return {
         target,
         accountId,
+        tokenVerification: { ownership: 'account', status: verification.status, id: verification.id || null },
         zoneId: zone.id,
         policy,
         purgeIds,
@@ -369,10 +387,12 @@ export async function execute({
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-    execute()
+    // The public purge command uses the same immutable deployment gate as CI.
+    import('./production-cache-delivery.mjs')
+        .then(({ deliverProductionCache }) => deliverProductionCache())
         .then(result => {
             console.log(
-                `[cloudflare-cache] target ${result.target}; active account token verified; policy ${result.policy.operation}; purged ${result.urlCount} canonical URLs in ${result.purgeIds.length} batches for ${ZONE_NAME} (revision ${result.release}, manifest ${result.manifest})`
+                `[cloudflare-cache] passed ${result.target} ${result.targetSha} (${result.expectedRevision}); confirmed ${result.purge.purgeIds.length} purge batches and repeated canonical coherence`
             );
         })
         .catch(error => {

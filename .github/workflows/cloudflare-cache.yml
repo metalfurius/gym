@@ -26,13 +26,18 @@ on:
 
 permissions:
     contents: read
+    deployments: read
+
+concurrency:
+    group: canonical-cache-production-${{ inputs.target || 'gym' }}
+    cancel-in-progress: false
 
 jobs:
     purge-and-verify:
         name: Purge Cloudflare and verify release
         if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && (inputs.target == 'gym' || inputs.target == 'portfolio')) || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success') }}
         runs-on: ubuntu-latest
-        timeout-minutes: 15
+        timeout-minutes: 25
         environment:
             name: production
         steps:
@@ -40,7 +45,7 @@ jobs:
               uses: actions/checkout@v6
               with:
                   repository: metalfurius/gym
-                  ref: main
+                  ref: ${{ github.sha }}
                   path: control-plane
 
             - name: Checkout deployed Gym revision
@@ -70,28 +75,26 @@ jobs:
               working-directory: control-plane
               run: npm ci
 
-            - name: Validate scoped cache token, policy, and purge canonical URLs
+            - name: Wait for exact Pages deployment, purge, and verify canonical delivery
               working-directory: control-plane
-              run: npm run cloudflare:cache:purge
+              run: node scripts/production-cache-delivery.mjs --validate-and-purge
               env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  DEPLOYMENT_CONTROL_SHA: ${{ github.sha }}
+                  DEPLOYMENT_TARGET_SHA: ${{ inputs.revision_sha || github.event.workflow_run.head_sha }}
                   CLOUDFLARE_CACHE_API_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_API_TOKEN }}
                   CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
                   CLOUDFLARE_CACHE_TARGET: ${{ inputs.target || 'gym' }}
                   CLOUDFLARE_EXPECTED_REVISION: ${{ inputs.expected_revision || '' }}
-
-            - name: Verify no-query production release coherence
-              working-directory: control-plane
-              run: npm run production:release:smoke
-              env:
-                  PRODUCTION_SMOKE_TARGET: ${{ inputs.target || 'gym' }}
                   PRODUCTION_SMOKE_EVIDENCE_PATH: production-release-smoke.json
-                  PRODUCTION_SMOKE_RETRY_COUNT: '4'
+                  PRODUCTION_SMOKE_RETRY_COUNT: '6'
                   PRODUCTION_SMOKE_RETRY_DELAY_MS: '5000'
+                  PRODUCTION_SMOKE_SWEEP_INTERVAL_MS: '5000'
 
             - name: Upload production evidence
               if: always()
               uses: actions/upload-artifact@v6
               with:
-                  name: canonical-cache-smoke-${{ inputs.target || 'gym' }}-${{ inputs.revision_sha || github.event.workflow_run.head_sha }}
+                  name: canonical-cache-${{ inputs.target || 'gym' }}-${{ inputs.revision_sha || github.event.workflow_run.head_sha }}-control-${{ github.sha }}
                   path: control-plane/production-release-smoke.json
                   if-no-files-found: ignore

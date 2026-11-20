@@ -1,3 +1,4 @@
+/** @jest-environment node */
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { cloudflareRequest, execute } from '../../scripts/cloudflare-cache-control.mjs';
 
@@ -69,9 +70,9 @@ function portfolioRule() {
     });
 }
 
-function makeFetch({ entrypoint, rule = targetRule() }) {
+function makeFetch({ entrypoint, rule = targetRule(), rules = [rule], ignoreWrites = false }) {
     const requests = [];
-    let createdRule = null;
+    let state = entrypoint === 'missing' ? null : structuredClone(rules);
     const fetchMock = jest.fn(async (url, options = {}) => {
         const parsedUrl = new URL(url);
         const method = options.method || 'GET';
@@ -86,24 +87,31 @@ function makeFetch({ entrypoint, rule = targetRule() }) {
         if (
             parsedUrl.pathname === `/client/v4/zones/${ZONE_ID}/rulesets/phases/http_request_cache_settings/entrypoint`
         ) {
-            if (entrypoint === 'missing' && !createdRule) return failure(404);
-            return success({ id: RULESET_ID, rules: createdRule ? [createdRule] : [rule] });
+            if (!state) return failure(404);
+            return success({ id: RULESET_ID, rules: structuredClone(state) });
         }
         if (parsedUrl.pathname === `/client/v4/zones/${ZONE_ID}/rulesets` && method === 'POST') {
-            createdRule = { ...JSON.parse(options.body).rules[0], id: RULE_ID };
-            return success({ id: RULESET_ID, rules: [createdRule] });
+            if (!ignoreWrites) state = [{ ...JSON.parse(options.body).rules[0], id: RULE_ID }];
+            return success({ id: RULESET_ID, rules: state });
         }
         if (parsedUrl.pathname === `/client/v4/zones/${ZONE_ID}/rulesets/${RULESET_ID}/rules` && method === 'POST') {
-            createdRule = { ...JSON.parse(options.body), id: RULE_ID };
+            const createdRule = { ...JSON.parse(options.body), id: RULE_ID };
             delete createdRule.position;
-            return success({ id: RULESET_ID, rules: [createdRule] });
+            if (!ignoreWrites) state.push(createdRule);
+            return success({ id: RULESET_ID, rules: state });
+        }
+        if (parsedUrl.pathname.endsWith(`/rules/${RULE_ID}`) && method === 'PATCH') {
+            const updated = { ...JSON.parse(options.body), id: RULE_ID };
+            delete updated.position;
+            if (!ignoreWrites) state = [...state.filter(item => item.id !== RULE_ID), updated];
+            return success({ id: RULESET_ID, rules: state });
         }
         if (parsedUrl.pathname === `/client/v4/zones/${ZONE_ID}/purge_cache` && method === 'POST') {
             return success({ id: 'purge-operation' });
         }
         throw new Error(`unexpected request ${method} ${parsedUrl.pathname}`);
     });
-    return { fetchMock, requests };
+    return { fetchMock, requests, getRules: () => state };
 }
 
 describe('Cloudflare cache control', () => {
@@ -211,5 +219,89 @@ describe('Cloudflare cache control', () => {
         expect(requests.some(request => request.url.pathname.endsWith('/purge_everything'))).toBe(false);
         const policyRequest = requests.find(request => request.url.pathname.endsWith('/rulesets'));
         expect(JSON.parse(policyRequest.options.body).rules[0].ref).toBe('portfolio-canonical-cache-policy-v1');
+    });
+
+    const broadRule = {
+        id: 'f'.repeat(32), ref: 'cache-everything', expression: 'true', action: 'set_cache_settings',
+        action_parameters: { cache: true, edge_ttl: { mode: 'override_origin', default: 3600 } }, enabled: true,
+    };
+
+    it.each(['gym', 'portfolio'])('reorders an otherwise correct %s bypass after the observed Cache Everything rule', async target => {
+        const unrelated = { ...broadRule, description: 'Unrelated rule must retain every field' };
+        const fixed = target === 'gym' ? targetRule() : portfolioRule();
+        const { fetchMock, requests, getRules } = makeFetch({ entrypoint: 'present', rules: [fixed, unrelated] });
+        globalThis.fetch = fetchMock;
+        const result = await execute({ target, metadata: target === 'gym' ? release : portfolioRevision,
+            token: 'test', request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) });
+        expect(result.policy.operation).toBe('reordered');
+        expect(getRules()).toEqual([unrelated, fixed]);
+        expect(JSON.parse(requests.find(item => item.method === 'PATCH').options.body).position).toEqual({ after: '' });
+    });
+
+    it('adds a missing bypass last without replacing other rules', async () => {
+        const { fetchMock, requests, getRules } = makeFetch({ entrypoint: 'present', rules: [broadRule] });
+        globalThis.fetch = fetchMock;
+        const result = await execute({ release, token: 'test', request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) });
+        expect(result.policy.operation).toBe('added');
+        expect(getRules()).toEqual([broadRule, targetRule()]);
+        expect(JSON.parse(requests.find(item => item.method === 'POST' && item.url.pathname.endsWith('/rules')).options.body).position).toEqual({ after: '' });
+    });
+
+    it('updates incorrect fields and order together', async () => {
+        const { fetchMock, getRules } = makeFetch({ entrypoint: 'present', rules: [targetRule({ enabled: false, action_parameters: { cache: true } }), broadRule] });
+        globalThis.fetch = fetchMock;
+        const result = await execute({ release, token: 'test', request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) });
+        expect(result.policy.operation).toBe('updated');
+        expect(getRules()).toEqual([broadRule, targetRule()]);
+    });
+
+    it('rejects a successful rule write whose readback remains shadowed before any purge', async () => {
+        const { fetchMock, requests } = makeFetch({ entrypoint: 'present', rules: [targetRule(), broadRule], ignoreWrites: true });
+        globalThis.fetch = fetchMock;
+        await expect(execute({ release, token: 'test', request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) })).rejects.toThrow('shadowed');
+        expect(requests.some(item => item.url.pathname.endsWith('/purge_cache'))).toBe(false);
+    });
+
+    it('checks deployment freshness for every purge batch and stops as soon as it is superseded', async () => {
+        const { fetchMock, requests } = makeFetch({ entrypoint: 'present' });
+        globalThis.fetch = fetchMock;
+        const beforePurge = jest.fn().mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('superseded'));
+        const manyAssets = Object.fromEntries(Array.from({ length: 30 }, (_, index) => [`js/asset-${index}.js`, 'hash']));
+        await expect(execute({ release: { ...release, assets: manyAssets }, token: 'test', beforePurge,
+            request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) })).rejects.toThrow('superseded');
+        expect(beforePurge).toHaveBeenCalledTimes(2);
+        expect(requests.filter(item => item.url.pathname.endsWith('/purge_cache'))).toHaveLength(1);
+    });
+
+    it('fails closed before the first purge when the deployment is stale', async () => {
+        const { fetchMock, requests } = makeFetch({ entrypoint: 'present' });
+        globalThis.fetch = fetchMock;
+        await expect(execute({ release, token: 'test', beforePurge: async () => { throw new Error('superseded'); },
+            request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) })).rejects.toThrow('superseded');
+        expect(requests.some(item => item.url.pathname.endsWith('/purge_cache'))).toBe(false);
+    });
+
+    it('preserves the real HTTP 403/9109 token failure and performs no policy mutation or purge', async () => {
+        const { fetchMock, requests } = makeFetch({ entrypoint: 'present' });
+        globalThis.fetch = jest.fn(async (url, options) => url.endsWith('/tokens/verify') ? failure(403, 9109) : fetchMock(url, options));
+        await expect(execute({ release, token: 'test', request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) })).rejects.toThrow('HTTP 403 (Cloudflare error codes: 9109)');
+        expect(requests.some(item => item.method !== 'GET')).toBe(false);
+        expect(requests.some(item => item.url.pathname.includes('/rulesets'))).toBe(false);
+    });
+
+    it('rejects a configured account mismatch before checking capabilities or purging', async () => {
+        const { fetchMock, requests } = makeFetch({ entrypoint: 'present' });
+        globalThis.fetch = fetchMock;
+        process.env.CLOUDFLARE_ACCOUNT_ID = 'f'.repeat(32);
+        await expect(execute({ release, token: 'test', request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) })).rejects.toThrow('does not match the account');
+        expect(requests).toHaveLength(1);
+    });
+
+    it('rejects an asset escaping the fixed URL scope before contacting Cloudflare', async () => {
+        const { fetchMock } = makeFetch({ entrypoint: 'present' });
+        globalThis.fetch = fetchMock;
+        await expect(execute({ release: { ...release, assets: { '../other.js': 'hash' } }, token: 'test',
+            request: (token, requestPath, options) => cloudflareRequest(token, requestPath, options) })).rejects.toThrow('escapes the fixed purge scope');
+        expect(fetchMock).not.toHaveBeenCalled();
     });
 });
