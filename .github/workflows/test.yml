@@ -33,7 +33,25 @@ jobs:
         run: npm run build:check
 
       - name: Run two-version PWA upgrade smoke
+        timeout-minutes: 3
         run: npm run test:e2e:upgrade
+        env:
+          UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/normal
+
+      - name: Run upgrade smoke with delayed fixture bootstrap
+        timeout-minutes: 3
+        run: npm run test:e2e:upgrade
+        env:
+          UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS: '1000'
+          UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/delayed-1000
+
+      - name: Upload Chromium upgrade evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: chromium-upgrade-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gym-upgrade-smoke
+          if-no-files-found: warn
 
       - name: Verify canonical browser transport bypasses active workers
         timeout-minutes: 2
