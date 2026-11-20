@@ -4,8 +4,8 @@ Last reviewed: November 20, 2026
 
 ## Scope and Status
 
-This is the ordered product and technical backlog. The published baseline is **v2.8.3**, on
-[`main` at `d4c6d0d`](https://github.com/metalfurius/gym/commit/d4c6d0d2b8e3950ab1bc97ce9c371dde166fe612).
+This is the ordered product and technical backlog. The published baseline is **v2.8.4**, on
+[`main` at `9028320`](https://github.com/metalfurius/gym/commit/9028320061aa388cd529a5a415d4785e1e084a82).
 Status is based on merged code, release checks, and the latest deployment results, rather than the age of a plan.
 
 - **Done:** merged into `main` with validation evidence.
@@ -20,16 +20,17 @@ Port useful changes onto current `main` and validate them against the newer rele
 
 ## Verified Baseline
 
-- Version **2.8.3** was released and deployed on November 20, 2026; the public app was observed updating to it.
-- **800 tests across 52 suites** passed for that release. Statements coverage was **74.95%**, above the current **70%** gate.
-- Lint, CodeQL, release metadata verification, app journeys, offline recovery/retry, and the Chromium two-version PWA upgrade check passed.
-- Production delivery is **partially verified**: the app activates the new release, but automatic Cloudflare purging still fails with HTTP 403 / code 9109. The no-query production check observed an older `manifest.json` alongside the new `release.json`.
+- Version **2.8.4** was released and deployed on November 20, 2026; a fresh isolated production client loaded that revision.
+- **848 tests across 56 suites** passed on the reviewed implementation. Application statements coverage was **74.95%**, above the current **70%** gate.
+- Lint, CodeQL, release verification, app/offline journeys and Chromium checks passed. Main's first upgrade-smoke attempt failed with an old shell after activation; its second attempt passed. The reproduced fixture race was then fixed in reviewed [PR #105](https://github.com/metalfurius/gym/pull/105), with normal and delayed-bootstrap cases passing in Linux CI; both earlier results remain recorded.
+- The scoped Cloudflare credential and rule precedence are repaired. The real production workflow purged **64 canonical URLs** after the matching Pages deployment; **two complete 64-response sweeps** agreed on v2.8.4. **Objective 1 remains partial** because the old installed-client preservation/offline/reconnect journey and final two-judge closure review are outstanding.
 - Open maintenance PRs at review time: [#67](https://github.com/metalfurius/gym/pull/67) and [#70](https://github.com/metalfurius/gym/pull/70). There are no open standalone issues; this does not mean the backlog is empty.
 
-Evidence: [release v2.8.3](https://github.com/metalfurius/gym/releases/tag/v2.8.3),
-[passing main tests](https://github.com/metalfurius/gym/actions/runs/44721493595),
-[successful deployment](https://github.com/metalfurius/gym/actions/runs/44721493501),
-[failed cache workflow](https://github.com/metalfurius/gym/actions/runs/44721542763).
+Evidence: [release v2.8.4](https://github.com/metalfurius/gym/releases/tag/v2.8.4),
+[reviewed-head tests](https://github.com/metalfurius/gym/actions/runs/44732937375),
+[matching Pages deployment](https://github.com/metalfurius/gym/actions/runs/44733781150),
+[successful production cache workflow](https://github.com/metalfurius/gym/actions/runs/44733829284),
+[full operational record and open criteria](docs/production-cache-evidence-2026-11-20.md).
 These are dated observations, not a guarantee that future commits or deployments pass.
 
 ## Delivered
@@ -61,7 +62,7 @@ No calendar dates are committed until the preceding completion conditions are me
 
 | Order | Priority | Improvement                                                      | State                           | Completion condition                                                                                                     |
 | ----- | -------- | ---------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| 1     | P0       | Reliable production cache delivery                               | Next; account access dependency | Purge and canonical production verification both pass for a deployed revision, with preserved installed-client workouts. |
+| 1     | P0       | Reliable production cache delivery                               | Partial; live purge/coherence pass, installed-client proof open | Purge and canonical production verification both pass for a deployed revision, with preserved installed-client workouts. |
 | 2     | P1       | History, progress, and sync correctness                          | Planned verification and fixes  | Cross-view, account-switch, date-boundary, and reconnect scenarios produce the same saved data and metrics.              |
 | 3     | P1       | Complete read-optimized weekly consistency v1.1                  | Partial / local                 | Measurably fewer Firestore reads, persistent per-user Daily Hub cache, and no correctness regression.                    |
 | 4     | P1       | Maintain dependencies and make quality checks reproducible       | Planned; #67 and #70 open       | Current compatible dependency updates pass, documented commands match `main`, and browser checks are reproducible.       |
@@ -71,13 +72,13 @@ No calendar dates are committed until the preceding completion conditions are me
 
 ### 1. Reliable Production Cache Delivery
 
-Repair the Cloudflare credential/account configuration used by `Purge and Verify Canonical Cache` and verify the
-Gym cache policy. This requires access to the relevant Cloudflare account; a successful Pages deployment alone
-does not resolve the observed cache failure.
+The Cloudflare credential and Gym rule order are repaired by [PR #103](https://github.com/metalfurius/gym/pull/103).
+The workflow now binds its immutable checkouts and purge to the successful matching Pages deployment and validates
+two complete canonical sweeps. The real v2.8.4 run passed; see the [operational evidence](docs/production-cache-evidence-2026-11-20.md).
 
-Done when the existing purge workflow succeeds and the public shell, metadata, worker, and cached assets agree
-on the same revision on repeated requests without query parameters. Also verify an already-installed client
-updates and restarts offline without losing its in-progress workout. Keep the existing stale-CDN recovery path.
+Still required: verify an already-installed previous-release client updates and restarts offline without losing
+its in-progress workout, then reconnects and saves once. Obtain both judges' review of the full closure evidence.
+The retained v2.8.3 browser profile and the fresh v2.8.4 settings test do not establish that installed-client journey.
 
 ### 2. History, Progress, and Sync Correctness
 

@@ -72,15 +72,15 @@ Planning docs:
 
 ### Published Baseline (November 20, 2026)
 
-- Published version: **2.8.3**, with **800 passing tests** and **74.95% statements coverage** in release validation.
+- Published version: **2.8.4**, with **848 passing tests** and **74.95% application statements coverage** on its reviewed implementation.
 - Delivered: Quick Log, Daily Hub/calendar, session variants, ES/EN, weekly streaks, consistent session counting, decimal-weight validation, accessible chart alternatives, and routine JSON export/import.
 - Weekly target changes now work any day without an edit cap and persist across login and offline replay.
-- The PWA update implementation is delivered. Automatic Cloudflare purging still fails with HTTP 403; canonical release verification remains open despite successful deployment and observed app updating.
+- Cloudflare credentials and cache-rule order are repaired: the real workflow purged 64 URLs and verified two complete canonical sweeps of v2.8.4. The old installed-client workout/offline/reconnect journey remains open. [Evidence and limitations](docs/production-cache-evidence-2026-11-20.md).
 - Read-optimized weekly consistency v1.1 is **partial**: bounded reads and memory caching are shipped; additional local cache/navigation improvements are not merged into `main`.
 
 ### Next Priorities
 
-1. **P0:** repair production cache purging and verify coherent public/installed-client updates.
+1. **P0:** finish installed-client preservation/offline/reconnect evidence and the production-delivery closure review; live purge and public coherence now pass.
 2. **P1:** verify and harden history, progress, account changes, date boundaries, and cross-device/offline sync.
 3. **P1:** complete Daily Hub v1.1 with persistent per-user caching and measured read reduction.
 4. **P1:** maintain dependencies and align documented quality gates with reproducible CI/browser checks.
@@ -97,6 +97,9 @@ The expired six-week schedule has been retired; nutrition and social/competitive
 Published `main` runs lint, CodeQL, app/offline journeys, no-skipped-tests checks, coverage (minimum 70%),
 release integrity, and the Chromium upgrade smoke. The local `merge-ready` contract is an unmerged proposal;
 repository-wide formatting is not yet an enforced blocking check on published `main`.
+The canonical-transport browser regression is now also in CI. Main's initial v2.8.4 upgrade-smoke failure and
+successful retry are both recorded. [PR #105](https://github.com/metalfurius/gym/pull/105) repaired the reproduced
+fixture race and added a required delayed-bootstrap case; broader priority-4 browser/device work remains open.
 See the roadmap for the distinction between published checks and local stabilization work.
 
 ### How We Ship Major Features

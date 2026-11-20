@@ -1,6 +1,8 @@
 # Roadmap execution plans
 
-Status: planning baseline, November 20, 2026. No objective is completed by these documents.
+Status: execution in progress, November 20, 2026. No objective has closed. Objective 1's prerequisite is merged;
+its real policy repair, purge and canonical sweeps passed. Installed-client evidence remains open.
+[Operational record](../production-cache-evidence-2026-11-20.md).
 
 [UPGRADE-PLAN.md](../../UPGRADE-PLAN.md) owns priority and shipped status. These plans turn its seven active
 objectives into implementation and acceptance work. They use published `main`
@@ -87,10 +89,9 @@ device never becomes a passing manual test.
 
 ## Operational and device gates still open
 
-- Cloudflare: authenticated access to the correct account is now available; inspection found no active account
-  or user API tokens. The production environment secret `CLOUDFLARE_CACHE_API_TOKEN` exists, but its raw value is
-  not retrievable from GitHub and its presence is not evidence of validity. Credential/policy repair and real
-  workflow verification remain pending. Do not request or print raw credentials in chat.
+- Cloudflare: a new zone-scoped account token is verified, the production secret is updated, and the real
+  workflow repaired rule order, purged 64 URLs and passed two canonical sweeps on v2.8.4. Credentials are absent
+  from the evidence. This closes the access dependency, not the installed-client or objective-closure gates.
 - Real devices/accounts: retain or obtain a designated test account, two independent devices for sync evidence,
   a previously installed client for production upgrades, and an actual iOS device for Safari/Home Screen PWA
   evidence. Record unavailable access as a dependency and keep the corresponding criteria open.
