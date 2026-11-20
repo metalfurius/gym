@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import { createServer } from 'node:net';
@@ -9,6 +8,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
+import { spawnOwnedBrowser } from './owned-browser-process.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SMOKE_TARGET = process.env.PRODUCTION_SMOKE_TARGET || 'gym';
@@ -391,7 +391,7 @@ class DevToolsClient {
     close() {
         this.rejectPending(new Error('Browser CDP client closed'));
         try {
-            this.socket.close();
+            this.socket.terminate();
         } catch {
             // The browser may already have exited after the challenge completed.
         }
@@ -512,10 +512,9 @@ const BROWSER_REVISION_FUNCTION = `function(selector) {
 }`;
 
 class ChallengeBrowserSession {
-    constructor({ chrome, client, profileDirectory, target, expectedRevision }) {
-        this.chrome = chrome;
+    constructor({ browserOwner, client, target, expectedRevision }) {
+        this.browserOwner = browserOwner;
         this.client = client;
-        this.profileDirectory = profileDirectory;
         this.target = target;
         this.expectedRevision = expectedRevision;
     }
@@ -576,13 +575,7 @@ class ChallengeBrowserSession {
     }
 
     async close() {
-        this.client.close();
-        if (!this.chrome.killed) this.chrome.kill();
-        try {
-            await fs.rm(this.profileDirectory, { recursive: true, force: true });
-        } catch {
-            // The temporary profile is best-effort cleanup only.
-        }
+        await this.browserOwner.close();
     }
 }
 
@@ -615,16 +608,17 @@ export async function openChallengeBrowser(base, target, expectedRevision) {
         ? ['--auto-servernum', '--server-args=-screen 0 1440x900x24', chromePath, ...chromeArguments]
         : chromeArguments;
     let chrome;
+    let browserOwner;
     let client;
     let processError;
 
     try {
-        chrome = spawn(
+        browserOwner = spawnOwnedBrowser(
             launchCommand,
             launchArguments,
-            { stdio: ['ignore', 'ignore', 'pipe'] }
+            { afterClose: () => fs.rm(profileDirectory, { recursive: true, force: true, maxRetries: 4, retryDelay: 100 }) }
         );
-        chrome.stderr?.resume();
+        chrome = browserOwner.process;
         chrome.once('error', error => {
             processError = error;
         });
@@ -636,6 +630,7 @@ export async function openChallengeBrowser(base, target, expectedRevision) {
 
         const pageTarget = await waitForChromePageTarget(remotePort, base, () => processError);
         client = new DevToolsClient(pageTarget.webSocketDebuggerUrl);
+        browserOwner.setClient(client);
         await client.send('Runtime.enable');
         await client.send('Page.enable');
         await client.send('Network.enable');
@@ -646,22 +641,16 @@ export async function openChallengeBrowser(base, target, expectedRevision) {
         await client.send('Page.navigate', { url: base.toString() });
 
         const session = new ChallengeBrowserSession({
-            chrome,
+            browserOwner,
             client,
-            profileDirectory,
             target,
             expectedRevision,
         });
         await session.waitForRevision();
         return session;
     } catch (error) {
-        client?.close();
-        if (chrome && !chrome.killed) chrome.kill();
-        try {
-            await fs.rm(profileDirectory, { recursive: true, force: true });
-        } catch {
-            // The temporary profile is best-effort cleanup only.
-        }
+        if (browserOwner) await browserOwner.close();
+        else await fs.rm(profileDirectory, { recursive: true, force: true, maxRetries: 4, retryDelay: 100 });
         if (error.layer) throw error;
         throw createProductionError('cloudflare', `the Cloudflare challenge browser could not start: ${error.message}`);
     }
@@ -1040,6 +1029,7 @@ export async function runSmoke({
     let challengeBrowser = null;
     let lastError;
     let previousCompletedAt = null;
+    let passedEvidence = null;
     try {
         for (let attempt = 1; attempt <= retryCount; attempt += 1) {
             if (attempt > 1) await sleepFn(intervalMs);
@@ -1078,7 +1068,7 @@ export async function runSmoke({
                 sweep.completedAt = new Date(now()).toISOString();
                 previousCompletedAt = now();
                 if (consecutive >= 2) {
-                    const evidence = {
+                    passedEvidence = {
                         status: 'passed',
                         target,
                         publicBaseUrl: base.toString(),
@@ -1091,9 +1081,7 @@ export async function runSmoke({
                         sweepIntervalMs: intervalMs,
                         sweeps,
                     };
-                    if (evidencePath) await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
-                    console.log(`[production-smoke] passed ${target} ${validation.revision}; verified ${expectedAssets.length} canonical URLs in two consecutive sweeps`);
-                    return evidence;
+                    break;
                 }
             } catch (error) {
                 lastError = error;
@@ -1120,6 +1108,11 @@ export async function runSmoke({
         }
     } finally {
         await challengeBrowser?.close();
+    }
+    if (passedEvidence) {
+        if (evidencePath) await fs.writeFile(evidencePath, `${JSON.stringify(passedEvidence, null, 2)}\n`, 'utf8');
+        console.log(`[production-smoke] passed ${target} ${passedEvidence.revision}; verified ${expectedAssets.length} canonical URLs in two consecutive sweeps`);
+        return passedEvidence;
     }
     const error = lastError || createProductionError('cloudflare', 'fewer than two consecutive successful canonical sweeps');
     error.sweeps = sweeps;

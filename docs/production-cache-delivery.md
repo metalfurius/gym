@@ -39,6 +39,10 @@ sweep resets the count; the recorded attempt remains in the evidence. Query/frag
 from the exact requested canonical URL cannot supply evidence. Request cache-control headers alone prove nothing.
 The isolated challenge browser disables both its HTTP cache and service-worker interception before navigating.
 An active application worker therefore cannot substitute a cached response originally fetched with a query URL.
+Teardown requests `Browser.close` while CDP is connected and waits for the owned launcher to close. Bounded
+fallback termination targets only its dedicated POSIX process group or its still-live Windows PID tree. Success,
+startup/transport failure and cancellation share this cleanup; temporary profiles are removed afterward. A cleanup
+failure prevents passed canonical evidence. The regression itself has a 60-second deadline and a two-minute CI limit.
 
 ## Authorized production execution
 
@@ -94,3 +98,5 @@ application/offline and coverage gates. An application asset change additionally
 Chromium upgrade smoke. Live Cloudflare/installed-client results must be recorded separately from these fixtures.
 `npm run test:e2e:canonical-transport` additionally uses real Chromium and an active worker to verify network
 request counts, current/stale canonical response bodies and rejection of a query-backed cache response. CI runs it.
+The `owned-browser-process` suite exercises real wrappers and descendants retaining inherited pipes, including
+graceful shutdown, CDP failure/timeout, startup failure and cancellation; an unrelated sibling process must survive.

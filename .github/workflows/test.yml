@@ -36,6 +36,7 @@ jobs:
         run: npm run test:e2e:upgrade
 
       - name: Verify canonical browser transport bypasses active workers
+        timeout-minutes: 2
         run: npm run test:e2e:canonical-transport
 
       - name: Run app journey tests

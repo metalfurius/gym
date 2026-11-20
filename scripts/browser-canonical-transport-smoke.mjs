@@ -56,6 +56,12 @@ const server = createServer((request, response) => {
 });
 
 let session;
+const deadline = setTimeout(() => {
+    console.error('[canonical-transport] regression exceeded its 60-second deadline');
+    if (!process.emit('SIGTERM')) process.exit(1);
+}, 60_000);
+deadline.unref();
+let passedMessage;
 try {
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const base = new URL(`http://127.0.0.1:${server.address().port}/gym/`);
@@ -92,12 +98,17 @@ try {
     assert.equal(canonicalRequestCount(), 2, 'the negative control must produce zero canonical network requests');
     await assert.rejects(session.fetchAsset(base, 'release.json'), /redirected away from canonical URL/);
     assert.equal(canonicalRequestCount(), 2);
-    console.log(`[canonical-transport] passed ${browserVersion.product}: active worker bypassed; current/stale canonical responses reached network; negative control intercepted query-backed cache`);
+    passedMessage = `[canonical-transport] passed ${browserVersion.product}: active worker bypassed; current/stale canonical responses reached network; negative control intercepted query-backed cache`;
 } catch (error) {
     console.error(`[canonical-transport] ${error.stack || error.message}`);
     process.exitCode = 1;
 } finally {
-    await session?.close();
-    server.closeAllConnections();
-    await new Promise(resolve => server.close(resolve));
+    try {
+        await session?.close();
+    } finally {
+        server.closeAllConnections();
+        await new Promise(resolve => server.close(resolve));
+        clearTimeout(deadline);
+    }
 }
+if (passedMessage && !process.exitCode) console.log(passedMessage);

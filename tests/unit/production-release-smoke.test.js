@@ -159,4 +159,14 @@ describe('canonical production sweep orchestration', () => {
         await expect(runSmoke({ ...options, retryCount: 1 })).rejects.toThrow('at least two');
         await expect(runSmoke({ ...options, intervalMs: 0 })).rejects.toThrow('positive sweep interval');
     });
+
+    it('does not write passed evidence when browser cleanup fails after two successful sweeps', async () => {
+        const { options, readSweep } = await setup();
+        options.readSweep = async (...args) => ({
+            ...(await readSweep(...args)),
+            challengeBrowser: { close: async () => { throw new Error('owned browser did not stop'); } },
+        });
+        await expect(runSmoke(options)).rejects.toThrow('owned browser did not stop');
+        await expect(fs.access(options.evidencePath)).rejects.toThrow();
+    });
 });
