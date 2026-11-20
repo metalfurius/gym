@@ -84,8 +84,16 @@ an early harness reload can miss `controllerchange`. The cache-existence conditi
 installation; the harness then forces a reload while the fixture also schedules reloads. One subsequent
 navigation recovered B. The exact event ordering of the CI failure was not captured. Persistent failure is
 demonstrated in the fixture; it has not been demonstrated in the real application, which has additional
-shell/metadata recovery. Removing the early reload, observing lifecycle/control and adding a deterministic
-race case remain objective 4 work. No application fix or installed-client pass is inferred from that diagnosis.
+shell/metadata recovery. No application fix or installed-client pass is inferred from that diagnosis.
+
+The focused objective-4 prerequisite [PR #105](https://github.com/metalfurius/gym/pull/105) subsequently removed
+the early reload and introduced lifecycle/control barriers, a trusted Apply action and one controller-change
+reload. Both independent GPT-6.1-Sol xhigh judges approved exact head
+`0349c3fc16179ad6ea4e5e5947d1d21f932a9f33` before its normal squash merge
+`626b63ba0884f410aec636e87351a074fd4baa97`. Its [Linux CI](https://github.com/metalfurius/gym/actions/runs/44737906631)
+passed normal and 1,000-ms delayed-bootstrap cases plus all existing gates; each judge also ran a corruption
+negative that exited 1 with failure artifacts. [Runner details](chromium-upgrade-smoke.md).
+This resolves the reproduced fixture race; dependency work, other browser coverage and real iOS remain open.
 
 ## Open criteria
 
@@ -95,7 +103,7 @@ race case remain objective 4 work. No application fix or installed-client pass i
 | P0-02 | Exact successful deployment and repeated stale-run guards passed |
 | P0-03 | Two complete canonical production sweeps passed |
 | P0-04 | **Not run:** old OS-installed client update, workout preservation, offline reopen, reconnect and one saved ID |
-| P0-05 | Reviewed checks passed; first main fixture failure and successful retry retained, reproducibility follow-up open |
+| P0-05 | Reviewed checks passed; first main fixture failure/retry retained and reproduced race repaired by reviewed PR #105 |
 | P0-06 | Partial evidence documented; final closure awaits the missing journey and both judges |
 
 A retained v2.8.3 browser profile has an active service worker and synthetic in-progress workout on disk, but

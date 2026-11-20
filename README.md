@@ -98,7 +98,8 @@ Published `main` runs lint, CodeQL, app/offline journeys, no-skipped-tests check
 release integrity, and the Chromium upgrade smoke. The local `merge-ready` contract is an unmerged proposal;
 repository-wide formatting is not yet an enforced blocking check on published `main`.
 The canonical-transport browser regression is now also in CI. Main's initial v2.8.4 upgrade-smoke failure and
-successful retry are both recorded; the reproduced fixture race remains reproducibility work in priority 4.
+successful retry are both recorded. [PR #105](https://github.com/metalfurius/gym/pull/105) repaired the reproduced
+fixture race and added a required delayed-bootstrap case; broader priority-4 browser/device work remains open.
 See the roadmap for the distinction between published checks and local stabilization work.
 
 ### How We Ship Major Features

@@ -22,7 +22,7 @@ Port useful changes onto current `main` and validate them against the newer rele
 
 - Version **2.8.4** was released and deployed on November 20, 2026; a fresh isolated production client loaded that revision.
 - **848 tests across 56 suites** passed on the reviewed implementation. Application statements coverage was **74.95%**, above the current **70%** gate.
-- Lint, CodeQL, release verification, app/offline journeys and Chromium checks passed. Main's first upgrade-smoke attempt failed with an old shell after activation; its second attempt passed. The reproduced fixture race remains quality work, not evidence of stable CI.
+- Lint, CodeQL, release verification, app/offline journeys and Chromium checks passed. Main's first upgrade-smoke attempt failed with an old shell after activation; its second attempt passed. The reproduced fixture race was then fixed in reviewed [PR #105](https://github.com/metalfurius/gym/pull/105), with normal and delayed-bootstrap cases passing in Linux CI; both earlier results remain recorded.
 - The scoped Cloudflare credential and rule precedence are repaired. The real production workflow purged **64 canonical URLs** after the matching Pages deployment; **two complete 64-response sweeps** agreed on v2.8.4. **Objective 1 remains partial** because the old installed-client preservation/offline/reconnect journey and final two-judge closure review are outstanding.
 - Open maintenance PRs at review time: [#67](https://github.com/metalfurius/gym/pull/67) and [#70](https://github.com/metalfurius/gym/pull/70). There are no open standalone issues; this does not mean the backlog is empty.
 
