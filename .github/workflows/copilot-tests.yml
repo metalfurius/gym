@@ -3,10 +3,6 @@ name: Copilot Test Generation
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - 'js/**/*.js'
-      - 'scripts/**/*.mjs'
-      - '!js/**/*.test.js'
 
 permissions:
   contents: read
