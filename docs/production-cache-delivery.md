@@ -37,6 +37,8 @@ Every non-HTML declared asset must match its manifest hash. Portfolio retains it
 media and shell checks in both sweeps. Cross-sweep fingerprints must also remain stable. A failed/mixed/divergent
 sweep resets the count; the recorded attempt remains in the evidence. Query/fragment URLs and redirects away
 from the exact requested canonical URL cannot supply evidence. Request cache-control headers alone prove nothing.
+The isolated challenge browser disables both its HTTP cache and service-worker interception before navigating.
+An active application worker therefore cannot substitute a cached response originally fetched with a query URL.
 
 ## Authorized production execution
 
@@ -90,3 +92,5 @@ real helper orchestration with deterministic API/asset sequences, including pend
 deployments, shadowed cache rules and a good sweep followed by an old manifest. Run the shared lint/no-skips,
 application/offline and coverage gates. An application asset change additionally needs release integrity and
 Chromium upgrade smoke. Live Cloudflare/installed-client results must be recorded separately from these fixtures.
+`npm run test:e2e:canonical-transport` additionally uses real Chromium and an active worker to verify network
+request counts, current/stale canonical response bodies and rejection of a query-backed cache response. CI runs it.

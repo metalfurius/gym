@@ -455,7 +455,6 @@ async function waitForChromePageTarget(remotePort, base, getProcessError) {
                         target.type === 'page' &&
                         target.webSocketDebuggerUrl &&
                         target.url &&
-                        target.url !== 'about:blank' &&
                         !target.url.startsWith('chrome-extension://')
                 );
                 if (pageTarget) return pageTarget;
@@ -587,7 +586,7 @@ class ChallengeBrowserSession {
     }
 }
 
-async function openChallengeBrowser(base, target, expectedRevision) {
+export async function openChallengeBrowser(base, target, expectedRevision) {
     const chromePath = await resolveChromePath();
     const xvfbPath = await resolveXvfbPath();
     const profileDirectory = await fs.mkdtemp(
@@ -609,7 +608,7 @@ async function openChallengeBrowser(base, target, expectedRevision) {
         `--remote-debugging-port=${remotePort}`,
         `--user-data-dir=${profileDirectory}`,
         '--window-size=1440,900',
-        base.toString(),
+        'about:blank',
     ];
     const launchCommand = xvfbPath || chromePath;
     const launchArguments = xvfbPath
@@ -641,6 +640,10 @@ async function openChallengeBrowser(base, target, expectedRevision) {
         await client.send('Page.enable');
         await client.send('Network.enable');
         await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+        // Configure both before navigating: the app can install and claim a worker
+        // immediately, and HTTP-cache disabling alone does not bypass worker caches.
+        await client.send('Network.setBypassServiceWorker', { bypass: true });
+        await client.send('Page.navigate', { url: base.toString() });
 
         const session = new ChallengeBrowserSession({
             chrome,
