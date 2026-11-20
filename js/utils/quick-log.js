@@ -189,16 +189,17 @@ function normalizeWeeklyOutcomesByWeek(value) {
     return normalized;
 }
 
-function resolveBaselineWeeklyTarget({ normalizedWeeklyTargetsByWeek, windowStartKey }) {
+function resolveBaselineWeeklyTarget({ normalizedWeeklyTargetsByWeek, windowStartKey, baselineTargetSessions }) {
     const historicalTargets = Object.entries(normalizedWeeklyTargetsByWeek)
         .filter(([weekKey]) => weekKey < windowStartKey)
         .sort(([weekKeyA], [weekKeyB]) => weekKeyA.localeCompare(weekKeyB));
 
     if (historicalTargets.length === 0) {
+        const target = normalizeWeeklyTargetSessions(baselineTargetSessions, WEEKLY_TARGET_SESSIONS_DEFAULT);
         return {
-            targetSessions: WEEKLY_TARGET_SESSIONS_DEFAULT,
-            targetDays: WEEKLY_TARGET_SESSIONS_DEFAULT,
-            hasTargetRecord: false
+            targetSessions: target,
+            targetDays: target,
+            hasTargetRecord: baselineTargetSessions !== undefined
         };
     }
 
@@ -275,7 +276,8 @@ export function buildWeeklyConsistencyTimeline(input = {}) {
 
     const baselineWeeklyTarget = resolveBaselineWeeklyTarget({
         normalizedWeeklyTargetsByWeek,
-        windowStartKey
+        windowStartKey,
+        baselineTargetSessions: input.weeklyTargetBaselineSessions,
     });
     let effectiveTargetSessions = baselineWeeklyTarget.targetSessions;
     let hasResolvedWeeklyTargetRecord = baselineWeeklyTarget.hasTargetRecord;
@@ -578,6 +580,7 @@ export function computeDailyHubState(input = {}) {
         now,
         weeklyTargetSessions: input.weeklyTargetSessions,
         weeklyTargetDays: input.weeklyTargetDays,
+        weeklyTargetBaselineSessions: input.weeklyTargetBaselineSessions,
         weeklyTargetsByWeek: input.weeklyTargetsByWeek,
         weeklyOutcomesByWeek: input.weeklyOutcomesByWeek
     });

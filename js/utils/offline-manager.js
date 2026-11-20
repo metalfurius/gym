@@ -10,6 +10,11 @@ import { localFirstCache } from './local-first-cache.js';
 import { t } from '../i18n.js';
 
 const PERSISTED_QUEUE_KEY = 'offline:pending-operations:v1';
+const ACCOUNT_OPERATION_TYPES = new Set([
+    'session.save', 'quicklog.save', 'preferences.saveWeeklyTarget',
+    'preferences.syncWeeklyState', 'routines.fetch',
+]);
+const isOwnerId = value => typeof value === 'string' && value.trim().length > 0;
 
 function createQueueId() {
     return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -22,7 +27,15 @@ function isSerializableDescriptor(descriptor) {
         && descriptor.type.trim().length > 0;
 }
 
-class OfflineManager {
+function migrateDescriptor(descriptor, queueId) {
+    if (['session.save', 'quicklog.save'].includes(descriptor?.type)
+        && descriptor.payload?.userId && !descriptor.payload.sessionId) {
+        return { ...descriptor, payload: { ...descriptor.payload, sessionId: `legacy-${queueId}` } };
+    }
+    return descriptor;
+}
+
+export class OfflineManager {
     constructor() {
         this.isOnline = navigator.onLine;
         this.pendingOperations = [];
@@ -32,7 +45,13 @@ class OfflineManager {
         this.offlineHandler = null;
         this.isProcessing = false;
         this.operationHandlers = new Map();
+        this.operationScopes = new Map();
         this.pendingRestorePromise = null;
+        this.queueRestored = false;
+        this.queuePersistenceTail = Promise.resolve();
+        this.activeUserId = undefined;
+        this.queueListeners = [];
+        this.processingPromise = null;
     }
 
     /**
@@ -85,7 +104,8 @@ class OfflineManager {
         this.offlineHandler = null;
         this.initialized = false;
         this.listeners = [];
-        this.clearPending();
+        // Destruction is a lifecycle event, not authorization to erase durable work.
+        this.pendingOperations = this.pendingOperations.filter(entry => isSerializableDescriptor(entry.descriptor));
 
         logger.info('OfflineManager destroyed');
     }
@@ -95,12 +115,16 @@ class OfflineManager {
      * @param {string} type - Descriptor type key.
      * @param {Function} handler - Async handler that receives descriptor payload.
      */
-    registerOperationHandler(type, handler) {
+    registerOperationHandler(type, handler, { scope = 'account' } = {}) {
         if (typeof type !== 'string' || type.trim().length === 0 || typeof handler !== 'function') {
             throw new Error('registerOperationHandler requires a type and a handler function');
         }
+        if (!['account', 'global'].includes(scope) || (scope === 'global' && ACCOUNT_OPERATION_TYPES.has(type))) {
+            throw new Error('Account operations require an explicit owner UID');
+        }
 
         this.operationHandlers.set(type, handler);
+        this.operationScopes.set(type, scope);
     }
 
     /**
@@ -109,6 +133,7 @@ class OfflineManager {
      */
     removeOperationHandler(type) {
         this.operationHandlers.delete(type);
+        this.operationScopes.delete(type);
     }
 
     /**
@@ -131,19 +156,26 @@ class OfflineManager {
                 if (!persistedItem.id || knownIds.has(persistedItem.id)) continue;
                 if (!isSerializableDescriptor(persistedItem.descriptor)) continue;
 
-                this.pendingOperations.push({
+                const entry = {
                     id: persistedItem.id,
                     operation: null,
                     description: persistedItem.description || t('offline.queued_when_online'),
                     timestamp: persistedItem.timestamp || Date.now(),
-                    descriptor: persistedItem.descriptor
-                });
+                    status: persistedItem.status,
+                    conflict: persistedItem.conflict,
+                    scope: persistedItem.scope,
+                    ownerId: persistedItem.ownerId,
+                    descriptor: migrateDescriptor(persistedItem.descriptor, persistedItem.id)
+                };
+                if (this.getOperationOwnership(entry).kind === 'unowned') entry.status = 'unowned';
+                this.pendingOperations.push(entry);
                 knownIds.add(persistedItem.id);
             }
         })();
 
         try {
             await this.pendingRestorePromise;
+            this.queueRestored = true;
         } finally {
             this.pendingRestorePromise = null;
         }
@@ -156,12 +188,17 @@ class OfflineManager {
                 id: item.id,
                 description: item.description,
                 timestamp: item.timestamp,
+                ...(item.status ? { status: item.status } : {}),
+                ...(item.conflict ? { conflict: item.conflict } : {}),
+                ...(item.scope ? { scope: item.scope } : {}),
+                ...(item.ownerId ? { ownerId: item.ownerId } : {}),
                 descriptor: item.descriptor
             }));
     }
 
     async persistQueue() {
-        try {
+        const persist = async () => {
+            if (!this.queueRestored) await this.restorePersistedQueue();
             const persistableQueue = this.getPersistableQueue();
             if (persistableQueue.length === 0) {
                 await localFirstCache.remove(PERSISTED_QUEUE_KEY);
@@ -169,14 +206,66 @@ class OfflineManager {
             }
 
             await localFirstCache.set(PERSISTED_QUEUE_KEY, persistableQueue, {
+                requireDurable: true,
                 metadata: {
                     count: persistableQueue.length,
                     updatedAt: Date.now()
                 }
             });
-        } catch (error) {
-            logger.warn('Failed to persist offline queue:', error);
+        };
+        const next = this.queuePersistenceTail.then(persist);
+        this.queuePersistenceTail = next.catch(error => logger.warn('Failed to persist offline queue:', error));
+        return next;
+    }
+
+    setActiveUser(userId) { this.activeUserId = userId || null; }
+
+    getOperationOwnership(entry) {
+        if (entry.descriptor) {
+            const owner = entry.descriptor.payload?.userId;
+            if (isOwnerId(owner) && (!entry.ownerId || entry.ownerId === owner)) return { kind: 'account', ownerId: owner };
+            if (owner !== undefined || entry.ownerId || ACCOUNT_OPERATION_TYPES.has(entry.descriptor.type)) return { kind: 'unowned' };
+            // A registered handler explicitly declares that this type never
+            // accesses account data. Unknown legacy types are quarantined.
+            if (this.operationScopes.get(entry.descriptor.type) === 'global') return { kind: 'global' };
+            return { kind: 'unowned' };
         }
+        if (isOwnerId(entry.ownerId)) return { kind: 'account', ownerId: entry.ownerId };
+        return { kind: entry.scope === 'global' ? 'global' : 'unowned' };
+    }
+
+    belongsToActiveUser(entry) {
+        const ownership = this.getOperationOwnership(entry);
+        return ownership.kind === 'global' || (ownership.kind === 'account' && ownership.ownerId === this.activeUserId);
+    }
+
+    async acknowledgeOperation(id) {
+        this.pendingOperations = this.pendingOperations.filter(entry => entry.id !== id);
+        await this.persistQueue();
+        await this.notifyQueueChange();
+    }
+
+    async markConflict(id, error) {
+        const entry = this.pendingOperations.find(item => item.id === id);
+        if (entry) {
+            entry.status = 'conflict';
+            entry.conflict = { code: 'sync/conflict', currentRevision: error.result?.currentRevision ?? null };
+            await this.persistQueue();
+            await this.notifyQueueChange();
+        }
+    }
+
+    async resolveConflicts(userId, weekKey) {
+        this.pendingOperations = this.pendingOperations.filter(entry => !(entry.status === 'conflict'
+            && entry.descriptor?.payload?.userId === userId && entry.descriptor?.payload?.weekKey === weekKey));
+        await this.persistQueue();
+        await this.notifyQueueChange();
+    }
+
+    addQueueListener(listener) { this.queueListeners.push(listener); }
+
+    notifyQueueChange() {
+        return Promise.allSettled(this.queueListeners.map(listener => Promise.resolve().then(listener)));
     }
 
     /**
@@ -206,7 +295,7 @@ class OfflineManager {
             logger.debug('Toast not available', e);
         }
 
-        this.notifyListeners(true);
+        await this.notifyListeners(true);
 
         await this.restorePersistedQueue();
 
@@ -235,7 +324,7 @@ class OfflineManager {
      * @param {Object|null} queueDescriptor - Serializable descriptor for durable queue.
      * @returns {Promise<*>}
      */
-    async executeWithOfflineHandling(operation, errorMessage = undefined, queueIfOffline = false, queueDescriptor = null) {
+    async executeWithOfflineHandling(operation, errorMessage = undefined, queueIfOffline = false, queueDescriptor = null, queueOptions = {}) {
         if (typeof operation !== 'function') {
             throw new Error('Operation must be a function');
         }
@@ -252,7 +341,8 @@ class OfflineManager {
 
             if (queueIfOffline) {
                 const queueOperationFn = isSerializableDescriptor(queueDescriptor) ? null : operation;
-                this.queueOperation(queueOperationFn, resolvedErrorMessage, { descriptor: queueDescriptor });
+                this.queueOperation(queueOperationFn, resolvedErrorMessage, { ...queueOptions, descriptor: queueDescriptor });
+                if (isSerializableDescriptor(queueDescriptor)) await this.persistQueue();
                 try {
                     toast.info(t('offline.queued_when_online'), { duration: 3000 });
                 } catch (e) {
@@ -276,7 +366,8 @@ class OfflineManager {
 
                 if (queueIfOffline) {
                     const queueOperationFn = isSerializableDescriptor(queueDescriptor) ? null : operation;
-                    this.queueOperation(queueOperationFn, resolvedErrorMessage, { descriptor: queueDescriptor });
+                    this.queueOperation(queueOperationFn, resolvedErrorMessage, { ...queueOptions, descriptor: queueDescriptor });
+                    if (isSerializableDescriptor(queueDescriptor)) await this.persistQueue();
                 }
             }
             throw error;
@@ -318,8 +409,12 @@ class OfflineManager {
             operation: typeof operation === 'function' ? operation : null,
             description,
             timestamp: Date.now(),
+            ...(options.scope ? { scope: options.scope } : {}),
+            ...(options.ownerId ? { ownerId: options.ownerId } : {}),
             descriptor
         };
+        if (descriptor) queueEntry.descriptor = migrateDescriptor(descriptor, queueEntry.id);
+        if (this.getOperationOwnership(queueEntry).kind === 'unowned') queueEntry.status = 'unowned';
 
         this.pendingOperations.push(queueEntry);
         logger.info(`Queued operation: ${description}`);
@@ -329,6 +424,7 @@ class OfflineManager {
                 logger.warn('Could not persist queued operation:', error);
             });
         }
+        return queueEntry.id;
     }
 
     resolveOperation(entry) {
@@ -350,8 +446,17 @@ class OfflineManager {
      * Process all pending operations.
      */
     async processPendingOperations() {
+        if (this.processingPromise) return this.processingPromise;
+        const processing = this.processPendingOperationsInternal();
+        this.processingPromise = processing;
+        try { return await processing; }
+        finally { if (this.processingPromise === processing) this.processingPromise = null; }
+    }
+
+    async processPendingOperationsInternal() {
         await this.restorePersistedQueue();
 
+        if (!this.checkOnline()) return;
         if (this.pendingOperations.length === 0) return;
         if (this.isProcessing) {
             logger.debug('Already processing pending operations, skipping');
@@ -364,35 +469,34 @@ class OfflineManager {
             logger.info(`Processing ${this.pendingOperations.length} pending operations`);
 
             const operations = [...this.pendingOperations];
-            this.pendingOperations = [];
 
             let successCount = 0;
             let failureCount = 0;
 
             for (const queueEntry of operations) {
+                if (!this.belongsToActiveUser(queueEntry) || queueEntry.status === 'conflict') continue;
                 const operationToRun = this.resolveOperation(queueEntry);
                 if (!operationToRun) {
                     failureCount++;
                     logger.warn(`No handler found for queued operation: ${queueEntry.description}`);
-                    this.pendingOperations.push({
-                        ...queueEntry,
-                        timestamp: Date.now()
-                    });
                     continue;
                 }
 
                 try {
                     await operationToRun();
+                    this.pendingOperations = this.pendingOperations.filter(entry => entry.id !== queueEntry.id);
                     successCount++;
                     logger.info(`Completed queued operation: ${queueEntry.description}`);
                 } catch (error) {
                     failureCount++;
                     logger.error(`Failed queued operation: ${queueEntry.description}`, error);
-                    this.pendingOperations.push({
-                        ...queueEntry,
-                        timestamp: Date.now()
-                    });
+                    if (error.code === 'sync/conflict') {
+                        queueEntry.status = 'conflict';
+                        queueEntry.conflict = { code: error.code, currentRevision: error.result?.currentRevision ?? null };
+                    }
                 }
+                // Keep in-flight work durable until each individual acknowledgement.
+                await this.persistQueue();
             }
 
             await this.persistQueue();
@@ -414,6 +518,7 @@ class OfflineManager {
             }
         } finally {
             this.isProcessing = false;
+            await this.notifyQueueChange();
         }
     }
 
@@ -437,14 +542,18 @@ class OfflineManager {
      * Notify all listeners of state change.
      * @param {boolean} isOnline
      */
-    notifyListeners(isOnline) {
+    async notifyListeners(isOnline) {
+        const pending = [];
         for (const callback of this.listeners) {
             try {
-                callback(isOnline);
+                const result = callback(isOnline);
+                if (result?.then) pending.push(result);
             } catch (error) {
                 logger.error('Error in offline listener:', error);
             }
         }
+        const results = await Promise.allSettled(pending);
+        results.filter(result => result.status === 'rejected').forEach(result => logger.warn('Async offline listener failed:', result.reason));
     }
 
     /**
@@ -452,7 +561,15 @@ class OfflineManager {
      * @returns {number}
      */
     getPendingCount() {
-        return this.pendingOperations.length;
+        return this.pendingOperations.filter(entry => this.belongsToActiveUser(entry)).length;
+    }
+
+    getConflictCount() {
+        return this.pendingOperations.filter(entry => this.belongsToActiveUser(entry) && entry.status === 'conflict').length;
+    }
+
+    getUnownedCount() {
+        return this.pendingOperations.filter(entry => this.getOperationOwnership(entry).kind === 'unowned').length;
     }
 
     /**
@@ -460,6 +577,7 @@ class OfflineManager {
      */
     clearPending() {
         this.pendingOperations = [];
+        this.queueRestored = true;
         this.persistQueue().catch((error) => {
             logger.warn('Could not clear persisted offline queue:', error);
         });

@@ -5,6 +5,8 @@ import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import {
     __getMockCollectionDocuments,
     __resetMockFirebase,
+    __authState,
+    __notifyAuthListeners,
 } from '../mocks/firebase-state.js';
 import { offlineManager } from '../../js/utils/offline-manager.js';
 
@@ -274,9 +276,15 @@ describe('App Offline Recovery Journey', () => {
         expect(document.getElementById('history-list').textContent).toContain('Offline Test Routine');
     }, 30000);
 
-    afterAll(() => {
-        setOnline(true);
+    afterAll(async () => {
+        onlineState.value = true;
+        await offlineManager.handleOnline();
+        await offlineManager.processingPromise;
         offlineManager.clearPending();
+        await offlineManager.persistQueue();
+        __authState.currentUser = null;
+        await __notifyAuthListeners();
+        await waitForUi(20);
         __resetMockFirebase();
         localStorage.clear();
         sessionStorage.clear();

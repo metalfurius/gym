@@ -3,6 +3,9 @@
  * Manages the activity calendar display, navigation, and data fetching
  */
 
+import { captureAccountScope, isAccountScopeCurrent } from '../utils/account-scope.js';
+import { calendarNow } from '../utils/calendar-clock.js';
+import { registerSessionMutationInvalidator } from '../utils/session-mutations.js';
 import { db } from '../firebase-config.js';
 import { collection, query, where, orderBy, limit, getDocs, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 import { getCurrentUser } from '../auth.js';
@@ -19,10 +22,12 @@ import { t, getLocale } from '../i18n.js';
 const MIN_CALENDAR_YEAR = 2025;
 const CALENDAR_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const MINIMUM_BOUND_RETRY_MS = 5 * 60 * 1000;
+const CALENDAR_MONTH_LIMIT = 1500;
 
 // State
-let currentCalendarYear = new Date().getFullYear();
-let currentCalendarMonth = new Date().getMonth(); // 0-11 (enero-diciembre)
+const initialCalendarNow = calendarNow();
+let currentCalendarYear = initialCalendarNow.getFullYear();
+let currentCalendarMonth = initialCalendarNow.getMonth(); // 0-11 (enero-diciembre)
 let isInitialized = false;
 let minimumBoundUserId = null;
 let minimumBoundYear = null;
@@ -145,7 +150,7 @@ function resetMinimumBoundState() {
  * Uses a permissive fallback on transient failures, with retry backoff.
  * @param {string} userId - Authenticated user id
  */
-async function resolveMinimumBoundForUser(userId) {
+async function resolveMinimumBoundForUser(userId, isCurrent, referenceNow) {
     if (!userId) {
         resetMinimumBoundState();
         return;
@@ -178,10 +183,11 @@ async function resolveMinimumBoundForUser(userId) {
             limit(10)
         );
         const querySnapshot = await getDocs(earliestSessionQuery);
+        if (!isCurrent()) return;
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.minimumBound');
 
         if (querySnapshot.empty) {
-            const today = new Date();
+            const today = referenceNow;
             minimumBoundYear = today.getFullYear();
             minimumBoundMonth = today.getMonth();
             minimumBoundResolved = true;
@@ -197,7 +203,7 @@ async function resolveMinimumBoundForUser(userId) {
             minimumBoundYear = earliestSessionDate.getFullYear();
             minimumBoundMonth = earliestSessionDate.getMonth();
 
-            const today = new Date();
+            const today = referenceNow;
             const currentYear = today.getFullYear();
             const currentMonth = today.getMonth();
             if (
@@ -221,6 +227,7 @@ async function resolveMinimumBoundForUser(userId) {
         logger.warn('Could not resolve earliest activity month due to invalid date payload.');
         minimumBoundPermissive = true;
     } catch (error) {
+        if (!isCurrent()) return;
         logger.warn('Could not resolve earliest activity month. Backward navigation will stay enabled:', error);
         minimumBoundPermissive = true;
     }
@@ -229,8 +236,7 @@ async function resolveMinimumBoundForUser(userId) {
 /**
  * Clamps current calendar state to valid navigation bounds.
  */
-function clampCalendarToAllowedRange() {
-    const today = new Date();
+function clampCalendarToAllowedRange(today) {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
 
@@ -283,20 +289,20 @@ function clampCalendarToAllowedRange() {
  * @param {number} month - The month to fetch (0-11)
  * @returns {Map} Map of date strings to activity info
  */
-async function getMonthlyActivity(userId, year, month) {
-    if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+async function getMonthlyActivity(userId, year, month, isCurrent) {
     
     const activityMap = new Map(); // 'YYYY-MM-DD' -> { count, type }
     const startDate = new Date(year, month, 1); // First day of month
-    const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Last day of month
+    const endDate = new Date(year, month + 1, 1); // Last day of month
     const cacheKey = `calendar:${userId}:${year}-${month + 1}`;
 
     try {
         const cachedEntry = await localFirstCache.getEntry(cacheKey);
+        if (!isCurrent()) return activityMap;
         if (cachedEntry?.value) {
             const cachedMap = deserializeActivityMap(cachedEntry.value);
             if (localFirstCache.isFresh(cachedEntry, CALENDAR_CACHE_TTL_MS) || !navigator.onLine) {
-                if (loadingSpinner) loadingSpinner.classList.add('hidden');
+                cachedMap.limited = !navigator.onLine || cachedEntry.metadata?.complete !== true;
                 return cachedMap;
             }
         }
@@ -304,19 +310,25 @@ async function getMonthlyActivity(userId, year, month) {
         logger.warn('Could not read monthly activity cache:', error);
     }
 
+    if (!isCurrent()) return activityMap;
     try {
         const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
         const q = query(sessionsRef,
             where('fecha', '>=', Timestamp.fromDate(startDate)),
-            where('fecha', '<=', Timestamp.fromDate(endDate))
+            where('fecha', '<', Timestamp.fromDate(endDate)),
+            orderBy('fecha', 'desc'),
+            limit(CALENDAR_MONTH_LIMIT + 1)
         );
         const querySnapshot = await getDocs(q);
+        if (!isCurrent()) return activityMap;
         firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'calendar.monthlyActivity', {
             year,
             month: month + 1
         });
 
-        querySnapshot.forEach(docSnap => {
+        activityMap.limited = querySnapshot.docs.length > CALENDAR_MONTH_LIMIT
+            || querySnapshot.metadata?.fromCache === true || querySnapshot.metadata?.hasPendingWrites === true;
+        querySnapshot.docs.slice(0, CALENDAR_MONTH_LIMIT).forEach(docSnap => {
             const session = docSnap.data();
             if (session.fecha && session.fecha.toDate) {
                 const dateString = timestampToLocalDateString(session.fecha);
@@ -339,24 +351,26 @@ async function getMonthlyActivity(userId, year, month) {
         });
 
         await localFirstCache.set(cacheKey, serializeActivityMap(activityMap), {
-            metadata: { year, month: month + 1 }
+            metadata: { year, month: month + 1, complete: !activityMap.limited, ownerId: userId }, ifCurrent: isCurrent
         });
     } catch (error) {
+        if (!isCurrent()) return activityMap;
         logger.error('Error fetching monthly activity:', error);
         try {
             const cachedEntry = await localFirstCache.getEntry(cacheKey);
             if (cachedEntry?.value) {
-                return deserializeActivityMap(cachedEntry.value);
+                if (!isCurrent()) return activityMap;
+                const fallback = deserializeActivityMap(cachedEntry.value); fallback.limited = true; return fallback;
             }
         } catch (cacheError) {
             logger.warn('Could not recover monthly activity from cache:', cacheError);
         }
 
-        if (calendarView) {
+        if (calendarView && isCurrent()) {
             calendarView.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">${t('calendar.error_month_load')}</div>`;
         }
-    } finally {
-        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+        activityMap.loadFailed = true;
+        activityMap.limited = true;
     }
     return activityMap;
 }
@@ -367,7 +381,7 @@ async function getMonthlyActivity(userId, year, month) {
  * @param {number} month - The month (0-11)
  * @param {Map} activityData - Map of date strings to activity info
  */
-function renderActivityCalendar(year, month, activityData) {
+function renderActivityCalendar(year, month, activityData, referenceNow) {
     // Re-query calendar elements in case they weren't loaded initially
     if (!calendarView) calendarView = document.getElementById('activity-calendar');
     if (!currentMonthDisplay) currentMonthDisplay = document.getElementById('current-month-display');
@@ -382,6 +396,10 @@ function renderActivityCalendar(year, month, activityData) {
     }
     
     calendarView.innerHTML = ''; // Clear previous calendar
+    if (activityData.limited) {
+        const status = document.createElement('p'); status.id = 'calendar-data-status'; status.setAttribute('role', 'status');
+        status.style.gridColumn = '1 / -1'; status.textContent = t('calendar.limited_data'); calendarView.appendChild(status);
+    }
     
     currentMonthDisplay.textContent = new Date(year, month, 1).toLocaleDateString(getLocale(), {
         month: 'long',
@@ -467,7 +485,7 @@ function renderActivityCalendar(year, month, activityData) {
         cell.textContent = day;
 
         // Highlight current day
-        const today = new Date();
+        const today = referenceNow;
         if (year === today.getFullYear() && 
             month === today.getMonth() && 
             day === today.getDate()) {
@@ -486,7 +504,7 @@ function renderActivityCalendar(year, month, activityData) {
     }
 
     // Show motivational message if no activity in current month
-    if (!hasActivity && year === new Date().getFullYear() && month === new Date().getMonth()) {
+    if (!hasActivity && year === referenceNow.getFullYear() && month === referenceNow.getMonth()) {
         const motivationalMessage = document.createElement('div');
         motivationalMessage.style.cssText = `
             grid-column: 1 / -1; 
@@ -506,7 +524,7 @@ function renderActivityCalendar(year, month, activityData) {
 /**
  * Updates the calendar navigation button states
  */
-function updateCalendarNavigation() {
+function updateCalendarNavigation(referenceNow) {
     // Re-query navigation buttons if needed
     if (!prevMonthBtn) prevMonthBtn = document.getElementById('prev-month-btn');
     if (!nextMonthBtn) nextMonthBtn = document.getElementById('next-month-btn');
@@ -516,7 +534,7 @@ function updateCalendarNavigation() {
         return;
     }
     
-    const today = new Date();
+    const today = referenceNow;
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     
@@ -541,9 +559,9 @@ function updateCalendarNavigation() {
  * Updates the calendar view with current month's data
  * This is the main function to refresh the calendar
  */
-async function updateCalendarViewInternal() {
-    const renderRequestId = ++calendarRenderRequestId;
+async function updateCalendarViewInternal({ renderRequestId, scope, referenceNow }) {
     const user = getCurrentUser();
+    const isCurrent = () => renderRequestId === calendarRenderRequestId && isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     if (!user) {
         resetMinimumBoundState();
         if (calendarContainer) calendarContainer.classList.add('hidden');
@@ -566,8 +584,11 @@ async function updateCalendarViewInternal() {
         return;
     }
     
-    await resolveMinimumBoundForUser(user.uid);
-    clampCalendarToAllowedRange();
+    if (!isCurrent()) return;
+    await resolveMinimumBoundForUser(user.uid, isCurrent, referenceNow);
+    if (!isCurrent()) return;
+    clampCalendarToAllowedRange(referenceNow);
+    const year = currentCalendarYear; const month = currentCalendarMonth;
     
     calendarContainer.classList.remove('hidden');
     
@@ -576,19 +597,34 @@ async function updateCalendarViewInternal() {
         loadingSpinner.classList.remove('hidden');
     }
     
-    const activity = await getMonthlyActivity(user.uid, currentCalendarYear, currentCalendarMonth);
-    if (renderRequestId !== calendarRenderRequestId) {
+    const activity = await getMonthlyActivity(user.uid, year, month, isCurrent);
+    if (!isCurrent()) {
         return;
     }
 
-    renderActivityCalendar(currentCalendarYear, currentCalendarMonth, activity);
+    if (!activity.loadFailed) renderActivityCalendar(year, month, activity, referenceNow);
+    if (loadingSpinner) loadingSpinner.classList.add('hidden');
 
     // Update navigation button states
-    updateCalendarNavigation();
+    updateCalendarNavigation(referenceNow);
 }
 
 // Create debounced version of updateCalendarView to prevent rapid Firebase calls
-const updateCalendarView = debounce(updateCalendarViewInternal, 300);
+const debouncedCalendarUpdate = debounce(updateCalendarViewInternal, 300);
+function updateCalendarView({ now = calendarNow() } = {}) {
+    const renderRequestId = ++calendarRenderRequestId;
+    const scope = captureAccountScope(getCurrentUser()?.uid);
+    return debouncedCalendarUpdate({ renderRequestId, scope, referenceNow: new Date(now) });
+}
+
+export function invalidateCalendar({ resetMonth = false } = {}) {
+    ++calendarRenderRequestId;
+    debouncedCalendarUpdate.cancel();
+    resetMinimumBoundState();
+    if (resetMonth) {
+        const now = calendarNow(); currentCalendarYear = now.getFullYear(); currentCalendarMonth = now.getMonth();
+    }
+}
 
 /**
  * Navigates to the previous month
@@ -621,7 +657,7 @@ function navigateToPreviousMonth() {
  * Navigates to the next month
  */
 function navigateToNextMonth() {
-    const today = new Date();
+    const today = calendarNow();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
     
@@ -633,7 +669,7 @@ function navigateToNextMonth() {
             currentCalendarMonth = 0;
             currentCalendarYear++;
         }
-        updateCalendarView();
+        updateCalendarView({ now: today });
     }
 }
 
@@ -677,17 +713,18 @@ export function initCalendar() {
  * Resets calendar to current month and updates the view
  */
 export function resetToCurrentMonth() {
-    const today = new Date();
+    const today = calendarNow();
     currentCalendarYear = today.getFullYear();
     currentCalendarMonth = today.getMonth();
 
-    updateCalendarView();
+    updateCalendarView({ now: today });
 }
 
 /**
  * Cleans up calendar module
  */
 export function destroyCalendar() {
+    invalidateCalendar();
     if (!isInitialized) return;
 
     // Note: Calendar navigation listeners are registered via addViewListener('dashboard', ...)
@@ -724,6 +761,7 @@ export function getCalendarState() {
  * Hides the calendar container
  */
 export function hideCalendar() {
+    invalidateCalendar();
     if (!calendarContainer) {
         calendarContainer = document.getElementById('activity-calendar-container');
     }
@@ -736,6 +774,10 @@ export {
     updateCalendarView,
     MIN_CALENDAR_YEAR
 };
+
+registerSessionMutationInvalidator(({ userId }) => {
+    if (getCurrentUser()?.uid === userId) invalidateCalendar();
+});
 
 export default {
     init: initCalendar,

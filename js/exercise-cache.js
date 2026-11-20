@@ -2,6 +2,8 @@
 // Manages short-lived exercise suggestion data for better UX and reduced Firebase calls.
 // Progress analytics use the bounded session-history cache in progress.js.
 
+import { captureAccountScope, isAccountScopeCurrent } from './utils/account-scope.js';
+import { registerSessionMutationInvalidator } from './utils/session-mutations.js';
 import { logger } from './utils/logger.js';
 import { firebaseUsageTracker } from './utils/firebase-usage-tracker.js';
 import {
@@ -14,12 +16,32 @@ import { parseDecimalInput, parseIntegerInput } from './utils/numeric-input.js';
 
 export class ExerciseCacheManager {
     constructor() {
+        this.userId = undefined;
+        this.ownerGeneration = 0;
         this.cacheKey = 'gym-tracker-exercise-cache';
         this.backupKey = 'gym-tracker-exercise-backup';
         this.integrityCheckKey = 'gym-tracker-exercise-cache-integrity';
         this.integrityCheckIntervalMs = 6 * 60 * 60 * 1000;
         this.maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 días en milisegundos
         // NOTE: This cache is suggestion data and is intentionally age-limited.
+    }
+
+    setUser(userId) {
+        const normalized = userId || null;
+        if (this.userId === normalized) return;
+        this.userId = normalized; this.ownerGeneration++;
+        const suffix = encodeURIComponent(normalized || 'signed-out');
+        this.cacheKey = `gym-tracker-exercise-cache:${suffix}`;
+        this.backupKey = `gym-tracker-exercise-backup:${suffix}`;
+        this.integrityCheckKey = `gym-tracker-exercise-cache-integrity:${suffix}`;
+    }
+
+    ownerGuard(userId) {
+        if (this.userId === undefined) this.setUser(userId);
+        const generation = this.ownerGeneration;
+        const scope = captureAccountScope(userId);
+        return () => this.userId === userId && generation === this.ownerGeneration
+            && isAccountScopeCurrent(scope, this.userId);
     }
 
     /**
@@ -301,6 +323,8 @@ export class ExerciseCacheManager {
      * @param {Object} db - Instancia de Firestore
      */
     async syncWithFirebase(userId, db) {
+        const isCurrent = this.ownerGuard(userId);
+        if (!isCurrent()) return false;
         if (!userId || !db) return;
 
         try {
@@ -313,6 +337,7 @@ export class ExerciseCacheManager {
 
             // Guardar backup en Firestore
             const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+            if (!isCurrent()) return false;
             const backupDocRef = doc(db, 'users', userId, 'app_data', 'exercise_cache');
             await setDoc(backupDocRef, backupData, { merge: true });
             firebaseUsageTracker.trackWrite(1, 'exerciseCache.syncBackup');
@@ -327,12 +352,16 @@ export class ExerciseCacheManager {
      * @param {Object} db - Instancia de Firestore
      */
     async restoreFromFirebase(userId, db) {
+        const isCurrent = this.ownerGuard(userId);
+        if (!isCurrent()) return false;
         if (!userId || !db) return false;
 
         try {
             const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+            if (!isCurrent()) return false;
             const backupDocRef = doc(db, 'users', userId, 'app_data', 'exercise_cache');
             const backupDoc = await getDoc(backupDocRef);
+            if (!isCurrent()) return false;
             firebaseUsageTracker.trackRead(backupDoc.exists() ? 1 : 0, 'exerciseCache.restoreBackup');
 
             if (backupDoc.exists()) {
@@ -356,6 +385,8 @@ export class ExerciseCacheManager {
      * @param {Object} db - Instancia de Firestore
      */
     async buildCacheFromHistory(userId, db) {
+        const isCurrent = this.ownerGuard(userId);
+        if (!isCurrent()) return false;
         if (!userId || !db) return;
 
         try {
@@ -366,12 +397,14 @@ export class ExerciseCacheManager {
             const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
             const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(200));
             const querySnapshot = await getDocs(q);
+            if (!isCurrent()) return false;
             firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.buildFromHistory');
             // Procesar sesiones en orden cronológico inverso (más antigua primero)
-            const sessions = querySnapshot.docs.reverse();
+            const sessions = [...querySnapshot.docs].reverse();
+            this.clearCache();
 
             sessions.forEach(docSnap => {
-                const sessionData = { id: docSnap.id, ...docSnap.data() };
+                const sessionData = { ...docSnap.data(), id: docSnap.id };
                 this.processCompletedSession(sessionData);
             });
         } catch (error) {
@@ -516,6 +549,8 @@ export class ExerciseCacheManager {
      * @returns {Promise<boolean>} True si el cache necesita ser reconstruido
      */
     async verifyCacheIntegrity(userId, db) {
+        const isCurrent = this.ownerGuard(userId);
+        if (!isCurrent()) return false;
         if (!userId || !db) return false;
 
         try {
@@ -526,6 +561,7 @@ export class ExerciseCacheManager {
             const sessionsRef = collection(db, 'users', userId, 'sesiones_entrenamiento');
             const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(10));
             const querySnapshot = await getDocs(q);
+            if (!isCurrent()) return false;
             firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'exerciseCache.verifyIntegrity');
 
             const recentSessions = querySnapshot.docs;
@@ -540,7 +576,7 @@ export class ExerciseCacheManager {
             let foundMissingExercises = false;
 
             for (const docSnap of recentSessions) {
-                const sessionData = { id: docSnap.id, ...docSnap.data() };
+                const sessionData = { ...docSnap.data(), id: docSnap.id };
 
                 if (sessionData.ejercicios) {
                     for (const ejercicio of sessionData.ejercicios) {
@@ -575,6 +611,8 @@ export class ExerciseCacheManager {
      * @returns {Promise<boolean>} True si se realizó reconstrucción
      */
     async validateAndRebuildCache(userId, db) {
+        const isCurrent = this.ownerGuard(userId);
+        if (!isCurrent()) return false;
         if (!userId || !db) return false;
 
         try {
@@ -583,9 +621,11 @@ export class ExerciseCacheManager {
             }
 
             const needsRebuild = await this.verifyCacheIntegrity(userId, db);
+            if (!isCurrent()) return false;
 
             if (needsRebuild) {
                 await this.buildCacheFromHistory(userId, db);
+                if (!isCurrent()) return false;
                 this.markIntegrityChecked(userId, true);
                 return true;
             }
@@ -601,3 +641,9 @@ export class ExerciseCacheManager {
 
 // Crear instancia singleton
 export const exerciseCache = new ExerciseCacheManager();
+
+registerSessionMutationInvalidator(({ userId }) => {
+    const suffix = encodeURIComponent(userId);
+    localStorage.removeItem(`gym-tracker-exercise-cache:${suffix}`);
+    localStorage.removeItem(`gym-tracker-exercise-cache-integrity:${suffix}`);
+});

@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { __setMockQueryResultHandler, __resetMockFirestoreBehavior } from '../mocks/firebase-firestore.js';
+import { beginAccountSession } from '../../js/utils/account-scope.js';
+import { setCalendarClock } from '../../js/utils/calendar-clock.js';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { MockTimestamp, __firestoreState, __resetMockFirebase } from '../mocks/firebase-state.js';
 
 const mockClearByPrefix = jest.fn(() => Promise.resolve());
@@ -40,6 +43,7 @@ jest.unstable_mockModule('../../js/utils/logger.js', () => ({
 jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
     localFirstCache: {
         clearByPrefix: mockClearByPrefix,
+        remove: mockClearByPrefix,
         getEntry: mockGetEntry,
         set: mockSet,
         isFresh: mockIsFresh,
@@ -61,11 +65,15 @@ jest.unstable_mockModule('../../js/auth.js', () => ({
     getCurrentUser: mockGetCurrentUser,
 }));
 
+jest.unstable_mockModule('../../js/utils/auth-state.js', () => ({
+    getCurrentUser: mockGetCurrentUser,
+}));
+
 jest.unstable_mockModule('../../js/firebase-config.js', () => ({
     db: { __isMockDb: true },
 }));
 
-const progressModule = await import('../../js/progress.js');
+const progressModule = await import(process.env.GYM_SYNC_PROGRESS_MODULE || '../../js/progress.js');
 
 const {
     loadExerciseList,
@@ -114,7 +122,7 @@ function setupProgressDom() {
 
 function buildSessionHistory(weights, exerciseName = 'Bench Press') {
     return weights.map((weight, idx) => ({
-        id: `session-${idx + 1}`,
+        id: `${exerciseName}-session-${idx + 1}`,
         fecha: {
             toDate: () => new Date(`2026-03-0${idx + 1}T08:00:00.000Z`),
         },
@@ -242,7 +250,7 @@ describe('progress flow', () => {
         expect(benchOption).toBeDefined();
         expect(benchOption.textContent).toBe('Bench Press (11 sesiones)');
         expect(mockTrackRead).toHaveBeenCalledWith(21, 'progress.sessionHistoryFallback', {
-            limit: 300,
+            limit: 301,
         });
 
         mockGetEntry.mockResolvedValue({ value: sessions, updatedAt: Date.now() });
@@ -409,7 +417,7 @@ describe('progress flow', () => {
         invalidateProgressCache();
         clearExerciseCache();
 
-        expect(mockClearByPrefix).toHaveBeenCalledWith('progress:sessions:');
+        expect(mockClearByPrefix).toHaveBeenCalledWith('progress:sessions:user-progress-1');
         expect(mockClearByPrefix).toHaveBeenCalledTimes(2);
     });
 
@@ -431,5 +439,152 @@ describe('progress flow', () => {
         expect(progressElements.statsContainer.classList.contains('hidden')).toBe(true);
         expect(progressElements.noDataMessage.classList.contains('hidden')).toBe(true);
         expect(progressElements.exerciseSelect.innerHTML).toContain('Cargando ejercicios');
+    });
+});
+
+function deferredProgressRead() {
+    let resolve; let reject;
+    const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+    return { promise, resolve, reject };
+}
+
+describe('progress deferred UI ownership', () => {
+    const firstValue = 'Bench%20Press::mode=two_hand::load=external';
+    const secondValue = 'Squats::mode=two_hand::load=external';
+    const cached = (weights, name = 'Bench Press') => ({ value: buildSessionHistory(weights, name), metadata: { complete: true } });
+    beforeEach(() => {
+        jest.clearAllMocks(); setupProgressDom();
+        mockGetCurrentUser.mockReturnValue({ uid: 'race-owner' }); beginAccountSession('race-owner');
+        setCalendarClock(() => '2026-03-20T12:00:00Z');
+        Object.defineProperty(navigator, 'onLine', { configurable: true, value: true });
+        mockIsFresh.mockReturnValue(true); mockSet.mockResolvedValue(undefined);
+        invalidateProgressCache('race-owner', { durable: false });
+        progressElements.exerciseSelect.innerHTML = `<option value="${firstValue}">Bench</option><option value="${secondValue}">Squats</option>`;
+        progressElements.periodSelect.value = 'all'; progressElements.metricSelect.value = 'weight';
+        global.Chart = jest.fn(() => ({ destroy: jest.fn() }));
+    });
+    afterEach(() => { setCalendarClock(); jest.useRealTimers(); });
+
+    it.each(['success', 'error'])('ignores an old exercise %s after the new chart, table and stats render', async outcome => {
+        const old = deferredProgressRead(); const latest = deferredProgressRead();
+        mockGetEntry.mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
+        const first = updateChart();
+        progressElements.exerciseSelect.value = secondValue;
+        const second = updateChart();
+        latest.resolve(cached([100, 110, 120], 'Squats')); await second;
+        const chartCount = global.Chart.mock.calls.length;
+        if (outcome === 'success') old.resolve(cached([10, 20, 30])); else old.reject(new Error('late old failure'));
+        await first;
+        expect(global.Chart).toHaveBeenCalledTimes(chartCount);
+        expect(global.Chart.mock.calls.at(-1)[1].data.datasets[0].data).toEqual([100, 110, 120]);
+        expect(progressElements.bestRecord.textContent).toBe('120.0 kg');
+        expect(progressElements.sessionCount.textContent).toBe('3');
+        expect(progressElements.noDataMessage.classList.contains('hidden')).toBe(true);
+        expect(document.querySelector('#progress-data-table caption').textContent).toContain('Squats');
+        expect(document.querySelector('#progress-data-table tbody').textContent).toContain('120');
+        expect(progressElements.loadingSpinner.classList.contains('hidden')).toBe(true);
+        expect(progressElements.noDataMessage.classList.contains('hidden')).toBe(true);
+        expect(mockSet).not.toHaveBeenCalled(); // Superseded cached reads never get persisted.
+    });
+
+    it('does not hide the latest spinner when an older period request finishes', async () => {
+        const old = deferredProgressRead(); const latest = deferredProgressRead();
+        mockGetEntry.mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
+        const first = updateChart();
+        progressElements.periodSelect.value = '3m';
+        progressElements.metricSelect.value = 'reps';
+        const second = updateChart();
+        old.resolve(cached([10, 20, 30])); await first;
+        expect(global.Chart).not.toHaveBeenCalled();
+        expect(progressElements.loadingSpinner.classList.contains('hidden')).toBe(false);
+        latest.resolve(cached([100, 110, 120])); await second;
+        expect(global.Chart.mock.calls.at(-1)[1].data.datasets[0].data).toEqual([8, 8, 8]);
+        expect(progressElements.loadingSpinner.classList.contains('hidden')).toBe(true);
+    });
+
+    it('invalidates delayed chart-library callbacks when selection is cleared', async () => {
+        jest.useFakeTimers(); global.Chart = undefined;
+        mockGetEntry.mockResolvedValue(cached([10, 20, 30]));
+        await updateChart();
+        progressElements.exerciseSelect.innerHTML = '<option value=""></option>';
+        await handleExerciseChange();
+        global.Chart = jest.fn(() => ({ destroy: jest.fn() }));
+        await jest.advanceTimersByTimeAsync(2500);
+        expect(global.Chart).not.toHaveBeenCalled();
+        expect(document.getElementById('progress-data-table')).toBeNull();
+    });
+
+    it('rejects both result and selector cache application across A -> B -> A generations', async () => {
+        const old = deferredProgressRead();
+        mockGetEntry.mockReturnValueOnce(old.promise);
+        const first = loadExerciseList();
+        mockGetCurrentUser.mockReturnValue({ uid: 'other-owner' }); beginAccountSession('other-owner');
+        mockGetCurrentUser.mockReturnValue({ uid: 'race-owner' }); beginAccountSession('race-owner');
+        mockGetEntry.mockResolvedValue(cached([100, 110, 120], 'Squats'));
+        await loadExerciseList();
+        old.resolve(cached([10, 20, 30])); await first;
+        expect([...progressElements.exerciseSelect.options].map(option => option.textContent)).toContain('Squats (3 sesiones)');
+        expect(progressElements.exerciseSelect.textContent).not.toContain('Bench Press');
+    });
+
+    it('counts two persisted same-day sessions twice and deduplicates repeated IDs and duplicate exercise blocks', async () => {
+        const sessions = buildSessionHistory([50, 60, 70]);
+        sessions[1].fecha = sessions[0].fecha;
+        sessions[0].ejercicios.push({ ...sessions[0].ejercicios[0] });
+        sessions.push(sessions[0]);
+        mockGetEntry.mockResolvedValue({ value: sessions, metadata: { complete: true } });
+        await updateChart();
+        expect(progressElements.sessionCount.textContent).toBe('3');
+        await loadExerciseList();
+        expect(progressElements.exerciseSelect.textContent).toContain('Bench Press (3 sesiones)');
+    });
+});
+
+describe('progress bounded completeness and persisted identity', () => {
+    beforeEach(() => {
+        __resetMockFirebase(); __resetMockFirestoreBehavior(); jest.clearAllMocks(); setupProgressDom();
+        mockGetCurrentUser.mockReturnValue({ uid: 'bounded-owner' }); beginAccountSession('bounded-owner');
+        mockGetEntry.mockResolvedValue(null); mockIsFresh.mockReturnValue(false); mockSet.mockResolvedValue(undefined);
+        invalidateProgressCache('bounded-owner', { durable: false });
+        Object.defineProperty(navigator, 'onLine', { configurable: true, value: true });
+        setCalendarClock(() => '2026-03-20T12:00:00Z');
+        const status = document.createElement('p'); status.id = 'progress-data-status'; document.body.appendChild(status);
+        progressElements.periodSelect.value = 'all'; global.Chart = jest.fn(() => ({ destroy: jest.fn() }));
+    });
+    afterEach(() => { __resetMockFirestoreBehavior(); setCalendarClock(); });
+
+    it.each([[0, true], [300, true], [301, false]])('labels %i sessions complete=%s using a bounded lookahead', async (count, complete) => {
+        for (let index = 0; index < count; index++) {
+            __firestoreState.documents.set(`users/bounded-owner/sesiones_entrenamiento/persisted-${index}`,
+                { ...buildSessionHistory([50])[0], id: 'same-wire-id' });
+        }
+        await loadExerciseList();
+        expect(document.getElementById('progress-data-status').classList.contains('hidden')).toBe(complete);
+        expect(mockSet.mock.calls[0][2].metadata.complete).toBe(complete);
+        if (count) {
+            const option = [...progressElements.exerciseSelect.options].find(item => item.value);
+            expect(option.textContent).toContain('300 sesiones');
+            progressElements.exerciseSelect.value = option.value;
+            mockGetEntry.mockResolvedValue({ value: mockSet.mock.calls[0][1], metadata: { complete } }); mockIsFresh.mockReturnValue(true);
+            await updateChart();
+            expect(progressElements.sessionCount.textContent).toBe('300');
+        }
+        expect(progressElements.periodSelect.querySelector('option[value="all"]').textContent)
+            .toBe(complete ? 'Todo el historial' : 'Historial disponible');
+    });
+
+    it('keeps a stale Firestore snapshot limited even below the configured cap', async () => {
+        __setMockQueryResultHandler(snapshot => ({ ...snapshot, metadata: { fromCache: true, hasPendingWrites: false } }));
+        await loadExerciseList();
+        expect(mockSet.mock.calls[0][2].metadata.complete).toBe(false);
+        expect(document.getElementById('progress-data-status').classList.contains('hidden')).toBe(false);
+    });
+
+    it('does not call an old offline array or history page complete history', async () => {
+        mockGetEntry.mockResolvedValue({ value: buildSessionHistory([60, 70, 80]) }); mockIsFresh.mockReturnValue(true);
+        Object.defineProperty(navigator, 'onLine', { configurable: true, value: false });
+        await loadExerciseList();
+        expect(document.getElementById('progress-data-status').classList.contains('hidden')).toBe(false);
+        expect(progressElements.periodSelect.querySelector('option[value="all"]').textContent).toBe('Historial disponible');
     });
 });
