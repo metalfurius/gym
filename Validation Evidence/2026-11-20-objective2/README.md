@@ -4,14 +4,19 @@ Recorded November 20, 2026. **Local, unmerged candidate evidence; objective rema
 open.** No production/account data or credentials were accessed by this implementer.
 The parent owns the real-backend/two-client run and final candidate freeze/reviews.
 
-- Baseline: `4a0f14163399e42955103f3482eee1920d1436bb`.
+- Original implementation/reproduction baseline: `4a0f14163399e42955103f3482eee1920d1436bb`.
+- Integration base: `54e83fbfb263be2e601e1db3d2074275329de40e`, including the reviewed production tooling,
+  controlled Chromium runner and partial production evidence.
 - Worktree/branch: `C:\tmp\gym-roadmap-02`, `codex/roadmap-02-history-sync`.
-- Candidate SHA: **not assigned** (implementation intentionally uncommitted).
-  `source-files.sha256.json` records the exact local source/test/docs/release files.
-- Release metadata: generated locally as `v2.8.3`, 68 cached assets, without a
-  manifest/app-version bump. Parent must integrate current main/P0, choose the next
-  patch and regenerate metadata before freezing the review SHA. This is not a
-  published release or deployment result.
+- Candidate SHA is recorded in the PR, avoiding a self-referential commit hash.
+  `source-files.sha256.json` records the integrated source/test/docs/release bytes with LF-normalized text.
+- Integration release metadata is **v2.8.5**, 68 cached assets, regenerated after resolving only the generated
+  release manifest during rebase. This is not a published release or deployment result.
+
+The command table and attached coverage/browser files below preserve the implementer's earlier local checks
+on the v2.8.3 candidate. They are historical regression evidence, not claims about the final integrated SHA.
+The parent must run the current gates and real-backend sequence against the integrated release before acceptance;
+final CI and live evidence are pinned separately in the PR record.
 - Runtime: Windows NT `10.0.26200.0`, Node `v24.12.0`, npm `11.6.2`; local Chromium fixture uses Chrome `157.0.8103.80`.
 
 ## Scope and criterion matrix

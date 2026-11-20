@@ -1,2 +1,6 @@
 # Preserve exact evidence checksums on Windows and Unix checkouts.
 "Validation Evidence/2026-11-20-weekly-target-production.json" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.json" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.txt" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.md" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.sha256" text eol=lf
