@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-import WebSocket from 'ws';
+import { connectOwnedChromium } from './browser-cdp-target.mjs';
 import { spawnOwnedBrowser } from './owned-browser-process.mjs';
 import { captureBrowserDiagnostics } from './browser-process-diagnostics.mjs';
 
@@ -260,70 +260,6 @@ async function createSwitchingServer(initialRoot) {
     };
 }
 
-class DevToolsClient {
-    constructor(webSocketUrl, onEvent) {
-        this.nextId = 1;
-        this.pending = new Map();
-        this.socket = new WebSocket(webSocketUrl);
-        this.rejectPending = error => {
-            for (const request of this.pending.values()) request.reject(error);
-            this.pending.clear();
-        };
-        this.socket.addEventListener('message', event => {
-            const message = JSON.parse(String(event.data));
-            if (message.id && this.pending.has(message.id)) {
-                const request = this.pending.get(message.id);
-                this.pending.delete(message.id);
-                if (message.error) request.reject(new Error(message.error.message));
-                else request.resolve(message.result || {});
-            } else if (message.method) onEvent(message);
-        });
-        this.socket.addEventListener('close', () => this.rejectPending(new Error('Browser CDP socket closed')));
-        this.socket.addEventListener('error', event => this.rejectPending(new Error(event.message || 'Browser CDP socket error')));
-        this.openPromise = new Promise((resolve, reject) => {
-            this.socket.addEventListener('open', resolve, { once: true });
-            this.socket.addEventListener('error', event => reject(new Error(event.message || 'Browser CDP socket error')), { once: true });
-            this.socket.addEventListener('close', () => reject(new Error('Browser CDP socket closed')), { once: true });
-        });
-    }
-
-    async send(method, params = {}) {
-        await this.openPromise;
-        const id = this.nextId++;
-        return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                this.pending.delete(id);
-                reject(new Error(`CDP command timed out: ${method}`));
-            }, 10_000);
-            this.pending.set(id, {
-                resolve: value => { clearTimeout(timeout); resolve(value); },
-                reject: error => { clearTimeout(timeout); reject(error); },
-            });
-            try {
-                this.socket.send(JSON.stringify({ id, method, params }));
-            } catch (error) {
-                this.pending.get(id)?.reject(error);
-                this.pending.delete(id);
-            }
-        });
-    }
-
-    async evaluate(expression) {
-        const result = await this.send('Runtime.evaluate', {
-            expression, awaitPromise: true, returnByValue: true, userGesture: true,
-        });
-        if (result.exceptionDetails) {
-            throw new Error(result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed');
-        }
-        return result.result?.value;
-    }
-
-    close() {
-        this.rejectPending(new Error('Browser CDP client closed'));
-        this.socket.terminate();
-    }
-}
-
 async function removeOwnedTemp(directory, prefix) {
     const resolved = path.resolve(directory);
     if (!resolved.startsWith(`${path.resolve(os.tmpdir())}${path.sep}`) || !path.basename(resolved).startsWith(prefix)) {
@@ -343,37 +279,13 @@ async function openChrome(url, userDataDirectory, onEvent, signal) {
     ];
     const owner = spawnOwnedBrowser(chromePath, args, { afterClose: () => removeOwnedTemp(userDataDirectory, 'gym-pwa-chrome-profile-') });
     const diagnostics = captureBrowserDiagnostics(owner, { kind: 'chromium', executable: chromePath, args, onEvent });
-    let startupError;
-    owner.process.once('error', error => { startupError = error; });
-    owner.process.once('exit', code => {
-        if (code !== 0) startupError ||= new Error(`Chrome exited with code ${code}`);
-    });
     try {
-        const deadline = Date.now() + 30_000;
-        let pageTarget;
-        let port;
-        while (Date.now() < deadline) {
-            signal.throwIfAborted();
-            if (startupError) throw startupError;
-            try {
-                const activePort = await fs.readFile(path.join(userDataDirectory, 'DevToolsActivePort'), 'utf8');
-                port = Number(activePort.split(/\r?\n/)[0]);
-                if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid owned Chrome port');
-                const targets = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1_000) }).then(response => response.json());
-                pageTarget = targets.find(target => target.type === 'page' && target.url === 'about:blank' && target.webSocketDebuggerUrl);
-                if (pageTarget) break;
-            } catch {
-                // Only the unique profile's own DevToolsActivePort is accepted.
-            }
-            await sleep(50);
+        const connection = await connectOwnedChromium(owner, userDataDirectory, url, onEvent, signal);
+        const expected = process.env.CHROME_EXPECTED_VERSION;
+        if (expected && connection.version.product.split('/').pop() !== expected) {
+            throw new Error(`Browser version mismatch: expected ${expected}, got ${connection.version.product}`);
         }
-        if (!pageTarget) throw new Error('Owned Chrome debugging endpoint did not start');
-        const client = new DevToolsClient(pageTarget.webSocketDebuggerUrl, onEvent);
-        owner.setClient(client);
-        for (const domain of ['Runtime', 'Page', 'Network', 'Log', 'ServiceWorker']) await client.send(`${domain}.enable`);
-        await client.send('Page.setLifecycleEventsEnabled', { enabled: true });
-        await client.send('Page.navigate', { url });
-        return { owner, client, port };
+        return { owner, ...connection, diagnostics };
     } catch (error) {
         try { await owner.close(); }
         catch (cleanupError) { error.browserCleanupError = cleanupError.message; }
@@ -531,6 +443,7 @@ export async function runUpgradeSmoke({
         browser = await openBrowser(server.url, browserProfile, onEvent, controller.signal);
         evidence.browserVersion = await browser.client.send('Browser.getVersion');
         evidence.ownedDebugPort = browser.port;
+        if (browser.targetId) evidence.ownedTarget = { targetId: browser.targetId, sessionId: browser.sessionId };
         stage('wait-for-initialized-active-controlled-A');
         await waitFor(browser.client, async function initializedReleaseA() {
             const registration = await navigator.serviceWorker.getRegistration();
@@ -646,6 +559,7 @@ export async function runUpgradeSmoke({
             failure ||= controller.signal.reason;
             evidence.deadlineError = controller.signal.reason.message;
         }
+        if (browser?.diagnostics) evidence.browserProcess = browser.diagnostics.snapshot();
         evidence.status = failure ? 'failed' : 'passed';
         evidence.completedAt = new Date().toISOString();
         await fs.writeFile(path.join(evidenceDirectory, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`);

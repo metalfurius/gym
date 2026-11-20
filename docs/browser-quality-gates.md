@@ -18,6 +18,7 @@ the [official Node release schedule](https://nodejs.org/en/about/previous-releas
 | `npm run test:e2e:numeric`                                               | `NUMERIC_SMOKE_BROWSER=chromium` or `firefox`; `all` runs both | `Browser Gates / Browser / <os> / numeric-chromium` and `numeric-firefox` |
 | `npm run test:e2e:session-counting`                                      | Chromium                                                       | `Browser Gates / Browser / <os> / counting-chromium`                      |
 | `node scripts/verify-browser-smoke-negative.mjs chromium` (or `firefox`) | The selected browser                                           | Additional required step in each numeric job                              |
+| `node scripts/browser-owned-target-smoke.mjs`                            | Chromium                                                       | Additional required step in each Chromium browser job                     |
 
 `<os>` is `ubuntu-24.04` and `windows-2025`, both x64
 [GitHub hosted runner labels](https://github.com/actions/runner-images#available-images). The separate
@@ -120,11 +121,24 @@ which model ran. Firefox BiDi offline emulation was tried locally and rejected a
 because cached resource fetches failed; there is no silent fallback or claim of physical-device disconnection.
 
 The common driver uses loopback endpoints from its own process: Chrome's private `DevToolsActivePort` file
-and Firefox's own BiDi startup stream. Ports are allocated by the OS (`0`). Each invocation has a new OS-temp
+and Firefox's own BiDi startup stream. Chromium connects to the browser WebSocket from that file, creates the
+fixture URL with `Target.createTarget`, and attaches only that returned target using a flattened session. It
+never selects or navigates the CLI startup page. Its document barrier verifies the actual URL and completed
+document; `Page.navigate.errorText` fails immediately, and an explicit reload requires a new completed loader.
+Only endpoint publication and document readiness are polled; failed navigation is never relaunched. The [CDP schema](https://github.com/ChromeDevTools/devtools-protocol/blob/master/json/browser_protocol.json)
+defines the target/session and navigation result fields. The trace records command names, target/session IDs
+and the ready document. Ports are allocated by the OS (`0`). Each invocation has a new OS-temp
 profile and an ephemeral HTTP port. Firefox uses the documented
 [Remote Agent](https://firefox-source-docs.mozilla.org/remote/Security.html) and
 [WebDriver BiDi commands](https://w3c.github.io/webdriver-bidi/), including trusted pointer input and
 `browser.close`. It does not depend on Firefox's removed CDP support.
+
+The real owned-target regression holds a pre-existing tab's HTTP navigation open while the production
+connector loads a distinct fixture target. It verifies the CLI and pending target IDs were not reused, the
+fixture was requested once, and completing the other tab's navigation does not change its URL/body. A broken
+navigation must surface `errorText` after one `Page.navigate` command. The browser may retry its failed HTTP
+request internally; the harness never sends another navigation command. JSON, trace and screenshots preserve
+both the isolated page and the navigation error document. This is a real Chromium run, not a protocol mock.
 
 Cleanup first requests graceful browser shutdown while the protocol is connected. The reviewed owned-process
 helper bounds shutdown and, if needed, terminates only its own process group/tree. Profile removal happens
@@ -159,6 +173,36 @@ trace. An unrelated startup error cannot satisfy that check. `negative-check-<br
 expected failure verification; its child evidence remains `failed`.
 
 ## Preparation evidence and open gates
+
+### PR107 diagnostic follow-up
+
+The first [browser matrix run](https://github.com/metalfurius/gym/actions/runs/44787925663) failed Chromium
+cases while Firefox passed. Windows traces exposed the CLI startup-page navigation race and an ignored
+`Page.navigate.errorText`. The [diagnostic run](https://github.com/metalfurius/gym/actions/runs/44789311772)
+on `0b6fd0c998e1a24ef13635e1fd2a1107d17deb82` retained the Linux startup failure in JSON/trace:
+`No usable sandbox!`, explicitly identifying Ubuntu's AppArmor/user-namespace restriction before CDP.
+Those failed runs remain failed evidence; the earlier local preparation results below do not supersede them.
+
+Chromium/Linux CI now selects `/opt/google/chrome/chrome-sandbox` through `CHROME_DEVEL_SANDBOX`, following
+[Chromium's documented option 3](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
+The required step verifies a regular, non-symlink, root-owned file with mode `4755` and records its hash in
+`sandbox-helper.json`. Missing or different ownership/mode fails the job. No sandbox-disabling flag or global
+AppArmor setting is used. This helper selection still requires a successful final-head Linux run; a diagnosis
+and workflow edit alone are not a passing browser test.
+
+The navigation correction is shared by numeric/counting and the existing Chromium upgrade launcher. The
+startup diagnostics regression uses a real failing process and verifies stderr/exit status survive owned
+cleanup into JSON/trace. Numeric/counting fixtures and their original assertions remain literal unchanged.
+The updated local runs use `C:\tmp\gym-pr107-owned-target\final`; final-head hosted results and fresh two-judge
+approval are still required. Under Windows `10.0.26200`, Node `22.23.5`, Chrome `158.0.8127.36` and Firefox
+`160.0.1`, the corrected working tree passed three normal upgrades, three delayed upgrades, three owned-target
+regressions, numeric in both browsers, counting Chromium and Firefox upgrade. All upgrades recorded one
+trusted Apply click and one controller reload; the slowest repeated Chromium run took 44.259 seconds within
+its 90-second budget. Both real numeric negative children returned 1 with failed JSON/PNG/trace and their
+checkers passed. The 20 runtime/owned-process tests, lint, no-skips and release-integrity check also passed.
+These are local working-tree results; the new final candidate still needs the complete hosted matrix.
+
+The earlier preparation record follows for provenance.
 
 Local working-tree validation on November 20, 2026 used Windows `10.0.26200`, official Node `v22.23.5`,
 Chrome `158.0.8127.36` and Firefox `160.0.1`. Node's archive matched its official published SHA-256.

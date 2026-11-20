@@ -2,7 +2,8 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import WebSocket from 'ws';
+import { ProtocolClient } from './browser-protocol-client.mjs';
+import { connectOwnedChromium } from './browser-cdp-target.mjs';
 import { spawnOwnedBrowser } from './owned-browser-process.mjs';
 import { captureBrowserDiagnostics } from './browser-process-diagnostics.mjs';
 
@@ -47,51 +48,6 @@ export function decodeBidiValue(value) {
     return value.value;
 }
 
-class ProtocolClient {
-    constructor(url, onEvent) {
-        this.nextId = 1;
-        this.pending = new Map();
-        this.socket = new WebSocket(url);
-        const rejectPending = error => {
-            for (const request of this.pending.values()) request.reject(error);
-            this.pending.clear();
-        };
-        this.socket.on('message', bytes => {
-            const message = JSON.parse(String(bytes));
-            if (message.id && this.pending.has(message.id)) {
-                const request = this.pending.get(message.id); this.pending.delete(message.id);
-                if (message.error) {
-                    request.reject(new Error(typeof message.error === 'string'
-                        ? `${message.error}: ${message.message || ''}` : message.error.message));
-                } else request.resolve(message.result || {});
-            } else if (message.method) onEvent(message);
-        });
-        this.socket.on('close', () => rejectPending(new Error('Browser protocol disconnected')));
-        this.socket.on('error', error => rejectPending(error));
-        this.openPromise = new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Browser protocol connection timed out')), 10_000);
-            this.socket.once('open', () => { clearTimeout(timeout); resolve(); });
-            this.socket.once('error', error => { clearTimeout(timeout); reject(error); });
-            this.socket.once('close', () => { clearTimeout(timeout); reject(new Error('Browser protocol disconnected')); });
-        });
-    }
-
-    async send(method, params = {}) {
-        await this.openPromise;
-        const id = this.nextId++;
-        return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => { this.pending.delete(id); reject(new Error(`Browser command timed out: ${method}`)); }, 10_000);
-            this.pending.set(id, {
-                resolve: value => { clearTimeout(timer); resolve(value); },
-                reject: error => { clearTimeout(timer); reject(error); },
-            });
-            try { this.socket.send(JSON.stringify({ id, method, params })); }
-            catch (error) { this.pending.get(id)?.reject(error); this.pending.delete(id); }
-        });
-    }
-
-    close() { this.socket.terminate(); }
-}
 
 function ownedSocket(value, port) {
     const url = new URL(value);
@@ -123,6 +79,15 @@ export async function openSmokeBrowser(kind, url, profileDirectory, onEvent = ()
     owner.process.once('exit', (code, stopSignal) => { startupError ||= new Error(`Browser exited during startup (${code}/${stopSignal})`); });
     owner.process.stderr.on('data', bytes => { stderr = (stderr + String(bytes)).slice(-50_000); });
     try {
+        if (kind === 'chromium') {
+            const connection = await connectOwnedChromium(owner, profileDirectory, url, onEvent, signal);
+            const expected = process.env.CHROME_EXPECTED_VERSION;
+            if (expected && connection.version.product.split('/').pop() !== expected) {
+                throw new Error(`Browser version mismatch: expected ${expected}, got ${connection.version.product}`);
+            }
+            await connection.client.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+            return { owner, ...connection, diagnostics };
+        }
         const deadline = Date.now() + 30_000;
         let endpoint;
         let port;
@@ -130,19 +95,10 @@ export async function openSmokeBrowser(kind, url, profileDirectory, onEvent = ()
             signal.throwIfAborted();
             if (startupError) throw startupError;
             try {
-                if (kind === 'firefox') {
-                    const address = stderr.match(/WebDriver BiDi listening on (ws:\/\/[^\s]+)\s/)?.[1];
-                    if (address) {
-                        port = Number(new URL(address).port);
-                        endpoint = ownedSocket(`${address.replace(/\/$/, '')}/session`, port);
-                    }
-                } else {
-                    const activePort = await fs.readFile(path.join(profileDirectory, 'DevToolsActivePort'), 'utf8');
-                    port = Number(activePort.split(/\r?\n/)[0]);
-                    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid Chrome port');
-                    const targets = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1_000) }).then(response => response.json());
-                    const target = targets.find(item => item.type === 'page' && item.url === 'about:blank');
-                    if (target?.webSocketDebuggerUrl) endpoint = ownedSocket(target.webSocketDebuggerUrl, port);
+                const address = stderr.match(/WebDriver BiDi listening on (ws:\/\/[^\s]+)\s/)?.[1];
+                if (address) {
+                    port = Number(new URL(address).port);
+                    endpoint = ownedSocket(`${address.replace(/\/$/, '')}/session`, port);
                 }
                 if (endpoint) break;
             } catch { /* Wait for this process's own endpoint. */ }
@@ -150,34 +106,23 @@ export async function openSmokeBrowser(kind, url, profileDirectory, onEvent = ()
         }
         if (!endpoint) throw new Error(`Owned ${kind} endpoint did not start: ${stderr}`);
         const raw = new ProtocolClient(endpoint, onEvent);
-        let context;
-        let version;
-        if (kind === 'firefox') {
-            owner.setClient({ send: () => raw.send('browser.close'), close: () => raw.close() });
-            const session = await raw.send('session.new', { capabilities: { alwaysMatch: {} } });
-            version = { product: `Firefox/${session.capabilities.browserVersion}`, capabilities: session.capabilities };
-            context = (await raw.send('browsingContext.getTree')).contexts?.[0]?.context;
-            if (!context) throw new Error('Firefox has no owned browsing context');
-            await raw.send('session.subscribe', { events: ['log.entryAdded', 'browsingContext.load', 'browsingContext.navigationStarted', 'network.responseCompleted', 'network.fetchError'] });
-        } else {
-            owner.setClient({ send: () => raw.send('Browser.close'), close: () => raw.close() });
-            for (const domain of ['Runtime', 'Page', 'Network', 'Log', 'ServiceWorker']) await raw.send(`${domain}.enable`);
-            version = await raw.send('Browser.getVersion');
-        }
-        const expected = process.env[kind === 'firefox' ? 'FIREFOX_EXPECTED_VERSION' : 'CHROME_EXPECTED_VERSION'];
+        owner.setClient({ send: () => raw.send('browser.close'), close: () => raw.close() });
+        const session = await raw.send('session.new', { capabilities: { alwaysMatch: {} } });
+        const version = { product: `Firefox/${session.capabilities.browserVersion}`, capabilities: session.capabilities };
+        const context = (await raw.send('browsingContext.getTree')).contexts?.[0]?.context;
+        if (!context) throw new Error('Firefox has no owned browsing context');
+        await raw.send('session.subscribe', { events: ['log.entryAdded', 'browsingContext.load', 'browsingContext.navigationStarted', 'network.responseCompleted', 'network.fetchError'] });
+        const expected = process.env.FIREFOX_EXPECTED_VERSION;
         if (expected && version.product.split('/').pop() !== expected) throw new Error(`Browser version mismatch: expected ${expected}, got ${version.product}`);
         const client = {
             async evaluate(expression) {
-                const result = kind === 'firefox'
-                    ? await raw.send('script.evaluate', { expression, target: { context }, awaitPromise: true, userActivation: true })
-                    : await raw.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true, userGesture: true });
+                const result = await raw.send('script.evaluate', { expression, target: { context }, awaitPromise: true, userActivation: true });
                 if (result.exceptionDetails || result.type === 'exception') {
                     throw new Error(result.exceptionDetails?.text || result.exceptionDetails?.exception?.description || 'Browser script failed');
                 }
-                return kind === 'firefox' ? decodeBidiValue(result.result) : result.result?.value;
+                return decodeBidiValue(result.result);
             },
             async send(method, params = {}) {
-                if (kind === 'chromium') return raw.send(method, params);
                 if (method === 'Browser.getVersion') return version;
                 if (method === 'Page.captureScreenshot') return raw.send('browsingContext.captureScreenshot', { context, origin: params.captureBeyondViewport ? 'document' : 'viewport' });
                 if (method === 'Page.navigate') return raw.send('browsingContext.navigate', { context, url: params.url, wait: 'complete' });
@@ -198,7 +143,7 @@ export async function openSmokeBrowser(kind, url, profileDirectory, onEvent = ()
         };
         await client.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
         await client.send('Page.navigate', { url });
-        return { owner, client, port, version };
+        return { owner, client, port, version, diagnostics };
     } catch (error) {
         try { await owner.close(); }
         catch (cleanupError) { error.browserCleanupError = cleanupError.message; }

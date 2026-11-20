@@ -35,14 +35,18 @@ checks run offline and after reconnect. No additional recovery reload can make a
 Run `npm run test:e2e:upgrade`. `CHROME_PATH` optionally selects the Chromium executable; otherwise supported
 Windows/Linux paths are discovered. Each run creates its own temporary profile and asks Chrome for port `0`.
 Only that profile's `DevToolsActivePort` is used, so concurrent reviewers cannot attach to each other's browsers
-or collide on a fixed debugging port. The reviewed owned-browser helper requests graceful CDP shutdown and
+or collide on a fixed debugging port. The browser WebSocket creates a new fixture target and attaches its
+returned ID with a flattened session. The CLI startup page is left alone. Readiness requires the fixture URL
+and a completed document; explicit navigation errors fail, and offline reload waits for a new loader. The
+[real ownership regression and Linux sandbox setup](browser-quality-gates.md#real-assertions-and-isolation)
+also cover the common numeric/counting transport. The reviewed owned-browser helper requests graceful CDP shutdown and
 uses bounded cleanup restricted to its own launcher/process group. Temporary cleanup paths are checked.
 
-| Setting | Meaning |
-| --- | --- |
-| `UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS` | Default `0`; `1000` deterministically delays both fixture bootstraps. Bounds: 0–10,000 ms. Readiness still depends on observed lifecycle state. |
-| `UPGRADE_SMOKE_EVIDENCE_DIR` | Output directory. Default: a new timestamp/PID directory under ignored `tmp/upgrade-smoke/`. Historical July 2026 evidence is never an output default. |
-| `UPGRADE_SMOKE_NEGATIVE_CASE=corrupt-session` | Corrupts only this disposable fixture's saved workout after B activation. The exact-session assertion must fail with exit 1. |
+| Setting                                       | Meaning                                                                                                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS`            | Default `0`; `1000` deterministically delays both fixture bootstraps. Bounds: 0–10,000 ms. Readiness still depends on observed lifecycle state.        |
+| `UPGRADE_SMOKE_EVIDENCE_DIR`                  | Output directory. Default: a new timestamp/PID directory under ignored `tmp/upgrade-smoke/`. Historical July 2026 evidence is never an output default. |
+| `UPGRADE_SMOKE_NEGATIVE_CASE=corrupt-session` | Corrupts only this disposable fixture's saved workout after B activation. The exact-session assertion must fail with exit 1.                           |
 
 Build subprocesses have 20-second timeouts, CDP commands 10-second timeouts and readiness predicates 20-second
 deadlines. A 90-second abort deadline stops further readiness waits; bounded CDP failure capture and owned

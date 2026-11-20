@@ -51,12 +51,33 @@ jobs:
               run: node scripts/install-smoke-browser.mjs ${{ matrix.browser }}
               env:
                   BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}/browser-install.json
+            - name: Select the installed Chromium sandbox helper
+              if: runner.os == 'Linux' && matrix.browser == 'chromium'
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  sandbox=/opt/google/chrome/chrome-sandbox
+                  test -f "$sandbox"
+                  test ! -L "$sandbox"
+                  test "$(stat -c '%u:%a' "$sandbox")" = '0:4755'
+                  printf 'CHROME_DEVEL_SANDBOX=%s\n' "$sandbox" >> "$GITHUB_ENV"
+                  mkdir -p "$SANDBOX_RECEIPT_DIR"
+                  digest=$(sha256sum "$sandbox" | cut -d ' ' -f 1)
+                  printf '{"path":"%s","uid":0,"mode":"4755","sha256":"%s"}\n' "$sandbox" "$digest" > "$SANDBOX_RECEIPT_DIR/sandbox-helper.json"
+              env:
+                  SANDBOX_RECEIPT_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
             - name: Run the required browser case
               timeout-minutes: 3
               run: npm run ${{ matrix.script }}
               env:
                   BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
                   UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+            - name: Verify owned Chromium target navigation
+              if: matrix.browser == 'chromium'
+              timeout-minutes: 3
+              run: node scripts/browser-owned-target-smoke.mjs
+              env:
+                  BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
             - name: Verify real runner failure and diagnostic artifacts
               if: startsWith(matrix.case, 'numeric-')
               timeout-minutes: 3

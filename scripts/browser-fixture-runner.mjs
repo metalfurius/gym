@@ -33,6 +33,7 @@ export async function runBrowserFixture({ name, kind, url, readiness, expression
             event => trace.push({ receivedAt: new Date().toISOString(), ...event }), controller.signal);
         evidence.browserVersion = browser.version;
         evidence.ownedDebugPort = browser.port;
+        if (browser.targetId) evidence.ownedTarget = { targetId: browser.targetId, sessionId: browser.sessionId };
         await waitForSmoke(browser.client, readiness, controller.signal);
         if (process.env.BROWSER_SMOKE_NEGATIVE_CASE) {
             if (process.env.BROWSER_SMOKE_NEGATIVE_CASE !== 'invalid-reps') throw new Error('Unknown browser negative case');
@@ -70,6 +71,7 @@ export async function runBrowserFixture({ name, kind, url, readiness, expression
         } catch (error) { failure ||= error; evidence.cleanupError = error.message; }
         clearTimeout(deadline);
         if (controller.signal.aborted) { failure ||= controller.signal.reason; evidence.deadlineError = controller.signal.reason.message; }
+        if (browser?.diagnostics) evidence.browserProcess = browser.diagnostics.snapshot();
         evidence.status = failure ? 'failed' : 'passed';
         evidence.completedAt = new Date().toISOString();
         await fs.writeFile(path.join(output, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`);
