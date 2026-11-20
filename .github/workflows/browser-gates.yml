@@ -57,11 +57,36 @@ jobs:
               run: |
                   set -euo pipefail
                   sandbox=/opt/google/chrome/chrome-sandbox
+                  mkdir -p "$SANDBOX_RECEIPT_DIR"
+                  {
+                    printf 'Kernel: '; uname -sr
+                    printf 'Runner uid: '; id -u
+                    if test -r /proc/sys/kernel/apparmor_restrict_unprivileged_userns; then
+                      printf 'AppArmor userns restriction: '
+                      cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+                    fi
+                    for candidate in "$sandbox" /opt/google/chrome/chrome_sandbox "$CHROME_PATH" "$(dirname "$CHROME_PATH")/chrome_sandbox"; do
+                      printf '\nCandidate: %s\n' "$candidate"
+                      if test -e "$candidate" || test -L "$candidate"; then
+                        stat -c 'kind=%F mode=%a uid=%u gid=%g path=%n' -- "$candidate"
+                        if resolved=$(readlink -e -- "$candidate"); then
+                          printf 'Resolved: %s\n' "$resolved"
+                          stat -Lc 'resolved-kind=%F mode=%a uid=%u gid=%g' -- "$candidate"
+                        else
+                          printf 'Candidate cannot be resolved\n'
+                        fi
+                      else
+                        printf 'Candidate is absent\n'
+                      fi
+                    done
+                  } 2>&1 | tee "$SANDBOX_RECEIPT_DIR/sandbox-diagnostics.txt"
+                  printf '\nChecking helper is a regular file: %s\n' "$sandbox"
                   test -f "$sandbox"
+                  printf 'Checking helper is not a symlink\n'
                   test ! -L "$sandbox"
+                  printf 'Checking helper uid:mode equals 0:4755; observed %s\n' "$(stat -c '%u:%a' "$sandbox")"
                   test "$(stat -c '%u:%a' "$sandbox")" = '0:4755'
                   printf 'CHROME_DEVEL_SANDBOX=%s\n' "$sandbox" >> "$GITHUB_ENV"
-                  mkdir -p "$SANDBOX_RECEIPT_DIR"
                   digest=$(sha256sum "$sandbox" | cut -d ' ' -f 1)
                   printf '{"path":"%s","uid":0,"mode":"4755","sha256":"%s"}\n' "$sandbox" "$digest" > "$SANDBOX_RECEIPT_DIR/sandbox-helper.json"
               env:
