@@ -1,7 +1,9 @@
 # 1. Reliable production cache delivery
 
-Status: planned; operationally open. Baseline: v2.8.3 / `d4c6d0d`. Authenticated access to the correct Cloudflare
-account is available; token/policy repair, live verification and an already-installed client are still required.
+Status: partial; prerequisite [PR #103](https://github.com/metalfurius/gym/pull/103) merged and v2.8.4 deployed.
+Token/policy repair, real purge and two full canonical sweeps passed. The installed old-client journey and
+two-judge closure review remain open. [Dated evidence](../production-cache-evidence-2026-11-20.md).
+The starting-point observations below describe the original v2.8.3 / `d4c6d0d` baseline.
 Follow the [shared review protocol](README.md#two-judge-merge-protocol).
 
 ## Starting point and preserved behavior

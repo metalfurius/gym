@@ -1,0 +1,136 @@
+{
+  "observedAt": "2026-11-20T12:20:56.396Z",
+  "deployedSha": "9028320061aa388cd529a5a415d4785e1e084a82",
+  "revision": "v2.8.4",
+  "mode": "isolated browser context, fresh production load; not installed-client update proof",
+  "syntheticAccount": true,
+  "changes": [
+    {
+      "target": 5,
+      "server": {
+        "uid": "08viigCveMYrCEFpDLlgJFFmSDs1",
+        "exists": true,
+        "data": {
+          "schemaVersion": 2,
+          "updatedAt": {
+            "seconds": 1795177002,
+            "nanoseconds": 651000000
+          },
+          "weeklyOutcomesByWeek": {},
+          "weeklyTargetDays": 5,
+          "weeklyTargetSessions": 5,
+          "weeklyTargetsByWeek": {
+            "2026-11-16": {
+              "savesUsed": 1,
+              "targetDays": 5,
+              "targetSessions": 5,
+              "updatedAtIso": "2026-11-20T12:16:42.651Z"
+            }
+          }
+        }
+      }
+    },
+    {
+      "target": 2,
+      "server": {
+        "uid": "08viigCveMYrCEFpDLlgJFFmSDs1",
+        "exists": true,
+        "data": {
+          "weeklyTargetsByWeek": {
+            "2026-11-16": {
+              "targetSessions": 2,
+              "targetDays": 2,
+              "savesUsed": 2,
+              "updatedAtIso": "2026-11-20T12:16:57.929Z"
+            }
+          },
+          "weeklyTargetDays": 2,
+          "weeklyOutcomesByWeek": {},
+          "schemaVersion": 2,
+          "updatedAt": {
+            "seconds": 1795177017,
+            "nanoseconds": 929000000
+          },
+          "weeklyTargetSessions": 2
+        }
+      }
+    },
+    {
+      "target": 6,
+      "server": {
+        "uid": "08viigCveMYrCEFpDLlgJFFmSDs1",
+        "exists": true,
+        "data": {
+          "schemaVersion": 2,
+          "weeklyOutcomesByWeek": {},
+          "weeklyTargetsByWeek": {
+            "2026-11-16": {
+              "updatedAtIso": "2026-11-20T12:17:10.520Z",
+              "savesUsed": 3,
+              "targetSessions": 6,
+              "targetDays": 6
+            }
+          },
+          "weeklyTargetSessions": 6,
+          "weeklyTargetDays": 6,
+          "updatedAt": {
+            "seconds": 1795177030,
+            "nanoseconds": 520000000
+          }
+        }
+      }
+    },
+    {
+      "target": 4,
+      "server": {
+        "uid": "08viigCveMYrCEFpDLlgJFFmSDs1",
+        "exists": true,
+        "data": {
+          "weeklyTargetDays": 4,
+          "weeklyTargetsByWeek": {
+            "2026-11-16": {
+              "savesUsed": 4,
+              "updatedAtIso": "2026-11-20T12:19:36.779Z",
+              "targetDays": 4,
+              "targetSessions": 4
+            }
+          },
+          "schemaVersion": 2,
+          "weeklyOutcomesByWeek": {},
+          "weeklyTargetSessions": 4,
+          "updatedAt": {
+            "seconds": 1795177176,
+            "nanoseconds": 779000000
+          }
+        }
+      }
+    }
+  ],
+  "before": {
+    "uid": "08viigCveMYrCEFpDLlgJFFmSDs1",
+    "exists": false,
+    "data": null
+  },
+  "reload": {
+    "at": "2026-11-20T12:20:56.396Z",
+    "revision": "v2.8.4",
+    "selectedTarget": "4",
+    "weeklyProgress": "0/4",
+    "controller": "https://codeoverdose.es/gym/sw.js",
+    "standalone": false,
+    "serverTarget": 4
+  },
+  "initialReload": {
+    "at": "2026-11-20T12:18:55.296Z",
+    "revision": "v2.8.4",
+    "selectedTarget": "6",
+    "weeklyText": [
+      {
+        "id": "daily-hub-weekly-progress",
+        "text": "0/6"
+      }
+    ],
+    "controller": "https://codeoverdose.es/gym/sw.js",
+    "serverTarget": 6
+  }
+}
