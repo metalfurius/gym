@@ -54,6 +54,8 @@ export async function runBrowserFixture({ name, kind, url, readiness, expression
     } catch (error) {
         failure = error;
         evidence.error = error.stack || error.message;
+        if (error.browserDiagnostics) evidence.browserProcess = error.browserDiagnostics;
+        if (error.browserCleanupError) evidence.cleanupError = error.browserCleanupError;
         if (browser) {
             try {
                 evidence.failurePage = await browser.client.evaluate('({ url: location.href, title: document.title, text: document.body.innerText })');

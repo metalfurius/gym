@@ -7,6 +7,7 @@ import process from 'node:process';
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { installSmokeBrowser, sha256File, validateArchiveEntries } from '../../scripts/install-smoke-browser.mjs';
 import { decodeBidiValue, removeSmokeProfile, resolveSmokeBrowser } from '../../scripts/browser-smoke-driver.mjs';
+import { runBrowserFixture } from '../../scripts/browser-fixture-runner.mjs';
 
 const directories = [];
 const originalChromePath = process.env.CHROME_PATH;
@@ -37,7 +38,7 @@ describe('pinned smoke browser installation', () => {
         await expect(installSmokeBrowser('chromium', { cacheDirectory: directory, platform: 'linux', architecture: 'x64', fetchImpl }))
             .rejects.toThrow('Browser archive SHA-256 mismatch');
         expect(fetchImpl).toHaveBeenCalledTimes(1);
-        expect(fetchImpl.mock.calls[0][0]).toMatch(/^https:\/\/storage.googleapis.com\/chrome-for-testing-public\//);
+        expect(fetchImpl.mock.calls[0][0]).toMatch(/^https:\/\/storage\.googleapis\.com\/chrome-for-testing-public\//);
         expect(await fs.readdir(path.join(directory, 'downloads'))).toEqual([]);
         expect((await fs.readdir(directory)).filter(name => name.startsWith('extract-'))).toEqual([]);
     });
@@ -70,6 +71,27 @@ describe('pinned smoke browser installation', () => {
 });
 
 describe('isolated browser protocol utilities', () => {
+    it('preserves real startup stderr, exit status and trace after owned launcher cleanup', async () => {
+        const directory = await temporary();
+        process.env.CHROME_PATH = process.execPath;
+        const assertState = jest.fn();
+        // Node is a real, isolated failing launcher for Chrome's command line;
+        // there is no mocked protocol or browser process to invent diagnostics.
+        await expect(runBrowserFixture({ name: 'startup-diagnostics', kind: 'chromium',
+            url: 'http://127.0.0.1:9/', evidenceDirectory: directory,
+            readiness: 'true', expression: 'true', assertState })).rejects.toThrow('Owned chromium stderr');
+        const evidence = JSON.parse(await fs.readFile(path.join(directory, 'chromium/evidence.json'), 'utf8'));
+        const trace = JSON.parse(await fs.readFile(path.join(directory, 'chromium/trace.json'), 'utf8'));
+        expect(evidence.status).toBe('failed');
+        expect(evidence.browserProcess.stderr).toContain('bad option');
+        expect(evidence.browserProcess.exitCode).not.toBe(0);
+        expect(evidence.browserProcess.executable).toBe(process.execPath);
+        expect(evidence.cleanupError).toBeUndefined();
+        expect(trace.some(event => event.method === 'BrowserProcess.failure'
+            && event.params.stderr.includes('bad option'))).toBe(true);
+        expect(assertState).not.toHaveBeenCalled();
+    });
+
     it('decodes nested actual BiDi remote-value structures without losing false, zero or null', () => {
         expect(decodeBidiValue({ type: 'object', value: [
             ['ready', { type: 'boolean', value: false }], ['count', { type: 'number', value: 0 }],

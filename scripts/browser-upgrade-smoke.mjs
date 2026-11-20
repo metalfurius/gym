@@ -10,6 +10,7 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { spawnOwnedBrowser } from './owned-browser-process.mjs';
+import { captureBrowserDiagnostics } from './browser-process-diagnostics.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHROME_PATH_OVERRIDE = process.env.CHROME_PATH;
@@ -333,13 +334,15 @@ async function removeOwnedTemp(directory, prefix) {
 
 async function openChrome(url, userDataDirectory, onEvent, signal) {
     const chromePath = await resolveChromePath();
-    const owner = spawnOwnedBrowser(chromePath, [
+    const args = [
         '--headless=new', '--disable-gpu', '--use-angle=swiftshader',
         '--disable-gpu-compositing', '--disable-dev-shm-usage', '--disable-extensions',
         '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*',
         '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0',
         `--user-data-dir=${userDataDirectory}`, '--window-size=1440,900', 'about:blank',
-    ], { afterClose: () => removeOwnedTemp(userDataDirectory, 'gym-pwa-chrome-profile-') });
+    ];
+    const owner = spawnOwnedBrowser(chromePath, args, { afterClose: () => removeOwnedTemp(userDataDirectory, 'gym-pwa-chrome-profile-') });
+    const diagnostics = captureBrowserDiagnostics(owner, { kind: 'chromium', executable: chromePath, args, onEvent });
     let startupError;
     owner.process.once('error', error => { startupError = error; });
     owner.process.once('exit', code => {
@@ -372,8 +375,9 @@ async function openChrome(url, userDataDirectory, onEvent, signal) {
         await client.send('Page.navigate', { url });
         return { owner, client, port };
     } catch (error) {
-        await owner.close();
-        throw error;
+        try { await owner.close(); }
+        catch (cleanupError) { error.browserCleanupError = cleanupError.message; }
+        throw diagnostics.failure(error);
     }
 }
 
@@ -611,6 +615,8 @@ export async function runUpgradeSmoke({
     } catch (error) {
         failure = error;
         evidence.error = error.stack || error.message;
+        if (error.browserDiagnostics) evidence.browserProcess = error.browserDiagnostics;
+        if (error.browserCleanupError) evidence.cleanupError = error.browserCleanupError;
         if (browser) {
             try { evidence.failureState = await pageState(browser.client); }
             catch (captureError) { evidence.failureStateError = captureError.message; }

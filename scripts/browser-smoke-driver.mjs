@@ -4,6 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import WebSocket from 'ws';
 import { spawnOwnedBrowser } from './owned-browser-process.mjs';
+import { captureBrowserDiagnostics } from './browser-process-diagnostics.mjs';
 
 const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -115,6 +116,7 @@ export async function openSmokeBrowser(kind, url, profileDirectory, onEvent = ()
         ].join('\n'));
     }
     const owner = spawnOwnedBrowser(executable, args, { afterClose: () => removeSmokeProfile(profileDirectory) });
+    const diagnostics = captureBrowserDiagnostics(owner, { kind, executable, args, onEvent });
     let startupError;
     let stderr = '';
     owner.process.once('error', error => { startupError = error; });
@@ -198,8 +200,9 @@ export async function openSmokeBrowser(kind, url, profileDirectory, onEvent = ()
         await client.send('Page.navigate', { url });
         return { owner, client, port, version };
     } catch (error) {
-        await owner.close();
-        throw error;
+        try { await owner.close(); }
+        catch (cleanupError) { error.browserCleanupError = cleanupError.message; }
+        throw diagnostics.failure(error);
     }
 }
 
