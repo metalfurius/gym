@@ -83,7 +83,7 @@ Document shape:
 Rules:
 
 1. `weeklyTargetSessions` is clamped to `1..7` and resolved from carry-forward week target state. `weeklyTargetDays` remains a read/write compatibility alias.
-2. `weeklyTargetsByWeek` stores week-scoped target edits (`targetSessions`, `targetDays`, `savesUsed`, `updatedAtIso`).
+2. `weeklyTargetsByWeek` stores week-scoped target edits (`targetSessions`, `targetDays`, `savesUsed`, `updatedAtIso`). Targets can be changed any day with no weekly edit limit; `savesUsed` preserves edit ordering for offline replay. Completed weeks retain their historical targets and outcomes.
 3. `weeklyOutcomesByWeek` stores frozen historical week outcomes (`sessionCount`, `activeSessions`, `activeDays`, and both target aliases) used to prevent retroactive streak drift.
 4. Missing preference still falls back to `3`.
 

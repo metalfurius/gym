@@ -179,18 +179,22 @@ describe('App User Journey', () => {
         await waitForUi(220);
         expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/5');
 
-        // Fourth save in the same week is blocked (max 3 total saves).
-        setField('#weekly-target-days-select', '6');
-        click('#weekly-target-save-btn');
-        await waitForUi(220);
-        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/5');
+        // Changes also work Thursday through Sunday, after the former three-save limit.
+        for (const [day, target] of [[23, 6], [24, 7], [25, 4], [26, 5]]) {
+            globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = `2026-04-${day}T10:00:00.000`;
+            setField('#weekly-target-days-select', `${target}`);
+            click('#weekly-target-save-btn');
+            await waitForUi(220);
+            expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe(`2/${target}`);
+            expect(document.getElementById('weekly-target-days-select').value).toBe(`${target}`);
+        }
 
         const appDataDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
         const userPreferencesDoc = appDataDocs.find((entry) => entry.id === 'user_preferences');
         expect(userPreferencesDoc).toBeDefined();
         expect(userPreferencesDoc.data.weeklyTargetSessions).toBe(5);
         expect(userPreferencesDoc.data.weeklyTargetDays).toBe(5);
-        expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].savesUsed).toBe(3);
+        expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].savesUsed).toBe(7);
         expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].targetSessions).toBe(5);
         expect(userPreferencesDoc.data.weeklyTargetsByWeek['2026-04-20'].targetDays).toBe(5);
 
@@ -302,6 +306,20 @@ describe('App User Journey', () => {
             (option) => option.value
         );
         expect(selectableRoutine).toBeUndefined();
+
+        click('#logout-btn');
+        await waitForUi(150);
+        setField('#auth-email', testEmail);
+        setField('#auth-password', 'password123');
+        click('#login-email-btn');
+        await waitForUi(500);
+        expect(document.getElementById('weekly-target-days-select').value).toBe('5');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('3/5');
+        const reloadedPreferences = __getMockCollectionDocuments('users/mock-user-1/app_data')
+            .find((entry) => entry.id === 'user_preferences').data;
+        expect(reloadedPreferences.weeklyTargetSessions).toBe(5);
+        expect(reloadedPreferences.weeklyTargetsByWeek).toEqual(userPreferencesDoc.data.weeklyTargetsByWeek);
+        expect(reloadedPreferences.weeklyOutcomesByWeek).toEqual(userPreferencesDoc.data.weeklyOutcomesByWeek);
     }, 30000);
 
     afterAll(() => {

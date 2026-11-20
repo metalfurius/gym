@@ -132,7 +132,7 @@ describe('App Offline Recovery Journey', () => {
         localStorage.clear();
         sessionStorage.clear();
         onlineState.value = true;
-        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-22T10:00:00.000';
+        globalThis.__GYM_WEEKLY_TARGET_NOW_ISO = '2026-04-24T10:00:00.000';
 
         setupDomAndBrowserShims();
 
@@ -190,16 +190,20 @@ describe('App Offline Recovery Journey', () => {
 
         setOnline(false);
         await waitForUi(150);
-        setField('#weekly-target-days-select', '5');
-        click('#weekly-target-save-btn');
-        await waitForUi(350);
+        // Repeated Friday edits must survive the old limit and replay in order.
+        for (const target of [2, 4, 6, 7, 5]) {
+            setField('#weekly-target-days-select', `${target}`);
+            click('#weekly-target-save-btn');
+            await waitForUi(150);
+            expect(document.getElementById('daily-hub-weekly-progress').textContent).toContain(`/${target}`);
+        }
 
-        const queuedWeeklyTargetOperation = offlineManager.pendingOperations[0];
+        const queuedWeeklyTargetOperation = offlineManager.pendingOperations.at(-1);
         const queuedUpdatedAtIso = queuedWeeklyTargetOperation?.descriptor?.payload?.updatedAtIso;
 
         let preferencesDocs = __getMockCollectionDocuments('users/mock-user-1/app_data');
         expect(preferencesDocs.find((entry) => entry.id === 'user_preferences')).toBeUndefined();
-        expect(offlineManager.getPendingCount()).toBe(1);
+        expect(offlineManager.getPendingCount()).toBe(5);
         expect(queuedUpdatedAtIso).toBeDefined();
 
         setOnline(true);
@@ -210,6 +214,7 @@ describe('App Offline Recovery Journey', () => {
         expect(weeklyPreference).toBeDefined();
         expect(weeklyPreference.data.weeklyTargetSessions).toBe(5);
         expect(weeklyPreference.data.weeklyTargetDays).toBe(5);
+        expect(weeklyPreference.data.weeklyTargetsByWeek['2026-04-20'].savesUsed).toBe(5);
         expect(weeklyPreference.data.updatedAt.toDate().toISOString()).toBe(queuedUpdatedAtIso);
         expect(offlineManager.getPendingCount()).toBe(0);
         expect(document.getElementById('daily-hub-weekly-progress').textContent).toContain('/5');
