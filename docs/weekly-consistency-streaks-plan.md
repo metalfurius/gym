@@ -1,11 +1,13 @@
 # Weekly Consistency Streaks Plan
 
-Last updated: April 22, 2026  
-Status: Implemented on branch (pending merge to `main`)
+Last reviewed: November 20, 2026
+Status: Implemented; original milestone #75, current contract includes #97 and #101 (v2.8.3)
+
+This document records delivered behavior. [The roadmap](../UPGRADE-PLAN.md) owns future priorities.
 
 ## Purpose
 
-Define the current major feature milestone after Session Variants + ES/EN:
+Record the weekly consistency milestone and its subsequent correctness fixes:
 
 1. Show meaningful weekly consistency streaks in Daily Hub.
 2. Let each user define a custom workout-sessions-per-week target.
@@ -13,31 +15,33 @@ Define the current major feature milestone after Session Variants + ES/EN:
 
 ## Delivered
 
-This milestone is implemented on branch with the following behaviors:
+This milestone is implemented on `main` with the following behaviors:
 
 1. Daily Hub weekly metrics are implemented (`this-week progress`, `current weekly streak`, `best weekly streak`).
 2. Weekly model is implemented with Monday-based weeks, persisted-session counting, duplicate-delivery protection, and a rolling 52-week analysis window.
 3. Weekly target preference is implemented in Settings and cloud-synced at `users/{uid}/app_data/user_preferences` with offline queue/replay.
 4. Post-review hardening is implemented for timestamp consistency in offline queued target writes and bounded Daily Hub weekly-window query reads.
+5. An unfinished current week preserves the streak from the latest completed week; the dashboard and calendar count persisted sessions consistently, including multiple sessions on the same day (#97).
+6. Weekly targets can be changed any day without a three-edit cap. They survive logout/login and repeated offline edits; preferences load before dashboard finalization to avoid resetting the saved value to 3 (#101).
 
 ## Scope (v1)
 
 In scope:
 
 1. Daily Hub metrics:
-   - this-week progress (`sessionCount/targetSessions`)
-   - current weekly streak
-   - best weekly streak
+    - this-week progress (`sessionCount/targetSessions`)
+    - current weekly streak
+    - best weekly streak
 2. Weekly model:
-   - Monday-based weeks
-   - persisted session counts (multiple sessions on the same day count separately; duplicate delivery is ignored)
-   - rolling 52-week analysis window
+    - Monday-based weeks
+    - persisted session counts (multiple sessions on the same day count separately; duplicate delivery is ignored)
+    - rolling 52-week analysis window
 3. Weekly target preference:
-   - default `3` sessions/week
-   - editable in Settings modal
-   - cloud-synced at `users/{uid}/app_data/user_preferences`
+    - default `3` sessions/week
+    - editable in Settings modal
+    - cloud-synced at `users/{uid}/app_data/user_preferences`
 4. Offline support:
-   - target writes use durable queue and replay on reconnect
+    - target writes use durable queue and replay on reconnect
 5. ES/EN copy coverage for new dashboard/settings strings.
 
 Out of scope:
@@ -54,29 +58,29 @@ Document shape:
 
 ```json
 {
-  "weeklyTargetSessions": 3,
-  "weeklyTargetDays": 3,
-  "weeklyTargetsByWeek": {
-    "2026-04-20": {
-      "targetSessions": 3,
-      "targetDays": 3,
-      "savesUsed": 1,
-      "updatedAtIso": "2026-04-22T10:00:00.000Z"
-    }
-  },
-  "weeklyOutcomesByWeek": {
-    "2026-04-13": {
-      "targetSessions": 3,
-      "targetDays": 3,
-      "sessionCount": 2,
-      "activeSessions": 2,
-      "activeDays": 2,
-      "met": false,
-      "lockedAtIso": "2026-04-22T10:00:00.000Z"
-    }
-  },
-  "schemaVersion": 2,
-  "updatedAt": "<Firestore Timestamp>"
+    "weeklyTargetSessions": 3,
+    "weeklyTargetDays": 3,
+    "weeklyTargetsByWeek": {
+        "2026-04-20": {
+            "targetSessions": 3,
+            "targetDays": 3,
+            "savesUsed": 1,
+            "updatedAtIso": "2026-04-22T10:00:00.000Z"
+        }
+    },
+    "weeklyOutcomesByWeek": {
+        "2026-04-13": {
+            "targetSessions": 3,
+            "targetDays": 3,
+            "sessionCount": 2,
+            "activeSessions": 2,
+            "activeDays": 2,
+            "met": false,
+            "lockedAtIso": "2026-04-22T10:00:00.000Z"
+        }
+    },
+    "schemaVersion": 2,
+    "updatedAt": "<Firestore Timestamp>"
 }
 ```
 

@@ -61,35 +61,43 @@ Then open:
 Planning docs:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - PR-first contribution workflow and major-feature lifecycle policy
-- [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the 6-week roadmap
+- [UPGRADE-PLAN.md](UPGRADE-PLAN.md) - single source of truth for the product and technical roadmap
 - [TESTING-PLAN.md](TESTING-PLAN.md) - testing policy and enforcement rules
 - [docs/quick-log-daily-hub-readiness.md](docs/quick-log-daily-hub-readiness.md) - acceptance criteria and rollout checklist for the first feature/fun slice
 - [docs/exercise-execution-mode-plan.md](docs/exercise-execution-mode-plan.md) - post-cycle plan for one-hand/two-hand/machine/pulley execution modes
 - [docs/session-variants-i18n-plan.md](docs/session-variants-i18n-plan.md) - implemented milestone spec for per-session mode/load overrides plus ES/EN language system
 - [docs/weekly-consistency-streaks-plan.md](docs/weekly-consistency-streaks-plan.md) - implemented milestone spec for custom weekly consistency streaks (v1)
-- [docs/read-optimized-weekly-consistency-plan.md](docs/read-optimized-weekly-consistency-plan.md) - next-phase major-feature spec for reducing weekly consistency read cost
+- [docs/read-optimized-weekly-consistency-plan.md](docs/read-optimized-weekly-consistency-plan.md) - shipped foundations, unmerged local work, and remaining read-reduction acceptance criteria
 - [docs/commit-versioning.md](docs/commit-versioning.md) - commit keyword rules that drive automatic `major` / `minor` / `patch` bumps
 
-### Current Focus (March 30, 2026 to May 10, 2026)
+### Published Baseline (November 20, 2026)
 
-- Dual-track strategy with hard quality gates
-- Execution split: Stability 45%, Foundation 35%, Feature/Fun 20%
-- Feature/Fun milestones delivered: `Quick Log + Daily Hub`, `Session-Time Exercise Variants`, `ES/EN Language System`, `Custom Weekly Consistency Streaks (v1)`
-- Current major feature status: `Custom Weekly Consistency Streaks (v1)` implemented on PR `#75` branch and pending merge to `main`
+- Published version: **2.8.3**, with **800 passing tests** and **74.95% statements coverage** in release validation.
+- Delivered: Quick Log, Daily Hub/calendar, session variants, ES/EN, weekly streaks, consistent session counting, decimal-weight validation, accessible chart alternatives, and routine JSON export/import.
+- Weekly target changes now work any day without an edit cap and persist across login and offline replay.
+- The PWA update implementation is delivered. Automatic Cloudflare purging still fails with HTTP 403; canonical release verification remains open despite successful deployment and observed app updating.
+- Read-optimized weekly consistency v1.1 is **partial**: bounded reads and memory caching are shipped; additional local cache/navigation improvements are not merged into `main`.
 
-### Hard Gates for This Cycle
+### Next Priorities
 
-- `npm run lint:ratchet` (zero-warning policy)
-- `npm run test:app` (app journeys required)
-- `npm run test:app:offline` (offline recovery/retry required)
-- `npm run test:no-skips` (no `.skip` / `xit` / `xdescribe`)
-- Staged coverage ratchet in the roadmap: Week 2 >= 64%, Week 4 >= 67%, Week 6 >= 70%
-- Feature/fun lane freeze whenever a hard gate fails
+1. **P0:** repair production cache purging and verify coherent public/installed-client updates.
+2. **P1:** verify and harden history, progress, account changes, date boundaries, and cross-device/offline sync.
+3. **P1:** complete Daily Hub v1.1 with persistent per-user caching and measured read reduction.
+4. **P1:** maintain dependencies and align documented quality gates with reproducible CI/browser checks.
+5. **P2:** add a portable workout-history backup, extending beyond existing routine sharing.
+6. **P2:** let users correct saved workout values without deleting and recreating a session.
+7. **P2:** separate dashboard, Quick Log, weekly calculations, and preference persistence into smaller modules.
 
-### Next Phase
+Acceptance criteria, evidence, and deferred work live in [UPGRADE-PLAN.md](UPGRADE-PLAN.md).
+Individual implementation plans and the two-judge merge gate live in [docs/roadmap/README.md](docs/roadmap/README.md).
+The expired six-week schedule has been retired; nutrition and social/competitive features remain deferred.
 
-Current feature/fun implementation targets delivered: `Quick Log + Daily Hub`, `Exercise Execution Modes`, `Session-Time Exercise Variants + ES/EN Language System`, `Custom Weekly Consistency Streaks (v1)`.
-Next target: `Read-Optimized Weekly Consistency (v1.1)` with local-first streak computation and reduced Firestore reads.
+### Quality Baseline and Remaining Enforcement Work
+
+Published `main` runs lint, CodeQL, app/offline journeys, no-skipped-tests checks, coverage (minimum 70%),
+release integrity, and the Chromium upgrade smoke. The local `merge-ready` contract is an unmerged proposal;
+repository-wide formatting is not yet an enforced blocking check on published `main`.
+See the roadmap for the distinction between published checks and local stabilization work.
 
 ### How We Ship Major Features
 
