@@ -6,8 +6,6 @@ export const WEEKLY_TARGET_DEFAULT = 3;
 // sessions instead of distinct calendar days.
 export const WEEKLY_TARGET_SESSIONS_DEFAULT = WEEKLY_TARGET_DEFAULT;
 export const WEEKLY_STREAK_LOOKBACK_WEEKS = 52;
-export const WEEKLY_TARGET_EDIT_WINDOW_DAYS = 3;
-export const WEEKLY_TARGET_MAX_SAVES_PER_WEEK = 3;
 const WEEKLY_TARGET_MIN = 1;
 const WEEKLY_TARGET_MAX = 7;
 
@@ -141,7 +139,7 @@ function normalizeWeeklyTargetsByWeek(value) {
         );
         const savesUsedRaw = Number.parseInt(record.savesUsed, 10);
         const savesUsed = Number.isInteger(savesUsedRaw)
-            ? Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, savesUsedRaw))
+            ? Math.max(0, savesUsedRaw)
             : 0;
 
         normalized[weekKey] = {

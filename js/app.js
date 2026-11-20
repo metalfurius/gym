@@ -51,13 +51,10 @@ import {
 import {
     buildWeeklyConsistencyTimeline,
     computeDailyHubState,
-    getIsoWeekday,
     getWeekKeyForDate,
     getWeeklyConsistencyWindowStartDate,
     normalizeWeeklyTargetDays,
     normalizeWeeklyTargetSessions,
-    WEEKLY_TARGET_EDIT_WINDOW_DAYS,
-    WEEKLY_TARGET_MAX_SAVES_PER_WEEK,
     WEEKLY_STREAK_LOOKBACK_WEEKS,
     WEEKLY_TARGET_DEFAULT,
     toDatetimeLocalValue
@@ -158,7 +155,7 @@ function normalizeWeeklyTargetsByWeekState(value) {
         );
         const savesUsedRaw = Number.parseInt(record.savesUsed, 10);
         const savesUsed = Number.isInteger(savesUsedRaw)
-            ? Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, savesUsedRaw))
+            ? Math.max(0, savesUsedRaw)
             : 0;
 
         normalized[weekKey] = {
@@ -266,23 +263,6 @@ function getCurrentDateForWeeklyRules() {
     }
 
     return new Date();
-}
-
-function getWeeklyTargetSaveEligibility(now = new Date(), weekRecord = null) {
-    const isoWeekday = getIsoWeekday(now);
-    const isWithinEditWindow = isoWeekday <= WEEKLY_TARGET_EDIT_WINDOW_DAYS;
-    const savesUsed = Number.isInteger(Number.parseInt(weekRecord?.savesUsed, 10))
-        ? Number.parseInt(weekRecord.savesUsed, 10)
-        : 0;
-    const hasRemainingSaves = savesUsed < WEEKLY_TARGET_MAX_SAVES_PER_WEEK;
-
-    return {
-        isoWeekday,
-        savesUsed,
-        hasRemainingSaves,
-        isWithinEditWindow,
-        canSave: isWithinEditWindow && hasRemainingSaves
-    };
 }
 
 async function cacheWeeklyTargetState(userId, state = {}, updatedAtIso = new Date().toISOString()) {
@@ -462,7 +442,7 @@ function buildWeeklyTargetQueuePayload(userId, weekKey, weekRecord, weeklyTarget
                 weekRecord?.targetSessions ?? weekRecord?.targetDays,
                 WEEKLY_TARGET_DEFAULT
             ),
-            savesUsed: Math.max(0, Math.min(WEEKLY_TARGET_MAX_SAVES_PER_WEEK, Number.parseInt(weekRecord?.savesUsed, 10) || 0)),
+            savesUsed: Math.max(0, Number.parseInt(weekRecord?.savesUsed, 10) || 0),
             updatedAtIso
         },
         weeklyTargetSessions: normalizeWeeklyTargetSessions(weeklyTargetValue, WEEKLY_TARGET_DEFAULT),
@@ -512,10 +492,7 @@ function applyQueuedWeeklyTargetPayloadToState(payload, state = {}) {
         targetDays: incomingTargetSessions,
         savesUsed: Math.max(
             0,
-            Math.min(
-                WEEKLY_TARGET_MAX_SAVES_PER_WEEK,
-                Number.parseInt(payload.weekRecord.savesUsed, 10) || 0
-            )
+            Number.parseInt(payload.weekRecord.savesUsed, 10) || 0
         ),
         updatedAtIso: typeof payload.weekRecord.updatedAtIso === 'string'
             ? payload.weekRecord.updatedAtIso
@@ -568,21 +545,13 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
     const normalizedTargetSessions = normalizeWeeklyTargetSessions(targetDaysValue, WEEKLY_TARGET_DEFAULT);
     const currentWeekKey = getCurrentWeekKey(now);
     const currentWeekRecord = normalizeWeeklyTargetsByWeekState(weeklyTargetsByWeek)[currentWeekKey] || null;
-    const eligibility = getWeeklyTargetSaveEligibility(now, currentWeekRecord);
-    if (!eligibility.isWithinEditWindow) {
-        toast.warning(t('settings.weekly_goal_save_window_closed'));
-        return { ok: false, reason: 'window_closed' };
-    }
-    if (!eligibility.hasRemainingSaves) {
-        toast.warning(t('settings.weekly_goal_save_limit_reached'));
-        return { ok: false, reason: 'save_limit' };
-    }
 
     const updatedAtIso = now.toISOString();
     const updatedWeekRecord = {
         targetSessions: normalizedTargetSessions,
         targetDays: normalizedTargetSessions,
-        savesUsed: eligibility.savesUsed + 1,
+        // Retain edit ordering for offline replay without limiting preference changes.
+        savesUsed: (currentWeekRecord?.savesUsed || 0) + 1,
         updatedAtIso
     };
     const nextState = applyQueuedWeeklyTargetPayloadToState({
@@ -1068,7 +1037,8 @@ async function refreshDailyHub(user, options = {}) {
         ? await fetchRecentSessionsForDailyHub(user, { ...options, now })
         : { sessions: [], weeklyWindowTruncated: false };
     const sessions = fetchResult.sessions;
-    if (user && options.skipOutcomeFinalization !== true) {
+    if (user && weeklyTargetCacheUserId === user.uid && weeklyTargetLastFetchTimestamp > 0
+        && options.skipOutcomeFinalization !== true) {
         if (fetchResult.weeklyWindowTruncated) {
             logger.warn(
                 'Skipping weekly outcome freezing because Daily Hub weekly-window query was truncated; avoiding persistence of incomplete historical outcomes.'
@@ -1128,8 +1098,10 @@ export async function initializeAppAfterAuth(user) {
         }
         
         dashboardElements.currentDate.textContent = formatDate(new Date());
-        await fetchUserRoutines(user);
+        // Routine loading refreshes the hub and may persist completed weeks.
+        // Load the saved target first so that refresh cannot overwrite it with defaults.
         await fetchWeeklyTargetPreference(user, { forceRefresh: true });
+        await fetchUserRoutines(user);
         setQuickLogDateTimeToNow();
         await refreshDailyHub(user, { forceRefresh: true });
         

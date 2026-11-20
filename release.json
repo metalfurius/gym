@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "2.8.2",
-  "revision": "v2.8.2",
-  "cacheName": "gym-tracker-v2.8.2",
+  "version": "2.8.3",
+  "revision": "v2.8.3",
+  "cacheName": "gym-tracker-v2.8.3",
   "assets": {
     "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
     "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
@@ -27,13 +27,13 @@
     "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
     "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
     "css/user-weight.css": "449007bcab599b8553d46c54f496768cd60e463bcab14169e690646db07a27b5",
-    "index.html": "af6bbaa79fe12654c6ee45581feb66e76eadf5d2a4f773897c1d3d3f6121835c",
-    "js/app.js": "40dfd59b86cb93583a719917ef16d86f6be4154123ce0ebf8441c309e0ace742",
+    "index.html": "72e835052ace260bd7fc91f8820f916ecea68289552da345bcf14dbf971aa4a9",
+    "js/app.js": "8fed1002c777166ffcaf56e14992a77b0d9630f6dddfd8014ccb74ee3a00dc96",
     "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
     "js/exercise-cache.js": "f0585162cffe52c514bec5cc4159a63b0f11552a59297a406b4ae5cc21619770",
     "js/firebase-config.js": "3188081eda986d81f9631490ff32074a96e6b5f6d609058ef42cf3c0da58cbd0",
     "js/firebase-diagnostics.js": "07479ed45ab6d24ecae4ae7ea5fc62a2fdd8168f5dacb08b9188c9eb925732d7",
-    "js/i18n.js": "deca66cbd3b9575b8620b13ea9ad2db390b4e8be8cc5df4d4c982b2f04c2551a",
+    "js/i18n.js": "cffc02c5af44afc6d2ffe092f10f0335af3172ae983b5d897d4fec737580908e",
     "js/modules/calendar.js": "4984100e86f363889d7955158ef2cc89e3f5eea956189abb99471663f43d9544",
     "js/modules/history-manager.js": "ea58fbecfc3d30b268cae2743d602ab128a8f4b9e31a754d00ce35aa31d97718",
     "js/modules/pagination.js": "ea61fc5c4d05ba39347551fa5d3b67391d546a22a0b8543677b2bb33da9c4905",
@@ -58,12 +58,12 @@
     "js/utils/notifications.js": "e77e31877b6205cb9c24c79897a1f6eccebdaae5372fb255e8324703f09d7d5c",
     "js/utils/numeric-input.js": "0a84f1491f6bd34e61cba6161792da7b167ec10a21b8e755cfcc007b89aa075f",
     "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
-    "js/utils/quick-log.js": "e16436900b352e74b43fa20e0b63f20d2bcb2544e29c998c3696b52397a4e0a7",
+    "js/utils/quick-log.js": "50ed75c5ededc12b4ec3135c172799601b20013e8f25b0dc6716b9d3f0551792",
     "js/utils/release-updater.js": "893f863b974e3676da3626fdf5024404c2b54d49a18bf2fb905b61f4ba528bc0",
     "js/utils/routine-import.js": "656e7ce06535e70836ca13ff7c8149a0ecc2cb0ad6d44efd443e4908ff40a3ac",
     "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
     "js/utils/validation.js": "9c2ca6ebd41efdccc3f5b3bf863e7f67199d99019606f24abc4bb005003fe8a6",
-    "js/version-manager.js": "72419661ea36bd57d01d02852d241b04b6b511d3c5c8c380ae9092560ffa4289",
-    "manifest.json": "8722714f9c4d737aed52e4f06dfc2679a068e0c08a4a7efcd38d39dab52387db"
+    "js/version-manager.js": "c556f1ada351f9f16449f14ac0a042dcdcbda0ad3c4c14ed5cdaff232b7c88ed",
+    "manifest.json": "67f2fa99ec87b4e784b1df8d1e74264f8824b3c31e3084d3a2ff3f66ffbfc6c8"
   }
 }

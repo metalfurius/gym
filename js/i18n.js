@@ -360,7 +360,7 @@ const dictionaries = {
         'settings.title': 'Ajustes',
         'settings.weekly_goal_title': 'Objetivo semanal',
         'settings.weekly_goal_help':
-            'Define cu\u00e1ntas sesiones por semana quieres registrar. Tu racha semanal se calcula con este objetivo.',
+            'Define cu\u00e1ntas sesiones por semana quieres registrar. Puedes cambiarlo cualquier d\u00eda; las semanas cerradas conservan su objetivo.',
         'settings.weekly_goal_label': 'Sesiones objetivo por semana',
         'settings.weekly_goal_save_btn': 'Guardar objetivo semanal',
         'settings.weekly_goal_saved': 'Objetivo semanal guardado.',
@@ -370,8 +370,6 @@ const dictionaries = {
         'settings.weekly_goal_requires_login': 'Debes iniciar sesi\u00f3n para guardar el objetivo semanal.',
         'settings.weekly_goal_save_offline':
             'Sin conexi\u00f3n. El objetivo semanal se guardar\u00e1 al volver a estar en l\u00ednea.',
-        'settings.weekly_goal_save_window_closed': 'Solo puedes cambiar el objetivo semanal de lunes a mi\u00e9rcoles.',
-        'settings.weekly_goal_save_limit_reached': 'Ya usaste los 3 cambios permitidos para esta semana.',
         'settings.cache_info_title': 'Informaci\u00f3n del cache',
         'settings.cache_info_loading': 'Cargando informaci\u00f3n del cache...',
         'settings.cache_info_error': 'Error al cargar la informaci\u00f3n del cache.',
@@ -798,7 +796,7 @@ const dictionaries = {
         'settings.title': 'Settings',
         'settings.weekly_goal_title': 'Weekly target',
         'settings.weekly_goal_help':
-            'Set how many sessions per week you want to log. Your weekly streak is computed against this goal.',
+            'Set how many sessions per week you want to log. You can change it any day; completed weeks keep their target.',
         'settings.weekly_goal_label': 'Target sessions per week',
         'settings.weekly_goal_save_btn': 'Save weekly target',
         'settings.weekly_goal_saved': 'Weekly target saved.',
@@ -806,8 +804,6 @@ const dictionaries = {
         'settings.weekly_goal_save_error': 'Error saving weekly target.',
         'settings.weekly_goal_requires_login': 'You must be signed in to save the weekly target.',
         'settings.weekly_goal_save_offline': 'Offline. Weekly target will be saved when you are back online.',
-        'settings.weekly_goal_save_window_closed': 'You can only change the weekly target from Monday to Wednesday.',
-        'settings.weekly_goal_save_limit_reached': 'You already used the 3 allowed target changes for this week.',
         'settings.cache_info_title': 'Cache information',
         'settings.cache_info_loading': 'Loading cache information...',
         'settings.cache_info_error': 'Error loading cache information.',
