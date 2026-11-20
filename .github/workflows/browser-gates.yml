@@ -1,0 +1,118 @@
+name: Browser Gates
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    browser:
+        name: Browser / ${{ matrix.os }} / ${{ matrix.case }}
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 12
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-24.04, windows-2025]
+                case: [upgrade-firefox, numeric-firefox, numeric-chromium, counting-chromium]
+                include:
+                    - case: upgrade-firefox
+                      browser: firefox
+                      script: test:e2e:upgrade:firefox
+                    - case: numeric-firefox
+                      browser: firefox
+                      script: test:e2e:numeric
+                    - case: numeric-chromium
+                      browser: chromium
+                      script: test:e2e:numeric
+                    - case: counting-chromium
+                      browser: chromium
+                      script: test:e2e:session-counting
+        env:
+            NUMERIC_SMOKE_BROWSER: ${{ matrix.browser }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+            - name: Setup Node.js
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version: '22'
+                  cache: npm
+            - name: Install dependencies
+              run: npm ci
+            - name: Install and verify the exact official browser
+              timeout-minutes: 5
+              run: node scripts/install-smoke-browser.mjs ${{ matrix.browser }}
+              env:
+                  BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}/browser-install.json
+            - name: Select the installed Chromium sandbox helper
+              if: runner.os == 'Linux' && matrix.browser == 'chromium'
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  sandbox=/opt/google/chrome/chrome-sandbox
+                  mkdir -p "$SANDBOX_RECEIPT_DIR"
+                  {
+                    printf 'Kernel: '; uname -sr
+                    printf 'Runner uid: '; id -u
+                    if test -r /proc/sys/kernel/apparmor_restrict_unprivileged_userns; then
+                      printf 'AppArmor userns restriction: '
+                      cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+                    fi
+                    for candidate in "$sandbox" /opt/google/chrome/chrome_sandbox "$CHROME_PATH" "$(dirname "$CHROME_PATH")/chrome_sandbox"; do
+                      printf '\nCandidate: %s\n' "$candidate"
+                      if test -e "$candidate" || test -L "$candidate"; then
+                        stat -c 'kind=%F mode=%a uid=%u gid=%g path=%n' -- "$candidate"
+                        if resolved=$(readlink -e -- "$candidate"); then
+                          printf 'Resolved: %s\n' "$resolved"
+                          stat -Lc 'resolved-kind=%F mode=%a uid=%u gid=%g' -- "$candidate"
+                        else
+                          printf 'Candidate cannot be resolved\n'
+                        fi
+                      else
+                        printf 'Candidate is absent\n'
+                      fi
+                    done
+                  } 2>&1 | tee "$SANDBOX_RECEIPT_DIR/sandbox-diagnostics.txt"
+                  printf '\nChecking helper is a regular file: %s\n' "$sandbox"
+                  test -f "$sandbox"
+                  printf 'Checking helper is not a symlink\n'
+                  test ! -L "$sandbox"
+                  printf 'Checking helper uid:mode equals 0:4755; observed %s\n' "$(stat -c '%u:%a' "$sandbox")"
+                  test "$(stat -c '%u:%a' "$sandbox")" = '0:4755'
+                  printf 'CHROME_DEVEL_SANDBOX=%s\n' "$sandbox" >> "$GITHUB_ENV"
+                  digest=$(sha256sum "$sandbox" | cut -d ' ' -f 1)
+                  printf '{"path":"%s","uid":0,"mode":"4755","sha256":"%s"}\n' "$sandbox" "$digest" > "$SANDBOX_RECEIPT_DIR/sandbox-helper.json"
+              env:
+                  SANDBOX_RECEIPT_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+            - name: Run the required browser case
+              timeout-minutes: 3
+              run: npm run ${{ matrix.script }}
+              env:
+                  BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+                  UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+            - name: Verify owned Chromium target navigation
+              if: matrix.browser == 'chromium'
+              timeout-minutes: 3
+              run: node scripts/browser-owned-target-smoke.mjs
+              env:
+                  BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+            - name: Verify real runner failure and diagnostic artifacts
+              if: startsWith(matrix.case, 'numeric-')
+              timeout-minutes: 3
+              run: node scripts/verify-browser-smoke-negative.mjs ${{ matrix.browser }}
+              env:
+                  BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+            - name: Upload browser evidence
+              if: always()
+              uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+              with:
+                  name: browser-${{ matrix.os }}-${{ matrix.case }}-${{ github.sha }}-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+                  if-no-files-found: error

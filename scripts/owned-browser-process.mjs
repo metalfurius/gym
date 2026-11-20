@@ -44,11 +44,12 @@ export function spawnOwnedBrowser(command, args, {
     exitTimeoutMs = 3_000,
     terminationTimeoutMs = 2_000,
     afterClose = async () => {},
+    env = process.env,
 } = {}) {
     // A dedicated POSIX process group includes xvfb-run, Xvfb, Chrome and its children.
     // Never discover/kill browsers by name or attach this lifecycle to a user process.
     const grouped = process.platform !== 'win32';
-    const child = spawn(command, args, { detached: grouped, windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] });
+    const child = spawn(command, args, { detached: grouped, windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'], env });
     child.stderr?.resume();
     let closed = false;
     const closePromise = new Promise(resolve => child.once('close', () => { closed = true; resolve(); }));
