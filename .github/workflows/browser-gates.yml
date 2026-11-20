@@ -34,8 +34,6 @@ jobs:
                       browser: chromium
                       script: test:e2e:session-counting
         env:
-            BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
-            UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
             NUMERIC_SMOKE_BROWSER: ${{ matrix.browser }}
 
         steps:
@@ -56,10 +54,15 @@ jobs:
             - name: Run the required browser case
               timeout-minutes: 3
               run: npm run ${{ matrix.script }}
+              env:
+                  BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+                  UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
             - name: Verify real runner failure and diagnostic artifacts
               if: startsWith(matrix.case, 'numeric-')
               timeout-minutes: 3
               run: node scripts/verify-browser-smoke-negative.mjs ${{ matrix.browser }}
+              env:
+                  BROWSER_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
             - name: Upload browser evidence
               if: always()
               uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
