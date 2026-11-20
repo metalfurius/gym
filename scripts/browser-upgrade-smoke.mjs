@@ -161,37 +161,42 @@ async function writeUpgradeFixture(directory, revision) {
 
 async function createReleases() {
     const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-upgrade-'));
-    const releaseADirectory = path.join(temporaryDirectory, 'release-a');
-    const releaseBDirectory = path.join(temporaryDirectory, 'release-b');
-    await copyRelease(releaseADirectory);
-    execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
-        cwd: releaseADirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    await writeUpgradeFixture(releaseADirectory, RELEASE_A);
-    execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
-        cwd: releaseADirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
-    execFileSync(process.execPath, [path.join(releaseBDirectory, 'update-version.cjs'), RELEASE_B_VERSION], {
-        cwd: releaseBDirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
-    execFileSync(process.execPath, [path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
-        cwd: releaseBDirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    return { temporaryDirectory, releaseADirectory, releaseBDirectory };
+    try {
+        const releaseADirectory = path.join(temporaryDirectory, 'release-a');
+        const releaseBDirectory = path.join(temporaryDirectory, 'release-b');
+        await copyRelease(releaseADirectory);
+        execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
+            cwd: releaseADirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        await writeUpgradeFixture(releaseADirectory, RELEASE_A);
+        execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
+            cwd: releaseADirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
+        execFileSync(process.execPath, [path.join(releaseBDirectory, 'update-version.cjs'), RELEASE_B_VERSION], {
+            cwd: releaseBDirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
+        execFileSync(process.execPath, [path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
+            cwd: releaseBDirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        return { temporaryDirectory, releaseADirectory, releaseBDirectory };
+    } catch (error) {
+        await removeOwnedTemp(temporaryDirectory, 'gym-pwa-upgrade-');
+        throw error;
+    }
 }
 
 function contentType(filePath) {
@@ -210,9 +215,16 @@ function contentType(filePath) {
 
 async function createSwitchingServer(initialRoot) {
     let activeRoot = initialRoot;
+    let online = true;
     const server = createServer(async (request, response) => {
+        if (!online) { response.destroy(); return; }
         try {
             const requestUrl = new URL(request.url || '/', 'http://127.0.0.1');
+            if (requestUrl.pathname === '/smoke-connectivity') {
+                response.writeHead(200, { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain' });
+                response.end('online');
+                return;
+            }
             const relativePath = decodeURIComponent(requestUrl.pathname).replace(/^\/+/, '') || 'index.html';
             const filePath = path.resolve(activeRoot, relativePath);
             if (!filePath.startsWith(`${path.resolve(activeRoot)}${path.sep}`)) {
@@ -243,6 +255,7 @@ async function createSwitchingServer(initialRoot) {
         setRoot(nextRoot) {
             activeRoot = nextRoot;
         },
+        setOnline(value) { online = value; },
     };
 }
 
@@ -399,6 +412,9 @@ async function pageState(client) {
          session: localStorage.getItem('${SESSION_KEY}'),
          updateMessageSeen: sessionStorage.getItem('${UPDATE_MESSAGE_KEY}') === 'true',
          status: document.getElementById('status')?.textContent || null,
+         statusRole: document.getElementById('status')?.getAttribute('role'),
+         statusLive: document.getElementById('status')?.getAttribute('aria-live'),
+         labelFor: document.querySelector('label')?.htmlFor,
          initialized: window.upgradeFixture?.initialized === true,
          controllerIsActive: navigator.serviceWorker.controller === registration?.active,
          activeState: registration?.active?.state || null,
@@ -430,6 +446,9 @@ function assertReleaseState(state, revision, metadata, session, updated = false)
     assert.deepEqual(state.metadata, metadata, 'Served release manifest differs from the built target');
     assert.equal(state.progressHash, metadata.assets['js/progress.js'], 'Progress module hash differs from target release');
     assert.equal(state.initialized, true, 'Fixture bootstrap/listeners are not initialized');
+    assert.equal(state.statusRole, 'status');
+    assert.equal(state.statusLive, 'polite');
+    assert.equal(state.labelFor, 'workout');
     assert.equal(state.activeState, 'activated');
     assert.equal(state.controllerIsActive, true, 'Page is not controlled by the active worker');
     assert.equal(state.session, session, 'In-progress workout differs from the exact saved session');
@@ -454,14 +473,19 @@ async function clickApplyUpdate(client) {
     await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, ...point });
 }
 
-async function run() {
+export async function runUpgradeSmoke({
+    openBrowser = openChrome, browserName = 'Chromium', networkMode = 'CDP offline emulation',
+    setOffline = (browser, _server, offline) => browser.client.send('Network.emulateNetworkConditions',
+        { offline, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }),
+} = {}) {
     if (!Number.isInteger(BOOTSTRAP_DELAY_MS) || BOOTSTRAP_DELAY_MS < 0 || BOOTSTRAP_DELAY_MS > 10_000) {
         throw new Error('UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS must be an integer from 0 to 10000');
     }
     if (!['', 'corrupt-session'].includes(NEGATIVE_CASE)) throw new Error('Unknown UPGRADE_SMOKE_NEGATIVE_CASE');
     await fs.mkdir(evidenceDirectory, { recursive: true });
     const evidence = {
-        status: 'running', startedAt: new Date().toISOString(), browser: 'Chromium',
+        status: 'running', startedAt: new Date().toISOString(), browser: browserName,
+        nodeVersion: process.version, platform: process.platform, syntheticDataOnly: true, networkMode,
         releaseA: RELEASE_A, releaseB: RELEASE_B, bootstrapDelayMs: BOOTSTRAP_DELAY_MS,
         checkoutSha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(),
         negativeCase: NEGATIVE_CASE || null, stages: [], console: [], exceptions: [], network: [], serviceWorkerEvents: [],
@@ -476,6 +500,8 @@ async function run() {
                 headers: event.params.response.headers, fromServiceWorker: event.params.response.fromServiceWorker || false });
         }
         if (event.method.startsWith('ServiceWorker.')) evidence.serviceWorkerEvents.push(event);
+        if (event.method === 'log.entryAdded') evidence.console.push(event.params);
+        if (event.method === 'network.responseCompleted') evidence.network.push(event.params);
     };
     const stage = name => {
         evidence.stage = name;
@@ -498,7 +524,7 @@ async function run() {
         const metadataB = JSON.parse(await fs.readFile(path.join(releases.releaseBDirectory, 'release.json'), 'utf8'));
         browserProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-chrome-profile-'));
         server = await createSwitchingServer(releases.releaseADirectory);
-        browser = await openChrome(server.url, browserProfile, onEvent, controller.signal);
+        browser = await openBrowser(server.url, browserProfile, onEvent, controller.signal);
         evidence.browserVersion = await browser.client.send('Browser.getVersion');
         evidence.ownedDebugPort = browser.port;
         stage('wait-for-initialized-active-controlled-A');
@@ -562,16 +588,21 @@ async function run() {
                 `Release ${revision} did not complete the requested bootstrap barrier`);
         }
         stage('offline-restart');
-        await browser.client.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+        await setOffline(browser, server, true);
         // This is the deliberate offline restart, after B has already passed all update assertions.
         await browser.client.send('Page.reload', { ignoreCache: false });
         await waitFor(browser.client, async function offlineReleaseB() {
             return window.upgradeFixture?.initialized && document.querySelector('meta[name="gym-release-revision"]')?.content === 'v2.7.1';
         }, controller.signal);
+        evidence.offlineProbe = await browser.client.evaluate(`fetch('./smoke-connectivity?probe=' + Date.now(), { cache: 'no-store' })
+            .then(() => ({ rejected: false }), error => ({ rejected: true, error: error.message }))`);
+        assert.equal(evidence.offlineProbe.rejected, true, 'An uncached network request succeeded during the outage');
         evidence.offlineRestart = await pageState(browser.client);
         assertReleaseState(evidence.offlineRestart, RELEASE_B, metadataB, savedSession, true);
         stage('online-recovery');
-        await browser.client.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+        await setOffline(browser, server, false);
+        evidence.onlineProbe = await browser.client.evaluate(`fetch('./smoke-connectivity?probe=' + Date.now(), { cache: 'no-store' }).then(response => response.text())`);
+        assert.equal(evidence.onlineProbe, 'online', 'Network did not recover');
         evidence.onlineRecovery = await pageState(browser.client);
         assertReleaseState(evidence.onlineRecovery, RELEASE_B, metadataB, savedSession, true);
         await captureScreenshot(browser.client, path.join(evidenceDirectory, 'desktop.png'), 1440, 900, false);
@@ -615,10 +646,13 @@ async function run() {
         await fs.writeFile(path.join(evidenceDirectory, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
     }
     if (failure) throw failure;
-    console.log(`[browser-upgrade-smoke] Chromium release upgrade passed; artifacts: ${evidenceDirectory}`);
+    console.log(`[browser-upgrade-smoke] ${browserName} release upgrade passed; artifacts: ${evidenceDirectory}`);
 }
 
-run().catch(error => {
-    console.error(`[browser-upgrade-smoke] ${error.stack || error.message}; artifacts: ${evidenceDirectory}`);
-    process.exitCode = 1;
-});
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+    runUpgradeSmoke().catch(error => {
+        console.error(`[browser-upgrade-smoke] ${error.stack || error.message}; artifacts: ${evidenceDirectory}`);
+        process.exitCode = 1;
+    });
+}
