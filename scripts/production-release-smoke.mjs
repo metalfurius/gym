@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import { createServer } from 'node:net';
@@ -9,6 +8,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
+import { spawnOwnedBrowser } from './owned-browser-process.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SMOKE_TARGET = process.env.PRODUCTION_SMOKE_TARGET || 'gym';
@@ -16,6 +16,7 @@ const GYM_PUBLIC_BASE_URL = 'https://codeoverdose.es/gym/';
 const PORTFOLIO_PUBLIC_BASE_URL = 'https://codeoverdose.es/';
 const RETRY_COUNT = Number(process.env.PRODUCTION_SMOKE_RETRY_COUNT || 12);
 const RETRY_DELAY_MS = Number(process.env.PRODUCTION_SMOKE_RETRY_DELAY_MS || 5_000);
+const SWEEP_INTERVAL_MS = Number(process.env.PRODUCTION_SMOKE_SWEEP_INTERVAL_MS || RETRY_DELAY_MS);
 const CHALLENGE_BROWSER_TIMEOUT_MS = 45_000;
 const BROWSER_COMMAND_TIMEOUT_MS = 10_000;
 const FORCE_BROWSER_TRANSPORT = process.env.PRODUCTION_SMOKE_FORCE_BROWSER === '1';
@@ -165,9 +166,9 @@ function normalizeBaseUrl(value) {
     return base;
 }
 
-async function readLocalRelease() {
+async function readLocalRelease(targetRoot = ROOT) {
     try {
-        return JSON.parse(await fs.readFile(path.join(ROOT, 'release.json'), 'utf8'));
+        return JSON.parse(await fs.readFile(path.join(targetRoot, 'release.json'), 'utf8'));
     } catch (error) {
         fail('pages', `could not read the checked-out release.json: ${error.message}`);
     }
@@ -178,6 +179,24 @@ function getExpectedAssets(release) {
         fail('manifest', 'checked-out release.json has no asset manifest');
     }
     return [...new Set([...CORE_ASSETS, ...Object.keys(release.assets)])].sort();
+}
+
+function canonicalUrl(base, relativePath) {
+    const url = new URL(relativePath, base);
+    if (url.search || url.hash || url.origin !== base.origin || !url.pathname.startsWith(base.pathname) ||
+        (relativePath && (/^[a-z][a-z\d+.-]*:/i.test(relativePath) || relativePath.startsWith('/')))) {
+        fail('config', `asset escapes the canonical scope: ${relativePath}`);
+    }
+    return url;
+}
+
+function validateResponseUrl(base, relativePath, value, status = null, headers = {}) {
+    const expected = canonicalUrl(base, relativePath).toString();
+    if (value !== expected) {
+        const error = createProductionError('cloudflare', `${relativePath || '/'} redirected away from canonical URL ${expected}: ${value}`);
+        error.failedResponse = { relativePath, url: value, status, headers, fetchedAt: new Date().toISOString() };
+        throw error;
+    }
 }
 
 function selectedHeaders(responseOrHeaders) {
@@ -372,7 +391,7 @@ class DevToolsClient {
     close() {
         this.rejectPending(new Error('Browser CDP client closed'));
         try {
-            this.socket.close();
+            this.socket.terminate();
         } catch {
             // The browser may already have exited after the challenge completed.
         }
@@ -436,7 +455,6 @@ async function waitForChromePageTarget(remotePort, base, getProcessError) {
                         target.type === 'page' &&
                         target.webSocketDebuggerUrl &&
                         target.url &&
-                        target.url !== 'about:blank' &&
                         !target.url.startsWith('chrome-extension://')
                 );
                 if (pageTarget) return pageTarget;
@@ -494,10 +512,9 @@ const BROWSER_REVISION_FUNCTION = `function(selector) {
 }`;
 
 class ChallengeBrowserSession {
-    constructor({ chrome, client, profileDirectory, target, expectedRevision }) {
-        this.chrome = chrome;
+    constructor({ browserOwner, client, target, expectedRevision }) {
+        this.browserOwner = browserOwner;
         this.client = client;
-        this.profileDirectory = profileDirectory;
         this.target = target;
         this.expectedRevision = expectedRevision;
     }
@@ -524,7 +541,7 @@ class ChallengeBrowserSession {
     }
 
     async fetchAsset(base, relativePath) {
-        const url = new URL(relativePath, base);
+        const url = canonicalUrl(base, relativePath);
         const payload = await this.client.callFunction(BROWSER_FETCH_FUNCTION, [url.toString()]);
         if (!payload || typeof payload.body !== 'string') {
             throw createProductionError(
@@ -542,12 +559,7 @@ class ChallengeBrowserSession {
                 `the challenge browser returned an invalid final URL for ${relativePath}`
             );
         }
-        if (responseUrl.search || responseUrl.hash) {
-            throw createProductionError(
-                'cloudflare',
-                `the challenge browser redirected ${relativePath} to a URL with a query or fragment: ${responseUrl}`
-            );
-        }
+        validateResponseUrl(base, relativePath, responseUrl.toString(), payload.status, selectedHeaders(payload.headers || {}));
 
         const headers = selectedHeaders(payload.headers || {});
         if (!payload.ok) throw createResponseError(relativePath, payload.status, headers);
@@ -555,23 +567,19 @@ class ChallengeBrowserSession {
         return {
             relativePath,
             url: responseUrl.toString(),
+            status: payload.status,
+            fetchedAt: new Date().toISOString(),
             buffer: Buffer.from(payload.body, 'base64'),
             headers,
         };
     }
 
     async close() {
-        this.client.close();
-        if (!this.chrome.killed) this.chrome.kill();
-        try {
-            await fs.rm(this.profileDirectory, { recursive: true, force: true });
-        } catch {
-            // The temporary profile is best-effort cleanup only.
-        }
+        await this.browserOwner.close();
     }
 }
 
-async function openChallengeBrowser(base, target, expectedRevision) {
+export async function openChallengeBrowser(base, target, expectedRevision) {
     const chromePath = await resolveChromePath();
     const xvfbPath = await resolveXvfbPath();
     const profileDirectory = await fs.mkdtemp(
@@ -593,23 +601,24 @@ async function openChallengeBrowser(base, target, expectedRevision) {
         `--remote-debugging-port=${remotePort}`,
         `--user-data-dir=${profileDirectory}`,
         '--window-size=1440,900',
-        base.toString(),
+        'about:blank',
     ];
     const launchCommand = xvfbPath || chromePath;
     const launchArguments = xvfbPath
         ? ['--auto-servernum', '--server-args=-screen 0 1440x900x24', chromePath, ...chromeArguments]
         : chromeArguments;
     let chrome;
+    let browserOwner;
     let client;
     let processError;
 
     try {
-        chrome = spawn(
+        browserOwner = spawnOwnedBrowser(
             launchCommand,
             launchArguments,
-            { stdio: ['ignore', 'ignore', 'pipe'] }
+            { afterClose: () => fs.rm(profileDirectory, { recursive: true, force: true, maxRetries: 4, retryDelay: 100 }) }
         );
-        chrome.stderr?.resume();
+        chrome = browserOwner.process;
         chrome.once('error', error => {
             processError = error;
         });
@@ -621,28 +630,27 @@ async function openChallengeBrowser(base, target, expectedRevision) {
 
         const pageTarget = await waitForChromePageTarget(remotePort, base, () => processError);
         client = new DevToolsClient(pageTarget.webSocketDebuggerUrl);
+        browserOwner.setClient(client);
         await client.send('Runtime.enable');
         await client.send('Page.enable');
         await client.send('Network.enable');
         await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+        // Configure both before navigating: the app can install and claim a worker
+        // immediately, and HTTP-cache disabling alone does not bypass worker caches.
+        await client.send('Network.setBypassServiceWorker', { bypass: true });
+        await client.send('Page.navigate', { url: base.toString() });
 
         const session = new ChallengeBrowserSession({
-            chrome,
+            browserOwner,
             client,
-            profileDirectory,
             target,
             expectedRevision,
         });
         await session.waitForRevision();
         return session;
     } catch (error) {
-        client?.close();
-        if (chrome && !chrome.killed) chrome.kill();
-        try {
-            await fs.rm(profileDirectory, { recursive: true, force: true });
-        } catch {
-            // The temporary profile is best-effort cleanup only.
-        }
+        if (browserOwner) await browserOwner.close();
+        else await fs.rm(profileDirectory, { recursive: true, force: true, maxRetries: 4, retryDelay: 100 });
         if (error.layer) throw error;
         throw createProductionError('cloudflare', `the Cloudflare challenge browser could not start: ${error.message}`);
     }
@@ -655,22 +663,24 @@ function createResponseError(relativePath, status, headers) {
         `${relativePath} returned HTTP ${status} (cf-cache-status=${headers['cf-cache-status'] || 'unknown'}, cf-mitigated=${headers['cf-mitigated'] || 'unknown'}, cf-ray=${headers['cf-ray'] || 'unknown'}, server=${headers.server || 'unknown'})`
     );
     error.cloudflareChallenge = headers['cf-mitigated'] === 'challenge';
+    error.failedResponse = { relativePath, status, headers, fetchedAt: new Date().toISOString() };
     return error;
 }
 
 async function fetchAsset(base, relativePath) {
-    const url = new URL(relativePath, base);
-    if (url.search || url.hash) fail('config', `generated production URL contains a query or fragment: ${url}`);
+    const url = canonicalUrl(base, relativePath);
 
     let response;
     try {
         response = await fetch(url, {
             headers: browserHeaders(base, relativePath),
+            signal: AbortSignal.timeout(20_000),
         });
     } catch (error) {
         fail('cloudflare', `request failed for ${relativePath}: ${error.message}`);
     }
 
+    validateResponseUrl(base, relativePath, response.url, response.status, selectedHeaders(response));
     if (!response.ok) {
         const headers = selectedHeaders(response);
         throw createResponseError(relativePath, response.status, headers);
@@ -678,7 +688,9 @@ async function fetchAsset(base, relativePath) {
 
     return {
         relativePath,
-        url: url.toString(),
+        url: response.url,
+        status: response.status,
+        fetchedAt: new Date().toISOString(),
         buffer: Buffer.from(await response.arrayBuffer()),
         headers: selectedHeaders(response),
     };
@@ -686,10 +698,15 @@ async function fetchAsset(base, relativePath) {
 
 async function readProduction(base, expectedAssets, challengeBrowser = null) {
     const assets = {};
-    for (const relativePath of expectedAssets) {
-        assets[relativePath] = challengeBrowser
-            ? await challengeBrowser.fetchAsset(base, relativePath)
-            : await fetchAsset(base, relativePath);
+    try {
+        for (const relativePath of expectedAssets) {
+            assets[relativePath] = challengeBrowser
+                ? await challengeBrowser.fetchAsset(base, relativePath)
+                : await fetchAsset(base, relativePath);
+        }
+    } catch (error) {
+        error.partialAssets = assets;
+        throw error;
     }
     return assets;
 }
@@ -734,7 +751,7 @@ async function readProductionWithChallengeFallback(
     }
 }
 
-function validateRelease(release, assets, checkedOutIndexHtml) {
+function validateRelease(release, assets, checkedOutIndexHtml, checkedOutWorker) {
     if (release.schemaVersion !== 1 || !/^v\d+\.\d+\.\d+$/.test(release.revision)) {
         fail('manifest', 'production release.json has an invalid schema or revision');
     }
@@ -784,6 +801,12 @@ function validateRelease(release, assets, checkedOutIndexHtml) {
     if (serviceWorker.match(REVISION_PATTERN)?.[1] !== expectedRevision) {
         fail('service-worker', `sw.js revision disagrees with ${expectedRevision}`);
     }
+    if (sha256(assets['sw.js'].buffer, 'sw.js') !== sha256(checkedOutWorker, 'sw.js')) {
+        fail('service-worker', 'sw.js hash disagrees with the checked-out deployment');
+    }
+    if (normalizeShellHtml(indexHtml) !== normalizeShellHtml(checkedOutIndexHtml)) {
+        fail('pages', 'deployed /gym/index.html differs from the checked-out Gym shell');
+    }
     if (remoteRelease.cacheName !== `gym-tracker-${expectedRevision}`) {
         fail('service-worker', `release cacheName disagrees with ${expectedRevision}`);
     }
@@ -826,12 +849,7 @@ function validateRelease(release, assets, checkedOutIndexHtml) {
     return { revision: expectedRevision, version: manifest.version, progressHash };
 }
 
-function portfolioTargetRoot() {
-    return path.resolve(ROOT, '..', 'target-portfolio');
-}
-
-async function readPortfolioTarget() {
-    const targetRoot = portfolioTargetRoot();
+async function readPortfolioTarget(targetRoot = path.resolve(ROOT, '..', 'target-portfolio')) {
     try {
         const siteRevision = JSON.parse(await fs.readFile(path.join(targetRoot, 'site-revision.json'), 'utf8'));
         const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(targetRoot, 'index.html')));
@@ -955,160 +973,156 @@ function assertStableResponses(first, second) {
     }
 }
 
-async function runPortfolio() {
-    const target = await readPortfolioTarget();
-    const base = normalizeBaseUrl(PORTFOLIO_PUBLIC_BASE_URL);
-    const expectedAssets = getPortfolioExpectedAssets(target.siteRevision);
-    let lastError;
-    let challengeBrowser = null;
+function responseEvidence(assets, revision, verdict = 'passed') {
+    return Object.fromEntries(Object.entries(assets).map(([relativePath, asset]) => [relativePath, {
+        url: asset.url,
+        status: asset.status,
+        fetchedAt: asset.fetchedAt,
+        headers: asset.headers,
+        sha256: sha256(asset.buffer, relativePath),
+        revision,
+        verdict,
+    }]));
+}
 
+export async function runSmoke({
+    target = SMOKE_TARGET,
+    targetRoot = target === 'gym' ? ROOT : path.resolve(ROOT, '..', 'target-portfolio'),
+    expectedRevision = process.env.CLOUDFLARE_EXPECTED_REVISION || '',
+    evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH,
+    readSweep = readProductionWithChallengeFallback,
+    retryCount = RETRY_COUNT,
+    intervalMs = SWEEP_INTERVAL_MS,
+    sleepFn = sleep,
+    now = Date.now,
+    beforeSweep = async () => {},
+} = {}) {
+    // Delete any previous passed file before doing work, including configuration checks.
+    if (evidencePath) await fs.rm(evidencePath, { force: true });
+    if (!['gym', 'portfolio'].includes(target)) fail('config', 'PRODUCTION_SMOKE_TARGET must be gym or portfolio');
+    if (!Number.isInteger(retryCount) || retryCount < 2 || !Number.isFinite(intervalMs) || intervalMs <= 0) {
+        fail('config', 'at least two sweep attempts and a positive sweep interval are required');
+    }
+    const base = normalizeBaseUrl(target === 'gym' ? GYM_PUBLIC_BASE_URL : PORTFOLIO_PUBLIC_BASE_URL);
+    let release;
+    let expectedAssets;
+    let validate;
+    if (target === 'gym') {
+        release = await readLocalRelease(targetRoot);
+        expectedAssets = getExpectedAssets(release);
+        const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(targetRoot, 'index.html')));
+        const checkedOutWorker = await fs.readFile(path.join(targetRoot, 'sw.js'));
+        validate = assets => validateRelease(release, assets, checkedOutIndexHtml, checkedOutWorker);
+    } else {
+        const local = await readPortfolioTarget(targetRoot);
+        release = local.siteRevision;
+        expectedAssets = getPortfolioExpectedAssets(release);
+        validate = assets => validatePortfolio(release, assets, local.checkedOutIndexHtml, local.localHashes);
+    }
+    if (expectedRevision && release.revision !== expectedRevision) {
+        fail('manifest', `checked-out revision ${release.revision} does not match expected ${expectedRevision}`);
+    }
+    expectedAssets.forEach(relativePath => canonicalUrl(base, relativePath));
+    const sweeps = [];
+    let previousAssets = null;
+    let consecutive = 0;
+    let challengeBrowser = null;
+    let lastError;
+    let previousCompletedAt = null;
+    let passedEvidence = null;
     try {
-        for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
+        for (let attempt = 1; attempt <= retryCount; attempt += 1) {
+            if (attempt > 1) await sleepFn(intervalMs);
+            await beforeSweep();
+            const startedAt = now();
+            const sweep = {
+                attempt,
+                startedAt: new Date(startedAt).toISOString(),
+                intervalSincePreviousMs: previousCompletedAt === null ? null : startedAt - previousCompletedAt,
+                expectedRevision: release.revision,
+                status: 'failed',
+                responses: {},
+            };
+            sweeps.push(sweep);
+            let assets = {};
             try {
-                const production = await readProductionWithChallengeFallback(
-                    base,
-                    expectedAssets,
-                    'portfolio',
-                    target.siteRevision.revision,
-                    challengeBrowser
-                );
+                const production = await readSweep(base, expectedAssets, target, release.revision, challengeBrowser);
                 challengeBrowser = production.challengeBrowser;
-                const assets = production.assets;
-                const validation = validatePortfolio(
-                    target.siteRevision,
-                    assets,
-                    target.checkedOutIndexHtml,
-                    target.localHashes
-                );
-                const repeatedProduction = await readProductionWithChallengeFallback(
-                    base,
-                    expectedAssets,
-                    'portfolio',
-                    target.siteRevision.revision,
-                    challengeBrowser
-                );
-                challengeBrowser = repeatedProduction.challengeBrowser;
-                const repeatedAssets = repeatedProduction.assets;
-                assertStableResponses(assets, repeatedAssets);
-                const evidence = buildEvidence(
-                    target.siteRevision,
-                    assets,
-                    validation,
-                    PORTFOLIO_PUBLIC_BASE_URL,
-                    repeatedProduction.transport === 'cloudflare-challenge-browser' ||
-                        production.transport === 'cloudflare-challenge-browser'
-                        ? 'cloudflare-challenge-browser'
-                        : 'node-fetch'
-                );
-                const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
-                if (evidencePath) {
-                    await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
+                assets = production.assets;
+                sweep.verificationTransport = production.transport;
+                for (const relativePath of expectedAssets) {
+                    const asset = assets[relativePath];
+                    if (!asset) fail('asset', `canonical response was not fetched: ${relativePath}`);
+                    validateResponseUrl(base, relativePath, asset.url, asset.status, asset.headers);
+                    if (asset.status !== 200) throw createResponseError(relativePath, asset.status, asset.headers);
+                    if (!Number.isFinite(Date.parse(asset.fetchedAt))) fail('asset', `response has no UTC time: ${relativePath}`);
                 }
-                console.log(
-                    `[production-smoke] passed portfolio ${validation.revision}; verified ${expectedAssets.length} repeated no-query canonical assets`
-                );
-                return;
+                const validation = validate(assets);
+                if (previousAssets) assertStableResponses(previousAssets, assets);
+                consecutive += 1;
+                previousAssets = assets;
+                sweep.status = 'passed';
+                sweep.validation = validation;
+                sweep.consecutiveSuccesses = consecutive;
+                sweep.responses = responseEvidence(assets, validation.revision);
+                sweep.completedAt = new Date(now()).toISOString();
+                previousCompletedAt = now();
+                if (consecutive >= 2) {
+                    passedEvidence = {
+                        status: 'passed',
+                        target,
+                        publicBaseUrl: base.toString(),
+                        expectedRevision: release.revision,
+                        revision: validation.revision,
+                        version: validation.version,
+                        progressHash: validation.progressHash,
+                        releaseMetadata: release,
+                        requiredConsecutiveSweeps: 2,
+                        sweepIntervalMs: intervalMs,
+                        sweeps,
+                    };
+                    break;
+                }
             } catch (error) {
                 lastError = error;
+                previousAssets = null;
+                consecutive = 0;
+                sweep.error = error.message;
+                sweep.responses = Object.fromEntries(expectedAssets.map(relativePath => [relativePath, {
+                    url: canonicalUrl(base, relativePath).toString(), status: null, fetchedAt: null,
+                    headers: {}, sha256: null, revision: null, verdict: 'not-fetched',
+                }]));
+                Object.assign(sweep.responses, responseEvidence(error.partialAssets || assets, null, 'sweep-failed'));
+                if (error.failedResponse) {
+                    const { relativePath, ...response } = error.failedResponse;
+                    Object.assign(sweep.responses[relativePath], response, { verdict: 'failed' });
+                }
+                sweep.completedAt = new Date(now()).toISOString();
+                previousCompletedAt = now();
                 if (challengeBrowser && error.cloudflareChallenge) {
                     await challengeBrowser.close();
                     challengeBrowser = null;
                 }
-                if (attempt === RETRY_COUNT) break;
-                console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
-                await sleep(RETRY_DELAY_MS);
+                console.warn(`[production-smoke] sweep ${attempt}/${retryCount} failed: ${error.message}`);
             }
         }
     } finally {
         await challengeBrowser?.close();
     }
-
-    throw lastError;
-}
-
-function buildEvidence(
-    release,
-    assets,
-    validation,
-    publicBaseUrl = GYM_PUBLIC_BASE_URL,
-    verificationTransport = 'node-fetch'
-) {
-    return {
-        status: 'passed',
-        publicBaseUrl,
-        verificationTransport,
-        revision: validation.revision,
-        version: validation.version,
-        progressHash: validation.progressHash,
-        releaseMetadata: release,
-        responses: Object.fromEntries(
-            Object.entries(assets).map(([relativePath, asset]) => [
-                relativePath,
-                {
-                    url: asset.url,
-                    headers: asset.headers,
-                    sha256: sha256(asset.buffer, relativePath),
-                },
-            ])
-        ),
-    };
-}
-
-async function runGym() {
-    const base = normalizeBaseUrl(GYM_PUBLIC_BASE_URL);
-    const release = await readLocalRelease();
-    const expectedAssets = getExpectedAssets(release);
-    let lastError;
-    let challengeBrowser = null;
-
-    try {
-        for (let attempt = 1; attempt <= RETRY_COUNT; attempt += 1) {
-            try {
-                const production = await readProductionWithChallengeFallback(
-                    base,
-                    expectedAssets,
-                    'gym',
-                    release.revision,
-                    challengeBrowser
-                );
-                challengeBrowser = production.challengeBrowser;
-                const assets = production.assets;
-                const checkedOutIndexHtml = normalizeText(await fs.readFile(path.join(ROOT, 'index.html')));
-                const validation = validateRelease(release, assets, checkedOutIndexHtml);
-                const evidence = buildEvidence(release, assets, validation, GYM_PUBLIC_BASE_URL, production.transport);
-                const evidencePath = process.env.PRODUCTION_SMOKE_EVIDENCE_PATH;
-                if (evidencePath) {
-                    await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
-                }
-                console.log(
-                    `[production-smoke] passed ${validation.revision}; verified ${expectedAssets.length} no-query canonical assets`
-                );
-                return;
-            } catch (error) {
-                lastError = error;
-                if (challengeBrowser && error.cloudflareChallenge) {
-                    await challengeBrowser.close();
-                    challengeBrowser = null;
-                }
-                if (attempt === RETRY_COUNT) break;
-                console.warn(`[production-smoke] attempt ${attempt}/${RETRY_COUNT} did not converge: ${error.message}`);
-                await sleep(RETRY_DELAY_MS);
-            }
-        }
-    } finally {
-        await challengeBrowser?.close();
+    if (passedEvidence) {
+        if (evidencePath) await fs.writeFile(evidencePath, `${JSON.stringify(passedEvidence, null, 2)}\n`, 'utf8');
+        console.log(`[production-smoke] passed ${target} ${passedEvidence.revision}; verified ${expectedAssets.length} canonical URLs in two consecutive sweeps`);
+        return passedEvidence;
     }
-
-    throw lastError;
+    const error = lastError || createProductionError('cloudflare', 'fewer than two consecutive successful canonical sweeps');
+    error.sweeps = sweeps;
+    throw error;
 }
 
-async function run() {
-    if (SMOKE_TARGET === 'portfolio') return runPortfolio();
-    if (SMOKE_TARGET !== 'gym') fail('config', 'PRODUCTION_SMOKE_TARGET must be gym or portfolio');
-    return runGym();
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+    runSmoke().catch(error => {
+        console.error(error.message);
+        process.exitCode = 1;
+    });
 }
-
-run().catch(error => {
-    console.error(error.message);
-    process.exitCode = 1;
-});
