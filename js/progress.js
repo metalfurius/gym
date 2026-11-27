@@ -24,7 +24,7 @@ let progressOwnerId = null;
 let chartRequestId = 0;
 let listRequestId = 0;
 let dataGeneration = 0;
-let uiRequestId = 0;
+const loadingOwners = new Map();
 let sessionCompleteness = { complete: false };
 const exerciseDataCache = new Map();
 
@@ -181,7 +181,8 @@ function isProgressOnline() {
 }
 
 function resetProgressMemory() {
-    ++dataGeneration; ++chartRequestId; ++listRequestId; ++uiRequestId;
+    ++dataGeneration; ++chartRequestId; ++listRequestId;
+    hideProgressLoading();
     progressTabCache.exercisesList = null; progressTabCache.exercisesWithCount = null;
     progressTabCache.lastCacheTime = null; progressTabCache.isInitialized = false;
     sessionCompleteness = { complete: false }; exerciseDataCache.clear();
@@ -320,17 +321,17 @@ export async function loadExerciseList() {
     if (!progressElements.exerciseSelect) return;
     const userId = ensureProgressOwner();
     const request = ++listRequestId;
-    const uiRequest = ++uiRequestId;
     const scope = captureAccountScope(userId);
     const generation = dataGeneration;
-    const isCurrent = () => request === listRequestId && uiRequest === uiRequestId && generation === dataGeneration
+    const isCurrent = () => request === listRequestId && generation === dataGeneration
         && isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     if (!userId) { resetProgressView(); return; }
+    const loadingOwner = { kind: 'list', request };
+    showProgressLoading(loadingOwner);
     if (isProgressCacheValid() && progressTabCache.exercisesWithCount) {
         populateExerciseSelector(progressTabCache.exercisesList, true, progressTabCache.exercisesWithCount);
-        showDataCompleteness(sessionCompleteness); hideProgressLoading(); return;
+        showDataCompleteness(sessionCompleteness); hideProgressLoading(loadingOwner); return;
     }
-    showProgressLoading();
     try {
         const history = await loadSessionHistoryForProgress(scope, isCurrent);
         if (!isCurrent()) return;
@@ -343,7 +344,7 @@ export async function loadExerciseList() {
         logger.error('Error loading exercise list:', error);
         progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.loading_error')}</option>`;
     } finally {
-        if (isCurrent()) hideProgressLoading();
+        hideProgressLoading(loadingOwner);
     }
 }
 
@@ -352,7 +353,6 @@ export async function handleExerciseChange() { await updateChart(); }
 export async function updateChart() {
     const userId = ensureProgressOwner();
     const request = ++chartRequestId;
-    const uiRequest = ++uiRequestId;
     const generation = dataGeneration;
     const scope = captureAccountScope(userId);
     const selectedValue = progressElements.exerciseSelect?.value;
@@ -360,15 +360,16 @@ export async function updateChart() {
     const selectedPeriod = progressElements.periodSelect?.value;
     const selectedExercise = parseExerciseSelectionValue(selectedValue);
     const now = calendarNow();
-    const isCurrent = () => request === chartRequestId && uiRequest === uiRequestId && generation === dataGeneration
+    const isCurrent = () => request === chartRequestId && generation === dataGeneration
         && isAccountScopeCurrent(scope, getCurrentUser()?.uid)
         && progressElements.exerciseSelect?.value === selectedValue
         && progressElements.metricSelect?.value === selectedMetric
         && progressElements.periodSelect?.value === selectedPeriod;
+    const loadingOwner = { kind: 'chart', request };
+    showProgressLoading(loadingOwner);
     if (!selectedValue || !selectedExercise || !userId) {
-        hideChart(); hideStats(); hideNoDataMessage(); hideProgressLoading(); return;
+        hideChart(); hideStats(); hideNoDataMessage(); hideProgressLoading(loadingOwner); return;
     }
-    showProgressLoading();
     try {
         const result = await getExerciseData(selectedExercise, selectedPeriod, now, scope, isCurrent);
         if (!isCurrent()) return;
@@ -387,7 +388,7 @@ export async function updateChart() {
         logger.error('Error updating chart:', error);
         hideChart(); hideStats(); showNoDataMessage();
     } finally {
-        if (isCurrent()) hideProgressLoading();
+        hideProgressLoading(loadingOwner);
     }
 }
 
@@ -767,16 +768,15 @@ function formatDateForChart(date) {
     });
 }
 
-function showProgressLoading() {
-    if (progressElements.loadingSpinner) {
-        progressElements.loadingSpinner.classList.remove('hidden');
-    }
+function showProgressLoading(owner) {
+    loadingOwners.set(owner.kind, owner);
+    progressElements.loadingSpinner?.classList.remove('hidden');
 }
 
-function hideProgressLoading() {
-    if (progressElements.loadingSpinner) {
-        progressElements.loadingSpinner.classList.add('hidden');
-    }
+function hideProgressLoading(owner = null) {
+    if (!owner) loadingOwners.clear();
+    else if (loadingOwners.get(owner.kind) === owner) loadingOwners.delete(owner.kind);
+    progressElements.loadingSpinner?.classList.toggle('hidden', loadingOwners.size === 0);
 }
 
 function showChart() {

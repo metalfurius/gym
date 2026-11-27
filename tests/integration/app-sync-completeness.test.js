@@ -7,11 +7,13 @@ import { localFirstCache } from '../../js/utils/local-first-cache.js';
 import { offlineManager } from '../../js/utils/offline-manager.js';
 import { serializeSessionsForCache } from '../../js/utils/firestore-serialization.js';
 import { setLanguage } from '../../js/i18n.js';
+import { seedSyncProtocol } from '../utils/sync-protocol-fixture.js';
 
 const preferencesPath = uid => `users/${uid}/app_data/user_preferences`;
 const session = (id, date = new Date(2026, 10, 9, 10)) => ({ id, fecha: MockTimestamp.fromDate(date),
     nombreEntrenamiento: id, ejercicios: [], userId: 'fixture' });
 function seed(uid, count) {
+    seedSyncProtocol(uid);
     for (let index = 0; index < count; index++) __firestoreState.documents.set(`users/${uid}/sesiones_entrenamiento/s-${index}`, { ...session(`wire-${index}`), userId: uid });
     __firestoreState.documents.set(preferencesPath(uid), { weeklyTargetDays: 3, untouched: 'metadata' });
 }

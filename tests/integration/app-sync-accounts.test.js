@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { __authState, __firestoreState, __notifyAuthListeners, __resetMockFirebase, MockTimestamp } from '../mocks/firebase-state.js';
 import { __resetMockFirestoreBehavior, __setMockDocumentResultHandler, __setMockTransactionBeforeCommit, __setMockWriteFailuresForPath } from '../mocks/firebase-firestore.js';
 import { mountAppDom, field, until, waitForUi } from '../utils/app-harness.js';
@@ -7,6 +7,7 @@ import { localFirstCache } from '../../js/utils/local-first-cache.js';
 import { offlineManager } from '../../js/utils/offline-manager.js';
 
 const preferencePath = uid => `users/${uid}/app_data/user_preferences`;
+let elapsedClock;
 async function authenticate(uid) {
     __authState.currentUser = uid ? { uid, email: `${uid}@example.test` } : null;
     await __notifyAuthListeners(); await waitForUi(10);
@@ -23,6 +24,10 @@ describe('actual app account/read/write generations', () => {
         await import('../../js/app.js'); document.dispatchEvent(new Event('DOMContentLoaded')); await waitForUi(30);
     });
     beforeEach(async () => {
+        // Pin cache age independently from the injected calendar reference.
+        // Retain advancing elapsed time so deferred-UI timeouts remain real.
+        const realNow = Date.now.bind(Date); const startedAt = realNow();
+        elapsedClock = jest.spyOn(Date, 'now').mockImplementation(() => new Date(2026, 10, 20, 12).getTime() + realNow() - startedAt);
         __resetMockFirestoreBehavior();
         Object.defineProperty(navigator, 'onLine', { configurable: true, value: true });
         await authenticate(null); __firestoreState.documents.clear();
@@ -30,6 +35,7 @@ describe('actual app account/read/write generations', () => {
         __firestoreState.documents.set(preferencePath('A'), { weeklyTargetDays: 7 });
         __firestoreState.documents.set(preferencePath('B'), { weeklyTargetDays: 6 });
     });
+    afterEach(() => elapsedClock.mockRestore());
     afterAll(async () => { __resetMockFirestoreBehavior(); setCalendarClock(); await authenticate(null); });
 
     it.each(['success', 'error'])('does not apply an old A preference %s after B signs in', async outcome => {

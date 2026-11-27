@@ -19,17 +19,21 @@ export function registerSessionMutationListener(listener) {
 
 // Publish only after the persisted write succeeds. Invalidate generations before
 // awaiting storage so no in-flight read can repopulate a deleted/stale snapshot.
-export async function publishSessionMutation(detail) {
+// A writeSessionDocument result proves preflight invalidation; reuse it instead
+// of turning redundant post-commit storage work into a failed backend save.
+export async function publishSessionMutation(detail, { invalidationVerified = false } = {}) {
     if (!detail?.userId) throw new Error('Session mutation requires an owner UID');
     invalidateSessionReads(detail.userId);
     const invalidations = [];
     for (const invalidate of invalidators) invalidations.push(invalidate(detail));
     await Promise.all([
         ...invalidations,
-        localFirstCache.clearByPrefix(`history:${detail.userId}:`),
-        localFirstCache.clearByPrefix(`calendar:${detail.userId}:`),
-        localFirstCache.remove(`progress:sessions:${detail.userId}`),
-        localFirstCache.clearByPrefix(`daily-hub:${detail.userId}:`),
+        ...(invalidationVerified ? [] : [
+            localFirstCache.clearByPrefix(`history:${detail.userId}:`),
+            localFirstCache.clearByPrefix(`calendar:${detail.userId}:`),
+            localFirstCache.remove(`progress:sessions:${detail.userId}`),
+            localFirstCache.clearByPrefix(`daily-hub:${detail.userId}:`),
+        ]),
     ]);
     for (const listener of listeners) {
         try {

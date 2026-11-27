@@ -2,6 +2,8 @@ import { doc, Timestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/fireba
 import { runOwnedTransaction } from './owned-transaction.js';
 import { normalizeWeeklyTargetSessions, WEEKLY_TARGET_DEFAULT } from './quick-log.js';
 import { sessionRevisionRef } from './session-store.js';
+import { createSecureId } from './secure-id.js';
+import { matchesSyncProtocol, isSyncProtocolPolicy, isSessionRevision, syncProtocolGlobalRef, syncProtocolUserRef } from './sync-protocol.js';
 
 const weekPattern = /^\d{4}-\d{2}-\d{2}$/;
 const revisionOf = record => Math.max(0, Number.parseInt(record?.revision, 10) || 0);
@@ -14,7 +16,7 @@ export function normalizeWeeklyTargets(value) {
         result[weekKey] = {
             ...record,
             targetSessions: target,
-            targetDays: target,
+            targetDays: normalizeWeeklyTargetSessions(record.targetDays ?? record.targetSessions, WEEKLY_TARGET_DEFAULT),
             savesUsed: Math.max(0, Number.parseInt(record.savesUsed, 10) || 0),
             revision: revisionOf(record),
         };
@@ -50,6 +52,7 @@ export function normalizeWeeklyState(state = {}) {
     );
     return {
         ...state,
+        weeklyTargetBaselineSessions: baselineTarget(state),
         weeklyTargetsByWeek: targets,
         weeklyOutcomesByWeek: normalizeWeeklyOutcomes(state.weeklyOutcomesByWeek),
         weeklyTargetSessions: target,
@@ -83,12 +86,12 @@ function legacyOperationId(payload) {
 }
 
 export function createWeeklyTargetOperation(userId, weekKey, target, currentRecord, updatedAtIso) {
-    const operationId = globalThis.crypto?.randomUUID?.()
-        || `target-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    const operationId = createSecureId('target');
     return migrateWeeklyTargetOperation({
         userId, weekKey, operationId, updatedAtIso,
         baseRevision: revisionOf(currentRecord),
         baseOperationId: currentRecord?.operationId || null,
+        baseFingerprint: weeklyTargetFingerprint(currentRecord),
         weekRecord: {
             targetSessions: target,
             targetDays: target,
@@ -96,6 +99,18 @@ export function createWeeklyTargetOperation(userId, weekKey, target, currentReco
             updatedAtIso,
         },
     });
+}
+
+// Version/op metadata can survive a legacy recursive merge unchanged. Compare
+// the semantic leaves as well, so that acknowledged legacy edits are conflicts.
+export function weeklyTargetFingerprint(record) {
+    if (!record) return 'absent';
+    return JSON.stringify([
+        normalizeWeeklyTargetSessions(record.targetSessions ?? record.targetDays, WEEKLY_TARGET_DEFAULT),
+        normalizeWeeklyTargetSessions(record.targetDays ?? record.targetSessions, WEEKLY_TARGET_DEFAULT),
+        Math.max(0, Number.parseInt(record.savesUsed, 10) || 0),
+        typeof record.updatedAtIso === 'string' ? record.updatedAtIso : null,
+    ]);
 }
 
 export function migrateWeeklyTargetOperation(payload) {
@@ -169,7 +184,9 @@ export async function persistWeeklyTargetOperation(db, payload) {
         const matchesBase = operation.baseRevision === null
             ? !current || sameLegacyIntent
             : revisionOf(current) === operation.baseRevision
-                && (current?.operationId || null) === operation.baseOperationId;
+                && (current?.operationId || null) === operation.baseOperationId
+                && typeof operation.baseFingerprint === 'string'
+                && weeklyTargetFingerprint(current) === operation.baseFingerprint;
         if (!matchesBase || (state.weeklyOutcomesByWeek[operation.weekKey] && !sameLegacyIntent)) {
             const conflict = { status: 'conflict', operationId: operation.operationId, weekKey: operation.weekKey,
                 targetSessions: operation.weekRecord.targetSessions,
@@ -202,21 +219,24 @@ export async function persistWeeklyTargetOperation(db, payload) {
             updatedAtIso: operation.updatedAtIso, revision: revisionOf(state.weeklyTargetsByWeek[operation.weekKey]) };
         transaction.set(receiptRef, accepted);
         return { ...accepted, state };
-    }, 'preferences.weeklyTarget');
+    }, 'preferences.weeklyTarget', { revisionRef: doc(db, 'users', operation.userId, 'app_data', 'user_preferences'), revisionField: 'preferencesRevision' });
     if (result.status === 'conflict') throw new WeeklyTargetConflictError(result);
     return result;
 }
 
-export async function persistWeeklyOutcomes(db, userId, outcomes, expectedTargets, { complete, nowIso, sessionRevision } = {}) {
-    if (complete !== true) return null;
+export async function persistWeeklyOutcomes(db, userId, outcomes, expectedTargets, { complete, nowIso, sessionRevision, protocolProof } = {}) {
+    if (complete !== true || protocolProof?.userId !== userId || !matchesSyncProtocol(protocolProof)) return null;
     return runOwnedTransaction(db, userId, async (transaction, assertOwner) => {
         const preferencesRef = doc(db, 'users', userId, 'app_data', 'user_preferences');
-        const [snapshot, revisionSnapshot] = await Promise.all([
+        const [snapshot, revisionSnapshot, policy, global] = await Promise.all([
             transaction.get(preferencesRef), transaction.get(sessionRevisionRef(db, userId)),
+            transaction.get(syncProtocolUserRef(db, userId)), transaction.get(syncProtocolGlobalRef(db)),
         ]);
         assertOwner();
         const state = normalizeWeeklyState(snapshot.exists() ? snapshot.data() : {});
-        if (!Number.isInteger(sessionRevision) || sessionRevision !== (revisionSnapshot.data()?.revision || 0)) {
+        if (!policy.exists() || !global.exists() || !isSyncProtocolPolicy(policy.data(), protocolProof)
+            || !isSyncProtocolPolicy(global.data(), protocolProof) || !revisionSnapshot.exists() || !isSessionRevision(revisionSnapshot.data())
+            || !Number.isInteger(sessionRevision) || sessionRevision !== revisionSnapshot.data()?.revision) {
             return { state, changed: false };
         }
         let changed = false;
@@ -231,6 +251,7 @@ export async function persistWeeklyOutcomes(db, userId, outcomes, expectedTarget
             const expectedTarget = expectedKey ? expectedTargets[expectedKey] : null;
             if (serverKey !== expectedKey || revisionOf(serverTarget) !== revisionOf(expectedTarget)
                 || (serverTarget?.operationId || null) !== (expectedTarget?.operationId || null)
+                || weeklyTargetFingerprint(serverTarget) !== weeklyTargetFingerprint(expectedTarget)
                 || (serverTarget?.targetSessions ?? serverTarget?.targetDays
                     ?? state.weeklyTargetBaselineSessions ?? WEEKLY_TARGET_DEFAULT) !== outcome.targetSessions) continue;
             state.weeklyOutcomesByWeek[weekKey] = { ...outcome, lockedAtIso: nowIso };
@@ -238,9 +259,10 @@ export async function persistWeeklyOutcomes(db, userId, outcomes, expectedTarget
         }
         if (changed) {
             state.preferencesRevision = (state.preferencesRevision || 0) + 1;
+            state.schemaVersion = 3;
             // Derived writes must not change the original user-edit timestamp.
             transaction.set(preferencesRef, state);
         }
         return { state, changed };
-    }, 'preferences.weeklyOutcomes');
+    }, 'preferences.weeklyOutcomes', { revisionRef: doc(db, 'users', userId, 'app_data', 'user_preferences'), revisionField: 'preferencesRevision' });
 }

@@ -36,8 +36,9 @@ import { exerciseCache } from './exercise-cache.js';
 import { logger } from './utils/logger.js';
 import { beginAccountSession, captureAccountScope, isAccountScopeCurrent } from './utils/account-scope.js';
 import { calendarNow } from './utils/calendar-clock.js';
-import { sessionRevisionRef } from './utils/session-store.js';
+import { sessionRevisionRef, recoverSessionInvalidations } from './utils/session-store.js';
 import { registerSessionMutationInvalidator } from './utils/session-mutations.js';
+import { verifyAccountSyncProtocol } from './utils/sync-protocol.js';
 import {
     normalizeWeeklyTargets as normalizeWeeklyTargetsByWeekState,
     normalizeWeeklyState, createWeeklyTargetOperation, applyOptimisticWeeklyTarget,
@@ -323,7 +324,7 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
                 if (isCurrent()) await refreshDailyHub(user, { forceRefresh: true });
                 return { ok: false, reason: 'conflict' };
             }
-            if (offlineManager.isNetworkError(error) || error.code === 'sync/owner-changed') return { ok: true, queued: true };
+            if (offlineManager.isNetworkError(error) || ['sync/owner-changed', 'sync/retry-exhausted'].includes(error.code)) return { ok: true, queued: true };
             await offlineManager.acknowledgeOperation?.(queueId);
             if (isCurrent()) {
                 await fetchWeeklyTargetPreference(user, { forceRefresh: true });
@@ -569,6 +570,8 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
     };
     if (!offlineManager.checkOnline()) return fallback();
     try {
+        const protocolProof = await verifyAccountSyncProtocol(db, user.uid);
+        if (!isCurrent()) return incomplete([]);
         const revisionBefore = await getDoc(sessionRevisionRef(db, user.uid));
         if (!isCurrent()) return incomplete([]);
         const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
@@ -591,7 +594,7 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         if (!isCurrent()) return incomplete([]);
         firebaseUsageTracker.trackRead(2, 'dashboard.dailyHubRevision');
         const revision = revisionAfter.data()?.revision || 0;
-        const complete = !truncated && latestAuthoritative && revision === (revisionBefore.data()?.revision || 0)
+        const complete = !!protocolProof && !truncated && latestAuthoritative && revision === (revisionBefore.data()?.revision || 0)
             && snapshot.metadata?.fromCache !== true && snapshot.metadata?.hasPendingWrites !== true
             && revisionBefore.metadata?.fromCache !== true && revisionAfter.metadata?.fromCache !== true
             && revisionBefore.metadata?.hasPendingWrites !== true && revisionAfter.metadata?.hasPendingWrites !== true;
@@ -601,7 +604,7 @@ async function fetchRecentSessionsForDailyHub(user, options = {}) {
         if (!isCurrent()) return incomplete([]);
         dailyHubSessionsCache = sessions; dailyHubLastFetchTimestamp = Date.now();
         dailyHubCompleteness = metadata;
-        return { sessions, ...metadata, source: 'server', canFinalize: complete };
+        return { sessions, ...metadata, source: 'server', protocolProof, canFinalize: complete && !!protocolProof };
     } catch (error) {
         if (isCurrent()) logger.warn('Could not refresh daily hub sessions:', error);
         return fallback();
@@ -625,7 +628,7 @@ async function finalizePastWeeklyOutcomes(user, fetchResult, now, isCurrent) {
     });
     if (!Object.keys(outcomes).length || !isCurrent()) return;
     const result = await persistWeeklyOutcomes(db, user.uid, outcomes, expectedTargets,
-        { complete: true, nowIso: now.toISOString(), sessionRevision: fetchResult.sessionRevision });
+        { complete: true, nowIso: now.toISOString(), sessionRevision: fetchResult.sessionRevision, protocolProof: fetchResult.protocolProof });
     if (!isCurrent() || !result?.changed) return;
     const next = overlayQueuedWeeklyTargets(result.state);
     await cacheWeeklyTargetState(user.uid, next, next.updatedAtIso, isCurrent);
@@ -644,7 +647,20 @@ async function refreshDailyHub(user, options = {}) {
         : { sessions: [], complete: true };
     if (!isCurrent()) return;
     if (user && weeklyTargetCacheUserId === user.uid && weeklyTargetLastFetchTimestamp > 0 && !options.skipOutcomeFinalization) {
-        await finalizePastWeeklyOutcomes(user, fetchResult, now, isCurrent);
+        try { await finalizePastWeeklyOutcomes(user, fetchResult, now, isCurrent); }
+        catch (error) {
+            if (error.code !== 'sync/retry-exhausted' || options.propagateRetryExhaustion || !isCurrent()) throw error;
+            // Persist only a recompute intent; stale outcomes/completeness
+            // snapshots must never be replayed as an accepted frozen result.
+            const alreadyQueued = offlineManager.pendingOperations.some(entry => entry.descriptor?.type === 'preferences.syncWeeklyState'
+                && entry.descriptor.payload?.userId === user.uid);
+            if (!alreadyQueued) {
+                offlineManager.queueOperation(null, t('offline.queued_when_online'), {
+                    descriptor: { type: 'preferences.syncWeeklyState', payload: { userId: user.uid } },
+                });
+            }
+            await offlineManager.persistQueue();
+        }
         if (!isCurrent()) return;
     }
     const targetForReferenceWeek = resolveWeeklyTargetForWeek(weeklyPreferenceState, getCurrentWeekKey(now));
@@ -718,6 +734,8 @@ export async function initializeAppAfterAuth(user) {
         // Keep durable Daily Hub snapshots for offline/fresh-cache consumers;
         // paged analytics/calendar data are refreshed before they can render.
         if (offlineManager.checkOnline()) {
+            await recoverSessionInvalidations(db, user.uid);
+            if (!isCurrent()) return;
             await Promise.all([
                 localFirstCache.clearByPrefix(`history:${user.uid}:`),
                 localFirstCache.clearByPrefix(`calendar:${user.uid}:`),
@@ -952,7 +970,7 @@ offlineManager.registerOperationHandler('preferences.syncWeeklyState', async pay
     // intentionally recomputed from a fresh bounded query, never copied over a
     // newer target or frozen outcome. The original target timestamps survive.
     await fetchWeeklyTargetPreference(getCurrentUser(), { forceRefresh: true });
-    await refreshDailyHub(getCurrentUser(), { forceRefresh: true });
+    await refreshDailyHub(getCurrentUser(), { forceRefresh: true, propagateRetryExhaustion: true });
 });
 
 // --- View-specific listener setup ---
@@ -1002,10 +1020,12 @@ function setupDashboardViewListeners() {
     if (dashboardElements.quickLogForm) {
         addViewListener('dashboard', dashboardElements.quickLogForm, 'submit', async (event) => {
             event.preventDefault();
+            const ownerScope = captureAccountScope(getCurrentUser()?.uid, { mutations: false });
 
             const result = await saveQuickLogEntry(getQuickLogFormPayload(), undefined, {
                 triggerButton: dashboardElements.quickLogSaveBtn
             });
+            if (result.stale || !isAccountScopeCurrent(ownerScope, getCurrentUser()?.uid)) return;
 
             if (result.ok && !result.queued && dashboardElements.quickLogNotesInput) {
                 dashboardElements.quickLogNotesInput.value = '';
@@ -1634,6 +1654,8 @@ offlineManager.addListener(async isOnline => {
     const user = getCurrentUser();
     const scope = user ? captureAccountScope(user.uid) : null;
     if (isOnline && user) {
+        await recoverSessionInvalidations(db, user.uid);
+        if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
         await fetchWeeklyTargetPreference(user, { forceRefresh: true });
         if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
         invalidateHistoryCache(); invalidateCalendar();

@@ -16,6 +16,7 @@ const mockClearTimerData = jest.fn();
 const mockInvalidateProgressCache = jest.fn();
 const mockTrackWrite = jest.fn();
 const mockClearByPrefix = jest.fn(() => Promise.resolve());
+const mockWithSessionMutation = jest.fn((_userId, operation) => operation());
 const mockRegisterOperationHandler = jest.fn();
 const mockExecuteWithOfflineHandling = jest.fn(async operation => operation());
 const mockProcessCompletedSession = jest.fn();
@@ -85,6 +86,7 @@ jest.unstable_mockModule('../../js/utils/offline-manager.js', () => ({
 
 jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
     localFirstCache: {
+        withSessionMutation: mockWithSessionMutation,
         clearByPrefix: mockClearByPrefix,
         remove: mockClearByPrefix,
     },
@@ -437,13 +439,11 @@ describe('Session Manager', () => {
                 payload: expect.objectContaining({ userId: user.uid }),
             })
         );
-        expect(mockTrackWrite).toHaveBeenCalledWith(2, 'session.mutation.commit');
+        expect(mockTrackWrite).toHaveBeenCalledWith(3, 'session.mutation.commit');
         // Suggestion rebuilding is subscribed to the shared mutation contract.
         expect(mockProcessCompletedSession).not.toHaveBeenCalled();
         expect(mockInvalidateProgressCache).toHaveBeenCalled();
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`history:${user.uid}:`);
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`calendar:${user.uid}:`);
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`progress:sessions:${user.uid}`);
+        expect(mockWithSessionMutation).toHaveBeenCalledWith(user.uid, expect.any(Function), expect.objectContaining({ kind: 'create' }));
         expect(mockToastSuccess).toHaveBeenCalled();
         expect(mockShowView).toHaveBeenCalledWith('dashboard');
         expect(mockClearTimerData).toHaveBeenCalled();
@@ -530,10 +530,9 @@ describe('Session Manager', () => {
                 payload: expect.objectContaining({ userId: user.uid }),
             })
         );
-        expect(mockTrackWrite).toHaveBeenCalledWith(2, 'session.mutation.commit');
+        expect(mockTrackWrite).toHaveBeenCalledWith(3, 'session.mutation.commit');
         expect(mockInvalidateProgressCache).toHaveBeenCalled();
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`history:${user.uid}:`);
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`calendar:${user.uid}:`);
+        expect(mockWithSessionMutation).toHaveBeenCalledWith(user.uid, expect.any(Function), expect.objectContaining({ kind: 'create' }));
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();

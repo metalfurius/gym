@@ -1,0 +1,32 @@
+{
+  "rejectedParentHead": "a34b337293f4271c8c28dbcd672dd578c7d99b22",
+  "candidateSha": null,
+  "kind": "uncommitted local correction snapshot; final SHA owned by parent",
+  "normalization": "UTF-8 text LF line endings, preserving BOM",
+  "fileCount": 23,
+  "files": {
+    "docs/firestore-data-contract.md": "252979dc7d171ea914204bb8ca10113a878ea87052ba36cf52e8c26488f90a3e",
+    "docs/history-progress-sync-contract.md": "6e008ac155ddc85253a79de6a823b9e7d32f0d07ca416bfca0b13f1a77b5ffab",
+    "js/app.js": "2354359d6286a05aba0e5142aa75a0796c0a1c5eb8fa65010d91b9a7093f4141",
+    "js/modules/session-manager.js": "93e5a52d5a6849defa5a4d68c48d101b63515c99239ab6a9b0f5919e5df69b48",
+    "js/progress.js": "a5f00b1fd09c0abf251f107e49e65e3a13a9f3f29fdf62aa4f0f34d36148b116",
+    "js/utils/cache-mutation-lock.js": "6a1766a6b54b2ca4a738916d62ee49de75f50bb61c7e6cfcdcadf1a367b672e6",
+    "js/utils/local-first-cache.js": "ccad4c17849cff2a0cb858173627b988e442a078f036e1fc513cf08a6bc991c1",
+    "js/utils/offline-manager.js": "2f4c47575c00fb24e30d3e335245da0144493423e4c98142cfd785f22b277bac",
+    "js/utils/secure-id.js": "52969514e48e0dc7081a23966b790e14501de9db4624844c55c5bd5c3a45365e",
+    "js/utils/session-store.js": "38b9ca51cb541ebe0179bcd796a62ac211415dd4f464ce10d1fb075cc4c671f1",
+    "js/utils/sync-protocol.js": "a5b41a5cf4e2aae39daa0f26187126346aed27e2757c971c8fb331b0d0529695",
+    "js/utils/weekly-preferences.js": "0a6e0eabf1c073d5f7ab35b257e97119cbf22123f26edc6fa7b137752f272729",
+    "release.json": "b335fc4ed4ffabb40ccfb315adf6d7f2c6db507ee0602676cfa6b35cbc2f85b1",
+    "sw.js": "210d83d96a03ef7f6494a5c37e8a71563027c7c2f36fdd7166f204303be2d2e0",
+    "tests/integration/app-sync-completeness.test.js": "1ea8c003d192513441b35016d8e2c0454fb4fa60aa650d3aacf5b129398c1644",
+    "tests/integration/app-sync-review-regressions.test.js": "a5fda5a666e8f17a03683ab173b5469e446d29fb553cfbef7921cb8f15ce0ace",
+    "tests/mocks/firebase-firestore.js": "6ec3c266f606710cc395e4c7ba2a86d5d57e455a8781e7b31db7a71f2de3683b",
+    "tests/unit/local-first-cache.test.js": "a315f767c2e5d400a1df3e058f5eb6139f3b6482db5dbc5ac0f0abfe5688b31a",
+    "tests/unit/secure-id.test.js": "840060be42fb32e8cd4013bfa65befd9f1f63d37f56a72079c2081c9799f7c36",
+    "tests/unit/session-manager.test.js": "3213537110acdb5cb8d9990d1a6a140beb0035091010eed908a0c58b65e94ae8",
+    "tests/unit/sync-protocol.test.js": "04974e0f2f378f6f329dab599c01ceb368aae6b789e3ad11370bcf0f5d36a2da",
+    "tests/unit/weekly-preferences.test.js": "39df6023f16c76cb910b44d067cf3f743188df1e4543e32e0b074cf2f1c64ddd",
+    "tests/utils/sync-protocol-fixture.js": "778b930aea1c636e0f68d0f1e71b61bbe50736eaa19747da703b1fc44013d590"
+  }
+}

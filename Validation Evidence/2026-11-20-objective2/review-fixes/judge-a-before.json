@@ -1,0 +1,34 @@
+{
+  "candidate": "a34b337293f4271c8c28dbcd672dd578c7d99b22",
+  "baseline": "54e83fbfb263be2e601e1db3d2074275329de40e",
+  "mode": "controlled module/storage reproduction; no live backend or writes",
+  "legacyTargetWrite": {
+    "legacyAcknowledgedTarget": 6,
+    "newIntentCapturedBeforeLegacyWrite": 7,
+    "result": "applied",
+    "finalTarget": 7
+  },
+  "legacySessionWrite": {
+    "actualPersistedSessions": 2,
+    "finalization": {
+      "targetSessions": 2,
+      "sessionCount": 1,
+      "activeDays": 1,
+      "met": false,
+      "activeSessions": 1,
+      "targetDays": 2,
+      "lockedAtIso": "2026-11-16T01:00:00Z"
+    }
+  },
+  "deletionFailure": {
+    "awaitedInvalidation": "resolved successfully despite delete failure",
+    "coldOfflineResult": {
+      "ownerId": "judge-synthetic-owner",
+      "sessions": [
+        {
+          "id": "already-deleted-on-server"
+        }
+      ]
+    }
+  }
+}

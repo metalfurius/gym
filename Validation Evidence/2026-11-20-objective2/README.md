@@ -1,5 +1,10 @@
 # Objective 2 local implementation evidence
 
+**Superseded for acceptance by the [PR106 review corrections](review-fixes/README.md).**
+Both judges rejected head `a34b337`; the earlier passing runs below did not cover
+their reproduced edges. Current fixes, gates and remaining dependencies are
+recorded separately without overwriting these historical attachments.
+
 Recorded November 20, 2026. **Local, unmerged candidate evidence; objective remains
 open.** No production/account data or credentials were accessed by this implementer.
 The parent owns the real-backend/two-client run and final candidate freeze/reviews.

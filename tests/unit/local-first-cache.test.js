@@ -1,6 +1,21 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { LocalFirstCache } from '../../js/utils/local-first-cache.js';
 
+function diskCache(records = new Map()) {
+    const cache = new LocalFirstCache();
+    cache.indexedDbEnabled = true; cache.indexedDbExpected = true; cache.initialized = true;
+    cache.readFromIndexedDb = jest.fn(async key => records.get(key) || null);
+    cache.writeToIndexedDb = jest.fn(async entry => { records.set(entry.key, JSON.parse(JSON.stringify(entry))); return true; });
+    cache.getAllFromIndexedDb = jest.fn(async () => [...records.values()]);
+    cache.deleteFromIndexedDb = jest.fn(async key => { records.delete(key); });
+    return cache;
+}
+
+async function untilReleased(predicate) {
+    for (let index = 0; index < 100 && !predicate(); index++) await Promise.resolve();
+    expect(predicate()).toBeTruthy();
+}
+
 describe('LocalFirstCache', () => {
     let cache;
 
@@ -62,29 +77,102 @@ describe('LocalFirstCache mutation durability', () => {
     });
 
     it('does not resurrect a removed entry when its disk read finishes late', async () => {
-        const cache = new LocalFirstCache(); cache.indexedDbEnabled = true; cache.initialized = true;
+        const cache = diskCache();
         let release;
-        cache.readFromIndexedDb = jest.fn(() => new Promise(resolve => { release = resolve; }));
-        cache.getAllFromIndexedDb = jest.fn(async () => []); cache.deleteFromIndexedDb = jest.fn(async () => {});
+        const read = cache.readFromIndexedDb;
+        cache.readFromIndexedDb = jest.fn(key => key === 'history:A:page:1'
+            ? new Promise(resolve => { release = resolve; }) : read(key));
         const reading = cache.getEntry('history:A:page:1');
-        for (let index = 0; index < 10 && !release; index++) await Promise.resolve();
-        expect(typeof release).toBe('function');
+        await untilReleased(() => typeof release === 'function');
         await cache.clearByPrefix('history:A:');
         release({ key: 'history:A:page:1', value: { sessions: ['deleted'] } });
         expect(await reading).toBeNull(); expect(cache.memoryCache.has('history:A:page:1')).toBe(false);
     });
 
     it('serializes disk deletion after an already pending disk write', async () => {
-        const cache = new LocalFirstCache(); cache.indexedDbEnabled = true; cache.initialized = true;
-        let release; const records = new Map();
-        cache.writeToIndexedDb = jest.fn(entry => new Promise(resolve => { release = () => { records.set(entry.key, entry); resolve(); }; }));
-        cache.getAllFromIndexedDb = jest.fn(async () => [...records.values()]);
-        cache.deleteFromIndexedDb = jest.fn(async key => { records.delete(key); });
+        const records = new Map(); const cache = diskCache(records);
+        let release; const writeToDisk = cache.writeToIndexedDb;
+        cache.writeToIndexedDb = jest.fn(entry => entry.key === 'calendar:A:2026-11'
+            ? new Promise(resolve => { release = () => { records.set(entry.key, entry); resolve(true); }; }) : writeToDisk(entry));
         const write = cache.set('calendar:A:2026-11', ['old']);
-        for (let count = 0; count < 4; count++) await Promise.resolve();
+        await untilReleased(() => typeof release === 'function');
         const invalidation = cache.clearByPrefix('calendar:A:');
         release(); await Promise.all([write, invalidation]);
-        expect(records.size).toBe(0); cache.readFromIndexedDb = async () => null;
+        expect(records.has('calendar:A:2026-11')).toBe(false);
         expect(await cache.get('calendar:A:2026-11')).toBeNull();
+    });
+
+    it.each(['remove', 'clearByPrefix'])('%s cannot resurrect an aborted physical deletion on a cold offline restart', async method => {
+        const records = new Map(); const warm = diskCache(records);
+        await warm.set('history:A:page:1', { sessions: ['deleted'] });
+        await warm.set('history:B:page:1', { sessions: ['B-only'] });
+        warm.deleteFromIndexedDb.mockRejectedValue(new DOMException('transaction aborted', 'AbortError'));
+        await warm[method](method === 'remove' ? 'history:A:page:1' : 'history:A:');
+        expect(records.has('history:A:page:1')).toBe(true); // Physical cleanup really failed.
+        const cold = diskCache(records);
+        expect(await cold.get('history:A:page:1')).toBeNull();
+        expect(await cold.get('history:B:page:1')).toEqual({ sessions: ['B-only'] });
+        await cold.set('history:A:page:1', { sessions: ['new'] });
+        expect(await diskCache(records).get('history:A:page:1')).toEqual({ sessions: ['new'] });
+    });
+
+    it('fails before the backend operation if durable stores cannot verify invalidation', async () => {
+        const records = new Map(); const cache = diskCache(records);
+        await cache.set('history:A:page:1', { sessions: ['old'] });
+        const backend = jest.fn(async () => 'committed');
+        cache.writeToIndexedDb.mockRejectedValue(new DOMException('put aborted', 'AbortError'));
+        const localWrite = jest.spyOn(cache, 'writeToLocalStorage').mockReturnValue(false);
+        await expect(cache.withSessionMutation('A', backend)).rejects.toThrow();
+        expect(backend).not.toHaveBeenCalled();
+        expect(records.has('history:A:page:1')).toBe(true);
+        localWrite.mockRestore();
+    });
+
+    it('keeps a failed post-commit mutation barrier across restart and recovers on a later mutation', async () => {
+        const records = new Map(); const cache = diskCache(records);
+        await cache.set('history:A:page:1', { sessions: ['old'] });
+        await cache.set('progress:sessions:AB', { sessions: ['AB-only'] });
+        const write = cache.writeToIndexedDb;
+        await expect(cache.withSessionMutation('A', async () => {
+            cache.writeToIndexedDb.mockRejectedValue(new DOMException('post-commit abort', 'AbortError'));
+            return 'committed';
+        })).resolves.toBe('committed');
+        const cold = diskCache(records);
+        expect(await cold.get('history:A:page:1')).toBeNull();
+        expect(await cold.get('progress:sessions:AB')).toEqual({ sessions: ['AB-only'] });
+        cache.writeToIndexedDb = write;
+        await cold.withSessionMutation('A', async () => 'acknowledged');
+        await cold.set('history:A:page:1', { sessions: ['new'] });
+        expect(await diskCache(records).get('history:A:page:1')).toEqual({ sessions: ['new'] });
+    });
+
+    it('does not acknowledge durable queue data if an expected IndexedDB mirror fails', async () => {
+        const cache = diskCache();
+        cache.writeToIndexedDb.mockRejectedValue(new DOMException('put aborted', 'AbortError'));
+        await expect(cache.set('offline:pending-operations:v1', [{ id: 'intent' }], { requireDurable: true }))
+            .rejects.toMatchObject({ code: 'cache/persistence-unavailable' });
+    });
+
+    it('rejects a falsely acknowledged invalidation put whose durable readback is missing', async () => {
+        const cache = diskCache(); const backend = jest.fn();
+        cache.writeToIndexedDb.mockResolvedValue(true);
+        await expect(cache.withSessionMutation('A', backend)).rejects.toMatchObject({ code: 'cache/persistence-unavailable' });
+        expect(backend).not.toHaveBeenCalled();
+    });
+
+    it.each(['writeToIndexedDb', 'deleteFromIndexedDb', 'readFromIndexedDb', 'getAllFromIndexedDb'])('%s rejects a transaction abort even without an error event', async method => {
+        const cache = new LocalFirstCache(); cache.indexedDbEnabled = true;
+        let transaction;
+        const request = {};
+        cache.dbPromise = Promise.resolve({ transaction: () => {
+            transaction = { objectStore: () => ({ put() {}, delete() {}, get: () => request, getAll: () => request }) };
+            return transaction;
+        } });
+        const argument = method === 'writeToIndexedDb' ? { key: 'sample', value: 1 }
+            : method === 'getAllFromIndexedDb' ? '' : 'sample';
+        const result = cache[method](argument);
+        await untilReleased(() => typeof transaction?.onabort === 'function');
+        transaction.onabort();
+        await expect(result).rejects.toThrow(/aborted/);
     });
 });

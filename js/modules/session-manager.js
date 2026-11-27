@@ -16,6 +16,7 @@ import { registerSessionMutationListener, publishSessionMutation } from '../util
 import { writeSessionDocument } from '../utils/session-store.js';
 import { captureAccountScope, isAccountScopeCurrent } from '../utils/account-scope.js';
 import { calendarNow } from '../utils/calendar-clock.js';
+import { createSecureId } from '../utils/secure-id.js';
 import { normalizeExecutionMode } from '../utils/execution-mode.js';
 import { normalizeLoadType, resolveExerciseLoadType } from '../utils/load-type.js';
 import { saveSessionVariantOverrides } from '../utils/session-variant-overrides.js';
@@ -49,28 +50,16 @@ function normalizeSessionIdentity(value) {
 }
 
 export function createPersistedSessionId() {
-    const randomUuid = globalThis.crypto?.randomUUID?.();
-    if (typeof randomUuid === 'string' && randomUuid.trim()) {
-        return `session-${randomUuid}`;
-    }
-
-    if (typeof globalThis.crypto?.getRandomValues === 'function') {
-        const randomBytes = new Uint8Array(16);
-        globalThis.crypto.getRandomValues(randomBytes);
-        const randomPart = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('');
-        return `session-${Date.now().toString(36)}-${randomPart}`;
-    }
-
-    return `session-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+    return createSecureId('session');
 }
 
 export function registerSessionPersistenceListener(listener) {
     return registerSessionMutationListener(listener);
 }
 
-async function notifySessionPersisted(detail) {
+async function notifySessionPersisted(detail, mutation) {
     await invalidateProgressCache(detail.userId, { durable: false });
-    await publishSessionMutation(detail);
+    await publishSessionMutation(detail, mutation);
 }
 
 function collectSessionVariantOverridesFromDom(
@@ -210,13 +199,13 @@ offlineManager.registerOperationHandler('session.save', async payload => {
     }
 
     const sessionId = resolveQueuedSessionId(payload) || legacyQueuedSessionId(payload);
-    await persistSessionDocument(payload.userId, sessionId, hydratedSession);
+    const mutation = await persistSessionDocument(payload.userId, sessionId, hydratedSession);
     await notifySessionPersisted({
         userId: payload.userId,
         sessionId,
         source: 'session',
         replayed: true
-    });
+    }, mutation);
 });
 
 offlineManager.registerOperationHandler('quicklog.save', async payload => {
@@ -226,13 +215,13 @@ offlineManager.registerOperationHandler('quicklog.save', async payload => {
     }
 
     const sessionId = resolveQueuedSessionId(payload) || legacyQueuedSessionId(payload);
-    await persistSessionDocument(payload.userId, sessionId, hydratedSession);
+    const mutation = await persistSessionDocument(payload.userId, sessionId, hydratedSession);
     await notifySessionPersisted({
         userId: payload.userId,
         sessionId,
         source: 'quick_log',
         replayed: true
-    });
+    }, mutation);
 });
 
 /**
@@ -564,16 +553,14 @@ export async function saveSessionData(onSuccess) {
             logger.warn('Could not persist session variant overrides:', overridesError);
         }
 
-        const saveOperation = async () => {
-            await persistSessionDocument(user.uid, sessionId, finalSessionData);
-        };
+        const saveOperation = () => persistSessionDocument(user.uid, sessionId, finalSessionData);
 
-        await offlineManager.executeWithOfflineHandling(saveOperation, t('session.saved_when_online'), true, {
+        const mutation = await offlineManager.executeWithOfflineHandling(saveOperation, t('session.saved_when_online'), true, {
             type: 'session.save',
             payload: buildSessionQueuePayload(user.uid, finalSessionData, sessionId),
         });
 
-        await notifySessionPersisted({ userId: user.uid, sessionId, source: 'session', replayed: false });
+        await notifySessionPersisted({ userId: user.uid, sessionId, source: 'session', replayed: false }, mutation);
         if (!isCurrent()) return;
         saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
 
@@ -649,11 +636,9 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
     savingQuickLogs.add(saveKey);
 
     try {
-        const saveOperation = async () => {
-            await persistSessionDocument(user.uid, sessionId, finalQuickLogData);
-        };
+        const saveOperation = () => persistSessionDocument(user.uid, sessionId, finalQuickLogData);
 
-        await offlineManager.executeWithOfflineHandling(saveOperation, t('quicklog.saved_when_online'), true, {
+        const mutation = await offlineManager.executeWithOfflineHandling(saveOperation, t('quicklog.saved_when_online'), true, {
             type: 'quicklog.save',
             payload: buildSessionQueuePayload(user.uid, finalQuickLogData, sessionId),
         });
@@ -663,8 +648,8 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
             sessionId,
             source: 'quick_log',
             replayed: false
-        });
-        if (!isCurrent()) return { ok: true, queued: false, data: finalQuickLogData };
+        }, mutation);
+        if (!isCurrent()) return { ok: true, queued: false, stale: true, ownerId: user.uid, generation: scope.generation };
         toast.success(t('quicklog.saved_success'));
 
         if (typeof onSuccess === 'function') {

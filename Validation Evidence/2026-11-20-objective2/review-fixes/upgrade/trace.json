@@ -1,0 +1,3715 @@
+[
+  {
+    "receivedAt": "2026-11-20T18:23:16.190Z",
+    "method": "Runtime.executionContextCreated",
+    "params": {
+      "context": {
+        "id": 1,
+        "origin": "://",
+        "name": "",
+        "uniqueId": "-4265970686032917871.8978270772864767445",
+        "auxData": {
+          "isDefault": true,
+          "type": "default",
+          "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+        }
+      }
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.195Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "commit",
+      "timestamp": 1950.220602
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.195Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "DOMContentLoaded",
+      "timestamp": 1950.220695
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.195Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "load",
+      "timestamp": 1950.221452
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.195Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "networkAlmostIdle",
+      "timestamp": 1950.221339
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.196Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "networkIdle",
+      "timestamp": 1950.221339
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.198Z",
+    "method": "Page.frameStartedNavigating",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "url": "http://127.0.0.1:49207/",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "navigationType": "differentDocument"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.199Z",
+    "method": "Page.frameStartedLoading",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.200Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/",
+        "method": "GET",
+        "headers": {
+          "Upgrade-Insecure-Requests": "1",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\""
+        },
+        "mixedContentType": "none",
+        "initialPriority": "VeryHigh",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1950.239837,
+      "wallTime": 1795198996.200003,
+      "initiator": {
+        "type": "other"
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Document",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": false
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.209Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": []
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.209Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": []
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.785Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "networkAlmostIdle",
+      "timestamp": 1950.221339
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.785Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "88E35733FCB1EA8C70AED0DAE050D75B",
+      "name": "networkIdle",
+      "timestamp": 1950.221339
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.804Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "0",
+          "scopeURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.804Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.805Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.805Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.806Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "FF63E362457F4458F9D2AA6AFCC86381"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.840Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "starting",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "FF63E362457F4458F9D2AA6AFCC86381"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.840Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "0",
+          "scopeURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.840Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "running",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "FF63E362457F4458F9D2AA6AFCC86381"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.845Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "running",
+          "status": "installed",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "FF63E362457F4458F9D2AA6AFCC86381"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.845Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "FF63E362457F4458F9D2AA6AFCC86381"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.845Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "0",
+          "registrationId": "0",
+          "scriptURL": "chrome-extension://nkeimhogjdpnpccoofpliimaahmaaome/thunk.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "FF63E362457F4458F9D2AA6AFCC86381"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.892Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "1",
+          "scopeURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.892Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.893Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.893Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.893Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "E7DA838E8387B244214A7BD48CE91CF9"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.940Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "starting",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "E7DA838E8387B244214A7BD48CE91CF9"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.940Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "1",
+          "scopeURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.940Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "running",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "E7DA838E8387B244214A7BD48CE91CF9"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.953Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "running",
+          "status": "installed",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "E7DA838E8387B244214A7BD48CE91CF9"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.953Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "E7DA838E8387B244214A7BD48CE91CF9"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.953Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "1",
+          "registrationId": "1",
+          "scriptURL": "chrome-extension://admccjkmockfdflocgggjfgdacdodkdf/background.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "E7DA838E8387B244214A7BD48CE91CF9"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.985Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "2",
+          "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:16.985Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.004Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.005Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.005Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "C41A015192F223C280FA503178EB1E90"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.021Z",
+    "method": "Network.requestWillBeSentExtraInfo",
+    "params": {
+      "requestId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "associatedCookies": [],
+      "headers": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "es-ES,es;q=0.9",
+        "Connection": "keep-alive",
+        "Host": "127.0.0.1:49207",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "connectTiming": {
+        "requestTime": 1950.240869
+      },
+      "siteHasCookieInOtherPartition": false
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.023Z",
+    "method": "Network.responseReceivedExtraInfo",
+    "params": {
+      "requestId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "blockedCookies": [],
+      "headers": {
+        "CDN-Cache-Control": "no-store",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Connection": "keep-alive",
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+        "Keep-Alive": "timeout=5",
+        "Service-Worker-Allowed": "/",
+        "Transfer-Encoding": "chunked"
+      },
+      "resourceIPAddressSpace": "Loopback",
+      "statusCode": 200,
+      "headersText": "HTTP/1.1 200 OK\r\nCache-Control: no-store, no-cache, must-revalidate\r\nCDN-Cache-Control: no-store\r\nContent-Type: text/html; charset=utf-8\r\nService-Worker-Allowed: /\r\nDate: Fri, 20 Nov 2026 18:23:17 GMT\r\nConnection: keep-alive\r\nKeep-Alive: timeout=5\r\nTransfer-Encoding: chunked\r\n\r\n",
+      "cookiePartitionKey": {
+        "topLevelSite": "http://127.0.0.1",
+        "hasCrossSiteAncestor": false
+      },
+      "cookiePartitionKeyOpaque": false,
+      "exemptedCookies": []
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.024Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1951.063837,
+      "type": "Document",
+      "response": {
+        "url": "http://127.0.0.1:49207/",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Connection": "keep-alive",
+          "Content-Type": "text/html; charset=utf-8",
+          "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+          "Keep-Alive": "timeout=5",
+          "Service-Worker-Allowed": "/",
+          "Transfer-Encoding": "chunked"
+        },
+        "mimeType": "text/html",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 172,
+        "remoteIPAddress": "127.0.0.1",
+        "remotePort": 49207,
+        "fromDiskCache": false,
+        "fromServiceWorker": false,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 279,
+        "timing": {
+          "requestTime": 1950.240869,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": 819.343,
+          "dnsEnd": 819.348,
+          "connectStart": 819.348,
+          "connectEnd": 819.6,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": -1,
+          "workerReady": -1,
+          "workerFetchStart": -1,
+          "workerRespondWithSettled": -1,
+          "sendStart": 819.663,
+          "sendEnd": 819.761,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 822.044,
+          "receiveHeadersEnd": 822.085
+        },
+        "responseTime": 1795198997023.069,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "unspecifiedReason",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": true,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.024Z",
+    "method": "Runtime.executionContextsCleared",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.026Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "init",
+      "timestamp": 1951.066218
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.026Z",
+    "method": "Runtime.executionContextsCleared",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.026Z",
+    "method": "Page.frameNavigated",
+    "params": {
+      "frame": {
+        "id": "D730EB9A133F17B23EFC12F57A40CC17",
+        "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+        "url": "http://127.0.0.1:49207/",
+        "domainAndRegistry": "",
+        "securityOrigin": "http://127.0.0.1:49207",
+        "securityOriginDetails": {
+          "isLocalhost": true
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "SecureLocalhost",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "type": "Navigation"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.030Z",
+    "method": "Network.policyUpdated",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.033Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1951.066982,
+      "dataLength": 4251,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.034Z",
+    "method": "Runtime.executionContextCreated",
+    "params": {
+      "context": {
+        "id": 2,
+        "origin": "http://127.0.0.1:49207",
+        "name": "",
+        "uniqueId": "-7315546305993260248.-863436210393964152",
+        "auxData": {
+          "isDefault": true,
+          "type": "default",
+          "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+        }
+      }
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.034Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1951.063244,
+      "encodedDataLength": 4543,
+      "encodedBodyLength": 4251
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.034Z",
+    "method": "Page.domContentEventFired",
+    "params": {
+      "timestamp": 1951.071834
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.034Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "DOMContentLoaded",
+      "timestamp": 1951.071834
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.045Z",
+    "method": "Page.loadEventFired",
+    "params": {
+      "timestamp": 1951.084191
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.045Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "load",
+      "timestamp": 1951.084191
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.045Z",
+    "method": "Page.frameStoppedLoading",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.066Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "firstMeaningfulPaintCandidate",
+      "timestamp": 1951.090593
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.066Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "firstContentfulPaint",
+      "timestamp": 1951.090593
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.067Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "firstPaint",
+      "timestamp": 1951.090593
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.094Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "starting",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "C41A015192F223C280FA503178EB1E90"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.095Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "2",
+          "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.095Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "running",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "C41A015192F223C280FA503178EB1E90"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.122Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "running",
+          "status": "installed",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "C41A015192F223C280FA503178EB1E90"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.123Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "C41A015192F223C280FA503178EB1E90"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.123Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "2",
+          "registrationId": "2",
+          "scriptURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/service_worker.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "C41A015192F223C280FA503178EB1E90"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.125Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "3",
+          "scopeURL": "http://127.0.0.1:49207/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.125Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.140Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.2",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/favicon.ico",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1951.179425,
+      "wallTime": 1795198997.13962,
+      "initiator": {
+        "type": "other"
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Other",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.142Z",
+    "method": "Network.requestWillBeSentExtraInfo",
+    "params": {
+      "requestId": "7524.2",
+      "associatedCookies": [],
+      "headers": {
+        "Accept": "image/jxl,image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "es-ES,es;q=0.9",
+        "Connection": "keep-alive",
+        "Host": "127.0.0.1:49207",
+        "Referer": "http://127.0.0.1:49207/",
+        "Sec-Fetch-Dest": "image",
+        "Sec-Fetch-Mode": "no-cors",
+        "Sec-Fetch-Site": "same-origin",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "connectTiming": {
+        "requestTime": 1951.179953
+      },
+      "clientSecurityState": {
+        "initiatorIsSecureContext": true,
+        "initiatorIPAddressSpace": "Loopback",
+        "localNetworkAccessRequestPolicy": "PermissionBlock"
+      },
+      "siteHasCookieInOtherPartition": false
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "Network.responseReceivedExtraInfo",
+    "params": {
+      "requestId": "7524.2",
+      "blockedCookies": [],
+      "headers": {
+        "Connection": "keep-alive",
+        "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+        "Keep-Alive": "timeout=5",
+        "Transfer-Encoding": "chunked"
+      },
+      "resourceIPAddressSpace": "Loopback",
+      "statusCode": 404,
+      "headersText": "HTTP/1.1 404 Not Found\r\nDate: Fri, 20 Nov 2026 18:23:17 GMT\r\nConnection: keep-alive\r\nKeep-Alive: timeout=5\r\nTransfer-Encoding: chunked\r\n\r\n",
+      "cookiePartitionKey": {
+        "topLevelSite": "http://127.0.0.1",
+        "hasCrossSiteAncestor": false
+      },
+      "cookiePartitionKeyOpaque": false,
+      "exemptedCookies": []
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.2",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1951.182986,
+      "type": "Other",
+      "response": {
+        "url": "http://127.0.0.1:49207/favicon.ico",
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+          "Connection": "keep-alive"
+        },
+        "mimeType": "text/plain",
+        "charset": "",
+        "connectionReused": true,
+        "connectionId": 172,
+        "remoteIPAddress": "127.0.0.1",
+        "remotePort": 49207,
+        "fromDiskCache": false,
+        "fromServiceWorker": false,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 138,
+        "timing": {
+          "requestTime": 1951.179953,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": -1,
+          "workerReady": -1,
+          "workerFetchStart": -1,
+          "workerRespondWithSettled": -1,
+          "sendStart": 1.468,
+          "sendEnd": 1.54,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.375,
+          "receiveHeadersEnd": 2.477
+        },
+        "responseTime": 1795198997142.484,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "unspecifiedReason",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": true,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "Log.entryAdded",
+    "params": {
+      "entry": {
+        "source": "network",
+        "level": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "timestamp": 1795198997143.163,
+        "url": "http://127.0.0.1:49207/favicon.ico",
+        "networkRequestId": "7524.2"
+      }
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.143Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.2",
+      "timestamp": 1951.183099,
+      "dataLength": 9,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.144Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.2",
+      "timestamp": 1951.182655,
+      "encodedDataLength": 157,
+      "encodedBodyLength": 9
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.147Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.147Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "3",
+          "scopeURL": "http://127.0.0.1:49207/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.147Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.571Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "networkAlmostIdle",
+      "timestamp": 1951.072328
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.571Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "firstMeaningfulPaint",
+      "timestamp": 1951.090593
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.616Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "installed",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.616Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.616Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.616Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.678Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "networkIdle",
+      "timestamp": 1951.183259
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.842Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.81",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1951.881635,
+      "wallTime": 1795198997.841833,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 28,
+              "columnNumber": 6
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.845Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.81",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1951.885068,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "mimeType": "application/json",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": false,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": -1,
+        "timing": {
+          "requestTime": 1951.882294,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.003,
+          "workerReady": 0.161,
+          "workerFetchStart": 0.161,
+          "workerRespondWithSettled": 2.53,
+          "sendStart": 0.161,
+          "sendEnd": 0.161,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.633,
+          "receiveHeadersEnd": 2.633
+        },
+        "serviceWorkerResponseSource": "network",
+        "responseTime": 1795198997844.543,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.845Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.81",
+      "timestamp": 1951.885263,
+      "dataLength": 7222,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.845Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.81",
+      "timestamp": 1951.884981,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 7222
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.846Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.83",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1951.885752,
+      "wallTime": 1795198997.845931,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 3,
+              "columnNumber": 39
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.847Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.83",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1951.886992,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+          "Content-Type": "application/javascript; charset=utf-8"
+        },
+        "mimeType": "application/javascript",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1951.885889,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.076,
+          "workerFetchStart": 0.076,
+          "workerRespondWithSettled": 0.931,
+          "sendStart": 0.076,
+          "sendEnd": 0.076,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 0.994,
+          "receiveHeadersEnd": 0.994
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198997295.784,
+        "cacheStorageCacheName": "gym-tracker-v2.7.0",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.847Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.83",
+      "timestamp": 1951.887124,
+      "dataLength": 36912,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:17.847Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.83",
+      "timestamp": 1951.886929,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 36912
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:18.605Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "stopped",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:18.605Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": []
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:18.605Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 0,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:18.632Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "new",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:18.665Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "starting",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:18.665Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "installing",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:21.942Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "installed",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.066Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "name": "InteractiveTime",
+      "timestamp": 1951.090593
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.068Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.162",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1956.10798,
+      "wallTime": 1795199002.068158,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 28,
+              "columnNumber": 6
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.070Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.162",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1956.110351,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:22 GMT",
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "mimeType": "application/json",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": false,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": -1,
+        "timing": {
+          "requestTime": 1956.108175,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.088,
+          "workerFetchStart": 0.088,
+          "workerRespondWithSettled": 2.004,
+          "sendStart": 0.088,
+          "sendEnd": 0.088,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.06,
+          "receiveHeadersEnd": 2.06
+        },
+        "serviceWorkerResponseSource": "network",
+        "responseTime": 1795199002069.865,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.070Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.162",
+      "timestamp": 1956.11047,
+      "dataLength": 7222,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.070Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.162",
+      "timestamp": 1956.110283,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 7222
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.071Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.164",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1956.111167,
+      "wallTime": 1795199002.071353,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 3,
+              "columnNumber": 39
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.073Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.164",
+      "loaderId": "F239C587DDA8A60D94F2B9F5C4B916D5",
+      "timestamp": 1956.11294,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:17 GMT",
+          "Content-Type": "application/javascript; charset=utf-8"
+        },
+        "mimeType": "application/javascript",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1956.111415,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.111,
+          "workerFetchStart": 0.111,
+          "workerRespondWithSettled": 1.271,
+          "sendStart": 0.111,
+          "sendEnd": 0.111,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 1.354,
+          "receiveHeadersEnd": 1.354
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198997295.784,
+        "cacheStorageCacheName": "gym-tracker-v2.7.0",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.073Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.164",
+      "timestamp": 1956.113109,
+      "dataLength": 36912,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.073Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.164",
+      "timestamp": 1956.112841,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 36912
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.075Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.077Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.077Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.138Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "stopping",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ],
+          "targetId": "AF3A8018E662073287A574ED9CDFA45C"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "stopped",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "3",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "stopped",
+          "status": "redundant",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198997.140187,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.143Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activating",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.143Z",
+    "method": "Page.frameScheduledNavigation",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "delay": 0,
+      "reason": "reload",
+      "url": "http://127.0.0.1:49207/"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.143Z",
+    "method": "Page.frameRequestedNavigation",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "reason": "reload",
+      "url": "http://127.0.0.1:49207/",
+      "disposition": "currentTab"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.146Z",
+    "method": "Page.frameStartedNavigating",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "url": "http://127.0.0.1:49207/",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "navigationType": "reload"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.147Z",
+    "method": "Page.frameStartedLoading",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.148Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/",
+        "method": "GET",
+        "headers": {
+          "Referer": "http://127.0.0.1:49207/",
+          "Upgrade-Insecure-Requests": "1",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\""
+        },
+        "mixedContentType": "none",
+        "initialPriority": "VeryHigh",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1956.188061,
+      "wallTime": 1795199002.148249,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "3",
+              "url": "http://127.0.0.1:49207/",
+              "lineNumber": 70,
+              "columnNumber": 22
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Document",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:22.148Z",
+    "method": "Page.frameClearedScheduledNavigation",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.156Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.156Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [
+            "D730EB9A133F17B23EFC12F57A40CC17"
+          ],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.159Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "timestamp": 1957.19867,
+      "type": "Document",
+      "response": {
+        "url": "http://127.0.0.1:49207/",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Connection": "keep-alive",
+          "Content-Type": "text/html; charset=utf-8",
+          "Date": "Fri, 20 Nov 2026 18:23:18 GMT",
+          "Keep-Alive": "timeout=5",
+          "Service-Worker-Allowed": "/",
+          "Transfer-Encoding": "chunked"
+        },
+        "mimeType": "text/html",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "remoteIPAddress": "",
+        "remotePort": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1957.195514,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": -1,
+          "workerReady": -1,
+          "workerFetchStart": 0.637,
+          "workerRespondWithSettled": 2.204,
+          "sendStart": 0.637,
+          "sendEnd": 0.637,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.472,
+          "receiveHeadersEnd": 2.472
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198998696.771,
+        "cacheStorageCacheName": "gym-tracker-v2.7.1",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.160Z",
+    "method": "Runtime.executionContextsCleared",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.161Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.162Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "name": "init",
+      "timestamp": 1957.2024
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.163Z",
+    "method": "Runtime.executionContextsCleared",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.163Z",
+    "method": "Page.frameNavigated",
+    "params": {
+      "frame": {
+        "id": "D730EB9A133F17B23EFC12F57A40CC17",
+        "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+        "url": "http://127.0.0.1:49207/",
+        "domainAndRegistry": "",
+        "securityOrigin": "http://127.0.0.1:49207",
+        "securityOriginDetails": {
+          "isLocalhost": true
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "SecureLocalhost",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "type": "Navigation"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.167Z",
+    "method": "Network.policyUpdated",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.177Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "timestamp": 1957.20324,
+      "dataLength": 4251,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.178Z",
+    "method": "Runtime.executionContextCreated",
+    "params": {
+      "context": {
+        "id": 3,
+        "origin": "http://127.0.0.1:49207",
+        "name": "",
+        "uniqueId": "6573300457619334902.-5784297491931468219",
+        "auxData": {
+          "isDefault": true,
+          "type": "default",
+          "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+        }
+      }
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.179Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "timestamp": 1957.200411,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 4251
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.182Z",
+    "method": "Page.domContentEventFired",
+    "params": {
+      "timestamp": 1957.206956
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.182Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "name": "DOMContentLoaded",
+      "timestamp": 1957.206956
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.182Z",
+    "method": "Page.loadEventFired",
+    "params": {
+      "timestamp": 1957.208061
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.182Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "name": "load",
+      "timestamp": 1957.208061
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.183Z",
+    "method": "Page.frameStoppedLoading",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.191Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "3",
+          "scopeURL": "http://127.0.0.1:49207/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.203Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "name": "firstMeaningfulPaintCandidate",
+      "timestamp": 1957.236398
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.203Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "name": "firstContentfulPaint",
+      "timestamp": 1957.236398
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.203Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "name": "firstPaint",
+      "timestamp": 1957.236398
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.454Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.166",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.493624,
+      "wallTime": 1795199003.453807,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 28,
+              "columnNumber": 6
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.457Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.166",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "timestamp": 1957.496923,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:23 GMT",
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "mimeType": "application/json",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": false,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": -1,
+        "timing": {
+          "requestTime": 1957.494013,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.099,
+          "workerFetchStart": 0.099,
+          "workerRespondWithSettled": 2.677,
+          "sendStart": 0.099,
+          "sendEnd": 0.099,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.759,
+          "receiveHeadersEnd": 2.759
+        },
+        "serviceWorkerResponseSource": "network",
+        "responseTime": 1795199003456.226,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.457Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.166",
+      "timestamp": 1957.497095,
+      "dataLength": 7222,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.457Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.166",
+      "timestamp": 1957.496831,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 7222
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.457Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.168",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.497666,
+      "wallTime": 1795199003.457841,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 3,
+              "columnNumber": 39
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.459Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.168",
+      "loaderId": "DE4B7F8CB82FCE5E889A77AC739D722B",
+      "timestamp": 1957.498963,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:19 GMT",
+          "Content-Type": "application/javascript; charset=utf-8"
+        },
+        "mimeType": "application/javascript",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1957.497827,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.002,
+          "workerReady": 0.083,
+          "workerFetchStart": 0.083,
+          "workerRespondWithSettled": 0.965,
+          "sendStart": 0.083,
+          "sendEnd": 0.083,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 1.03,
+          "receiveHeadersEnd": 1.03
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198999382.403,
+        "cacheStorageCacheName": "gym-tracker-v2.7.1",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.459Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.168",
+      "timestamp": 1957.499085,
+      "dataLength": 36912,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.459Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.168",
+      "timestamp": 1957.498901,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 36912
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.464Z",
+    "method": "Page.frameStartedNavigating",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "url": "http://127.0.0.1:49207/",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "navigationType": "reload"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.465Z",
+    "method": "Page.frameStartedLoading",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.466Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "636EE595164C685FC0BE33C63CC07B8E",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/",
+        "method": "GET",
+        "headers": {
+          "Referer": "http://127.0.0.1:49207/",
+          "Upgrade-Insecure-Requests": "1",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\""
+        },
+        "mixedContentType": "none",
+        "initialPriority": "VeryHigh",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.506179,
+      "wallTime": 1795199003.466342,
+      "initiator": {
+        "type": "other"
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Document",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": false
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.469Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "636EE595164C685FC0BE33C63CC07B8E",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.509464,
+      "type": "Document",
+      "response": {
+        "url": "http://127.0.0.1:49207/",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Connection": "keep-alive",
+          "Content-Type": "text/html; charset=utf-8",
+          "Date": "Fri, 20 Nov 2026 18:23:18 GMT",
+          "Keep-Alive": "timeout=5",
+          "Service-Worker-Allowed": "/",
+          "Transfer-Encoding": "chunked"
+        },
+        "mimeType": "text/html",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "remoteIPAddress": "",
+        "remotePort": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1957.50641,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": -1,
+          "workerReady": -1,
+          "workerFetchStart": 0.381,
+          "workerRespondWithSettled": 1.814,
+          "sendStart": 0.381,
+          "sendEnd": 0.381,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.523,
+          "receiveHeadersEnd": 2.523
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198998696.771,
+        "cacheStorageCacheName": "gym-tracker-v2.7.1",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.471Z",
+    "method": "Runtime.executionContextsCleared",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.471Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.474Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "name": "init",
+      "timestamp": 1957.51274
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.474Z",
+    "method": "ServiceWorker.workerVersionUpdated",
+    "params": {
+      "versions": [
+        {
+          "versionId": "4",
+          "registrationId": "3",
+          "scriptURL": "http://127.0.0.1:49207/sw.js",
+          "runningStatus": "running",
+          "status": "activated",
+          "scriptLastModified": 0,
+          "scriptResponseTime": 1795198998.60289,
+          "controlledClients": [],
+          "targetId": "5CC82F69F162613792A3EED9CF1EE270"
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.474Z",
+    "method": "Runtime.executionContextsCleared",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.474Z",
+    "method": "Page.frameNavigated",
+    "params": {
+      "frame": {
+        "id": "D730EB9A133F17B23EFC12F57A40CC17",
+        "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+        "url": "http://127.0.0.1:49207/",
+        "domainAndRegistry": "",
+        "securityOrigin": "http://127.0.0.1:49207",
+        "securityOriginDetails": {
+          "isLocalhost": true
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "SecureLocalhost",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "type": "Navigation"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.477Z",
+    "method": "Network.policyUpdated",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.481Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.513626,
+      "dataLength": 4251,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.481Z",
+    "method": "Runtime.executionContextCreated",
+    "params": {
+      "context": {
+        "id": 4,
+        "origin": "http://127.0.0.1:49207",
+        "name": "",
+        "uniqueId": "-460990343218567664.6557349182772949516",
+        "auxData": {
+          "isDefault": true,
+          "type": "default",
+          "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+        }
+      }
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.481Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.511252,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 4251
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.481Z",
+    "method": "Page.domContentEventFired",
+    "params": {
+      "timestamp": 1957.51718
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.481Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "name": "DOMContentLoaded",
+      "timestamp": 1957.51718
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.482Z",
+    "method": "Page.loadEventFired",
+    "params": {
+      "timestamp": 1957.517899
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.482Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "name": "load",
+      "timestamp": 1957.517899
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.483Z",
+    "method": "Page.frameStoppedLoading",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.495Z",
+    "method": "ServiceWorker.workerRegistrationUpdated",
+    "params": {
+      "registrations": [
+        {
+          "registrationId": "3",
+          "scopeURL": "http://127.0.0.1:49207/",
+          "isDeleted": false
+        }
+      ]
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.500Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "name": "firstMeaningfulPaintCandidate",
+      "timestamp": 1957.539498
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.500Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "name": "firstContentfulPaint",
+      "timestamp": 1957.539498
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.500Z",
+    "method": "Page.lifecycleEvent",
+    "params": {
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "name": "firstPaint",
+      "timestamp": 1957.539498
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.746Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.170",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.785892,
+      "wallTime": 1795199003.746075,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 28,
+              "columnNumber": 6
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.749Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.170",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.788739,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:23 GMT",
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "mimeType": "application/json",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": false,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": -1,
+        "timing": {
+          "requestTime": 1957.786264,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.078,
+          "workerFetchStart": 0.078,
+          "workerRespondWithSettled": 2.271,
+          "sendStart": 0.078,
+          "sendEnd": 0.078,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.333,
+          "receiveHeadersEnd": 2.333
+        },
+        "serviceWorkerResponseSource": "network",
+        "responseTime": 1795199003748.246,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.749Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.170",
+      "timestamp": 1957.788935,
+      "dataLength": 7222,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.750Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.170",
+      "timestamp": 1957.788649,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 7222
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.750Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.172",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.790055,
+      "wallTime": 1795199003.750249,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 3,
+              "columnNumber": 39
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.752Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.172",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.791623,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:19 GMT",
+          "Content-Type": "application/javascript; charset=utf-8"
+        },
+        "mimeType": "application/javascript",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1957.790284,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.112,
+          "workerFetchStart": 0.112,
+          "workerRespondWithSettled": 1.077,
+          "sendStart": 0.112,
+          "sendEnd": 0.112,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 1.18,
+          "receiveHeadersEnd": 1.18
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198999382.403,
+        "cacheStorageCacheName": "gym-tracker-v2.7.1",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.752Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.172",
+      "timestamp": 1957.791792,
+      "dataLength": 36912,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.752Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.172",
+      "timestamp": 1957.791519,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 36912
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.755Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.173",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.794953,
+      "wallTime": 1795199003.755137,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 28,
+              "columnNumber": 6
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.758Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.173",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.797734,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/release.json",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:23 GMT",
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "mimeType": "application/json",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": false,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": -1,
+        "timing": {
+          "requestTime": 1957.795158,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.002,
+          "workerReady": 0.085,
+          "workerFetchStart": 0.085,
+          "workerRespondWithSettled": 2.283,
+          "sendStart": 0.085,
+          "sendEnd": 0.085,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 2.379,
+          "receiveHeadersEnd": 2.379
+        },
+        "serviceWorkerResponseSource": "network",
+        "responseTime": 1795199003757.042,
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.758Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.173",
+      "timestamp": 1957.797892,
+      "dataLength": 7222,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.758Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.173",
+      "timestamp": 1957.797604,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 7222
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.758Z",
+    "method": "Network.requestWillBeSent",
+    "params": {
+      "requestId": "7524.175",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "documentURL": "http://127.0.0.1:49207/",
+      "request": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "method": "GET",
+        "headers": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "Referer": "http://127.0.0.1:49207/",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+          "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Google Chrome\";v=\"157\", \"Chromium\";v=\"157\"",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "mixedContentType": "none",
+        "initialPriority": "High",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "isSameSite": true
+      },
+      "timestamp": 1957.79837,
+      "wallTime": 1795199003.75855,
+      "initiator": {
+        "type": "script",
+        "stack": {
+          "callFrames": [
+            {
+              "functionName": "",
+              "scriptId": "6",
+              "url": "",
+              "lineNumber": 3,
+              "columnNumber": 39
+            }
+          ]
+        }
+      },
+      "redirectHasExtraInfo": false,
+      "type": "Fetch",
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17",
+      "hasUserGesture": true
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.760Z",
+    "method": "Network.responseReceived",
+    "params": {
+      "requestId": "7524.175",
+      "loaderId": "636EE595164C685FC0BE33C63CC07B8E",
+      "timestamp": 1957.799998,
+      "type": "Fetch",
+      "response": {
+        "url": "http://127.0.0.1:49207/js/progress.js",
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "Transfer-Encoding": "chunked",
+          "CDN-Cache-Control": "no-store",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "Service-Worker-Allowed": "/",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Date": "Fri, 20 Nov 2026 18:23:19 GMT",
+          "Content-Type": "application/javascript; charset=utf-8"
+        },
+        "mimeType": "application/javascript",
+        "charset": "utf-8",
+        "connectionReused": false,
+        "connectionId": 0,
+        "fromDiskCache": true,
+        "fromServiceWorker": true,
+        "fromPrefetchCache": false,
+        "encodedDataLength": 0,
+        "timing": {
+          "requestTime": 1957.798553,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": 0.001,
+          "workerReady": 0.088,
+          "workerFetchStart": 0.088,
+          "workerRespondWithSettled": 1.1,
+          "sendStart": 0.088,
+          "sendEnd": 0.088,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 1.231,
+          "receiveHeadersEnd": 1.231
+        },
+        "serviceWorkerResponseSource": "cache-storage",
+        "responseTime": 1795198999382.403,
+        "cacheStorageCacheName": "gym-tracker-v2.7.1",
+        "protocol": "http/1.1",
+        "alternateProtocolUsage": "alternativeJobWonWithoutRace",
+        "securityState": "secure"
+      },
+      "hasExtraInfo": false,
+      "frameId": "D730EB9A133F17B23EFC12F57A40CC17"
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.760Z",
+    "method": "Network.dataReceived",
+    "params": {
+      "requestId": "7524.175",
+      "timestamp": 1957.800156,
+      "dataLength": 36912,
+      "encodedDataLength": 0
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.760Z",
+    "method": "Network.loadingFinished",
+    "params": {
+      "requestId": "7524.175",
+      "timestamp": 1957.799851,
+      "encodedDataLength": 0,
+      "encodedBodyLength": 36912
+    }
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.763Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.763Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.839Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.842Z",
+    "method": "Page.frameResized",
+    "params": {}
+  },
+  {
+    "receivedAt": "2026-11-20T18:23:23.842Z",
+    "method": "Page.frameResized",
+    "params": {}
+  }
+]

@@ -8,16 +8,17 @@ import { logger } from './logger.js';
 import { toast } from './notifications.js';
 import { localFirstCache } from './local-first-cache.js';
 import { t } from '../i18n.js';
+import { createSecureId } from './secure-id.js';
 
 const PERSISTED_QUEUE_KEY = 'offline:pending-operations:v1';
 const ACCOUNT_OPERATION_TYPES = new Set([
-    'session.save', 'quicklog.save', 'preferences.saveWeeklyTarget',
+    'session.save', 'session.delete', 'quicklog.save', 'preferences.saveWeeklyTarget',
     'preferences.syncWeeklyState', 'routines.fetch',
 ]);
 const isOwnerId = value => typeof value === 'string' && value.trim().length > 0;
 
 function createQueueId() {
-    return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return createSecureId('offline');
 }
 
 function isSerializableDescriptor(descriptor) {
@@ -145,7 +146,7 @@ export class OfflineManager {
         }
 
         this.pendingRestorePromise = (async () => {
-            const persistedQueue = await localFirstCache.get(PERSISTED_QUEUE_KEY, { allowStale: true });
+            const persistedQueue = await localFirstCache.get(PERSISTED_QUEUE_KEY, { allowStale: true, requireVerified: true });
             if (!Array.isArray(persistedQueue) || persistedQueue.length === 0) {
                 return;
             }
@@ -356,6 +357,14 @@ export class OfflineManager {
         try {
             return await operation();
         } catch (error) {
+            if (error.code === 'sync/retry-exhausted' && queueIfOffline && isSerializableDescriptor(queueDescriptor)
+                && isOwnerId(error.userId) && queueDescriptor.payload?.userId === error.userId) {
+                this.queueOperation(null, resolvedErrorMessage, { ...queueOptions, descriptor: queueDescriptor });
+                await this.persistQueue();
+                const queued = new Error(`Offline: ${resolvedErrorMessage}`, { cause: error });
+                queued.code = 'sync/queued';
+                throw queued;
+            }
             if (this.isNetworkError(error)) {
                 logger.error('Network error during operation:', error);
                 try {

@@ -73,12 +73,15 @@ jest.unstable_mockModule('../../js/utils/event-manager.js', () => ({
 
 jest.unstable_mockModule('../../js/utils/offline-manager.js', () => ({
     offlineManager: {
-        checkOnline: mockCheckOnline
+        checkOnline: mockCheckOnline,
+        registerOperationHandler: jest.fn(),
+        executeWithOfflineHandling: operation => operation(),
     }
 }));
 
 jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
     localFirstCache: {
+        withSessionMutation: (_owner, operation) => operation(),
         getEntry: mockCacheGetEntry,
         set: mockCacheSet,
         clearByPrefix: mockCacheClearByPrefix,

@@ -8,6 +8,8 @@ jest.unstable_mockModule('../../js/auth.js', () => ({ getCurrentUser: () => user
 const { createWeeklyTargetOperation, persistWeeklyTargetOperation, applyOptimisticWeeklyTarget,
     persistWeeklyOutcomes, normalizeWeeklyState } = await import('../../js/utils/weekly-preferences.js');
 const { writeSessionDocument } = await import('../../js/utils/session-store.js');
+const { seedSyncProtocol } = await import('../utils/sync-protocol-fixture.js');
+let protocolProof;
 const db = {};
 const path = 'users/weekly-owner/app_data/user_preferences';
 const iso = '2026-11-16T09:10:11.123Z';
@@ -18,6 +20,7 @@ describe('atomic weekly preference contract', () => {
     beforeEach(() => {
         __resetMockFirebase(); __resetMockFirestoreBehavior();
         user = { uid: 'weekly-owner' }; beginAccountSession(user.uid);
+        protocolProof = seedSyncProtocol(user.uid, { activated: true });
     });
 
     it('retries competing different-week commits and preserves metadata, aliases and frozen weeks', async () => {
@@ -67,6 +70,21 @@ describe('atomic weekly preference contract', () => {
         expect(state().weeklyTargetSessions).toBe(5);
     });
 
+    it.each(['both aliases', 'legacy alias only'])('conflicts with a legacy merge changing %s while retaining revision and operation ID', async kind => {
+        await persistWeeklyTargetOperation(db, operation('2026-11-16', 4));
+        const before = state().weeklyTargetsByWeek['2026-11-16'];
+        const stale = operation('2026-11-16', 7, before, '2026-11-20T10:00:00.000Z');
+        const raw = __firestoreState.documents.get(path);
+        const merged = { ...raw.weeklyTargetsByWeek['2026-11-16'], targetDays: 6,
+            savesUsed: 2, updatedAtIso: '2026-11-20T11:00:00.000Z' };
+        if (kind === 'both aliases') merged.targetSessions = 6;
+        __firestoreState.documents.set(path, { ...raw, schemaVersion: 2, weeklyTargetDays: 6,
+            weeklyTargetsByWeek: { '2026-11-16': merged } });
+        await expect(persistWeeklyTargetOperation(db, stale)).rejects.toMatchObject({ code: 'sync/conflict' });
+        expect(__firestoreState.documents.get(path).weeklyTargetsByWeek['2026-11-16']).toEqual(merged);
+        expect(merged.operationId).toBe(before.operationId); expect(merged.revision).toBe(before.revision);
+    });
+
     it('migrates legacy queued descriptors idempotently without treating savesUsed or clock skew as a revision', async () => {
         const legacy = { userId: user.uid, weekKey: '2026-11-16', updatedAtIso: iso,
             weekRecord: { targetDays: 4, savesUsed: 999, updatedAtIso: iso } };
@@ -87,7 +105,7 @@ describe('atomic weekly preference contract', () => {
         const outcomes = { '2026-11-09': { targetSessions: 4, sessionCount: 4, activeDays: 2, met: true } };
         expect(await persistWeeklyOutcomes(db, user.uid, outcomes, expected, { complete: false, nowIso: iso, sessionRevision: 0 })).toBeNull();
         await writeSessionDocument(db, user.uid, 'new-session', { fechaIso: iso });
-        expect((await persistWeeklyOutcomes(db, user.uid, outcomes, expected, { complete: true, nowIso: iso, sessionRevision: 0 })).changed).toBe(false);
+        expect((await persistWeeklyOutcomes(db, user.uid, outcomes, expected, { complete: true, nowIso: iso, sessionRevision: 0, protocolProof })).changed).toBe(false);
         let changed = false;
         __setMockTransactionBeforeCommit(async () => {
             if (changed) return;
@@ -95,7 +113,7 @@ describe('atomic weekly preference contract', () => {
             __setMockTransactionBeforeCommit(null);
             await persistWeeklyTargetOperation(db, operation('2026-11-09', 6, state().weeklyTargetsByWeek['2026-11-09']));
         });
-        const result = await persistWeeklyOutcomes(db, user.uid, outcomes, expected, { complete: true, nowIso: iso, sessionRevision: 1 });
+        const result = await persistWeeklyOutcomes(db, user.uid, outcomes, expected, { complete: true, nowIso: iso, sessionRevision: 1, protocolProof });
         expect(result.changed).toBe(false);
         expect(state().weeklyOutcomesByWeek['2026-11-09']).toBeUndefined();
         expect(state().weeklyTargetDays).toBe(6);
@@ -106,7 +124,7 @@ describe('atomic weekly preference contract', () => {
         await persistWeeklyTargetOperation(db, target);
         const result = await persistWeeklyOutcomes(db, user.uid,
             { '2026-11-09': { targetDays: 4, activeDays: 2, sessionCount: 4, met: true } },
-            state().weeklyTargetsByWeek, { complete: true, sessionRevision: 0, nowIso: '2026-11-23T00:00:00Z' });
+            state().weeklyTargetsByWeek, { complete: true, sessionRevision: 0, nowIso: '2026-11-23T00:00:00Z', protocolProof });
         expect(result.changed).toBe(true);
         expect(state().updatedAtIso).toBe(iso);
         expect(state().weeklyTargetsByWeek['2026-11-09'].updatedAtIso).toBe(iso);
@@ -135,12 +153,13 @@ it('does not let a delayed old-week intent replace an already finalized historic
 
 it('atomically finalizes a pre-target week using the preserved legacy baseline without changing its timestamp', async () => {
     __resetMockFirebase(); __resetMockFirestoreBehavior(); user = { uid: 'weekly-owner' }; beginAccountSession(user.uid);
+    protocolProof = seedSyncProtocol(user.uid, { activated: true });
     __firestoreState.documents.set(path, { weeklyTargetDays: 7 });
     const future = operation('2026-11-23', 5);
     await persistWeeklyTargetOperation(db, future);
     const result = await persistWeeklyOutcomes(db, user.uid,
         { '2026-11-16': { targetSessions: 7, sessionCount: 4, activeDays: 1, met: false } },
-        state().weeklyTargetsByWeek, { complete: true, sessionRevision: 0, nowIso: '2026-11-23T12:00:00Z' });
+        state().weeklyTargetsByWeek, { complete: true, sessionRevision: 0, nowIso: '2026-11-23T12:00:00Z', protocolProof });
     expect(result.changed).toBe(true);
     expect(state().weeklyOutcomesByWeek['2026-11-16']).toMatchObject({ targetDays: 7, sessionCount: 4, met: false });
     expect(state().updatedAtIso).toBe(future.updatedAtIso);

@@ -153,14 +153,19 @@ async function deleteSession(sessionId, targetButton) {
     if (!confirm(t('history.delete_confirm', { name }))) return;
     showLoading(targetButton, t('routines.delete_loading'));
     try {
-        await writeSessionDocument(db, user.uid, sessionId, null, { remove: true });
-        await publishSessionMutation({ userId: user.uid, sessionId, source: 'history', kind: 'delete' });
+        const mutation = await offlineManager.executeWithOfflineHandling(
+            () => writeSessionDocument(db, user.uid, sessionId, null, { remove: true }),
+            t('history.delete_error'), true, { type: 'session.delete', payload: { userId: user.uid, sessionId } });
+        await publishSessionMutation({ userId: user.uid, sessionId, source: 'history', kind: 'delete' }, mutation);
         if (!isCurrent()) return;
         invalidateHistoryCache();
         await fetchAndRenderHistory('initial');
         if (isCurrent()) toast.success(t('history.delete_success'));
     } catch (error) {
-        if (isCurrent()) { logger.error('Error deleting session:', error); toast.error(t('history.delete_error')); }
+        if (isCurrent()) {
+            if (error.message?.startsWith('Offline:')) toast.info(t('offline.queued_when_online'));
+            else { logger.error('Error deleting session:', error); toast.error(t('history.delete_error')); }
+        }
     } finally {
         if (isCurrent()) hideLoading(targetButton);
     }
@@ -242,6 +247,12 @@ export function getPageSize() {
 
 registerSessionMutationInvalidator(({ userId }) => {
     if (ownerId === userId) invalidateHistoryCache();
+});
+
+offlineManager.registerOperationHandler('session.delete', async payload => {
+    if (!payload?.userId || !payload?.sessionId) throw new Error('Invalid queued delete payload');
+    const mutation = await writeSessionDocument(db, payload.userId, payload.sessionId, null, { remove: true });
+    await publishSessionMutation({ userId: payload.userId, sessionId: payload.sessionId, source: 'history', kind: 'delete', replayed: true }, mutation);
 });
 
 export default {

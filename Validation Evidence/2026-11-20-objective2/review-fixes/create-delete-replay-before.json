@@ -1,0 +1,17 @@
+{
+  "recordedDate": "2026-11-27",
+  "parentHead": "a34b337293f4271c8c28dbcd672dd578c7d99b22",
+  "sourceState": "uncommitted local correction tree; not the unchanged rejected parent head",
+  "mode": "real session-store module, generic MVCC Firestore mock; no live backend writes",
+  "command": "npm test -- --runInBand tests/unit/sync-protocol.test.js --testNamePattern=lost-ack create",
+  "exit": 1,
+  "test": "does not resurrect a deleted persisted ID when a lost-ack create is replayed later",
+  "sequence": [
+    "writeSessionDocument(create, ID ack-lost)",
+    "writeSessionDocument(delete, ID ack-lost)",
+    "writeSessionDocument(replayed create, same ID ack-lost)"
+  ],
+  "expectedSessionExists": false,
+  "observedSessionExists": true,
+  "status": "confirmed failing regression; receipt/tombstone contract awaiting parent agreement"
+}

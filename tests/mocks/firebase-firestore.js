@@ -25,6 +25,7 @@ let batchCommitFailureCall = 0;
 let batchCommitFailureError = null;
 let batchCommitGate = null;
 let transactionBeforeCommit = null;
+let transactionAuthorization = null;
 let queryResultHandler = null;
 let documentResultHandler = null;
 let transactionAttempts = 0;
@@ -165,12 +166,14 @@ export function __resetMockFirestoreBehavior() {
     batchCommitFailureError = null;
     batchCommitGate = null;
     transactionBeforeCommit = null;
+    transactionAuthorization = null;
     queryResultHandler = null;
     documentResultHandler = null;
     transactionAttempts = 0;
 }
 
 export function __setMockTransactionBeforeCommit(handler) { transactionBeforeCommit = handler; }
+export function __setMockTransactionAuthorization(handler) { transactionAuthorization = handler; }
 export function __getMockTransactionAttempts() { return transactionAttempts; }
 export function __setMockQueryResultHandler(handler) { queryResultHandler = handler; }
 export function __setMockDocumentResultHandler(handler) { documentResultHandler = handler; }
@@ -195,6 +198,10 @@ export async function runTransaction(_db, callback, { maxAttempts = 5 } = {}) {
             delete(reference) { writes.push({ reference, remove: true }); },
         });
         if (transactionBeforeCommit) await transactionBeforeCommit({ attempt, reads, writes });
+        // Real rules may reject against the latest state before the SDK sees an
+        // optimistic precondition conflict. Authorization denial is not ABORTED
+        // and must escape without an automatic mock/SDK retry.
+        if (transactionAuthorization) await transactionAuthorization({ attempt, reads, writes });
         if ([...reads].some(([path, value]) => JSON.stringify(__firestoreState.documents.get(path)) !== value)) continue;
         if (writes.length && firestoreWriteFailuresRemaining > 0
             && (!firestoreWriteFailurePath || writes.some(write => write.reference.path.includes(firestoreWriteFailurePath)))) {
@@ -254,6 +261,10 @@ export async function getDoc(docRef) {
     const data = __firestoreState.documents.get(docRef.path);
     const snapshot = __createDocumentSnapshot(docRef.path, __cloneMockValue(data));
     return documentResultHandler ? documentResultHandler(snapshot, docRef) : snapshot;
+}
+
+export async function getDocFromServer(docRef) {
+    return getDoc(docRef);
 }
 
 export async function deleteDoc(docRef) {
