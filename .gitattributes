@@ -5,3 +5,4 @@ firestore.rules text eol=lf
 "tests/firestore/*.json" text eol=lf
 "Validation Evidence/2026-11-20-firestore-fence/*.json" text eol=lf
 "Validation Evidence/2026-11-20-firestore-fence/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-objective4-maintenance/**" text eol=lf

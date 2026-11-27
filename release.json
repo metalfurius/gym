@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "version": "2.8.4",
-  "revision": "v2.8.4",
-  "cacheName": "gym-tracker-v2.8.4",
+  "version": "2.8.5",
+  "revision": "v2.8.5",
+  "cacheName": "gym-tracker-v2.8.5",
   "assets": {
     "assets/icons/favicon.ico": "90dac1094ca5af65d0b42be44e007e3f60e132706be9d49ce54dec823c2f0b20",
     "assets/icons/icon-192x192.png": "336f3706e122b235fbd56292c461b7ed0b10ae5951cefc5f517ddcca18dda60d",
@@ -27,7 +27,7 @@
     "css/components/timer.css": "a0efd8dbefe7f09f44fdcb721adede92f63499ef2d10918f112a6fda03545961",
     "css/components/variables.css": "015fc2733a4fc3dc53c88479ac43147a3d37a5f448ee93c1b41a55436cd53cdb",
     "css/user-weight.css": "449007bcab599b8553d46c54f496768cd60e463bcab14169e690646db07a27b5",
-    "index.html": "345f42be2602c6b1426a1fab00aa21f815c790f6e2cad19e3de7863b9fb0d08d",
+    "index.html": "60a061f9e2522dfe2a4d9a3f71b1a62f5a3f87544f4de452b4545f903f078201",
     "js/app.js": "8fed1002c777166ffcaf56e14992a77b0d9630f6dddfd8014ccb74ee3a00dc96",
     "js/auth.js": "3864422660daf574d8fa1c3f4b9dcd0222762b0643ac7a9beeaaeef376100802",
     "js/exercise-cache.js": "f0585162cffe52c514bec5cc4159a63b0f11552a59297a406b4ae5cc21619770",
@@ -44,7 +44,7 @@
     "js/storage-manager.js": "2cbc62562ffaf2fa01f4b5aaaa32ded1e3cabe18e19524291883adabf6f4f9e7",
     "js/theme-manager.js": "9a4fc89d69fe220a7df593675628fed896bd491e9474cd5c050a2699d130a3c9",
     "js/timer.js": "0150948fa2b426832aac87409d4142a6d60b05b1569553d759dbc274c04c83cd",
-    "js/ui.js": "5f949c42840530853cb88a64e9fad59c5e9eeb3db49f141ba58850ac5cd8d1dd",
+    "js/ui.js": "4b3e06dbebf36e901fc7ce296b2baa91d6d851ff20cabd8fbdd208a042bffd0c",
     "js/utils/bodyweight.js": "8063c1c288ab364cec28b50ebec685d9fdfe491c6e5757ecbb6f3a8aedbe442a",
     "js/utils/debounce.js": "3a9cfac02f264edb9903e0304ca9fd5b3bff67602fc02e19bc1cd97d8c463ce5",
     "js/utils/event-manager.js": "e190553f9e585083cfd4de9fa08268b0269380414ae4e86b1179b8898fafb044",
@@ -60,10 +60,10 @@
     "js/utils/offline-manager.js": "0f7b5a5c1583c79dde86bb5313857d0ddc56655526d2c2847ebdfd4d7e06d16e",
     "js/utils/quick-log.js": "50ed75c5ededc12b4ec3135c172799601b20013e8f25b0dc6716b9d3f0551792",
     "js/utils/release-updater.js": "893f863b974e3676da3626fdf5024404c2b54d49a18bf2fb905b61f4ba528bc0",
-    "js/utils/routine-import.js": "656e7ce06535e70836ca13ff7c8149a0ecc2cb0ad6d44efd443e4908ff40a3ac",
-    "js/utils/session-variant-overrides.js": "e99e53d02dce85fe5b417eb0d52f884bc970825906eb21a574d7e3a681a03831",
+    "js/utils/routine-import.js": "d865e230d242eafd96a1558d157401cec56b94713f4979ea7374e949357536bd",
+    "js/utils/session-variant-overrides.js": "9071329e1d71d1835215a01622bc39515389e979506b0ee2ee8154de7502789e",
     "js/utils/validation.js": "9c2ca6ebd41efdccc3f5b3bf863e7f67199d99019606f24abc4bb005003fe8a6",
-    "js/version-manager.js": "d800b916611a7f426bf933818543bde1db55ae8fd30b69a441dd45ad7ddfab90",
-    "manifest.json": "22aeeb4610e561add1f748c9a42c578462cdbfb8f836acc08ed1dac6583fa975"
+    "js/version-manager.js": "0c6cf3852bcafb0f078139b7d0b77d6bfc0184669dce667e2d13ffd338b88a55",
+    "manifest.json": "8d0ead95cd9390f2adde46a8af6f92bc76e5596e9428596af2cc1dc48beb92fb"
   }
 }

@@ -1,5 +1,19 @@
 # Objective 4 toolchain and Actions review record
 
+Root integration update: the preparation below was checkpointed and rebased
+onto merged main `ebb887b967ec22b021858bf1feaa79010c4b1605`, producing tooling
+checkpoint `bdeb8b8eecd72a646ea4b56fce2d30cbbb547c97`. Root prepared the coherent
+**v2.8.5 / 61 cached assets** contract for the three scoped JS repairs. The
+fresh local broad run now passes **60 suites / 894 tests**, 74.95% statements /
+76.50% lines; permanent coverage wrapper, zero-warning ESLint 10 ratchet,
+no-skipped-tests, release integrity and native Chromium upgrade also pass.
+The previous three stale-hash failures below remain historical, and are not
+described as a passing run. Official annotated Action tags were dereferenced
+again before freeze and still match all four pinned commits. See the
+[root evidence](../Validation%20Evidence/2026-11-27-objective4-maintenance/README.md).
+Final-head hosted checks and two independent approvals are still required;
+QA-05 physical iOS remains open and this prerequisite does not close objective 4.
+
 Status: **preparation, not objective completion**, November 27, 2026. The compatible package checkpoint is
 `a096162b045a39576d84e629539f8919e5eb920e`, based on merged browser prerequisite
 `88f95151f104df58d87e751984de6cd0c5de28d4` ([PR107](https://github.com/metalfurius/gym/pull/107)).
@@ -84,7 +98,7 @@ Install also reports deprecated transitive `glob` 10.5.0 and `whatwg-encoding` 3
 | New final-head Linux/Windows matrix, CodeQL and main-only Actions | Not run at this uncommitted milestone; required after integration/freeze |
 | Actual Safari/iOS installed PWA | Not run; QA-05 open |
 
-The three approved cached-asset repairs are only removal of overwritten initial values in `js/ui.js` and
+The three scoped cached-asset repairs are only removal of overwritten initial values in `js/ui.js` and
 `js/utils/session-variant-overrides.js`, and an unused catch binding in `js/utils/routine-import.js`. Their
 bytes changed, so the release owner must regenerate the final contract after the planned integration/rebase.
 No version or generated asset metadata has been changed in this preparation. Until that happens, the full
