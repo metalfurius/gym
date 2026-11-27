@@ -1,6 +1,12 @@
 # Reproducible browser quality gates
 
-This is an objective 4 prerequisite, based on `54e83fbfb263be2e601e1db3d2074275329de40e`.
+The browser prerequisite was merged in [PR107](https://github.com/metalfurius/gym/pull/107) at
+`88f95151f104df58d87e751984de6cd0c5de28d4` after both reviews and its hosted matrix passed.
+The preparation observations below retain their original baselines and pending-at-the-time status;
+they are not fresh acceptance of later maintenance. The separate toolchain migration needs new final-head
+checks and reviews. Objective 4 and physical iOS QA-05 remain open.
+
+The original prerequisite was based on `54e83fbfb263be2e601e1db3d2074275329de40e`.
 It changes test tooling and CI only. Application assets, service worker and release version remain unchanged.
 The [objective plan](roadmap/04-maintenance-quality.md) and [shared protocol](roadmap/README.md) still apply.
 Linux CI results and two identical-head reviews are required before accepting this prerequisite. Objective 4
@@ -8,7 +14,7 @@ also requires the separate maintenance work and physical iOS evidence; this docu
 
 ## Commands and CI
 
-Use supported Node 22 and run `npm ci`. CI uses the latest maintained Node 22 patch. This was checked against
+Use Node 22.13+ on the Node 22 line and run `npm ci`. CI uses the latest maintained Node 22 patch. This was checked against
 the [official Node release schedule](https://nodejs.org/en/about/previous-releases).
 
 | Command                                                                  | Browser selection                                              | Blocking CI job                                                           |

@@ -1,0 +1,39 @@
+{
+  "base": "ebb887b967ec22b021858bf1feaa79010c4b1605",
+  "checkoutBeforeReleasePreparation": "bdeb8b8eecd72a646ea4b56fce2d30cbbb547c97",
+  "sourceBytes": "canonical staged Git LF blobs, BOM preserved",
+  "logNormalization": "CRLF to LF; trailing console padding removed",
+  "sources": {
+    ".gitattributes": "c24c4617db46e705e4250f26b6761f18dcc6ce4192fd4c1b4ea7f08a8af74d98",
+    ".github/workflows/copilot-tests.yml": "f3aa6c8c1ddc043b97f5c36d73909008fabd5bfd9533664188d3ff65a95da2c7",
+    ".github/workflows/labeler-followup.yml": "261af5c73a8375d57aef9bbd2f87d41969ee546ec5695496ad021f222bde5259",
+    ".github/workflows/release.yml": "303debf5c49ae1eab12d73f148881c806f122631293fff2ff80fe723cae84907",
+    ".github/workflows/test.yml": "7fa60ad87624c738939007be36ccd394823bf85a97a48c7b4b236da0c1882a57",
+    "eslint.config.mjs": "e1b11d5a93cb357280b36ccc110f28e6cf622768ce0282fe2698b7bfe7551808",
+    "index.html": "60a061f9e2522dfe2a4d9a3f71b1a62f5a3f87544f4de452b4545f903f078201",
+    "jest.config.js": "26a70e90e28d218901c2f9fbc82c998cfb7340d9b776001ed1942a598fb99fdb",
+    "js/ui.js": "4b3e06dbebf36e901fc7ce296b2baa91d6d851ff20cabd8fbdd208a042bffd0c",
+    "js/utils/routine-import.js": "d865e230d242eafd96a1558d157401cec56b94713f4979ea7374e949357536bd",
+    "js/utils/session-variant-overrides.js": "9071329e1d71d1835215a01622bc39515389e979506b0ee2ee8154de7502789e",
+    "js/version-manager.js": "0c6cf3852bcafb0f078139b7d0b77d6bfc0184669dce667e2d13ffd338b88a55",
+    "manifest.json": "8d0ead95cd9390f2adde46a8af6f92bc76e5596e9428596af2cc1dc48beb92fb",
+    "package-lock.json": "4708814f70ffb2a98f999f54c42e7f016edadda6fc2faac40e21d47960ebcadd",
+    "package.json": "c7063872ecdbc829ddb71110a4d2fecb6f3006126a40b8fece23b66e93e4ccf6",
+    "release.json": "33f2c65a4d51ac61fc1a790dea016579bc0c390aa8d9c6b108268443713acf60",
+    "scripts/coverage-gate.mjs": "d08a4071576da3f942e8bf88615e6affb51a452a6cdd2b79c9bce25f07d66f0e",
+    "scripts/run-tests.js": "be2c131fe5a40480c1565045f459dc1782f13516ff4ac19a5e965ed780c9d9d8",
+    "scripts/serve-local.mjs": "c80d9d0fd3a3b758627165e2c5663743e3b6ce0b69c4fd4025af25e202cdc38f",
+    "sw.js": "32a3c46f9bc610599b54b82dc31b5d18f91a08cb996adfd207021a4fe3281c3d",
+    "tests/mocks/firebase-state.js": "89fdb2812fa632fe2cfe787d7e49e1351c5c31dcb0fa703a370db983078e2be0",
+    "tests/unit/coverage-gate.test.js": "7bdca572d90f65d6457901affd076ef6b73f1324b50520f2e844ddba30a5f86c",
+    "tests/unit/eslint-config.test.js": "07abe2c7657adca7ab080e34140107174914dc04dd6ac50cdabd604b8671de28",
+    "tests/unit/offline-manager.test.js": "05b8eb54d47ae71682e90667cf275b15e6879b7928d074f95a513e20ed272523",
+    "tests/unit/progress.test.js": "0ccc5e5b72aa6c850ac52052ccd1a4a01dc58511c1cc5932d43ac672b0ae8d1d"
+  },
+  "artifacts": {
+    "coverage-summary.json": "4dfc45a316fa9ac93e5dfbd301908d865c3d9e9488541ae97dc14712de78685f",
+    "coverage.txt": "c20e57af9ae166088b7e44d43d59eba62114bb95440c6d9cda7074c8bead4508",
+    "junit.xml": "7537efd231a069c9512e6d9f954761e2941d69117a65d4fe468f61739037cf1c",
+    "upgrade.json": "77370fb15db6b21b8ddb45fd060b0d1211ffea7bc629798857ecf91adca885f1"
+  }
+}

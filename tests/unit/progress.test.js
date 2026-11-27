@@ -19,7 +19,7 @@ describe('Progress Module', () => {
     describe('Cache Validity', () => {
         it('should detect invalid cache when empty', () => {
             const isValid =
-        progressTabCache.exercisesList !== null &&
+                progressTabCache.exercisesList !== null &&
         progressTabCache.lastCacheTime !== null;
 
             expect(isValid).toBe(false);
@@ -52,7 +52,7 @@ describe('Progress Module', () => {
             progressTabCache.lastCacheTime = null;
 
             const isValid =
-        progressTabCache.exercisesList !== null &&
+                progressTabCache.exercisesList !== null &&
         progressTabCache.lastCacheTime !== null;
 
             expect(isValid).toBe(false);
@@ -173,7 +173,7 @@ describe('Progress Module', () => {
             ];
 
             const avgWeight =
-        sets.reduce((sum, set) => sum + set.peso, 0) / sets.length;
+                sets.reduce((sum, set) => sum + set.peso, 0) / sets.length;
             expect(avgWeight).toBeCloseTo(65, 1);
         });
 
@@ -358,7 +358,7 @@ describe('Progress Module', () => {
             ];
 
             const avg =
-        sessions.reduce((sum, s) => sum + s.maxWeight, 0) / sessions.length;
+                sessions.reduce((sum, s) => sum + s.maxWeight, 0) / sessions.length;
             expect(avg).toBeCloseTo(65, 1);
         });
     });

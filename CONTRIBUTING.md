@@ -1,67 +1,53 @@
-# Contributing Guide
+# Contributing guide
 
-## PR-First Workflow (Soft Policy)
+## PR workflow
 
-This repository uses a PR-first workflow for major features.
+Use one branch and draft PR for a coherent feature. Track its stage as `Draft` → `In Progress` →
+`Merge Candidate`, keeping scope, evidence and limitations current. Maintenance work belongs in separate
+focused changes; an incompatible major migration needs its own rationale, validation and rollback boundary.
+The active roadmap and acceptance criteria live in [UPGRADE-PLAN.md](UPGRADE-PLAN.md) and
+[docs/roadmap/README.md](docs/roadmap/README.md), rather than a placeholder feature kickoff here.
 
-- One branch + one draft PR per major feature.
-- Keep iterating inside the same PR until merge-safe.
-- Do not split a major feature into unrelated parallel PRs unless a separate maintenance task requires it.
-- This is policy-driven for now (no branch-protection automation changes in this phase).
+Use Node 22.13+ on the Node 22 line (the latest maintained 22 patch matches CI) and a clean `npm ci`.
+Node 24 is also supported by the tooling. Do not regenerate the lockfile using forced downgrades or merge a
+stale dependency PR without comparing its changes against current main and upstream compatibility guidance.
 
-## Major Feature Lifecycle
+## Checks before review
 
-Use these stages in the PR description as work progresses:
+For code changes, reproduce the blocking commands:
 
-1. Draft
-2. In Progress
-3. Merge Candidate
+```sh
+npm ci
+npm run lint:ratchet
+npm run test:no-skips
+npm run test:app
+npm run test:app:offline
+npm run test:coverage:gate
+npm run release:check
+```
 
-A major feature PR starts as Draft and only moves to Merge Candidate when all required gates are green and review feedback is resolved.
+The lint ratchet allows zero warnings. Full Jest coverage requires at least 70% statements and lines;
+the subsequent coverage wrapper independently checks statements. `npm run test:all` combines lint, no-skips
+and full gated Jest coverage, including unit/integration/app/offline cases. Real-browser and CodeQL checks
+remain separate. The authoritative command-to-job table is [TESTING-PLAN.md](TESTING-PLAN.md), with browser
+installation and commands in [docs/browser-quality-gates.md](docs/browser-quality-gates.md).
 
-## Required Gates Before Merge
+Keep regressions focused on behavior. Preserve existing offline, counting, ownership and release contracts.
+Do not skip tests, weaken lint rules or lower coverage to pass CI. `npm run format:check` is advisory in CI;
+avoid unrelated formatting churn. Manual test sheets and mock results do not establish live/device acceptance.
 
-Every major feature PR must pass:
+Every roadmap implementation requires two independent GPT-6.1-Sol xhigh approvals of the identical final
+head, plus its required checks and evidence. A rebase, new commit or generated metadata changes that head
+and requires renewed review. Do not describe an objective as complete while its live account/device gates
+remain open. In particular, physical Safari/Home Screen PWA evidence for QA-05 is still required.
 
-- `npm run lint:ratchet`
-- `npm run test:app`
-- `npm run test:app:offline`
-- `npm run test:coverage:gate`
-- `npm run test:no-skips`
+## Release metadata
 
-## Version Keyword Rule
+Commit message keywords such as `[major]`, `[minor]` and `[patch]` communicate intent; the current workflows
+do not automatically bump a version from them. A release owner explicitly runs `node update-version.cjs patch`
+(or `minor`, `major`, `X.Y.Z`), reviews the complete generated contract and checks it before freezing the
+candidate. See [docs/commit-versioning.md](docs/commit-versioning.md).
 
-Version bumping is driven by commit message keywords on merge to `main`.
-
-- Use `[minor]` for new backward-compatible features.
-- Use `[patch]` for fixes, docs, tests, and refactors.
-- Use `[major]` only for intentional breaking changes.
-
-For the current major feature kickoff below, default to `[minor]` unless scope changes to breaking behavior.
-
-## Dependency and Maintenance PRs
-
-Keep maintenance PRs separate from major-feature PRs.
-
-Examples:
-
-- Dependabot updates
-- CI toolchain updates
-- Standalone docs-only or test-only maintenance
-
-## Current Major Feature Kickoff
-
-Milestone: Read-Optimized Weekly Consistency (v1.1)
-
-- Branch (placeholder): `codex/major-read-optimized-weekly-consistency-v1-1`
-- PR title (placeholder): `feat: read-optimized weekly consistency (v1.1) [minor]`
-- Current scope (this PR):
-  - local-first weekly streak/progress computation for Daily Hub without introducing streak persistence in Firestore
-  - bounded session-fetch strategy for streak computations with deterministic read ceilings
-  - compact cloud sync behavior for weekly target preferences and any minimal derived metadata needed for consistency
-  - maintain offline replay safety and timestamp consistency for preference updates
-  - keep existing session/routine contracts backward-compatible
-- Out of scope for this PR:
-  - social mechanics, sharing, or competitive challenges
-  - nutrition/body-composition schema expansion
-  - destructive migrations or backfill of historical documents
+Tooling/docs-only changes do not need a product version bump. Changed cached JS/CSS/HTML/assets still require
+fresh release metadata and release checks, even when their behavior is unchanged. Keep generated metadata
+with the final reviewed source. Never claim an unmerged asset or its hash is already published.

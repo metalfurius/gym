@@ -69,7 +69,7 @@ export function readSessionVariantOverrides(userId) {
         return {};
     }
 
-    let raw = null;
+    let raw;
     try {
         raw = storage.getItem(storageKey);
     } catch {

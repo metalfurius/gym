@@ -195,7 +195,7 @@ describe('OfflineManager', () => {
                     'Operation failed',
                     true
                 );
-            } catch (error) {
+            } catch {
                 // Expected to throw
             }
 
@@ -233,7 +233,7 @@ describe('OfflineManager', () => {
                     'Operation failed',
                     false
                 );
-            } catch (error) {
+            } catch {
                 // Expected to throw
             }
 

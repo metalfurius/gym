@@ -1,248 +1,140 @@
-# Gym Tracker - Test Suite Documentation
+# Test suite and browser evidence
 
-## Overview
+Use Node 22.13+ on the Node 22 line (CI installs the latest 22 patch), or Node 24, and install the locked
+versions with `npm ci`. Jest runs ES modules through Node's `--experimental-vm-modules`; its experimental
+warning is expected. Scripts in [package.json](../package.json) are the executable command reference.
 
-This test suite provides comprehensive testing coverage for the My Workout Tracker application, including unit tests, integration tests, and manual testing interfaces.
+## Automated app and unit tests
 
-## App-Level Automated Coverage
-
-The repository now includes an app-level automated journey test that exercises the real UI flow end-to-end inside Jest/jsdom using Firebase runtime mocks.
-
-- Main app journey test: `tests/integration/app-user-journey.test.js`
-- Secondary auth/navigation journey test: `tests/integration/app-auth-navigation.test.js`
-- Offline recovery journey test: `tests/integration/app-offline-recovery.test.js`
-- Offline retry journey test: `tests/integration/app-offline-retry.test.js`
-- Covered flows:
-  - signup/login
-  - routine create/edit/delete
-  - in-progress session resume
-  - session save + history rendering
-  - logout/login persistence + multi-routine switching
-  - offline queue + online recovery for session saves
-  - retry behavior when first reconnect sync fails
-  - two same-day session saves and combined calendar activity
-- Firebase URL mocks used by the app test:
-  - `tests/mocks/firebase-app.js`
-  - `tests/mocks/firebase-auth.js`
-  - `tests/mocks/firebase-firestore.js`
-  - `tests/mocks/firebase-state.js`
-
-Run it with:
-
-```bash
-npm run test:app
-```
-
-`npm run test:app` now runs ESLint in errors-only mode first. Use `npm run test:app:only` to run just the app journey tests.
-Use `npm run test:app:offline` to run only offline recovery/retry reliability journeys.
-
-Real-browser session-counting smoke:
-
-```bash
-npm run test:e2e:session-counting
-```
-
-This launches Chromium through the DevTools protocol, imports the production weekly-counting module, checks duplicate replay handling and same-day session aggregation, and writes visual evidence under `Validation Evidence/`.
-
-## Test Structure
-
-```
-tests/
-├── unit/                          # Unit tests for individual components
-│   ├── storage-manager.test.js   # Storage API tests
-│   ├── timer.test.js             # Timer functionality tests
-│   ├── app-session.test.js       # Session management tests
-│   └── data-models.test.js       # Data structure tests
-├── integration/                   # Integration and workflow tests
-│   └── app-workflow.test.js      # Complete application workflows
-├── manual/                        # Manual/browser-based tests
-│   ├── index.html                # Test suite home page
-│   ├── unit-tests.html           # Interactive unit tests
-│   ├── integration-tests.html    # Workflow checklists
-│   └── ui-tests.html             # UI and visual tests
-├── utils/                         # Test utilities and helpers
-│   └── test-helpers.js           # Mock data and helper functions
-├── setup.js                       # Jest test configuration
-└── README.md                      # This file
-```
-
-## Running Tests
-
-### Automated Tests (Jest)
-
-```bash
-# Install dependencies
-npm install
-
-# Run all tests
-npm test
-
-# Run unit tests only
+```sh
+npm ci
 npm run test:unit
-
-# Run integration tests only
 npm run test:integration
-
-# Run app-level user journeys only
 npm run test:app
-
-# Run only offline recovery/retry journeys
 npm run test:app:offline
-
-# Run with coverage report
-npm run test:coverage
-
-# Watch mode (re-run on file changes)
-npm run test:watch
+npm run test:coverage:gate
 ```
 
-### Manual Tests
+`npm test` runs the full Jest suite without collecting coverage. `test:unit` and `test:integration` select
+those folders. `test:app` first checks lint errors and then runs the six app journey files listed in
+`test:app:only`; `test:app:only` omits that lint step. `test:app:offline` is the dedicated two-file
+recovery/retry subset. Use `npm run test:watch` for iteration or `npm test -- --runInBand path/to/file.test.js`
+for a focused regression.
 
-1. Start a local server:
-```bash
-npm run serve
+The app journeys exercise authentication/navigation, routines, session resume/save, same-day sessions,
+language changes, numeric validation and offline/retry behavior in Jest/jsdom. Firebase URL imports map to
+`tests/mocks/firebase-{app,auth,firestore,state}.js` in [jest.config.js](../jest.config.js). This establishes
+mocked behavior, not a real backend, device, browser layout or installed-PWA result.
+
+Useful locations:
+
+| Location | Purpose |
+| --- | --- |
+| `tests/unit/*.test.js` | Production helpers, UI units, release integrity, browser-process/installer and quality-tool regressions |
+| `tests/integration/*.test.js` | Module workflows and app journeys using Firebase mocks |
+| `tests/mocks/` | Firebase runtime/state fixtures |
+| `tests/utils/test-helpers.js` | Mock users, routines, sessions and timestamps |
+| `tests/setup.js` | Jest browser setup/teardown |
+| `tests/manual/` | Interactive manual sheets; opening a sheet does not record a pass |
+
+## Quality and coverage commands
+
+```sh
+npm run lint:ratchet
+npm run test:no-skips
+npm run test:coverage:gate
+npm run release:check
 ```
 
-2. Open your browser to:
-```
-http://localhost:8080/tests/manual/index.html
-```
+The zero-warning ratchet checks authored `.js`, `.cjs` and `.mjs`, including the real-browser harnesses.
+`lint:errors` is available for errors-only iteration and does not replace that ratchet. ESLint 10 uses
+[eslint.config.mjs](../eslint.config.mjs); see the [major migration rationale](../docs/eslint-10-migration.md).
+No-skips rejects `.skip`, `xit` and `xdescribe`.
 
-3. Follow the test pages:
-   - **Unit Tests**: Interactive browser-based unit tests
-   - **Integration Tests**: Workflow checklists
-   - **UI Tests**: Visual and accessibility tests
+`test:coverage` collects the full suite and enforces Jest's global **70% statements and lines** thresholds.
+Reports are `coverage/coverage-summary.json`, `coverage/lcov.info`, HTML and `coverage/junit.xml`.
+`coverage:gate` validates an existing summary's finite statement percentage against 70%; it cannot establish
+freshness or test success on its own. `test:coverage:gate` runs the full suite first and only invokes that
+wrapper after success. There is no dated threshold or environment override. Branch/function metrics are
+reported without an additional enforced threshold.
 
-## Test Categories
+`test:all` combines the ratchet, no-skips and full gated coverage suite, which includes unit and integration
+cases. It does not run browsers, install dependencies or replace hosted CodeQL. Keep focused app/offline
+commands when reproducing the separate steps in the Tests workflow. `format:check` is advisory in CI; its
+local nonzero exit still indicates formatting differences.
 
-### Unit Tests
+## Real browsers
 
-Test individual functions and components in isolation:
+Follow [browser-quality-gates.md](../docs/browser-quality-gates.md) to install the exact official archives
+and set `CHROME_PATH`/`FIREFOX_PATH` and expected versions. The installer owns a separate automation cache;
+never pass a personal browser profile. A missing/invalid explicit executable fails rather than falling back.
 
-- **Storage Manager**: localStorage, Storage API, persistence
-- **Timer**: Rest timer functionality, time formatting
-- **Session Management**: Save, load, and clear session data
-- **Data Models**: Routine, session, exercise structures
-
-### Integration Tests
-
-Test complete workflows across multiple components:
-
-- **Authentication Flow**: Register, login, logout, session persistence
-- **Routine Management**: Create, edit, delete, export/import routines
-- **Workout Sessions**: Start, track, save, resume sessions
-- **History & Progress**: View history, track progress, calendar
-- **Data Synchronization**: Firebase sync, offline mode
-
-### Manual Tests
-
-Browser-based testing for UI and user experience:
-
-- **Responsive Design**: Mobile, tablet, desktop layouts
-- **Theme Management**: Theme switching, persistence
-- **Form Validation**: Input validation, error messages
-- **Navigation**: View transitions, modal dialogs
-- **Accessibility**: Keyboard navigation, screen reader support
-- **Performance**: Load times, smooth animations
-
-## Test Coverage
-
-The test suite covers:
-
-- ✅ Core application logic
-- ✅ Data persistence and synchronization
-- ✅ User authentication flows
-- ✅ Workout session management
-- ✅ Timer functionality
-- ✅ Progress tracking
-- ✅ UI components and interactions
-- ✅ Responsive design
-- ✅ Error handling
-
-## Writing New Tests
-
-### Unit Test Example
-
-```javascript
-import { describe, it, expect } from '@jest/globals';
-
-describe('MyFeature', () => {
-  it('should do something', () => {
-    const result = myFunction();
-    expect(result).toBe(expectedValue);
-  });
-});
+```sh
+npm run test:e2e:upgrade
+npm run test:e2e:upgrade:firefox
+npm run test:e2e:numeric
+npm run test:e2e:session-counting
+npm run test:e2e:canonical-transport
+node scripts/verify-browser-smoke-negative.mjs chromium
+node scripts/verify-browser-smoke-negative.mjs firefox
 ```
 
-### Using Test Helpers
+Select numeric Chromium/Firefox with `NUMERIC_SMOKE_BROWSER=chromium`, `firefox` or `all` (set the variable
+using your shell). `UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS=1000` enables the required delayed Chromium case.
+`BROWSER_SMOKE_EVIDENCE_DIR` and `UPGRADE_SMOKE_EVIDENCE_DIR` can select fresh artifact directories; their
+defaults are unique temporary directories. Historical `Validation Evidence/` files are not overwritten.
 
-```javascript
-import { createMockUser, createMockRoutine } from '../utils/test-helpers.js';
+Upgrade fixtures test release A→B, the explicit update action, exact workout preservation, release/module
+hashes, obsolete-cache removal and offline/reconnect. Numeric fixtures import the production validation
+helpers in real browsers. Counting Chromium imports production counting helpers and checks two same-day
+sessions versus one active day and duplicate replay. The canonical fixture verifies that the transport
+actually reaches canonical network URLs despite an active worker. These loopback fixtures use synthetic data
+and do not prove a production account or physical iOS scenario.
 
-const user = createMockUser('test@example.com');
-const routine = createMockRoutine('Push Day');
-```
+Browser jobs have deadlines, bounded cleanup of owned processes and JSON/screenshots/traces. The negative
+checker runs a deliberately failing real numeric child, requires child exit 1 and failed evidence, then
+returns 0 only when that expected failure is confirmed. It does not turn a failing positive smoke into a pass.
 
-## Continuous Integration
+## Actual CI mapping
 
-Tests can be integrated into CI/CD pipelines:
+[TESTING-PLAN.md](../TESTING-PLAN.md) maps all commands to workflows and enforcement. In particular:
 
-```yaml
-# Example GitHub Actions workflow
-- name: Run tests
-  run: npm test
-  
-- name: Upload coverage
-  run: npm run test:coverage
-```
+- `Tests / Run Tests` runs release integrity, normal/delayed Chromium upgrade, canonical transport,
+  app/offline journeys, no-skips and full gated coverage.
+- `Lint / ESLint` requires zero warnings; CodeQL performs separate hosted security analysis.
+- `Browser Gates` runs Firefox upgrade, numeric Firefox/Chromium and counting Chromium on both Ubuntu 24.04
+  and Windows 2025. Its numeric jobs also verify real failure evidence. Browser artifacts upload on failure.
+- Codecov retains `fail_ci_if_error: false`; JUnit annotations retain `fail-on-error: false` and the
+  same-repository/fork permission guard. A missing JUnit report still fails under upstream's `fail-on-empty`
+  default. Failed Jest/coverage commands always fail Tests.
+- Format Check reports warnings without failing the workflow for formatting differences. No implemented
+  `merge-ready` command is claimed.
 
-## Best Practices
+## Manual and live checks
 
-1. **Test in Isolation**: Unit tests should not depend on external services
-2. **Mock External Dependencies**: Use mocks for Firebase, localStorage
-3. **Clear Setup/Teardown**: Clean up after each test
-4. **Descriptive Names**: Test names should clearly describe what's being tested
-5. **Test Edge Cases**: Include tests for error conditions and edge cases
-6. **Keep Tests Fast**: Unit tests should complete in milliseconds
+Run `npm run serve`, then open `http://localhost:8080/tests/manual/index.html` for the interactive sheets.
+Record the actual observed result, device/browser versions, revision and UTC time. Firebase mocks, desktop
+viewport resizing and real desktop fixtures cannot substitute for physical Safari and an installed iOS
+Home Screen app. QA-05 in [objective 4](../docs/roadmap/04-maintenance-quality.md) remains open.
 
-## Troubleshooting
+Use only designated test accounts for explicitly authorized live tests. Do not include tokens, another
+account's workouts or personal browser-profile contents in artifacts. Preserve existing dated evidence and
+pin fresh implementation acceptance to the exact final reviewed SHA under the shared two-judge protocol.
 
-### Tests Fail to Run
+## Writing and troubleshooting tests
 
-- Ensure Node.js is installed (v14 or higher)
-- Run `npm install` to install dependencies
-- Check that all test files have `.test.js` extension
+Keep setup isolated, reset shared mocks/state and clean up owned temporary resources. Prefer assertions on
+observable behavior and important failure paths over source-string checks or tests that repeat the code.
+Do not skip a regression or relax a rule/threshold to make CI green. Reproduce a failure with the focused
+Jest command above; use the browser's JSON/trace and stderr when a real smoke fails. For startup/install
+failures, check the declared executable and documented sandbox/native read permissions; do not disable the
+browser sandbox. A stale cached-asset hash requires the reviewed release contract to be regenerated, not a
+weakened release assertion. Release preparation is documented in
+[commit-versioning.md](../docs/commit-versioning.md).
 
-### Firebase Errors
-
-- Firebase is mocked in tests
-- If testing real Firebase, ensure config is correct
-- Use test/staging Firebase project, not production
-
-### Browser Tests Don't Load
-
-- Ensure local server is running (`npm run serve`)
-- Check browser console for errors
-- Verify paths in test HTML files are correct
-
-## Contributing
-
-When adding new features:
-
-1. Write unit tests for new functions/components
-2. Add integration tests for new workflows
-3. Update manual test pages if UI changes
-4. Ensure all tests pass before committing
-5. Aim for >80% code coverage
-
-## Support
-
-For questions or issues with tests:
-- Check this documentation first
-- Review existing test examples
-- Contact: contact@codeoverdose.es
-
-## Version
-
-Test Suite Version: 1.0.0
-Last Updated: 2025-12-22
+The November 27 maintenance run found an existing private TEMP Firefox cache that could not spawn its
+socket/tab subprocesses. A fresh verified install in a dedicated public automation-cache directory passed;
+the same four key binaries matched, but directory ACLs differed. Both outcomes are retained in the
+[maintenance record](../docs/maintenance-toolchain-2026-11-27.md). If reproducing that environment, configure
+`BROWSER_SMOKE_CACHE_DIR` to a new dedicated automation directory before the documented installer runs;
+do not change a personal profile's ACL or turn off the sandbox. Fresh hosted CI remains required.

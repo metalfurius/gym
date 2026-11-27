@@ -37,9 +37,10 @@ again creates duplicates. Training sessions are not part of the routine export.
 
 ## Local Preview
 
-Run a local static server from the project root:
+Use Node 22.13+ on the Node 22 line (the latest maintained patch matches CI), or Node 24. From the project root:
 
 ```bash
+npm ci
 npm run serve
 ```
 
@@ -68,7 +69,9 @@ Planning docs:
 - [docs/session-variants-i18n-plan.md](docs/session-variants-i18n-plan.md) - implemented milestone spec for per-session mode/load overrides plus ES/EN language system
 - [docs/weekly-consistency-streaks-plan.md](docs/weekly-consistency-streaks-plan.md) - implemented milestone spec for custom weekly consistency streaks (v1)
 - [docs/read-optimized-weekly-consistency-plan.md](docs/read-optimized-weekly-consistency-plan.md) - shipped foundations, unmerged local work, and remaining read-reduction acceptance criteria
-- [docs/commit-versioning.md](docs/commit-versioning.md) - commit keyword rules that drive automatic `major` / `minor` / `patch` bumps
+- [docs/commit-versioning.md](docs/commit-versioning.md) - explicit release preparation and read-only version metadata validation
+- [docs/browser-quality-gates.md](docs/browser-quality-gates.md) - isolated, pinned Chromium/Firefox smoke commands and CI matrix
+- [docs/eslint-10-migration.md](docs/eslint-10-migration.md) - major linter migration rationale and acceptance boundary
 
 ### Published Baseline (November 20, 2026)
 
@@ -94,13 +97,19 @@ The expired six-week schedule has been retired; nutrition and social/competitive
 
 ### Quality Baseline and Remaining Enforcement Work
 
-Published `main` runs lint, CodeQL, app/offline journeys, no-skipped-tests checks, coverage (minimum 70%),
-release integrity, and the Chromium upgrade smoke. The local `merge-ready` contract is an unmerged proposal;
-repository-wide formatting is not yet an enforced blocking check on published `main`.
-The canonical-transport browser regression is now also in CI. Main's initial v2.8.4 upgrade-smoke failure and
-successful retry are both recorded. [PR #105](https://github.com/metalfurius/gym/pull/105) repaired the reproduced
-fixture race and added a required delayed-bootstrap case; broader priority-4 browser/device work remains open.
-See the roadmap for the distinction between published checks and local stabilization work.
+CI runs the zero-warning lint ratchet, CodeQL, app/offline journeys, no-skips, full gated coverage,
+release integrity, canonical transport, and normal/delayed Chromium upgrade fixtures.
+[PR #107](https://github.com/metalfurius/gym/pull/107) added eight Linux/Windows browser jobs for Firefox
+upgrade, numeric inputs in both browsers and Chromium counting, with exact browser archives and failure
+artifacts. [PR #105](https://github.com/metalfurius/gym/pull/105) repaired the reproduced upgrade-fixture race.
+The browser fixtures and Firebase mocks do not establish physical-device or live-account acceptance.
+
+The current policy requires at least 70% statement coverage; this maintenance aligns Jest's statements and
+lines thresholds with that floor and removes the expired date bypass. `test:coverage` generates reports and
+enforces Jest's thresholds; `test:coverage:gate` additionally validates the fresh statement summary after tests
+pass. Formatting remains advisory in CI. The local `merge-ready` proposal is not an implemented command.
+See [TESTING-PLAN.md](TESTING-PLAN.md) for exact commands, CI jobs and limitations. Objective 4 remains open,
+including actual Safari/Home Screen PWA evidence; unmerged maintenance is not a published release.
 
 ### How We Ship Major Features
 
@@ -143,25 +152,26 @@ This project is licensed for personal and educational use only.
   - `tests/integration/app-offline-retry.test.js`
 - Manual browser checks: `tests/manual/*`
 
-Commands:
+From a clean checkout:
 
-- `npm run test:unit`
-- `npm run test:integration`
-- `npm run test:app`
-- `npm run test:app:offline`
-- `npm run test:app:only`
-- `npm run test:coverage`
-- `npm run test:coverage:gate`
-- `npm run test:no-skips`
-- `npm run test:all`
-- `npm run lint`
-- `npm run lint:ratchet`
-- `npm run lint:errors`
-- `npm run build:check` (release revision, cache manifest, and two-build integrity)
-- `npm run release:check` (same release contract check used by CI and release automation)
-- `npm run test:e2e:upgrade` (real Chromium old-to-new update, offline recovery, and visual evidence)
-- `npm run test:e2e:upgrade:firefox` (real Firefox old-to-new update, offline recovery, accessibility, and visual evidence)
-- `npm run production:release:smoke` (no-query production metadata, cache headers, every declared asset hash, and disagreement classification)
+```sh
+npm ci
+npm run test:all
+npm run test:app
+npm run test:app:offline
+npm run release:check
+```
+
+`test:all` combines the zero-warning ratchet, no-skips and full gated Jest coverage suite. It includes unit
+and integration cases, but real browsers and hosted CodeQL remain separate. Use `test:unit`,
+`test:integration`, `test:app:only` or `test:watch` for focused iteration. `lint:errors` runs errors-only lint;
+it does not replace the zero-warning ratchet.
+
+Follow [browser setup and commands](docs/browser-quality-gates.md) before `test:e2e:upgrade`,
+`test:e2e:upgrade:firefox`, `test:e2e:numeric` and `test:e2e:session-counting`. The canonical regression is
+`test:e2e:canonical-transport`. These use temporary fixture profiles, not a personal browser profile.
+`production:release:smoke` checks real no-query metadata, headers and asset hashes; protected production
+cache mutation is a separate authorized workflow. Full test details are in [tests/README.md](tests/README.md).
 
 ### Release and update contract
 
