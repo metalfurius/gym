@@ -10,6 +10,7 @@ import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { configureWindowsBrowserPermissions } from './browser-windows-permissions.mjs';
 
 const run = promisify(execFile);
 const lock = JSON.parse(await fsp.readFile(new URL('./browser-runtime-lock.json', import.meta.url), 'utf8'));
@@ -67,13 +68,33 @@ export async function installSmokeBrowser(browser, {
     if (await sha256File(archive) !== asset.sha256) throw new Error('Browser archive SHA-256 mismatch');
     const directory = path.join(base, `${browser}-${runtime.version}-${platform}-${asset.sha256.slice(0, 12)}`);
     const executable = path.join(directory, asset.executable);
+    const result = async () => {
+        const value = { browser, version: runtime.version, executable, archiveSha256: asset.sha256 };
+        if (browser === 'chromium' && platform === 'win32') {
+            const entries = (await run('tar', ['-tf', archive], { timeout: 60_000, windowsHide: true, maxBuffer: 8_000_000 })).stdout;
+            validateArchiveEntries(entries);
+            value.windowsSandboxAccess = await configureWindowsBrowserPermissions({
+                cacheDirectory: base, installDirectory: directory, executable, archiveEntries: entries.split(/\r?\n/).filter(Boolean),
+            });
+        }
+        if (browser === 'chromium' && platform === 'linux') {
+            const helper = path.join(directory, 'chrome-linux64', 'chrome_sandbox');
+            const metadata = await fsp.lstat(helper);
+            if (!metadata.isFile() || metadata.isSymbolicLink() || metadata.nlink !== 1
+                || await sha256File(helper) !== asset.sandboxSha256) {
+                throw new Error('Linux sandbox helper differs from the pinned archive member');
+            }
+            value.linuxSandboxSource = { path: helper, sha256: asset.sandboxSha256 };
+        }
+        return value;
+    };
     const markerPath = path.join(directory, 'verified-browser.json');
     try {
         const marker = JSON.parse(await fsp.readFile(markerPath, 'utf8'));
         if (marker.archiveSha256 !== asset.sha256 || marker.executableSha256 !== await sha256File(executable)) {
             throw new Error('Installed browser cache failed checksum validation; use a fresh cache directory');
         }
-        return { browser, version: runtime.version, executable, archiveSha256: asset.sha256 };
+        return await result();
     } catch (error) {
         if (error.code !== 'ENOENT') throw error;
     }
@@ -93,7 +114,7 @@ export async function installSmokeBrowser(browser, {
     } finally {
         await removeExtraction(temporary, base);
     }
-    return { browser, version: runtime.version, executable, archiveSha256: asset.sha256 };
+    return result();
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

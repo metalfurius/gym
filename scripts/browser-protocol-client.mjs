@@ -50,4 +50,3 @@ export class ProtocolClient {
         this.socket.terminate();
     }
 }
-

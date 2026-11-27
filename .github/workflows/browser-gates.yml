@@ -51,8 +51,10 @@ jobs:
               run: node scripts/install-smoke-browser.mjs ${{ matrix.browser }}
               env:
                   BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}/browser-install.json
-            - name: Select the installed Chromium sandbox helper
+                  BROWSER_SMOKE_CACHE_DIR: ${{ runner.temp }}/gym-smoke-browser-runtimes
+            - name: Install the verified Chromium sandbox helper
               if: runner.os == 'Linux' && matrix.browser == 'chromium'
+              timeout-minutes: 2
               shell: bash
               run: |
                   set -euo pipefail
@@ -80,17 +82,11 @@ jobs:
                       fi
                     done
                   } 2>&1 | tee "$SANDBOX_RECEIPT_DIR/sandbox-diagnostics.txt"
-                  printf '\nChecking helper is a regular file: %s\n' "$sandbox"
-                  test -f "$sandbox"
-                  printf 'Checking helper is not a symlink\n'
-                  test ! -L "$sandbox"
-                  printf 'Checking helper uid:mode equals 0:4755; observed %s\n' "$(stat -c '%u:%a' "$sandbox")"
-                  test "$(stat -c '%u:%a' "$sandbox")" = '0:4755'
-                  printf 'CHROME_DEVEL_SANDBOX=%s\n' "$sandbox" >> "$GITHUB_ENV"
-                  digest=$(sha256sum "$sandbox" | cut -d ' ' -f 1)
-                  printf '{"path":"%s","uid":0,"mode":"4755","sha256":"%s"}\n' "$sandbox" "$digest" > "$SANDBOX_RECEIPT_DIR/sandbox-helper.json"
+                  node scripts/install-linux-browser-sandbox.mjs
               env:
                   SANDBOX_RECEIPT_DIR: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
+                  BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}/browser-install.json
+                  BROWSER_SMOKE_SANDBOX_RECEIPT: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}/sandbox-helper.json
             - name: Run the required browser case
               timeout-minutes: 3
               run: npm run ${{ matrix.script }}

@@ -183,12 +183,46 @@ on `0b6fd0c998e1a24ef13635e1fd2a1107d17deb82` retained the Linux startup failure
 `No usable sandbox!`, explicitly identifying Ubuntu's AppArmor/user-namespace restriction before CDP.
 Those failed runs remain failed evidence; the earlier local preparation results below do not supersede them.
 
-Chromium/Linux CI now selects `/opt/google/chrome/chrome-sandbox` through `CHROME_DEVEL_SANDBOX`, following
-[Chromium's documented option 3](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
-The required step verifies a regular, non-symlink, root-owned file with mode `4755` and records its hash in
-`sandbox-helper.json`. Missing or different ownership/mode fails the job. No sandbox-disabling flag or global
-AppArmor setting is used. This helper selection still requires a successful final-head Linux run; a diagnosis
-and workflow edit alone are not a passing browser test.
+The later [diagnostic run on d1f5eb8](https://github.com/metalfurius/gym/actions/runs/44792853208)
+proved why selecting the preinstalled helper failed: `/opt/google/chrome/chrome-sandbox` was a regular
+root-owned file with mode `777`, while the pinned archive's `chrome_sandbox` was a regular runner-owned file
+with mode `755`. All four Firefox jobs passed; both Linux Chromium jobs stopped at the strict helper-mode
+check and both Windows Chromium jobs failed with executable-access/network-service sandbox errors. These
+remain failed CI results.
+
+### Platform sandbox correction, November 27
+
+CI now places browser binaries in an explicit binary-only cache below `runner.temp`. Windows installation
+adds the documented AppContainer/LPAC read-and-execute access for `S-1-15-2-1` and `S-1-15-2-2`, using native
+Windows ACL APIs. The [Puppeteer Windows troubleshooting guidance](https://pptr.dev/troubleshooting#chrome-reports-sandbox-errors-on-windows)
+and [Chromium LPAC filesystem requirements](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/docs/design/sandbox.md#lpac-file-system-permissions)
+explain these permissions. Access rules do not inherit: only files/directories enumerated from the
+SHA-256-verified public browser archive receive RX. Links and hard links are rejected. Downloaded dictionaries
+or any other unlisted files are excluded. Cache/install ancestors and unlisted entries have their DACLs
+compared before/after; a change, denied read access or broader write permission fails installation. The receipt
+records successful readback of all public targets, representative SID grants and unchanged ACL counts.
+Profiles and user data remain outside that permission operation.
+
+Linux CI uses the pinned archive member, following
+[Chromium's sandbox setup guidance](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
+The member SHA-256 is `c6733ac7189cd66d34b0dc5715d58b7ae30b01984a7cc814a7cd8f824f81ea7a`, calculated
+from the exact archive whose SHA-256 is recorded above. After verifying its receipt, source type, link count
+and hash, the CI-only setup installs a root-owned copy under `/usr/lib/gym-smoke-sandbox`. It checks the
+ancestors are root-owned and not group/world writable and the dedicated directory is root:root `0755`.
+The copy initially has mode `0755`; its owner/type/hash are checked before enabling `4755`, then checked again.
+`CHROME_DEVEL_SANDBOX` names only that verified copy. `sandbox-helper.json` records both hashes, ownership,
+modes and paths. The mode-777 preinstalled helper is never modified. Sudo calls have 15-second limits and the
+setup step has a two-minute limit. No global AppArmor setting or browser sandbox-disabling flag is used.
+A local Linux invocation outside Actions must configure a supported sandbox using the official instructions;
+the privileged setup script refuses to alter a non-CI host.
+
+Local Windows validation on November 27 passed numeric, counting, the owned-target regression, two normal
+and two delayed upgrades, plus the real negative numeric child exit 1. Stderr contains neither executable
+access-denied nor network-service-crash messages after setup. The real installer checked 313 public targets
+and confirmed four other DACLs unchanged on cache reuse, including a downloaded dictionary. The 29 focused
+runtime/permissions/owned-process tests passed. Filesystem boundary/tamper tests are deterministic local
+coverage; the privileged Linux copy and complete platform result still require new real CI on the final SHA.
+No approval from an earlier head applies to this correction.
 
 The navigation correction is shared by numeric/counting and the existing Chromium upgrade launcher. The
 startup diagnostics regression uses a real failing process and verifies stderr/exit status survive owned

@@ -35,7 +35,7 @@ describe('pinned smoke browser installation', () => {
     it('rejects a corrupted real download before extraction and removes the partial file', async () => {
         const directory = await temporary();
         const fetchImpl = jest.fn(async () => new Response('corrupted browser archive'));
-        await expect(installSmokeBrowser('chromium', { cacheDirectory: directory, platform: 'linux', architecture: 'x64', fetchImpl }))
+        await expect(installSmokeBrowser('chromium', { cacheDirectory: directory, downloadDirectory: path.join(directory, 'downloads'), platform: 'linux', architecture: 'x64', fetchImpl }))
             .rejects.toThrow('Browser archive SHA-256 mismatch');
         expect(fetchImpl).toHaveBeenCalledTimes(1);
         expect(fetchImpl.mock.calls[0][0]).toMatch(/^https:\/\/storage\.googleapis\.com\/chrome-for-testing-public\//);
@@ -49,7 +49,7 @@ describe('pinned smoke browser installation', () => {
         await fs.mkdir(downloads);
         await fs.writeFile(path.join(downloads, 'chromium-158.0.8127.36-linux.zip'), 'tampered');
         const fetchImpl = jest.fn();
-        await expect(installSmokeBrowser('chromium', { cacheDirectory: directory, platform: 'linux', architecture: 'x64', fetchImpl }))
+        await expect(installSmokeBrowser('chromium', { cacheDirectory: directory, downloadDirectory: downloads, platform: 'linux', architecture: 'x64', fetchImpl }))
             .rejects.toThrow('Browser archive SHA-256 mismatch');
         expect(fetchImpl).not.toHaveBeenCalled();
         expect(await fs.readdir(directory)).toEqual(['downloads']);

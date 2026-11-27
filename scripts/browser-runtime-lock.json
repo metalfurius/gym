@@ -18,7 +18,8 @@
             "url": "https://storage.googleapis.com/chrome-for-testing-public/158.0.8127.36/linux64/chrome-linux64.zip",
             "sha256": "dba9cc838e1ce269c33ea68170881127bd15d078fc3ca5891c90802819a4d7c7",
             "executable": "chrome-linux64/chrome",
-            "format": "zip"
+            "format": "zip",
+            "sandboxSha256": "c6733ac7189cd66d34b0dc5715d58b7ae30b01984a7cc814a7cd8f824f81ea7a"
         }
     },
     "firefox": {
