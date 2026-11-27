@@ -46,13 +46,13 @@ jobs:
           UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/delayed-1000
 
       - name: Verify cross-tab durable outbox and acknowledgement tombstones
-        timeout-minutes: 2
+        timeout-minutes: 4
         run: npm run test:e2e:outbox
         env:
           OUTBOX_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/outbox
 
       - name: Verify outbox cleanup failures retain failed evidence
-        timeout-minutes: 2
+        timeout-minutes: 4
         run: npm run test:e2e:outbox:negative
         env:
           OUTBOX_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/outbox-cleanup-negative

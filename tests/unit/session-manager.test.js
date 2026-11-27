@@ -81,6 +81,8 @@ jest.unstable_mockModule('../../js/utils/offline-manager.js', () => ({
     offlineManager: {
         registerOperationHandler: mockRegisterOperationHandler,
         executeWithOfflineHandling: mockExecuteWithOfflineHandling,
+        restorePersistedQueue: jest.fn(async () => {}),
+        pendingOperations: [], knownIntents: new Map(), retiredIntents: new Map(), acknowledged: new Map(),
     },
 }));
 
@@ -437,7 +439,8 @@ describe('Session Manager', () => {
             expect.objectContaining({
                 type: 'session.save',
                 payload: expect.objectContaining({ userId: user.uid }),
-            })
+            }),
+            { id: expect.stringMatching(/^capture-save-/) }
         );
         expect(mockTrackWrite).toHaveBeenCalledWith(3, 'session.mutation.commit');
         // Suggestion rebuilding is subscribed to the shared mutation contract.
@@ -677,7 +680,7 @@ describe('Session Manager', () => {
         };
         localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(inProgressData));
 
-        checkAndOfferResumeSession([routine]);
+        await checkAndOfferResumeSession([routine]);
 
         expect(dashboardElements.resumeSessionInfo.textContent).toContain('Push Day');
         expect(dashboardElements.resumeSessionBtn.classList.contains('hidden')).toBe(false);
@@ -779,7 +782,7 @@ describe('draft account ownership and legacy upgrade recovery', () => {
         expect(checkForBackupSession()).toBe(true);
         expect(loadInProgressSession()).toBeNull();
         expect(loadInProgressSession({ verifiedRoutines: [{ id: 'other-routine' }] })).toBeNull();
-        checkAndOfferResumeSession([routine]);
+        await checkAndOfferResumeSession([routine]);
         expect(JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY)).ownerId).toBeUndefined();
         await dashboardElements.resumeSessionBtn.onclick();
         expect(loadInProgressSession()).toMatchObject({ ownerId: 'draft-A', timestamp: legacy.timestamp, data: legacy.data });

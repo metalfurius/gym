@@ -2,7 +2,7 @@ import { seed, ownerKey } from './outbox-app-environment.js';
 import '../../js/app.js';
 import { __authState, __firestoreState, __notifyAuthListeners } from '../mocks/firebase-state.js';
 import { __setMockTransactionAfterCommit } from '../mocks/firebase-firestore.js';
-import { saveQuickLogEntry, startSession, saveSessionData, getCurrentRoutineForSession, loadInProgressSession } from '../../js/modules/session-manager.js';
+import { saveQuickLogEntry, startSession, saveSessionData, getCurrentRoutineForSession, loadInProgressSession, checkAndOfferResumeSession } from '../../js/modules/session-manager.js';
 import { localFirstCache as cache } from '../../js/utils/local-first-cache.js';
 import { offlineManager as manager, OfflineManager } from '../../js/utils/offline-manager.js';
 import { OUTBOX_JOURNAL_PREFIX } from '../../js/utils/outbox-journal-storage.js';
@@ -14,6 +14,7 @@ const originalAppend = manager.outbox.storage.append.bind(manager.outbox.storage
 const originalCacheSet = cache.set.bind(cache);
 const originalExecute = manager.executeWithOfflineHandling.bind(manager);
 const originalRemoveItem = Storage.prototype.removeItem;
+const originalSetItem = Storage.prototype.setItem;
 let releaseCapture;
 let clock = Date.parse('2026-11-27T12:00:00.000Z');
 Date.now = () => clock;
@@ -23,6 +24,7 @@ function clearFault() {
     IDBObjectStore.prototype.add = originalAdd; cache.writeToLocalStorage = originalMirror;
     manager.outbox.read = originalRead; manager.outbox.storage.append = originalAppend; __setMockTransactionAfterCommit(null);
     cache.set = originalCacheSet; manager.executeWithOfflineHandling = originalExecute; Storage.prototype.removeItem = originalRemoveItem;
+    Storage.prototype.setItem = originalSetItem;
 }
 function sessionRows() {
     return [...__firestoreState.documents.entries()].filter(([key]) => key.startsWith(`users/${__authState.currentUser.uid}/sesiones_entrenamiento/`));
@@ -74,12 +76,28 @@ window.appOutboxFixture = {
             return receipt;
         };
     },
-    draftCleanupFault() {
-        clearFault(); const key = `gymTracker_inProgressSession:${encodeURIComponent(__authState.currentUser.uid)}`;
+    unknownJournalBeforeCommit() {
+        clearFault(); manager.outbox.storage.append = async () => { throw new Error('Uncertain native commit outcome before append'); };
+    },
+    draftCleanupFault(slot = 'primary') {
+        clearFault(); const key = slot === 'mirror' ? 'gymTracker_inProgressSession' : `gymTracker_inProgressSession:${encodeURIComponent(__authState.currentUser.uid)}`;
         Storage.prototype.removeItem = function(candidate) {
             if (candidate === key) throw new Error('Injected native owned-draft cleanup failure');
             return originalRemoveItem.call(this, candidate);
         };
+    },
+    draftWriteFault() {
+        clearFault(); Storage.prototype.setItem = function(key, value) {
+            if (key === 'gymTracker_inProgressSession') throw new DOMException('Injected native draft identity write failure', 'QuotaExceededError');
+            return originalSetItem.call(this, key, value);
+        };
+    },
+    async legacyPwaBackup() {
+        const snapshot = { routineId: 'capture-routine', timestamp: 1700000000000, data: { pesoUsuario: 75.3,
+            ejercicios: [{ nombreEjercicio: 'Bench', tipoEjercicio: 'strength', modoEjecucion: 'pulley', tipoCarga: 'external', sets: [{ peso: 62.5, reps: 8 }] }] } };
+        localStorage.setItem('gym-tracker-backup-session', JSON.stringify(snapshot));
+        const { checkForBackupSession } = await import('../../js/version-manager.js');
+        return { restored: checkForBackupSession(), snapshot };
     },
     weeklyCacheFault() {
         clearFault(); const key = `user-preferences:${__authState.currentUser.uid}`;
@@ -105,6 +123,18 @@ window.appOutboxFixture = {
         }
     },
     async captureSave() { return await saveSessionData() || { ok: false }; },
+    async settleOwner() { await __notifyAuthListeners(); await manager.queuePersistenceTail; },
+    persistFixtureBackend() {
+        localStorage.setItem('__outbox_fixture_backend__', JSON.stringify([...__firestoreState.documents], (_key, value) =>
+            value?.toDate ? { __fixtureTimestamp: value.toDate().toISOString() } : value));
+    },
+    async offerCaptureResume() {
+        await checkAndOfferResumeSession([{ id: 'capture-routine', name: 'One ongoing workout',
+            exercises: [{ name: 'Bench', type: 'strength', sets: 1, reps: '8', executionMode: 'two_hand' }] }]);
+        return !document.getElementById('resume-session-btn').classList.contains('hidden');
+    },
+    rawCaptureDrafts() { return { primary: JSON.parse(localStorage.getItem(`gymTracker_inProgressSession:${encodeURIComponent(__authState.currentUser.uid)}`)),
+        mirror: JSON.parse(localStorage.getItem('gymTracker_inProgressSession')) }; },
     beginCaptureSave() { this.capturePending = this.captureSave(); },
     async finishCaptureSave() { return this.capturePending; },
     async restartOwnedMemory() {

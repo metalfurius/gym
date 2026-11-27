@@ -479,7 +479,7 @@ async function refreshVisibleViewForLanguage(user) {
             }
         }
 
-        checkAndOfferResumeSession(currentUserRoutines);
+        await checkAndOfferResumeSession(currentUserRoutines);
 
         await refreshDailyHub(user).catch((error) => {
             logger.warn('Could not refresh daily hub after language change:', error);
@@ -808,7 +808,7 @@ export async function initializeAppAfterAuth(user) {
         });
 
         checkForBackupSession();
-        checkAndOfferResumeSession(currentUserRoutines);
+        await checkAndOfferResumeSession(currentUserRoutines);
 
         // Initialize calendar with current month - with small delay to ensure DOM ready
         setTimeout(() => {

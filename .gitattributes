@@ -43,3 +43,9 @@ firestore.rules text eol=lf
 
 "Validation Evidence/2026-11-27-sync-backend-deployment/*.md" text eol=lf
 "Validation Evidence/2026-11-27-sync-backend-deployment/*.png" -text
+
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.png" -text

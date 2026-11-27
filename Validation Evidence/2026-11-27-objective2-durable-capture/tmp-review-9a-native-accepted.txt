@@ -1,0 +1,5 @@
+
+> my-workout-tracker@1.0.2 test:e2e:outbox
+> node scripts/browser-outbox-smoke.mjs
+
+{"status":"passed","cleanupErrors":[],"output":"C:\\tmp\\gym-roadmap-02\\tmp\\outbox-smoke\\1795798639558"}

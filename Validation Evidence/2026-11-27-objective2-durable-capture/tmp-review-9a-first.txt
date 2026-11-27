@@ -1,0 +1,33 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/unit/session-manager.test.js tests/unit/version-manager.test.js tests/integration/app-outbox-journal-v3.test.js
+
+(node:19628) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/integration/app-outbox-journal-v3.test.js
+  ● actual app atomic journal and causal replay › keeps a proven-aborted capture form and owned draft for retry without a ghost
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      113 |             expect(document.getElementById('session-view').classList.contains('hidden')).toBe(false);
+      114 |             expect(document.querySelector('input[name="weight-0-0"]').value).toBe('50');
+    > 115 |             expect(capture.loadInProgressSession()?.data.ejercicios[0].sets[0]).toMatchObject({ peso: 50, reps: 8 });
+          |                                                                                 ^
+      116 |             expect((await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(0);
+      117 |             expect(sessions()).toHaveLength(0);
+      118 |             fail = false; await capture.saveSessionData();
+
+      at Object.<anonymous> (tests/integration/app-outbox-journal-v3.test.js:115:81)
+
+PASS tests/unit/session-manager.test.js
+PASS tests/unit/version-manager.test.js
+
+Test Suites: 1 failed, 2 passed, 3 total
+Tests:       1 failed, 61 passed, 62 total
+Snapshots:   0 total
+Time:        4.487 s, estimated 5 s
+Ran all test suites matching tests/unit/session-manager.test.js|tests/unit/version-manager.test.js|tests/integration/app-outbox-journal-v3.test.js.

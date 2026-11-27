@@ -1,0 +1,73 @@
+{
+  "base": "9a69595b33d6eb5f49475b5849e4a3e0d2bb0bb3",
+  "authorFrozenAt": "2026-11-27T17:08:24.0286792Z",
+  "basis": "Author raw bytes plus canonical Git LF with BOM retained; source-hash evidence refers to final author source before root evidence-only edits",
+  "files": {
+    ".github/workflows/test.yml": {
+      "bytes": 3211,
+      "sha256Raw": "c18983d7c3340440690d0d23f36b5002d7c204fb78dce3dbaeba8ee366a4fb5b",
+      "canonicalBytes": 3111,
+      "sha256Lf": "04a1ce0e3c36fb394de609f4949cac5436e2d31725a0962f23a16f0ef1be17fb"
+    },
+    "docs/capture-durable-identity-review-9a.md": {
+      "bytes": 8827,
+      "sha256Raw": "03fc326bc23f9ede982e47619f19a79f7ac4649bbeb9e04cc2b9780f351a3ea4",
+      "canonicalBytes": 8827,
+      "sha256Lf": "03fc326bc23f9ede982e47619f19a79f7ac4649bbeb9e04cc2b9780f351a3ea4"
+    },
+    "js/app.js": {
+      "bytes": 84754,
+      "sha256Raw": "9221c49eb9a447863259bbcdde9a8767e622839bd3a1b58771b1911099f477fa",
+      "canonicalBytes": 82872,
+      "sha256Lf": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6"
+    },
+    "js/i18n.js": {
+      "bytes": 62110,
+      "sha256Raw": "986d91ee735a3630d99ab8b324e89c94f6578a54776feb90887362b1bf4c6386",
+      "canonicalBytes": 61015,
+      "sha256Lf": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50"
+    },
+    "js/modules/session-manager.js": {
+      "bytes": 44201,
+      "sha256Raw": "437267eff9f38139d1a12fd560857b2e3f9337128b8b492d69a484577cd0a20f",
+      "canonicalBytes": 43196,
+      "sha256Lf": "10ff438dfd362c61642b96bc1839aa6fd8680d6a07b27e913e9ea16f21d2daf8"
+    },
+    "release.json": {
+      "bytes": 7644,
+      "sha256Raw": "9e03a8c4d079f27997490beb1126a14803e3360960d4df089aff850bcc6b9dad",
+      "canonicalBytes": 7644,
+      "sha256Lf": "9e03a8c4d079f27997490beb1126a14803e3360960d4df089aff850bcc6b9dad"
+    },
+    "scripts/browser-outbox-smoke.mjs": {
+      "bytes": 35047,
+      "sha256Raw": "5bf4468241e4c508007d5d19c155f2eddae3a5daf7b6973a67a88ad27784dbc3",
+      "canonicalBytes": 34638,
+      "sha256Lf": "ad965abb77bbadc2f53bd79084769838d36b6ddde72dfd26649cbd8e4a5ea5f9"
+    },
+    "tests/browser/outbox-app-bootstrap.js": {
+      "bytes": 12369,
+      "sha256Raw": "d85dd328a6fad7b38287d86020f7dc8d25abd7717c0df63c9450e7fca9a9d76c",
+      "canonicalBytes": 12187,
+      "sha256Lf": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836"
+    },
+    "tests/browser/outbox-app-environment.js": {
+      "bytes": 1661,
+      "sha256Raw": "d2fa604ba8f2d2dc3d9643b4d035c2aeee658916b560dae9bc7675b3961fabee",
+      "canonicalBytes": 1639,
+      "sha256Lf": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+    },
+    "tests/integration/app-capture-durable-identity.test.js": {
+      "bytes": 14851,
+      "sha256Raw": "e00f612deee7b5b5ed587c4e3508e14157788b48470ca33437659b8b18e13779",
+      "canonicalBytes": 14851,
+      "sha256Lf": "e00f612deee7b5b5ed587c4e3508e14157788b48470ca33437659b8b18e13779"
+    },
+    "tests/unit/session-manager.test.js": {
+      "bytes": 32509,
+      "sha256Raw": "c59ea3cdebb9efdce635e27ff1da9aae716886c4e28e475a67f3de78c16b79b5",
+      "canonicalBytes": 31717,
+      "sha256Lf": "8b2025e7ccec447703d2b1a9eec80f9ee68af5b20dbab4dda09cd841897870eb"
+    }
+  }
+}

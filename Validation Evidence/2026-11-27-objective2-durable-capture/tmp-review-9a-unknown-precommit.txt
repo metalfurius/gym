@@ -1,0 +1,33 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/integration/app-capture-durable-identity.test.js tests/integration/app-outbox-journal-v3.test.js tests/unit/session-manager.test.js tests/unit/version-manager.test.js
+
+(node:26940) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/integration/app-outbox-journal-v3.test.js
+FAIL tests/integration/app-capture-durable-identity.test.js
+  ● actual app durable capture identity through stale draft recovery › retains write-ahead in both slots when an unknown append never committed, then cold-retries the original ID/body/date
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "r"
+    Received: undefined
+
+      175 |         offlineManager.knownIntents.clear(); offlineManager.retiredIntents.clear();
+      176 |         await coldMemory(); await resume();
+    > 177 |         expect(capture.getCurrentRoutineForSession()?.id).toBe('r');
+          |                                                           ^
+      178 |         expect(document.querySelector('input[name="weight-0-0"]').disabled).toBe(true);
+      179 |         await capture.saveSessionData();
+      180 |         const [intent] = (await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'session.save');
+
+      at Object.<anonymous> (tests/integration/app-capture-durable-identity.test.js:177:59)
+
+PASS tests/unit/session-manager.test.js
+PASS tests/unit/version-manager.test.js
+
+Test Suites: 1 failed, 3 passed, 4 total
+Tests:       1 failed, 78 passed, 79 total
+Snapshots:   0 total
+Time:        9.266 s
+Ran all test suites matching tests/integration/app-capture-durable-identity.test.js|tests/integration/app-outbox-journal-v3.test.js|tests/unit/session-manager.test.js|tests/unit/version-manager.test.js.

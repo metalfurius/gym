@@ -1,0 +1,16 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/integration/app-capture-durable-identity.test.js tests/integration/app-outbox-journal-v3.test.js tests/unit/session-manager.test.js tests/unit/version-manager.test.js
+
+(node:7616) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/integration/app-capture-durable-identity.test.js
+PASS tests/integration/app-outbox-journal-v3.test.js
+PASS tests/unit/session-manager.test.js
+PASS tests/unit/version-manager.test.js
+
+Test Suites: 4 passed, 4 total
+Tests:       79 passed, 79 total
+Snapshots:   0 total
+Time:        7.159 s, estimated 8 s
+Ran all test suites matching tests/integration/app-capture-durable-identity.test.js|tests/integration/app-outbox-journal-v3.test.js|tests/unit/session-manager.test.js|tests/unit/version-manager.test.js.
