@@ -1,0 +1,367 @@
+{
+  "status": "failed",
+  "runId": "a4b87baf-441a-4714-857d-f60074c64373",
+  "startedAt": "2026-11-27T15:31:16.739Z",
+  "checkoutSha": "08ae9fcfcf487fa9d28876c55bd3ea3492da3534",
+  "mode": "actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend",
+  "negativeCase": "cleanup-owner",
+  "sourceHashesLf": {
+    "js/utils/durable-outbox.js": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+    "js/utils/outbox-order.js": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+    "js/utils/outbox-journal-storage.js": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+    "js/utils/offline-manager.js": "225434ba7f5b1c3de4c1d046c1859b06796a72fb06741cedac89eae4a31df4c8",
+    "js/utils/local-first-cache.js": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+    "js/app.js": "3992bf67a5872bd90721ff618feb43de973be68f1c2d0d68e6a1f69e93cdbcce"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "afterReopen": {
+    "pending": [
+      {
+        "id": "intent-A",
+        "status": "pending",
+        "owner": "owner-A"
+      },
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      }
+    ],
+    "local": [
+      "intent:intent-A:",
+      "intent:intent-B:"
+    ],
+    "indexedDb": [
+      "intent:intent-A:",
+      "intent:intent-B:"
+    ],
+    "durableBatches": 2
+  },
+  "afterAcknowledgement": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 4
+  },
+  "afterConflict": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "conflict",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 5
+  },
+  "afterResolution": {
+    "pending": [
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "ack:intent-B:resolved",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "ack:intent-B:resolved",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 6
+  },
+  "sameOwnerCausal": {
+    "before": [
+      {
+        "id": "same-z-first",
+        "timestamp": 1806321600000
+      },
+      {
+        "id": "same-a-second",
+        "timestamp": 1806321540000
+      }
+    ],
+    "calls": [
+      "same-op-A",
+      "same-op-B"
+    ],
+    "remaining": 0
+  },
+  "afterUnknownMutation": {
+    "blockedBefore": true,
+    "blockedAfter": true,
+    "pending": [
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete"
+    ]
+  },
+  "coldUnknownSnapshot": null,
+  "localStorageFallback": {
+    "mode": "simulated no-IDB capability; native Storage.setItem QuotaExceededError injection",
+    "error": {
+      "message": "Durable local storage unavailable",
+      "provenNotCommitted": true
+    },
+    "ghost": false,
+    "pending": false
+  },
+  "appCases": [
+    {
+      "mode": "success-abort",
+      "first": {
+        "ok": false,
+        "reason": "error",
+        "error": "Outbox journal transaction aborted"
+      },
+      "retry": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-0d993fcb-056b-41f0-98ca-d2a8a1379895",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "nativeEvents": [
+        "request-success",
+        "tx-abort"
+      ],
+      "sessions": [
+        {
+          "path": "users/native-success-abort/sesiones_entrenamiento/session-0d993fcb-056b-41f0-98ca-d2a8a1379895",
+          "sessionId": "session-0d993fcb-056b-41f0-98ca-d2a8a1379895",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "request-error-complete",
+      "first": {
+        "ok": false,
+        "reason": "error",
+        "error": "Key already exists in the object store."
+      },
+      "retry": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-c9587ecd-b9ae-44bd-bf57-c8dd020f9993",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "nativeEvents": [
+        "request-error",
+        "tx-complete"
+      ],
+      "sessions": [
+        {
+          "path": "users/native-request-error-complete/sesiones_entrenamiento/session-c9587ecd-b9ae-44bd-bf57-c8dd020f9993",
+          "sessionId": "session-c9587ecd-b9ae-44bd-bf57-c8dd020f9993",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "mirror",
+      "saved": {
+        "ok": true,
+        "queued": false,
+        "sessionId": "session-dd2c64c8-b822-4bfb-89fa-2e7ec133a15c",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-mirror/sesiones_entrenamiento/session-dd2c64c8-b822-4bfb-89fa-2e7ec133a15c",
+          "sessionId": "session-dd2c64c8-b822-4bfb-89fa-2e7ec133a15c",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "refresh",
+      "saved": {
+        "ok": true,
+        "queued": false,
+        "sessionId": "session-bb9a5484-5eaa-41ad-a774-8bf74f150a26",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-refresh/sesiones_entrenamiento/session-bb9a5484-5eaa-41ad-a774-8bf74f150a26",
+          "sessionId": "session-bb9a5484-5eaa-41ad-a774-8bf74f150a26",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "ack-abort",
+      "saved": {
+        "ok": true,
+        "queued": false,
+        "sessionId": "session-973ccaca-ee3a-4f57-b3c6-f90959399f2f",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-ack-abort/sesiones_entrenamiento/session-973ccaca-ee3a-4f57-b3c6-f90959399f2f",
+          "sessionId": "session-973ccaca-ee3a-4f57-b3c6-f90959399f2f",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "lost-rpc",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-e1d64753-0260-42c3-87dc-6263da6c018a",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-lost-rpc/sesiones_entrenamiento/session-e1d64753-0260-42c3-87dc-6263da6c018a",
+          "sessionId": "session-e1d64753-0260-42c3-87dc-6263da6c018a",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "weekly": {
+    "owner": "native-weekly",
+    "online": true,
+    "sessions": [],
+    "target": 7,
+    "uiTarget": "7",
+    "pending": [],
+    "nativeEvents": [
+      {
+        "mode": "success-abort",
+        "event": "request-success"
+      },
+      {
+        "mode": "success-abort",
+        "event": "tx-abort"
+      },
+      {
+        "mode": "request-error-complete",
+        "event": "request-error"
+      },
+      {
+        "mode": "request-error-complete",
+        "event": "tx-complete"
+      },
+      {
+        "mode": "ack-abort",
+        "event": "request-success"
+      },
+      {
+        "mode": "ack-abort",
+        "event": "tx-abort"
+      }
+    ],
+    "originalIntents": [
+      {
+        "id": "z-first",
+        "timestamp": 1806321600000,
+        "payload": {
+          "userId": "native-weekly",
+          "weekKey": "2026-11-23",
+          "operationId": "target-952e268b-8761-4d03-b773-91454de8aa90",
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "baseRevision": 0,
+          "baseOperationId": null,
+          "baseFingerprint": "absent",
+          "weekRecord": {
+            "targetSessions": 4,
+            "targetDays": 4,
+            "savesUsed": 1,
+            "updatedAtIso": "2026-11-27T12:00:00.000Z"
+          }
+        }
+      },
+      {
+        "id": "a-second",
+        "timestamp": 1806321540000,
+        "payload": {
+          "userId": "native-weekly",
+          "weekKey": "2026-11-23",
+          "operationId": "target-01b1ffdc-cea2-4542-a3a6-04e2917dd3e8",
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "baseRevision": 1,
+          "baseOperationId": "target-952e268b-8761-4d03-b773-91454de8aa90",
+          "baseFingerprint": "[4,4,1,\"2026-11-27T12:00:00.000Z\"]",
+          "weekRecord": {
+            "targetSessions": 7,
+            "targetDays": 7,
+            "savesUsed": 2,
+            "updatedAtIso": "2026-11-27T12:00:00.000Z"
+          }
+        }
+      }
+    ]
+  },
+  "cleanupErrors": [
+    {
+      "stage": "cleanup-owner",
+      "message": "Deliberately injected cleanup-owner failure after real cleanup",
+      "stack": "Error: Deliberately injected cleanup-owner failure after real cleanup\n    at cleanup (file:///C:/tmp/gym-roadmap-02/scripts/browser-outbox-smoke.mjs:226:68)\n    at async file:///C:/tmp/gym-roadmap-02/scripts/browser-outbox-smoke.mjs:229:5"
+    }
+  ],
+  "completedAt": "2026-11-27T15:31:35.836Z"
+}

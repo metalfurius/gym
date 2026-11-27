@@ -51,6 +51,12 @@ jobs:
         env:
           OUTBOX_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/outbox
 
+      - name: Verify outbox cleanup failures retain failed evidence
+        timeout-minutes: 2
+        run: npm run test:e2e:outbox:negative
+        env:
+          OUTBOX_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/outbox-cleanup-negative
+
       - name: Upload Chromium upgrade and outbox evidence
         if: always()
         uses: actions/upload-artifact@v6

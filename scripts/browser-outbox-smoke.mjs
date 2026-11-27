@@ -33,7 +33,7 @@ async function appHtml() {
     return (await fs.readFile(path.join(root, 'index.html'), 'utf8'))
         .replace('<head>', `<head><script type="importmap">${JSON.stringify({ imports })}</script><script>Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:undefined});</script>`)
         .replace(/\s*<link\b[^>]*https:\/\/fonts\.[^>]*>/g, '')
-        .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/[^\"]+"><\/script>/, '')
+        .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/[^"]+"><\/script>/, '')
         .replace('src="js/app.js"', 'src="tests/browser/outbox-app-bootstrap.js"');
 }
 async function startServer() {

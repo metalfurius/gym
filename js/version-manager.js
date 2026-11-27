@@ -6,8 +6,8 @@ import { fetchLatestRelease, prepareReleaseWorker, activateReleaseWorker, compar
 const VERSION_KEY = 'gym-tracker-version';
 const REVISION_KEY = 'gym-tracker-release-revision';
 const BACKUP_SESSION_KEY = 'gym-tracker-backup-session';
-const DEFAULT_VERSION = '2.8.5';
-const DEFAULT_REVISION = 'v2.8.5';
+const DEFAULT_VERSION = '2.8.6';
+const DEFAULT_REVISION = 'v2.8.6';
 let explicitUpdateInProgress = false;
 
 function getDocumentRevision() {
