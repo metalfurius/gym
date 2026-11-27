@@ -128,7 +128,7 @@ describe('LocalFirstCache mutation durability', () => {
         localWrite.mockRestore();
     });
 
-    it('keeps a failed post-commit mutation barrier across restart and recovers on a later mutation', async () => {
+    it('keeps a failed post-commit barrier across restart and recovers only on acknowledgement of the same immutable intent', async () => {
         const records = new Map(); const cache = diskCache(records);
         await cache.set('history:A:page:1', { sessions: ['old'] });
         await cache.set('progress:sessions:AB', { sessions: ['AB-only'] });
@@ -136,14 +136,64 @@ describe('LocalFirstCache mutation durability', () => {
         await expect(cache.withSessionMutation('A', async () => {
             cache.writeToIndexedDb.mockRejectedValue(new DOMException('post-commit abort', 'AbortError'));
             return 'committed';
-        })).resolves.toBe('committed');
+        }, { sessionId: 'same-id', kind: 'create' })).resolves.toBe('committed');
         const cold = diskCache(records);
         expect(await cold.get('history:A:page:1')).toBeNull();
         expect(await cold.get('progress:sessions:AB')).toEqual({ sessions: ['AB-only'] });
         cache.writeToIndexedDb = write;
-        await cold.withSessionMutation('A', async () => 'acknowledged');
+        await cold.withSessionMutation('A', async () => 'acknowledged', { sessionId: 'same-id', kind: 'create' });
         await cold.set('history:A:page:1', { sessions: ['new'] });
         expect(await diskCache(records).get('history:A:page:1')).toEqual({ sessions: ['new'] });
+    });
+
+    it('never settles an unknown earlier RPC when another session mutation succeeds', async () => {
+        const records = new Map(); const cache = diskCache(records);
+        await expect(cache.withSessionMutation('A', async () => { throw new Error('ack unknown'); },
+            { sessionId: 'late-delete', kind: 'delete' })).rejects.toThrow('ack unknown');
+        await cache.withSessionMutation('A', async () => 'other accepted', { sessionId: 'other-create', kind: 'create' });
+        await expect(cache.set('history:A:page:1', { sessions: ['late-delete'] }, { requireDurable: true }))
+            .rejects.toMatchObject({ code: 'cache/persistence-unavailable' });
+        const cold = diskCache(records);
+        expect(await cold.get('history:A:page:1')).toBeNull();
+        const confirm = jest.fn(async mutation => mutation.sessionId === 'other-create');
+        expect(await cold.recoverSessionInvalidations('A', confirm)).toBe(0);
+        expect(confirm).toHaveBeenCalledWith({ sessionId: 'late-delete', kind: 'delete' });
+        await expect(cold.set('daily-hub:A:snapshot', { sessions: ['late-delete'] }, { requireDurable: true })).rejects.toThrow();
+        expect(await cold.recoverSessionInvalidations('A', async mutation => mutation.sessionId === 'late-delete')).toBe(4);
+        await cold.set('history:A:page:1', { sessions: ['other-create'] }, { requireDurable: true });
+        expect(await diskCache(records).get('history:A:page:1')).toEqual({ sessions: ['other-create'] });
+    });
+
+    it('does not infer completion of an anonymous unknown operation from a later anonymous success', async () => {
+        const cache = diskCache();
+        await expect(cache.withSessionMutation('A', async () => { throw new Error('unknown'); })).rejects.toThrow('unknown');
+        await cache.withSessionMutation('A', async () => 'accepted');
+        await expect(cache.set('history:A:page:1', [], { requireDurable: true })).rejects.toThrow();
+    });
+
+    it.each([false, true])('cancels only its own tickets after preflight fails before RPC (older pending=%s)', async older => {
+        const records = new Map(); const cache = diskCache(records);
+        if (older) {
+            await expect(cache.withSessionMutation('A', async () => { throw new Error('unknown'); },
+                { sessionId: 'older', kind: 'delete' })).rejects.toThrow();
+        }
+        const write = cache.writeToIndexedDb; let count = 0;
+        cache.writeToIndexedDb = jest.fn(async entry => {
+            if (entry.value?.pending && entry.value?.mutation?.sessionId === 'preflight' && ++count === 2) throw new Error('preflight write aborted');
+            return write(entry);
+        });
+        const backend = jest.fn(async () => 'must not run');
+        await expect(cache.withSessionMutation('A', backend, { sessionId: 'preflight', kind: 'create' })).rejects.toThrow('preflight write aborted');
+        expect(backend).not.toHaveBeenCalled();
+        const cold = diskCache(records);
+        const pending = (await cold.invalidationRows()).filter(row => row.value?.pending);
+        expect(pending.every(row => row.value.mutation?.sessionId === 'older')).toBe(true);
+        expect(pending.length).toBe(older ? 8 : 0); // Two durable copies of four prefixes.
+        if (older) await expect(cold.set('history:A:page:1', [], { requireDurable: true })).rejects.toThrow();
+        else {
+            await cold.set('history:A:page:1', [], { requireDurable: true });
+            expect(await diskCache(records).get('history:A:page:1')).toEqual([]);
+        }
     });
 
     it('does not acknowledge durable queue data if an expected IndexedDB mirror fails', async () => {

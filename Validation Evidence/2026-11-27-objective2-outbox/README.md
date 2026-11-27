@@ -1,5 +1,10 @@
 # Objective 2: cross-tab outbox correction
 
+Historical checkpoint: **c0318eebc37e9377d780eac535761ce22eb6648d**.
+These source hashes identify that checkpoint, not subsequent frontend heads.
+The later independent pending-barrier finding and its correction are recorded
+separately in `../2026-11-27-objective2-barriers/README.md`.
+
 Status: local correction evidence, **not objective closure or permission to
 publish**. Base `660aaeb534a051c89d809f4903780e4cd197bc74` passed 996 tests but
 was rejected in an independent GPT-6.1-Sol xhigh preliminary audit. Two already

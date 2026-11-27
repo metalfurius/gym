@@ -1,0 +1,27 @@
+{
+  "base": "c0318eebc37e9377d780eac535761ce22eb6648d",
+  "sourceBytes": "canonical staged Git LF blobs, BOM preserved",
+  "logNormalization": "CRLF to LF; trailing console padding removed",
+  "sources": {
+    ".gitattributes": "0100b445734cc8a080012befd99ed43afb15a2b53037ba0e7707c8fc22000dbc",
+    "js/utils/local-first-cache.js": "b1971aa84d685b4ed073c9629ac56eddec3758edcdf63465b415dbe14653e034",
+    "js/utils/session-store.js": "600dd99b00a4754b8c0b0cfb3b48da8842751ef8d8058cbdc34a544a236ad545",
+    "js/utils/owned-transaction.js": "1a86547c871af4b3ac7c582fb9892de48fa91a68a2e933c5cdda8366b903b3d2",
+    "js/utils/cache-mutation-lock.js": "6a1766a6b54b2ca4a738916d62ee49de75f50bb61c7e6cfcdcadf1a367b672e6",
+    "js/utils/secure-id.js": "52969514e48e0dc7081a23966b790e14501de9db4624844c55c5bd5c3a45365e",
+    "js/utils/durable-outbox.js": "301ad4d6d74eec31a7f207ba163e7a2cec21b385157109dfb83944f2cbd244f0",
+    "js/utils/offline-manager.js": "9b34045a39ce5643357c234aa699c6f9defd9fa82293defa93bae7884c75bdfa",
+    "firestore.rules": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504",
+    "scripts/browser-outbox-smoke.mjs": "598fce463e857aa03c7feee883f7a112a47d0e1dc551d292221428e598126d12",
+    "tests/unit/local-first-cache.test.js": "1c29c4fce2a4c74c9e4eec326c0653223a215ad6589dd557fcceeaaaa02b207c",
+    "release.json": "d3c33f36b8925fc0ce77692b3581be550a315801805badefeb3c4a691fc9bb4c",
+    "sw.js": "41d2ccc27e61ab6e2374e7ba536faebcbf55d2773ef41331f46bb3b226c6b22c"
+  },
+  "artifacts": {
+    "browser-negative-c031.json": "7b7efab961c90228ac4dabee12cd780587a7deedff99d3baea0d9367053ca493",
+    "browser-positive.json": "5fa8e66142dad6ceee0a21c009a4304a187c6f242488ddb8d74870be9301ca3b",
+    "coverage.txt": "18f552c2ece5e83cd35a4afe599d71dab685e302fa75f1780a36e64c33efc9e6",
+    "focused.txt": "26142f6f382acda8bbc3cd28ac7c03bae5ce5c383d2b33310091eb271d54ea1f",
+    "local-full-trace": "485c6d45dc57bfb3e483e20ed65709db3cf436e4b53da68e9cd47e1eb062f0fc"
+  }
+}

@@ -97,8 +97,31 @@ try {
     const afterResolution = await inspect(resolved);
     assert.deepEqual(afterResolution.pending.map(entry => entry.id), ['intent-C']);
     assert.deepEqual(afterResolution.local, afterResolution.indexedDb);
+
+    // Real durable stores; only the RPC callback boundary is simulated. An
+    // unrelated success cannot settle the earlier acknowledgement-unknown RPC.
+    const afterUnknownMutation = await resolved.client.evaluate(`(async () => {
+        const {localFirstCache:cache}=await import('/js/utils/local-first-cache.js');
+        try { await cache.withSessionMutation('owner-A',async()=>{throw Error('RPC acknowledgement unknown')},{sessionId:'late-delete',kind:'delete'}); } catch {}
+        const blockedBefore=await cache.set('history:owner-A:page:1',{sessions:['late-delete']})===null;
+        await cache.withSessionMutation('owner-A',async()=>({accepted:'fixture second RPC'}),{sessionId:'unrelated-create',kind:'create'});
+        const blockedAfter=await cache.set('history:owner-A:page:1',{sessions:['late-delete','unrelated-create']})===null;
+        const pending=(await cache.invalidationRows()).filter(row=>row.value?.pending).map(row=>row.value.mutation?.sessionId);
+        return {blockedBefore,blockedAfter,pending};
+    })()`);
+    assert.equal(afterUnknownMutation.blockedBefore, true);
+    assert.equal(afterUnknownMutation.blockedAfter, true);
+    assert.equal(afterUnknownMutation.pending.length, 8); // Four prefixes in both stores.
+    assert(afterUnknownMutation.pending.every(id => id === 'late-delete'));
+    const barrierCold = await page();
+    const coldUnknownSnapshot = await barrierCold.client.evaluate(`(async () => {
+        const {localFirstCache:cache}=await import('/js/utils/local-first-cache.js');
+        return cache.get('history:owner-A:page:1');
+    })()`);
+    assert.equal(coldUnknownSnapshot, null);
     const result = { status: 'passed', mode: 'actual production modules; real Chromium pages and localStorage/IndexedDB; no Firebase/backend',
-        browser: browser.version, afterReopen, afterAcknowledgement, afterConflict, afterResolution };
+        browser: browser.version, afterReopen, afterAcknowledgement, afterConflict, afterResolution,
+        mutationBoundary: 'simulated acknowledgement-unknown first RPC and successful unrelated second RPC', afterUnknownMutation, coldUnknownSnapshot };
     await fs.writeFile(path.join(output, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
     console.log(JSON.stringify({ status: result.status, browser: result.browser, output }));
 } catch (error) {

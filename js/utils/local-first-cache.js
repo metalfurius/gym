@@ -354,7 +354,7 @@ export class LocalFirstCache {
     }
 
     async writeInvalidation(record) {
-        const entry = { key: `${INVALIDATION_PREFIX}${record.exact ? 'exact:' : 'prefix:'}${encodeURIComponent(record.prefix)}`, value: record };
+        const entry = { key: this.invalidationKey(record), value: record };
         const local = this.writeToLocalStorage(entry);
         let disk = !this.needsIndexedDb();
         if (this.needsIndexedDb() && this.indexedDbEnabled) disk = await this.writeToIndexedDb(entry);
@@ -367,6 +367,18 @@ export class LocalFirstCache {
         return record;
     }
 
+    invalidationKey(record) {
+        const base = `${INVALIDATION_PREFIX}${record.exact ? 'exact:' : 'prefix:'}${encodeURIComponent(record.prefix)}`;
+        return record.barrierId ? `${base}:mutation:${record.barrierId}` : base;
+    }
+
+    async invalidationRows() {
+        return [
+            ...this.localStorageKeys(INVALIDATION_PREFIX).map(key => this.readFromLocalStorage(key)).filter(Boolean),
+            ...(this.needsIndexedDb() ? await this.invalidationRowsFromIndexedDb() : []),
+        ];
+    }
+
     async cleanInvalidatedData(prefix, exact = false) {
         const matches = key => !key.startsWith(INVALIDATION_PREFIX) && (exact ? key === prefix : key.startsWith(prefix));
         for (const key of this.localStorageKeys().filter(matches)) this.deleteFromLocalStorage(key);
@@ -376,18 +388,22 @@ export class LocalFirstCache {
         }
     }
 
-    async invalidateDurably(prefix, { exact = false, pending = false, mutation, settlePending = false } = {}) {
+    async invalidateDurably(prefix, { exact = false, pending = false, mutation, barrierId, settlePending = null, aborted = false } = {}) {
         this.invalidateMemory(prefix, exact);
         await this.initialize();
         const record = { prefix, exact, token: createSecureId('invalidation'), kind: pending ? 'mutation' : 'evict', pending,
-            ...(mutation ? { mutation } : {}) };
+            ...(mutation ? { mutation } : {}), ...(barrierId || settlePending?.barrierId ? { barrierId: barrierId || settlePending.barrierId } : {}),
+            ...(aborted ? { aborted: true } : {}) };
         await this.persistInOrder(async () => {
-            if (!pending && !settlePending) {
-                const key = `${INVALIDATION_PREFIX}${exact ? 'exact:' : 'prefix:'}${encodeURIComponent(prefix)}`;
+            if (!pending) {
+                const key = this.invalidationKey(record);
                 const copies = [this.readFromLocalStorage(key), ...(this.needsIndexedDb() ? [await this.readFromIndexedDb(key)] : [])];
-                // Ordinary auth/refresh eviction must not settle an unknown RPC.
-                // Keep its fail-closed barrier until a receipt proves completion.
-                if (copies.some(copy => copy?.value?.kind === 'mutation' && copy.value.pending)) return;
+                if (settlePending && !aborted) {
+                    // Only the captured ticket may inherit this proof. Ordinary
+                    // eviction and another mutation never clear unknown work.
+                    if (!copies.some(copy => copy?.value?.token === settlePending.token)
+                        || copies.some(copy => copy?.value?.pending && copy.value.token !== settlePending.token)) return;
+                } else if (!settlePending && copies.some(copy => copy?.value?.kind === 'mutation' && copy.value.pending)) return;
             }
             await this.writeInvalidation(record);
             try { await this.cleanInvalidatedData(prefix, exact); }
@@ -415,11 +431,35 @@ export class LocalFirstCache {
         return withCacheMutationLock(`user:${userId}`, async () => {
             // Persist a pending barrier before any server write. If neither
             // durable path can prove invalidation, the backend is untouched.
+            const barrierId = createSecureId('mutation');
             const tickets = [];
-            for (const { prefix, exact } of prefixes) tickets.push(await this.invalidateDurably(prefix, { exact, pending: true, mutation }));
+            try {
+                for (const { prefix, exact } of prefixes) tickets.push(await this.invalidateDurably(prefix, { exact, pending: true, mutation, barrierId }));
+            } catch (error) {
+                // No RPC has begun. Cancel ONLY this unique preflight attempt,
+                // including a partially written ticket that did not return.
+                for (const { prefix, exact } of prefixes) {
+                    try { await this.invalidateDurably(prefix, { exact, settlePending: { barrierId }, aborted: true }); }
+                    catch (abortError) { logger.warn('Preflight aborted; storage remains conservatively blocked:', abortError); }
+                }
+                throw error;
+            }
             const result = await operation();
             try {
-                for (const ticket of tickets) await this.invalidateDurably(ticket.prefix, { exact: ticket.exact, settlePending: true });
+                // A successful stable session intent is backed by its immutable
+                // receipt. It also fences older attempts of that SAME intent,
+                // which may have lost their acknowledgements. Different IDs or
+                // kinds keep their independent pending barriers.
+                const matching = new Map(tickets.map(ticket => [this.invalidationKey(ticket), ticket]));
+                if (mutation?.sessionId && ['create', 'delete'].includes(mutation.kind)) {
+                    for (const entry of await this.invalidationRows()) {
+                        const candidate = entry.value;
+                        if (candidate?.pending && candidate.kind === 'mutation'
+                            && cacheOwnerForPrefix(candidate.prefix) === `user:${userId}`
+                            && candidate.mutation?.sessionId === mutation.sessionId && candidate.mutation?.kind === mutation.kind) matching.set(entry.key, candidate);
+                    }
+                }
+                for (const ticket of matching.values()) await this.invalidateDurably(ticket.prefix, { exact: ticket.exact, settlePending: ticket });
             } catch (error) {
                 // The backend accepted the write. Verified pending barriers (or
                 // mismatched completion epochs) still reject every old entry.
@@ -434,10 +474,7 @@ export class LocalFirstCache {
         await this.initialize();
         return withCacheMutationLock(`user:${userId}`, async () => {
             await this.persistenceTail;
-            const readRows = async () => [
-                ...this.localStorageKeys(INVALIDATION_PREFIX).map(key => this.readFromLocalStorage(key)).filter(Boolean),
-                ...(this.needsIndexedDb() ? await this.invalidationRowsFromIndexedDb() : []),
-            ];
+            const readRows = () => this.invalidationRows();
             const candidates = new Map();
             for (const entry of await readRows()) {
                 const record = entry.value;
@@ -454,7 +491,7 @@ export class LocalFirstCache {
                 const current = (await readRows()).filter(entry => entry.key === key).map(entry => entry.value);
                 if (!current.some(value => value.token === record.token)
                     || current.some(value => value.pending && value.token !== record.token)) continue;
-                await this.invalidateDurably(record.prefix, { exact: record.exact, settlePending: true });
+                await this.invalidateDurably(record.prefix, { exact: record.exact, settlePending: record });
                 recovered++;
             }
             return recovered;
