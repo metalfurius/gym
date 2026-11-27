@@ -1,0 +1,190 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function policyPath(uid) {
+      return /databases/$(database)/documents/users/$(uid)/app_data/sync_protocol;
+    }
+
+    function revisionPath(uid) {
+      return /databases/$(database)/documents/users/$(uid)/app_data/session_revision;
+    }
+
+    // Once enabled, missing/changed global configuration cannot reopen legacy writes.
+    function fenced(uid) {
+      return exists(policyPath(uid)) || existsAfter(policyPath(uid));
+    }
+
+    function validCounter(data) {
+      return data.keys().hasOnly(['revision', 'lastSessionId'])
+        && data.revision is int && data.revision >= 0;
+    }
+
+    function previousRevision(uid) {
+      return exists(revisionPath(uid)) ? get(revisionPath(uid)).data.revision : 0;
+    }
+
+    function creatingPolicy(uid) {
+      return !exists(policyPath(uid)) && existsAfter(policyPath(uid));
+    }
+
+    function receiptPath(uid, sessionId, kind) {
+      return /databases/$(database)/documents/users/$(uid)/session_mutations/$(sessionId)/receipts/$(kind);
+    }
+
+    function receiptShape(data, sessionId, kind) {
+      return data.keys().hasOnly(['sessionId', 'kind', 'changed', 'revision'])
+        && data.sessionId == sessionId && data.kind == kind
+        && kind in ['create', 'delete'] && data.changed is bool
+        && data.revision is int && data.revision >= 0;
+    }
+
+    function mutationReceipt(uid, sessionId, kind) {
+      let session = /databases/$(database)/documents/users/$(uid)/sesiones_entrenamiento/$(sessionId);
+      let before = get(session);
+      let after = getAfter(session);
+      let counter = getAfter(revisionPath(uid));
+      let data = request.resource.data;
+      return fenced(uid) && receiptShape(data, sessionId, kind) && counter != null
+        && data.revision == counter.data.revision
+        && (data.changed
+          ? (counter.data.revision == previousRevision(uid) + 1
+            && counter.data.lastSessionId == sessionId
+            && ((kind == 'create' && before == null && after != null
+                && !exists(receiptPath(uid, sessionId, 'delete')))
+              || (kind == 'delete' && before != null && after == null)))
+          : (counter.data.revision == previousRevision(uid)
+            && ((kind == 'create' && before != null && after != null && before.data == after.data
+                && !exists(receiptPath(uid, sessionId, 'delete')))
+              || (kind == 'delete' && before == null && after == null))));
+    }
+
+    function validActivation(uid) {
+      let global = get(/databases/$(database)/documents/runtime_config/sync_protocol);
+      let counter = getAfter(revisionPath(uid));
+      return global != null && global.data.version == 1
+        && request.resource.data.keys().hasOnly(['version', 'epoch'])
+        && request.resource.data.version == 1
+        && request.resource.data.epoch == global.data.epoch
+        && global.data.epoch is string && global.data.epoch.size() > 0
+        && counter != null && validCounter(counter.data)
+        && counter.data.revision == previousRevision(uid)
+        && counter.data.lastSessionId == null;
+    }
+
+    function validSessionCounter(uid, sessionId) {
+      let counter = getAfter(revisionPath(uid));
+      return exists(revisionPath(uid)) && counter != null
+        && validCounter(counter.data)
+        && counter.data.revision == previousRevision(uid) + 1
+        && counter.data.lastSessionId == sessionId
+        && (request.method == 'update'
+          || (request.method == 'create'
+            && !exists(receiptPath(uid, sessionId, 'create'))
+            && !exists(receiptPath(uid, sessionId, 'delete'))
+            && existsAfter(receiptPath(uid, sessionId, 'create')))
+          || (request.method == 'delete'
+            && !exists(receiptPath(uid, sessionId, 'delete'))
+            && existsAfter(receiptPath(uid, sessionId, 'delete'))));
+    }
+
+    function sessionChanged(uid, sessionId) {
+      let path = /databases/$(database)/documents/users/$(uid)/sesiones_entrenamiento/$(sessionId);
+      let before = get(path);
+      let after = getAfter(path);
+      return (before == null && after != null)
+        || (before != null && after == null)
+        || (before != null && after != null && before.data != after.data);
+    }
+
+    function validCounterWrite(uid) {
+      return validCounter(request.resource.data)
+        && ((creatingPolicy(uid)
+            && request.resource.data.revision == previousRevision(uid)
+            && request.resource.data.lastSessionId == null)
+          || (exists(policyPath(uid)) && exists(revisionPath(uid))
+            && request.resource.data.revision == previousRevision(uid) + 1
+            && request.resource.data.lastSessionId is string
+            && request.resource.data.lastSessionId.size() > 0
+            && !request.resource.data.lastSessionId.matches('.*[/].*')
+            && sessionChanged(uid, request.resource.data.lastSessionId)));
+    }
+
+    function validPreferencesWrite() {
+      return request.resource.data.schemaVersion == 3
+        && request.resource.data.preferencesRevision is int
+        && request.resource.data.preferencesRevision
+          == (resource == null ? 0 : resource.data.get('preferencesRevision', 0)) + 1;
+    }
+
+    // Only administrators can publish the deployment attestation. Its absence is
+    // a fail-closed client signal, rather than a reason to trust old counters.
+    match /runtime_config/sync_protocol {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read, write: if owns(uid);
+
+      // Reads preserve the existing owner-only contract, including unknown data.
+      match /{document=**} {
+        allow read: if owns(uid);
+      }
+
+      // Exclude both protected collections: an overlapping permissive recursive
+      // match would otherwise bypass every atomic-write requirement below.
+      match /{collectionId}/{documentId}/{rest=**} {
+        allow write: if owns(uid)
+          && !(collectionId in ['app_data', 'sesiones_entrenamiento', 'session_mutations']);
+      }
+
+      match /session_mutations/{sessionId}/receipts/{kind} {
+        allow create: if owns(uid) && mutationReceipt(uid, sessionId, kind);
+        allow update, delete: if false;
+      }
+
+      match /sesiones_entrenamiento/{sessionId} {
+        allow write: if owns(uid)
+          && (!fenced(uid) || validSessionCounter(uid, sessionId));
+        match /{collectionId}/{documentId}/{rest=**} {
+          allow write: if owns(uid);
+        }
+      }
+
+      match /app_data/{documentId}/{rest=**} {
+        allow write: if owns(uid)
+          && !(documentId in ['sync_protocol', 'session_revision', 'user_preferences']);
+      }
+
+      match /app_data/sync_protocol {
+        allow create: if owns(uid) && validActivation(uid);
+        allow update, delete: if false;
+      }
+
+      match /app_data/session_revision {
+        allow create, update: if owns(uid) && validCounterWrite(uid);
+        allow delete: if false;
+      }
+
+      match /app_data/user_preferences {
+        allow create, update: if owns(uid)
+          && (!fenced(uid) || validPreferencesWrite());
+        allow delete: if owns(uid) && !fenced(uid);
+
+        match /weekly_operations/{operationId} {
+          allow create: if owns(uid);
+          allow update, delete: if false;
+        }
+
+        match /{collectionId}/{documentId}/{rest=**} {
+          allow write: if owns(uid) && collectionId != 'weekly_operations';
+        }
+      }
+    }
+  }
+}
