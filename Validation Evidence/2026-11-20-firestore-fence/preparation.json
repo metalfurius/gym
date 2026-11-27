@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "status": "preparation; not objective acceptance or production deployment",
+  "observedAtUtc": "2026-11-27T12:28:00.3549474Z",
+  "baseSha": "54e83fbfb263be2e601e1db3d2074275329de40e",
+  "candidateSha": null,
+  "candidateIdentity": "The immutable PR head supplies the commit identity. Source hashes below are exact bytes, UTF-8/LF, without BOM stripping.",
+  "sourceSha256": {
+    "firestore.rules": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504",
+    "firebase.json": "87a5ae2b815c313c7a4926baff5e7ae64cf9e0f57fb58792ceef12e6a9adbd0f",
+    ".github/workflows/firestore-rules.yml": "b7558625909215da39f3c4d4b4f45f5dbdc5469e0158b12d1ba3cbfdfee95709",
+    "tests/firestore/package.json": "1466ce4b2ecb97b133d62a4263a1eabf706eee75e5407ab6c5f6246cccf7dba2",
+    "tests/firestore/package-lock.json": "1fd6a38965400da1e896db442f1e2ece8ef776daced45ab9904730c0e3119379",
+    "tests/firestore/sync-rules.test.mjs": "d6dec404cf3c7e6c41e323d3e533d84a16fd2e5001e6499bdb08be905ff3db4b",
+    "tests/firestore/strict-reporter.mjs": "59279e36b3da20a56343434e1a578274a6373a60bb45636ecb68b6e54b19efee",
+    "tests/firestore/strict-reporter.test.mjs": "33e12400cc9eb7ee77881706743eab358a08f31b70b53527f95d6dc9f8d0cf72"
+  },
+  "runtime": {
+    "node": "22.23.5",
+    "firestoreEmulator": "1.22.0",
+    "java": "21.0.9",
+    "firebaseSdk": "11.6.1",
+    "firebaseCli": "15.37.0",
+    "grpcOverride": "1.14.7",
+    "emulatorJarSha256": "9b6498b7f62714d67f48f59b3818883cd682dbcd46b9f59511de81c97bb5166c"
+  },
+  "rulesCommand": "npm --prefix tests/firestore test",
+  "rulesResult": {
+    "todo": 0,
+    "skipped": 0,
+    "strictReporterNegativeCases": "actual child CLI: pass accepted, skip/TODO/assertion failure rejected",
+    "failed": 0,
+    "passed": 17,
+    "engine": "actual Firestore emulator; demo-gym-sync; loopback only"
+  },
+  "cleanInstall": "Hosted exact H020f78d fresh install683packages and16tests passed. New contention case brings17; rebase requires fresh exact-head checks.",
+  "sharedGates": {
+    "noSkippedTests": "PASS",
+    "lintRatchet": "PASS",
+    "releaseTwoBuild": "PASS v2.8.4, 61 cached assets",
+    "coverage": "PASS; 56 suites / 848 tests; 74.95% statements (70% gate)"
+  },
+  "rulesTestDependencyAudit": {
+    "beforeGrpcOverride": {
+      "high": 5,
+      "critical": 0,
+      "moderate": 14
+    },
+    "disposition": "Remaining moderate CLI-transitive findings are open, not fixed or suppressed; evaluated in docs. No forced downgrade.",
+    "afterGrpcOverride": {
+      "high": 0,
+      "critical": 0,
+      "moderate": 14
+    },
+    "remainingRoots": [
+      "OpenTelemetry baggage allocation",
+      "glob cancellation and minimatch globparts denial of service",
+      "uuid caller-supplied buffer bounds"
+    ],
+    "scope": "isolated Node rules-test package only; application baseline dependencies remain unchanged"
+  },
+  "production": {
+    "newFrontend": "NOT PUBLISHED",
+    "liveLegacyFenceTests": "NOT RUN",
+    "previousRulesBackup": "previous-server-release.json",
+    "deploy": "NOT RUN",
+    "changed": false
+  },
+  "reviews": {
+    "judgeA": "PENDING",
+    "judgeB": "PENDING"
+  },
+  "contention": "Pinned SDK/emulator actual concurrent four-read/three-write transactions: observable permission denial, guarded single recovery after authoritative newer revision and owner/epoch proof, permanent/owner/epoch denials remain rejected. Frontend loop/durable exhaustion still required separately.",
+  "sharedGatesScope": "Historical preparation at B54e83fb:848tests74.95. After rebase onto reviewed browser prerequisite88f9515, exact-head CI including all8 required browser jobs must run again.",
+  "consoleTextNormalization": "Published console transcript uses LF and strips trailing whitespace; original capture C:/tmp/gym-roadmap-rules-contention-final.log retained locally."
+}

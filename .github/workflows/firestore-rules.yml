@@ -1,0 +1,48 @@
+name: Firestore Rules
+
+on:
+    pull_request:
+        branches: [main]
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    rules:
+        name: Firestore rules emulator
+        runs-on: ubuntu-24.04
+        timeout-minutes: 10
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+            - name: Setup Node.js
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version: '22'
+                  cache: npm
+                  cache-dependency-path: tests/firestore/package-lock.json
+            - name: Setup Java
+              uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+              with:
+                  distribution: temurin
+                  java-version: '21'
+            - name: Install isolated rules-test dependencies
+              run: npm ci --ignore-scripts --prefix tests/firestore
+            - name: Run the actual Firestore rules engine
+              timeout-minutes: 5
+              working-directory: tests/firestore
+              shell: bash
+              run: npm test 2>&1 | tee "$RUNNER_TEMP/firestore-rules-test.log"
+            - name: Upload emulator diagnostics
+              if: always()
+              uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+              with:
+                  name: firestore-rules-${{ github.sha }}-${{ github.run_attempt }}
+                  path: |
+                      ${{ runner.temp }}/firestore-rules-test.log
+                      **/firestore-debug.log
+                      **/firebase-debug.log
+                  if-no-files-found: error
