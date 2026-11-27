@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "status": "preparation; not objective acceptance or production deployment",
-  "observedAtUtc": "2026-11-27T12:04:28.1479519Z",
+  "observedAtUtc": "2026-11-27T12:28:00.3549474Z",
   "baseSha": "54e83fbfb263be2e601e1db3d2074275329de40e",
   "candidateSha": null,
   "candidateIdentity": "The immutable PR head supplies the commit identity. Source hashes below are exact bytes, UTF-8/LF, without BOM stripping.",
@@ -11,7 +11,7 @@
     ".github/workflows/firestore-rules.yml": "b7558625909215da39f3c4d4b4f45f5dbdc5469e0158b12d1ba3cbfdfee95709",
     "tests/firestore/package.json": "1466ce4b2ecb97b133d62a4263a1eabf706eee75e5407ab6c5f6246cccf7dba2",
     "tests/firestore/package-lock.json": "1fd6a38965400da1e896db442f1e2ece8ef776daced45ab9904730c0e3119379",
-    "tests/firestore/sync-rules.test.mjs": "8efb7c9c7b1cd6c04b4833067ce48f82732bcc137303ab073ea33d857163cc58",
+    "tests/firestore/sync-rules.test.mjs": "d6dec404cf3c7e6c41e323d3e533d84a16fd2e5001e6499bdb08be905ff3db4b",
     "tests/firestore/strict-reporter.mjs": "59279e36b3da20a56343434e1a578274a6373a60bb45636ecb68b6e54b19efee",
     "tests/firestore/strict-reporter.test.mjs": "33e12400cc9eb7ee77881706743eab358a08f31b70b53527f95d6dc9f8d0cf72"
   },
@@ -30,10 +30,10 @@
     "skipped": 0,
     "strictReporterNegativeCases": "actual child CLI: pass accepted, skip/TODO/assertion failure rejected",
     "failed": 0,
-    "passed": 16,
+    "passed": 17,
     "engine": "actual Firestore emulator; demo-gym-sync; loopback only"
   },
-  "cleanInstall": "Earlier clean install passed. A removed accidental extraneous local-package lock entry requires fresh hosted npm ci verification before approval.",
+  "cleanInstall": "Hosted exact H020f78d fresh install683packages and16tests passed. New contention case brings17; rebase requires fresh exact-head checks.",
   "sharedGates": {
     "noSkippedTests": "PASS",
     "lintRatchet": "PASS",
@@ -69,5 +69,8 @@
   "reviews": {
     "judgeA": "PENDING",
     "judgeB": "PENDING"
-  }
+  },
+  "contention": "Pinned SDK/emulator actual concurrent four-read/three-write transactions: observable permission denial, guarded single recovery after authoritative newer revision and owner/epoch proof, permanent/owner/epoch denials remain rejected. Frontend loop/durable exhaustion still required separately.",
+  "sharedGatesScope": "Historical preparation at B54e83fb:848tests74.95. After rebase onto reviewed browser prerequisite88f9515, exact-head CI including all8 required browser jobs must run again.",
+  "consoleTextNormalization": "Published console transcript uses LF and strips trailing whitespace; original capture C:/tmp/gym-roadmap-rules-contention-final.log retained locally."
 }

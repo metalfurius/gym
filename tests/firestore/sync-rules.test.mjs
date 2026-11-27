@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { after, before, beforeEach, test } from 'node:test';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, setDoc, writeBatch } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, getDocFromServer, runTransaction, setDoc, writeBatch } from 'firebase/firestore';
 
 const projectId = 'demo-gym-sync';
 const epoch = 'gym-sync-v1-2026-11';
@@ -302,4 +302,95 @@ test('receipt witnesses require the actual atomic change or a proven unchanged l
     batch.set(ref(db, 'alice', 'app_data/session_revision'), { revision: 1, lastSessionId: 'missing' });
     await assertFails(batch.commit());
     await assertFails(getDoc(ref(userDb('bob'), 'alice', 'session_mutations/legacy/receipts/create')));
+});
+
+test('concurrent writers expose denial and recover only with newer revision and current owner/epoch', async () => {
+    const db = userDb('alice');
+    await enroll(db, 'alice');
+    let release;
+    const bothRead = new Promise(resolve => {
+        release = resolve;
+    });
+    let arrivals = 0;
+    const intents = ['first', 'second'].map(id => Object.freeze({ uid: 'alice', id, value: 8 }));
+    const originals = JSON.stringify(intents);
+    const observed = new Map();
+    async function execute(intent, synchronize = false, invalidIncrement = false) {
+        let joined = false;
+        return runTransaction(db, async transaction => {
+            const session = ref(db, intent.uid, `sesiones_entrenamiento/${intent.id}`);
+            const counter = ref(db, intent.uid, 'app_data/session_revision');
+            const create = ref(db, intent.uid, `session_mutations/${intent.id}/receipts/create`);
+            const deletion = ref(db, intent.uid, `session_mutations/${intent.id}/receipts/delete`);
+            const [record, revision, receipt, tombstone] = await Promise.all([
+                transaction.get(session),
+                transaction.get(counter),
+                transaction.get(create),
+                transaction.get(deletion),
+            ]);
+            observed.set(intent.id, revision.data().revision);
+            if (synchronize && !joined) {
+                joined = true;
+                if (++arrivals === 2) release();
+                await bothRead;
+            }
+            if (receipt.exists() || tombstone.exists() || record.exists()) return;
+            const next = revision.data().revision + (invalidIncrement ? 2 : 1);
+            transaction.set(session, { reps: intent.value });
+            transaction.set(counter, { revision: next, lastSessionId: intent.id });
+            transaction.set(create, { sessionId: intent.id, kind: 'create', changed: true, revision: next });
+        });
+    }
+    // One explicit recovery attempt demonstrates the bounded contract. The
+    // frontend owns its separate bounded loop and durable exhaustion handling.
+    async function recover(intent, error, activeUid, operation) {
+        if (error.code !== 'permission-denied' || activeUid !== intent.uid) throw error;
+        const [revision, global, owned] = await Promise.all([
+            getDocFromServer(ref(db, intent.uid, 'app_data/session_revision')),
+            getDocFromServer(doc(db, 'runtime_config/sync_protocol')),
+            getDocFromServer(ref(db, intent.uid, 'app_data/sync_protocol')),
+        ]);
+        if (
+            revision.data()?.revision <= observed.get(intent.id) ||
+            global.data()?.version !== 1 ||
+            global.data()?.epoch !== epoch ||
+            owned.data()?.version !== 1 ||
+            owned.data()?.epoch !== epoch
+        ) {
+            throw error;
+        }
+        return operation(intent);
+    }
+    const results = await Promise.allSettled(intents.map(intent => execute(intent, true)));
+    assert.equal(results.filter(result => result.status === 'fulfilled').length, 1);
+    const failedIndex = results.findIndex(result => result.status === 'rejected');
+    const rejection = results[failedIndex].reason;
+    assert.equal(rejection.code, 'permission-denied');
+    assert.equal(observed.get(intents[failedIndex].id), 0);
+    await recover(intents[failedIndex], rejection, 'alice', intent => execute(intent));
+    assert.equal(JSON.stringify(intents), originals);
+    assert.equal((await getDoc(ref(db, 'alice', 'app_data/session_revision'))).data().revision, 2);
+    for (const intent of intents) {
+        assert.equal((await getDoc(ref(db, 'alice', `sesiones_entrenamiento/${intent.id}`))).data().reps, 8);
+    }
+    const invalid = Object.freeze({ uid: 'alice', id: 'permanent-denial', value: 8 });
+    let permanent;
+    try {
+        await execute(invalid, false, true);
+    } catch (error) {
+        permanent = error;
+    }
+    assert.equal(permanent?.code, 'permission-denied');
+    let attempted = false;
+    const forbidden = () => {
+        attempted = true;
+        throw new Error('A permanent denial must not be retried');
+    };
+    await assert.rejects(recover(invalid, permanent, 'alice', forbidden), error => error === permanent);
+    await assert.rejects(recover(intents[0], rejection, 'bob', forbidden), error => error === rejection);
+    await admin(async adminDb => setDoc(doc(adminDb, 'runtime_config/sync_protocol'), { version: 1, epoch: 'wrong' }));
+    observed.set(invalid.id, 0);
+    await assert.rejects(recover(invalid, permanent, 'alice', forbidden), error => error === permanent);
+    assert.equal(attempted, false);
+    assert.equal((await getDoc(ref(db, 'alice', 'sesiones_entrenamiento/permanent-denial'))).exists(), false);
 });

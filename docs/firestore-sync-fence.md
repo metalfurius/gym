@@ -75,6 +75,29 @@ deleted or bypassed through parent/descendant writes. Cache recovery uses these
 immutable witnesses rather than assuming that document presence or absence proves
 an old request finished. Objective 6 must define per-edit retry receipts.
 
+## Contention and bounded client recovery
+
+With SDK 11.6.1 and emulator 1.22.0, two correct transactions can both read
+revision zero, then one commits and the other receives `permission-denied`
+without an automatic SDK callback retry. This is reproduced by a synchronized
+four-document read followed by the normal three writes. The rules must keep
+rejecting the stale counter; weakening the increment check would lose changes.
+
+The frontend must preserve the exact owner, auth generation, operation/session
+ID, payload, original timestamp and weekly base through recovery. A denial may
+start another bounded attempt only after server-authoritative reads demonstrate
+that the relevant session counter or preferences revision advanced beyond the
+attempt's observed revision, and global/UID policies still match the current
+owner and epoch. Normal successful operations need no additional recovery reads.
+An unchanged revision, wrong owner/generation, invalid policy or permanent denial
+must remain visible. Exhaustion must retain the original owned durable intent.
+Never retry arbitrary permission failures or rebase a weekly edit's original base.
+
+The executable contention case proves the initial rejection, one guarded recovery
+with both distinct IDs retained, and permanent/owner/epoch failures without another
+write. Frontend integration must implement its bounded loop and queue handling;
+the real backend/two-client journey remains a separate completion gate.
+
 ## Repeatable validation
 
 Use maintained Node 22 (22.23.5+) or Node 24+, and Java 21, with no production login:
@@ -106,7 +129,7 @@ tool's suggested downgrade to Firebase 9 or to an older CLI. Remaining CLI-only
 transitive findings are recorded separately and are not represented as resolved.
 
 The [preparation ledger](../Validation%20Evidence/2026-11-20-firestore-fence/preparation.json)
-records exact source hashes, the 16-case run, the previous server release backup and
+records exact source hashes, the 17-case run, the previous server release backup and
 the remaining audit scope. Its moderate findings come from CLI transitive
 OpenTelemetry baggage handling, glob/minimatch traversal and UUID buffer APIs.
 This command runs a demo emulator with fixed local test paths; it does not invoke
