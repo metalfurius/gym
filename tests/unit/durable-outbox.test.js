@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { OfflineManager } from '../../js/utils/offline-manager.js';
 import { LocalFirstCache } from '../../js/utils/local-first-cache.js';
 import { DurableOutbox } from '../../js/utils/durable-outbox.js';
@@ -86,9 +86,13 @@ describe('independent durable outbox instances sharing real localStorage', () =>
         expect(cold.pendingOperations.map(entry => entry.id)).toEqual(['intent-Y']);
     });
 
-    it('rejects a superseded cache write rather than acknowledging durable success', async () => {
-        const outbox = new DurableOutbox({ set: async () => null });
-        await expect(outbox.save([{ id: 'intent-X', descriptor: descriptor('A') }])).rejects.toThrow('superseded');
-        await expect(outbox.save([], ['intent-X'])).rejects.toThrow('superseded');
+    it('rejects an atomic localStorage authority failure without leaving a partial intent or ack', async () => {
+        const cache = new LocalFirstCache(); const outbox = new DurableOutbox(cache);
+        const write = jest.spyOn(cache, 'writeToLocalStorage').mockReturnValue(false);
+        try {
+            await expect(outbox.save([{ id: 'intent-X', descriptor: descriptor('A') }])).rejects.toThrow('Durable local storage unavailable');
+            await expect(outbox.save([], ['intent-X'])).rejects.toThrow('Durable local storage unavailable');
+            expect((await outbox.read()).entries).toEqual([]);
+        } finally { write.mockRestore(); }
     });
 });

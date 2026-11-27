@@ -58,8 +58,10 @@ export function registerSessionPersistenceListener(listener) {
 }
 
 async function notifySessionPersisted(detail, mutation) {
-    await invalidateProgressCache(detail.userId, { durable: false });
-    await publishSessionMutation(detail, mutation);
+    try {
+        await invalidateProgressCache(detail.userId, { durable: false });
+        await publishSessionMutation(detail, mutation);
+    } catch (error) { logger.warn('Session accepted; surface refresh deferred:', error); }
 }
 
 function collectSessionVariantOverridesFromDom(
@@ -573,7 +575,7 @@ export async function saveSessionData(onSuccess) {
 
         // Call success callback if provided
         if (typeof onSuccess === 'function') {
-            onSuccess();
+            try { onSuccess(); } catch (error) { logger.warn('Session accepted; success callback failed:', error); }
         }
     } catch (error) {
         if (!isCurrent()) return;
@@ -653,7 +655,7 @@ export async function saveQuickLogEntry(quickLogInput = {}, onSuccess, options =
         toast.success(t('quicklog.saved_success'));
 
         if (typeof onSuccess === 'function') {
-            onSuccess(finalQuickLogData);
+            try { onSuccess(finalQuickLogData); } catch (error) { logger.warn('Quick Log accepted; success callback failed:', error); }
         }
 
         return {

@@ -121,13 +121,36 @@ export class LocalFirstCache {
         });
     }
 
-    async writeToIndexedDb(entry) {
+    async writeToIndexedDb(entry, { journal = false } = {}) {
         if (!this.indexedDbEnabled || !isValidEntry(entry)) return false;
         const db = await this.dbPromise;
         if (!db) return false;
 
         await new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
+            let tx;
+            try { tx = db.transaction(STORE_NAME, 'readwrite'); }
+            catch (error) { if (journal) error.provenNotCommitted = true; reject(error); return; }
+            if (journal) {
+                let succeeded = false; let requestError = null;
+                // Error events are not terminal: a prevented request error may
+                // still complete a transaction. Only completion/abort proves the
+                // one immutable journal row was accepted or absent.
+                tx.oncomplete = () => {
+                    if (succeeded) resolve();
+                    else reject(Object.assign(requestError || new Error('Outbox journal request did not commit'), { provenNotCommitted: true }));
+                };
+                tx.onerror = () => { requestError ||= tx.error; };
+                tx.onabort = () => reject(Object.assign(tx.error || requestError || new Error('Outbox journal transaction aborted'), { provenNotCommitted: true }));
+                try {
+                    const request = tx.objectStore(STORE_NAME).add(entry);
+                    request.onsuccess = () => { succeeded = true; };
+                    request.onerror = () => { requestError = request.error || new Error('Outbox journal add failed'); };
+                } catch (error) {
+                    requestError = error;
+                    try { tx.abort(); } catch { /* The terminal handler remains authoritative. */ }
+                }
+                return;
+            }
             tx.oncomplete = () => resolve();
             tx.onerror = () => reject(tx.error || new Error('IndexedDB write failed'));
             tx.onabort = () => reject(tx.error || new Error('IndexedDB write aborted'));

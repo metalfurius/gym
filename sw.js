@@ -62,6 +62,8 @@ const urlsToCache = [
     './js/utils/firebase-usage-tracker.js',
     './js/utils/offline-manager.js',
     './js/utils/durable-outbox.js',
+    './js/utils/outbox-order.js',
+    './js/utils/outbox-journal-storage.js',
     './js/utils/routine-import.js',
     './js/utils/release-updater.js',
     './js/utils/bodyweight.js',

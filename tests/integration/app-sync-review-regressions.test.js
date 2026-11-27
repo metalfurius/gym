@@ -116,11 +116,13 @@ describe('actual app independent-review regressions', () => {
     it('acknowledges an accepted Quick Log without retry duplication when only post-commit cache completion fails', async () => {
         await authenticate('A');
         await localFirstCache.set('history:A:page:1', { sessions: ['obsolete'] });
+        const actualWrite = localFirstCache.writeToLocalStorage.bind(localFirstCache);
         const write = jest.spyOn(localFirstCache, 'writeToLocalStorage');
         let committed = false;
         __setMockTransactionBeforeCommit(({ writes }) => {
             if (!committed && writes.some(item => item.reference.path.startsWith('users/A/sesiones_entrenamiento/'))) {
-                committed = true; write.mockReturnValue(false);
+                committed = true;
+                write.mockImplementation(entry => entry.key.startsWith('__cache_invalidation__:') ? false : actualWrite(entry));
             }
         });
         try {
@@ -191,6 +193,9 @@ describe('actual app independent-review regressions', () => {
         await until(() => !!document.querySelector(`#history-list button[data-session-id="${saved.data.sessionId}"]`));
         document.querySelector(`#history-list button[data-session-id="${saved.data.sessionId}"]`).click();
         await until(() => offlineManager.pendingOperations.some(entry => entry.descriptor?.type === 'session.delete'));
+        // The intent is now durable before RPC, so wait for the original UI
+        // attempt to finish before reconnect/replay rather than racing its RPC.
+        await until(() => !document.querySelector(`#history-list button[data-session-id="${saved.data.sessionId}"]`)?.disabled);
         await offlineManager.persistQueue();
         expect(__firestoreState.documents.has(path)).toBe(true);
         const queued = offlineManager.pendingOperations.find(entry => entry.descriptor?.type === 'session.delete');

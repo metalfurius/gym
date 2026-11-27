@@ -1,0 +1,5 @@
+
+> my-workout-tracker@1.0.2 release:write
+> node scripts/release-integrity.mjs --write
+
+[release-integrity] wrote v2.8.5 with 75 cached assets

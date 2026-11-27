@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-27T15:24:18.235Z",
+  "checkoutBase": "62b71bdf8831b1d5140c2f6103aceca370ad4d7e",
+  "candidate": "uncommitted local correction; not a frozen or published SHA",
+  "nodeVersion": "v24.12.0",
+  "platform": "win32",
+  "normalization": "LF line endings only; UTF-8 BOM retained; binary files unchanged",
+  "browserSourceHashesMatch": true,
+  "files": {
+    ".gitattributes": {
+      "bytesRaw": 1750,
+      "sha256Raw": "3eb5f020d4ee6557416f726b24494eecc6dfdd5b048b6244ff441d615a762b52",
+      "bytesLf": 1724,
+      "sha256Lf": "d861cbee622d9a6ec19777280064d90f8cf22925d44d18370177e23c35d35242",
+      "bomPreserved": false
+    },
+    "docs/history-progress-sync-contract.md": {
+      "bytesRaw": 23027,
+      "sha256Raw": "39f4d662bd07698d1dfcb6ed608704126a153d1bb1833b36c670795fc68a37de",
+      "bytesLf": 22695,
+      "sha256Lf": "a1127ea53e5983ae00ccd8d419e562682138e05a955ab4a9041aa25a76beeb08",
+      "bomPreserved": false
+    },
+    "docs/outbox-journal-v3.md": {
+      "bytesRaw": 8451,
+      "sha256Raw": "fe65455f83a7978bcb11123ce49342b7dcbc5e5f564eae91c36240cdddb9cdaa",
+      "bytesLf": 8451,
+      "sha256Lf": "fe65455f83a7978bcb11123ce49342b7dcbc5e5f564eae91c36240cdddb9cdaa",
+      "bomPreserved": false
+    },
+    "js/app.js": {
+      "bytesRaw": 83730,
+      "sha256Raw": "6ba924702698cce2d1f2caace99b7d38352843220bf021e61d1f5e2697dfb42b",
+      "bytesLf": 81865,
+      "sha256Lf": "3992bf67a5872bd90721ff618feb43de973be68f1c2d0d68e6a1f69e93cdbcce",
+      "bomPreserved": true
+    },
+    "js/modules/history-manager.js": {
+      "bytesRaw": 12538,
+      "sha256Raw": "793636e3a39b530cff0da4ada32ee4d779b6c93c7de100c4bb6ae350ec77bf28",
+      "bytesLf": 12270,
+      "sha256Lf": "3f45fe54f1b93bf9f796d4ae11aa713513990fede9c549da76dddc9e59234292",
+      "bomPreserved": false
+    },
+    "js/modules/session-manager.js": {
+      "bytesRaw": 32753,
+      "sha256Raw": "2747a1bf3d78f3140ca691b9d1485e44ecea435dd1cca7773819cf8ca6b19844",
+      "bytesLf": 31921,
+      "sha256Lf": "bbb7dde5fcea1bb4d4a513328057d1f84ecd927d157862601b3074c367d70541",
+      "bomPreserved": false
+    },
+    "js/utils/durable-outbox.js": {
+      "bytesRaw": 10757,
+      "sha256Raw": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+      "bytesLf": 10757,
+      "sha256Lf": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+      "bomPreserved": false
+    },
+    "js/utils/local-first-cache.js": {
+      "bytesRaw": 24583,
+      "sha256Raw": "6c839bfafb318049bb5a007cb858ec354295867517de53d65709fa42016267da",
+      "bytesLf": 24049,
+      "sha256Lf": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+      "bomPreserved": false
+    },
+    "js/utils/offline-manager.js": {
+      "bytesRaw": 35356,
+      "sha256Raw": "b82aaac8d9c4f48db760d8795e4a76735fbe27e3cf1aafe6cdf2b3f7af0f7cbc",
+      "bytesLf": 34586,
+      "sha256Lf": "225434ba7f5b1c3de4c1d046c1859b06796a72fb06741cedac89eae4a31df4c8",
+      "bomPreserved": false
+    },
+    "js/utils/outbox-journal-storage.js": {
+      "bytesRaw": 4126,
+      "sha256Raw": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+      "bytesLf": 4126,
+      "sha256Lf": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+      "bomPreserved": false
+    },
+    "js/utils/outbox-order.js": {
+      "bytesRaw": 3567,
+      "sha256Raw": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+      "bytesLf": 3567,
+      "sha256Lf": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+      "bomPreserved": false
+    },
+    "package.json": {
+      "bytesRaw": 3533,
+      "sha256Raw": "24a94103c0c5f681bcf513f08b035be4dde193ede95484cb2f317f8ea89a1a77",
+      "bytesLf": 3476,
+      "sha256Lf": "c69aa3161d0d3db411bb2f9500958c77d21377749bfa77ba293cd7954e5223e4",
+      "bomPreserved": false
+    },
+    "release.json": {
+      "bytesRaw": 7644,
+      "sha256Raw": "956973a38c685ff653132c803ee227be610aae2d282311a787cea14c4d269fe2",
+      "bytesLf": 7644,
+      "sha256Lf": "956973a38c685ff653132c803ee227be610aae2d282311a787cea14c4d269fe2",
+      "bomPreserved": false
+    },
+    "scripts/browser-outbox-smoke.mjs": {
+      "bytesRaw": 19622,
+      "sha256Raw": "9b311c08d615a7caa93dd8ff2c9c21f0f5f8e7eeaec07b0f88bf9b23be2011e8",
+      "bytesLf": 19622,
+      "sha256Lf": "9b311c08d615a7caa93dd8ff2c9c21f0f5f8e7eeaec07b0f88bf9b23be2011e8",
+      "bomPreserved": false
+    },
+    "scripts/verify-outbox-smoke-negative.mjs": {
+      "bytesRaw": 2202,
+      "sha256Raw": "e7ca7ae6b58fdaa4e9437499f8bd6d6836f68ad92d41bf0886128c3040d15c74",
+      "bytesLf": 2202,
+      "sha256Lf": "e7ca7ae6b58fdaa4e9437499f8bd6d6836f68ad92d41bf0886128c3040d15c74",
+      "bomPreserved": false
+    },
+    "sw.js": {
+      "bytesRaw": 11232,
+      "sha256Raw": "95b177a6611693adef01dc37f6606c1bb611b0e5905b2c1903aef17e42c91058",
+      "bytesLf": 10953,
+      "sha256Lf": "0784cd8a14e86e5798ec8330b07257d3ff0dddb0f9750e019a0eac19f49a66ac",
+      "bomPreserved": false
+    },
+    "tests/browser/outbox-app-bootstrap.js": {
+      "bytesRaw": 6389,
+      "sha256Raw": "d359b3ebe887778f1705c225703716eec9ac61cecad8c862daa76a46fa60e848",
+      "bytesLf": 6389,
+      "sha256Lf": "d359b3ebe887778f1705c225703716eec9ac61cecad8c862daa76a46fa60e848",
+      "bomPreserved": false
+    },
+    "tests/browser/outbox-app-environment.js": {
+      "bytesRaw": 1045,
+      "sha256Raw": "a0b85a37b624160d32dd1438f651f289f2056706ae6c13410e83dc81fdcc69e0",
+      "bytesLf": 1045,
+      "sha256Lf": "a0b85a37b624160d32dd1438f651f289f2056706ae6c13410e83dc81fdcc69e0",
+      "bomPreserved": false
+    },
+    "tests/integration/app-outbox-journal-v3.test.js": {
+      "bytesRaw": 14671,
+      "sha256Raw": "da750fcc7531b27c3f10ad5e7876c95e75c7476bb817c1123a13e34b3086051d",
+      "bytesLf": 14671,
+      "sha256Lf": "da750fcc7531b27c3f10ad5e7876c95e75c7476bb817c1123a13e34b3086051d",
+      "bomPreserved": false
+    },
+    "tests/integration/app-sync-review-regressions.test.js": {
+      "bytesRaw": 18605,
+      "sha256Raw": "ff5c670bcb628590978b0c2040866d782e824e0f2053123fe1262855476446ae",
+      "bytesLf": 18347,
+      "sha256Lf": "c38d8d64afd900f1907e85ca9ef0b13a2be1099ebfc1c41c460e0e232a21a3bf",
+      "bomPreserved": false
+    },
+    "tests/mocks/firebase-firestore.js": {
+      "bytesRaw": 11563,
+      "sha256Raw": "aea78b33b4eb412e10459f75f6a53ce7b9f2e0aa219fe805e3747c05fd42d906",
+      "bytesLf": 11233,
+      "sha256Lf": "bb42d1a0ceeb1d62f223edd99c0d17d42ae967a500fe1716dd1c791b3f590376",
+      "bomPreserved": false
+    },
+    "tests/unit/durable-outbox.test.js": {
+      "bytesRaw": 5920,
+      "sha256Raw": "6e12c5f8a0387bfc98a7446a227c7d44cd3fd3789ae189d4eba719dba8be5f26",
+      "bytesLf": 5920,
+      "sha256Lf": "6e12c5f8a0387bfc98a7446a227c7d44cd3fd3789ae189d4eba719dba8be5f26",
+      "bomPreserved": false
+    },
+    "tests/unit/outbox-journal-v3.test.js": {
+      "bytesRaw": 26525,
+      "sha256Raw": "96d78ce926953547f1dd040a46aa1a5698e5f56e1cbb30946ea50e4b4d1ae7b1",
+      "bytesLf": 26525,
+      "sha256Lf": "96d78ce926953547f1dd040a46aa1a5698e5f56e1cbb30946ea50e4b4d1ae7b1",
+      "bomPreserved": false
+    }
+  }
+}

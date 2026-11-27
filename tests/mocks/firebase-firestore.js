@@ -25,6 +25,7 @@ let batchCommitFailureCall = 0;
 let batchCommitFailureError = null;
 let batchCommitGate = null;
 let transactionBeforeCommit = null;
+let transactionAfterCommit = null;
 let transactionAuthorization = null;
 let queryResultHandler = null;
 let documentResultHandler = null;
@@ -166,6 +167,7 @@ export function __resetMockFirestoreBehavior() {
     batchCommitFailureError = null;
     batchCommitGate = null;
     transactionBeforeCommit = null;
+    transactionAfterCommit = null;
     transactionAuthorization = null;
     queryResultHandler = null;
     documentResultHandler = null;
@@ -173,6 +175,7 @@ export function __resetMockFirestoreBehavior() {
 }
 
 export function __setMockTransactionBeforeCommit(handler) { transactionBeforeCommit = handler; }
+export function __setMockTransactionAfterCommit(handler) { transactionAfterCommit = handler; }
 export function __setMockTransactionAuthorization(handler) { transactionAuthorization = handler; }
 export function __getMockTransactionAttempts() { return transactionAttempts; }
 export function __setMockQueryResultHandler(handler) { queryResultHandler = handler; }
@@ -216,6 +219,7 @@ export async function runTransaction(_db, callback, { maxAttempts = 5 } = {}) {
                 __firestoreState.documents.set(write.reference.path, { ...__cloneMockValue(current), ...__cloneMockValue(write.value) });
             }
         }
+        if (transactionAfterCommit) await transactionAfterCommit({ attempt, reads, writes });
         return result;
     }
     const error = new Error('Transaction aborted after concurrent modifications');

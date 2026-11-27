@@ -185,9 +185,9 @@ function updateWeeklyConflictNotice() {
 
 function overlayQueuedWeeklyTargets(state, excludeOperationId = null) {
     let next = state;
-    for (const entry of offlineManager.pendingOperations || []) {
+    for (const entry of offlineManager.getOrderedPendingOperations()) {
         const payload = entry.descriptor?.payload;
-        if (entry.status !== 'conflict' && entry.descriptor?.type === 'preferences.saveWeeklyTarget'
+        if (!['conflict', 'blocked', 'quarantined', 'unowned'].includes(entry.status) && entry.descriptor?.type === 'preferences.saveWeeklyTarget'
             && payload?.userId === getCurrentUser()?.uid && payload.weekKey && payload.weekRecord
             && payload.operationId !== excludeOperationId
             && (next.weeklyTargetsByWeek?.[payload.weekKey]?.revision || 0) <= (payload.baseRevision ?? -1)) {
@@ -228,16 +228,19 @@ async function persistWeeklyTargetPreference(userId, payload) {
     const isCurrent = () => isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     try {
         const result = await persistWeeklyTargetOperation(db, payload);
-        if (isCurrent() && (result.state.preferencesRevision || 0) >= (weeklyPreferenceState.preferencesRevision || 0)) {
-            const next = overlayQueuedWeeklyTargets(result.state, payload.operationId);
-            await cacheWeeklyTargetState(userId, next, next.updatedAtIso, isCurrent);
-            if (isCurrent()) { applyWeeklyTargetState(next); weeklyTargetCacheUserId = userId; }
-        }
+        try {
+            if (isCurrent() && (result.state.preferencesRevision || 0) >= (weeklyPreferenceState.preferencesRevision || 0)) {
+                const next = overlayQueuedWeeklyTargets(result.state, payload.operationId);
+                applyWeeklyTargetState(next); weeklyTargetCacheUserId = userId;
+                await cacheWeeklyTargetState(userId, next, next.updatedAtIso, isCurrent);
+            }
+        } catch (error) { logger.warn('Weekly target accepted; presentation refresh deferred:', error); }
         return result;
     } catch (error) {
         if (error.code === 'sync/conflict' && isCurrent()) {
             if ((error.result.state.preferencesRevision || 0) >= (weeklyPreferenceState.preferencesRevision || 0)) {
-                await cacheWeeklyTargetState(userId, error.result.state, error.result.state.updatedAtIso, isCurrent);
+                try { await cacheWeeklyTargetState(userId, error.result.state, error.result.state.updatedAtIso, isCurrent); }
+                catch (cacheError) { logger.warn('Could not cache acknowledged conflict state:', cacheError); }
                 if (isCurrent()) { applyWeeklyTargetState(error.result.state); weeklyTargetCacheUserId = userId; }
             }
             toast.warning(t('settings.weekly_goal_conflict'));
@@ -298,22 +301,26 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
     const next = applyOptimisticWeeklyTarget(payload, weeklyState());
     const descriptor = { type: 'preferences.saveWeeklyTarget', payload };
     const triggerButton = options.triggerButton || null;
+    let queueId = null; let intentCommitted = false; let accepted = false; let cancelled = false;
     showLoading(triggerButton, t('common.saving'));
     try {
         // Persist the immutable intent before acknowledging an offline save or
         // starting a network request. An ambiguous commit is safe to replay.
-        const queueId = offlineManager.queueOperation(null, t('settings.weekly_goal_save_offline'), { descriptor });
+        queueId = offlineManager.queueOperation(null, t('settings.weekly_goal_save_offline'), { descriptor });
+        offlineManager.executingIds.add(queueId);
         await offlineManager.persistQueue?.();
+        intentCommitted = true;
         if (!isCurrent()) return { ok: true, queued: true };
         applyWeeklyTargetState(next); weeklyTargetCacheUserId = user.uid;
         await cacheWeeklyTargetState(user.uid, next, payload.updatedAtIso, isCurrent);
-        if (!offlineManager.checkOnline()) {
+        if (!offlineManager.checkOnline() || !offlineManager.canExecuteOperation(queueId)) {
             await refreshDailyHub(user, { forceRefresh: true });
             if (isCurrent()) toast.info(t('settings.weekly_goal_saved_queued'));
             return { ok: true, queued: true };
         }
         try {
             await persistWeeklyTargetPreference(user.uid, payload);
+            accepted = true;
             await offlineManager.acknowledgeOperation?.(queueId);
             await offlineManager.resolveConflicts?.(user.uid, weekKey);
             updateWeeklyConflictNotice();
@@ -324,8 +331,9 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
                 if (isCurrent()) await refreshDailyHub(user, { forceRefresh: true });
                 return { ok: false, reason: 'conflict' };
             }
-            if (offlineManager.isNetworkError(error) || ['sync/owner-changed', 'sync/retry-exhausted'].includes(error.code)) return { ok: true, queued: true };
-            await offlineManager.acknowledgeOperation?.(queueId);
+            if (!offlineManager.isPermanentError(error)) return { ok: true, queued: true };
+            try { await offlineManager.cancelOperation(queueId); cancelled = true; }
+            catch (storageError) { logger.warn('Weekly target cancellation deferred:', storageError); return { ok: true, queued: true }; }
             if (isCurrent()) {
                 await fetchWeeklyTargetPreference(user, { forceRefresh: true });
                 await refreshDailyHub(user, { forceRefresh: true, skipOutcomeFinalization: true });
@@ -338,9 +346,14 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
         }
         return { ok: true, queued: false };
     } catch (error) {
+        if (accepted || (!cancelled && queueId && (intentCommitted || offlineManager.unknownIds.has(queueId)))) {
+            if (isCurrent()) logger.warn('Weekly target retained; presentation/acknowledgement deferred:', error);
+            return { ok: true, queued: !accepted };
+        }
         if (isCurrent()) { logger.error('Error saving weekly target preference:', error); toast.error(t('settings.weekly_goal_save_error')); }
         return { ok: false, reason: 'error', error };
     } finally {
+        if (queueId) offlineManager.executingIds.delete(queueId);
         if (isCurrent()) hideLoading(triggerButton);
     }
 }

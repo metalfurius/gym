@@ -5,6 +5,9 @@ This describes the objective 2 implementation candidate. It does **not** close t
 verification, final release integration, CodeQL and both independent reviews are
 required before closure. The local evidence record is
 [here](../Validation%20Evidence/2026-11-20-objective2/README.md).
+The later journal corrections and their local-only evidence are described in the
+[V3 outbox contract](outbox-journal-v3.md) and
+[November 27 journal record](../Validation%20Evidence/2026-11-27-objective2-journal-v3/README.md).
 
 ## Ownership and asynchronous work
 
@@ -129,7 +132,10 @@ weekly base revision/op/fingerprint and outcome expectations are never rebased.
 If three proven-denial attempts exhaust, `sync/retry-exhausted` retains the owned
 serializable intent durably: capture/Quick Log/weekly target use their original
 descriptor, and History deletion uses `session.delete` with `{userId,sessionId}`.
-An unavailable durable store is an error, never an acknowledged queue. Replaying
+An unavailable durable store is never an acknowledged queue. A proven failure
+before the intent commits returns an error without starting its RPC. An unknown
+completion retains the original ID as queued; a successful RPC stays successful
+when only local acknowledgement or presentation refresh fails. Replaying
 exhausted work preserves its ID/time/base. Derived finalization queues only a
 `preferences.syncWeeklyState` recompute descriptor with `{userId}`, deduplicated
 for that owner; it cannot persist/replay an old outcomes snapshot. A failed queued
@@ -169,8 +175,10 @@ tie-break never silently arbitrates two edits from the same stale base.
   by local time. The first atomic acceptance advances the revision; the other
   gets a durable `conflict` receipt and an actionable settings notice.
 - An offline chain uses each preceding operation as the next verified base. It
-  replays in queue order. If another client changed that base, dependent intents
-  conflict as well; they are never automatically rebased over acknowledged work.
+  replays in causal order. If another client changed that base, the parent
+  conflicts and its semantic descendants remain blocked without issuing RPCs;
+  they are never automatically rebased over acknowledged work. An independent
+  different-week intent can still run.
 - Retry of an accepted operation returns its receipt and current preferences.
   It cannot reapply its old target. Reusing an ID for different intent data fails.
 - A target for an already finalized week conflicts instead of rewriting that
@@ -213,10 +221,16 @@ types cannot be registered as global. Legacy valid UID descriptors remain usable
 
 The durable queue retains operations for other UIDs, conflicts, original payload
 and enqueue timestamps. Reconnect processes only the active owner; auth changes
-never clear another owner's work. An operation remains on disk while in flight
-and is removed only after acknowledgement. Persistence is serialized and a queued
-save is not acknowledged if an expected durable store cannot write. Concurrent
-processing calls coalesce; destruction does not erase serializable work.
+never clear another owner's work. Each persistence call appends one immutable V3
+batch of intent/conflict/terminal-receipt deltas. An acknowledged intent is masked
+by its receipt, never removed through a shared-array rewrite. Expected IndexedDB
+is the authority; its localStorage mirror cannot acknowledge an aborted intent.
+An operation is durable before its RPC starts and while it is in flight.
+Persistence is serialized within a realm; unique append-only batches and
+monotonic receipts preserve concurrent tabs. Concurrent processing calls
+coalesce; destruction does not erase serializable work. See the
+[journal contract](outbox-journal-v3.md) for migration, DAG, rollback and
+post-commit recovery rules.
 
 ## Calendar reference and completeness
 

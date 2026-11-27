@@ -156,7 +156,8 @@ async function deleteSession(sessionId, targetButton) {
         const mutation = await offlineManager.executeWithOfflineHandling(
             () => writeSessionDocument(db, user.uid, sessionId, null, { remove: true }),
             t('history.delete_error'), true, { type: 'session.delete', payload: { userId: user.uid, sessionId } });
-        await publishSessionMutation({ userId: user.uid, sessionId, source: 'history', kind: 'delete' }, mutation);
+        try { await publishSessionMutation({ userId: user.uid, sessionId, source: 'history', kind: 'delete' }, mutation); }
+        catch (error) { logger.warn('Deletion accepted; surface refresh deferred:', error); }
         if (!isCurrent()) return;
         invalidateHistoryCache();
         await fetchAndRenderHistory('initial');
