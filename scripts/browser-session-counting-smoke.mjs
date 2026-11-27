@@ -1,33 +1,13 @@
 #!/usr/bin/env node
-
+import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-import WebSocket from 'ws';
+import { browserEvidenceDirectory, runBrowserFixture } from './browser-fixture-runner.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const EVIDENCE_DIRECTORY = path.join(ROOT, 'Validation Evidence');
-const CHROME_PATH_CANDIDATES = [
-    process.env.CHROME_PATH,
-    ...(process.platform === 'win32'
-        ? [
-              'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-              'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-          ]
-        : [
-              '/usr/bin/google-chrome',
-              '/usr/bin/google-chrome-stable',
-              '/usr/bin/chromium',
-              '/usr/bin/chromium-browser',
-          ]),
-].filter(Boolean);
-const CHROME_DEBUG_PORT = Number(process.env.CHROME_SESSION_COUNTING_DEBUG_PORT || 9273);
-
-const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 const smokeFixture = `<!doctype html>
 <html lang="en">
@@ -161,193 +141,21 @@ async function createSmokeServer() {
     return { server, url: `http://127.0.0.1:${address.port}/session-counting-smoke.html` };
 }
 
-class CdpClient {
-    constructor(url) {
-        this.nextId = 1;
-        this.pending = new Map();
-        this.socket = new WebSocket(url);
-        this.openPromise = new Promise((resolve, reject) => {
-            this.socket.once('open', resolve);
-            this.socket.once('error', reject);
-        });
-        this.socket.on('message', data => {
-            const message = JSON.parse(String(data));
-            if (!message.id || !this.pending.has(message.id)) return;
-
-            const pending = this.pending.get(message.id);
-            this.pending.delete(message.id);
-            if (message.error) pending.reject(new Error(message.error.message));
-            else pending.resolve(message.result || {});
-        });
-    }
-
-    async send(method, params = {}) {
-        await this.openPromise;
-        const id = this.nextId++;
-        return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                this.pending.delete(id);
-                reject(new Error(`CDP command timed out: ${method}`));
-            }, 10_000);
-            this.pending.set(id, {
-                resolve: value => {
-                    clearTimeout(timeout);
-                    resolve(value);
-                },
-                reject: error => {
-                    clearTimeout(timeout);
-                    reject(error);
-                },
-            });
-            this.socket.send(JSON.stringify({ id, method, params }));
-        });
-    }
-
-    async evaluate(expression) {
-        const result = await this.send('Runtime.evaluate', {
-            expression,
-            awaitPromise: true,
-            returnByValue: true,
-            userGesture: true,
-        });
-        if (result.exceptionDetails) {
-            throw new Error(
-                result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed'
-            );
-        }
-        return result.result?.value;
-    }
-
-    close() {
-        this.socket.close();
-    }
-}
-
-async function resolveChromePath() {
-    for (const candidate of CHROME_PATH_CANDIDATES) {
-        try {
-            await fs.access(candidate);
-            return candidate;
-        } catch {
-            // Try the next candidate.
-        }
-    }
-
-    throw new Error(`Chrome executable not found; tried ${CHROME_PATH_CANDIDATES.join(', ')}`);
-}
-
-async function waitForEndpoint(url, timeout = 30_000) {
-    const deadline = Date.now() + timeout;
-    while (Date.now() < deadline) {
-        try {
-            const response = await fetch(url);
-            if (response.ok) return;
-        } catch {
-            // Chrome is still starting.
-        }
-        await sleep(100);
-    }
-
-    throw new Error(`Browser endpoint did not start: ${url}`);
-}
-
-async function openChrome(url, profileDirectory) {
-    const chromePath = await resolveChromePath();
-    const chrome = spawn(
-        chromePath,
-        [
-            '--headless=new',
-            '--disable-gpu',
-            '--use-angle=swiftshader',
-            '--disable-dev-shm-usage',
-            '--disable-gpu-compositing',
-            '--disable-gpu-rasterization',
-            '--disable-software-rasterizer',
-            '--disable-accelerated-2d-canvas',
-            '--disable-features=VizDisplayCompositor',
-            '--no-sandbox',
-            '--disable-extensions',
-            '--no-first-run',
-            '--no-default-browser-check',
-            '--remote-allow-origins=*',
-            '--remote-debugging-address=127.0.0.1',
-            `--remote-debugging-port=${CHROME_DEBUG_PORT}`,
-            `--user-data-dir=${profileDirectory}`,
-            '--window-size=1280,900',
-            url,
-        ],
-        { stdio: ['ignore', 'ignore', 'pipe'] }
-    );
-    chrome.stderr.on('data', data => process.stderr.write(`[session-counting-smoke] Chrome: ${String(data)}`));
-
-    await waitForEndpoint(`http://127.0.0.1:${CHROME_DEBUG_PORT}/json/version`);
-    const deadline = Date.now() + 30_000;
-    let target;
-    while (Date.now() < deadline) {
-        const targets = await fetch(`http://127.0.0.1:${CHROME_DEBUG_PORT}/json/list`).then(response =>
-            response.json()
-        );
-        target = targets.find(item => item.type === 'page' && item.webSocketDebuggerUrl && item.url.startsWith(url));
-        if (target) break;
-        await sleep(100);
-    }
-
-    if (!target) throw new Error('Chromium page target did not start');
-
-    const client = new CdpClient(target.webSocketDebuggerUrl);
-    await client.send('Runtime.enable');
-    await client.send('Page.enable');
-    return { chrome, client };
-}
-
-async function waitForReady(client, timeout = 20_000) {
-    const deadline = Date.now() + timeout;
-    while (Date.now() < deadline) {
-        try {
-            if (await client.evaluate('window.__sessionCountingSmokeReady === true')) return;
-        } catch {
-            // Module scripts may still be loading.
-        }
-        await sleep(100);
-    }
-
-    throw new Error('Timed out waiting for session-counting smoke fixture');
-}
-
-async function runSmoke() {
-    const { server, url } = await createSmokeServer();
-    const profileDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-session-counting-chromium-'));
-    let browser;
-
+async function run() {
+    const smokeServer = await createSmokeServer();
     try {
-        browser = await openChrome(url, profileDirectory);
-        await waitForReady(browser.client);
-        const state = await browser.client.evaluate('window.runSessionCountingSmoke()');
-        const screenshot = await browser.client.send('Page.captureScreenshot', {
-            format: 'png',
-            captureBeyondViewport: true,
-        });
-        const screenshotPath = path.join(EVIDENCE_DIRECTORY, '2026-09-17-gym-session-counting-chromium.png');
-        const evidencePath = path.join(EVIDENCE_DIRECTORY, '2026-09-17-gym-session-counting-chromium.json');
-        await fs.mkdir(EVIDENCE_DIRECTORY, { recursive: true });
-        await fs.writeFile(screenshotPath, Buffer.from(screenshot.data, 'base64'));
-
-        const evidence = {
-            browser: 'Chromium',
-            state,
-            screenshot: path.relative(ROOT, screenshotPath),
-        };
-        await fs.writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
-        console.log(JSON.stringify({ ...evidence, evidence: path.relative(ROOT, evidencePath) }, null, 2));
+        await runBrowserFixture({ name: 'session-counting', kind: 'chromium', url: smokeServer.url,
+            evidenceDirectory: browserEvidenceDirectory('session-counting'),
+            readiness: 'window.__sessionCountingSmokeReady === true', expression: 'window.runSessionCountingSmoke()',
+            assertState: ({ state }) => {
+                assert.equal(state.monthlySessions, 2); assert.equal(state.weeklyProgress, '2/2');
+                assert.equal(state.weeklySessionCount, 2); assert.equal(state.activeDays, 1);
+                assert.equal(state.renderedStatus, 'Ready'); assert.match(state.calendarTitle, /2 sessions/);
+            } });
     } finally {
-        browser?.client.close();
-        browser?.chrome.kill();
-        await fs.rm(profileDirectory, { recursive: true, force: true }).catch(() => {});
-        await new Promise(resolve => server.close(resolve));
+        smokeServer.server.closeAllConnections();
+        await new Promise(resolve => smokeServer.server.close(resolve));
     }
 }
 
-runSmoke().catch(error => {
-    console.error(`[session-counting-smoke] ${error.stack || error.message}`);
-    process.exitCode = 1;
-});
+run().catch(error => { console.error(`[session-counting] ${error.stack || error.message}`); process.exitCode = 1; });

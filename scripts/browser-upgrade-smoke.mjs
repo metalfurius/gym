@@ -8,8 +8,9 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-import WebSocket from 'ws';
+import { connectOwnedChromium } from './browser-cdp-target.mjs';
 import { spawnOwnedBrowser } from './owned-browser-process.mjs';
+import { captureBrowserDiagnostics } from './browser-process-diagnostics.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHROME_PATH_OVERRIDE = process.env.CHROME_PATH;
@@ -161,37 +162,42 @@ async function writeUpgradeFixture(directory, revision) {
 
 async function createReleases() {
     const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-upgrade-'));
-    const releaseADirectory = path.join(temporaryDirectory, 'release-a');
-    const releaseBDirectory = path.join(temporaryDirectory, 'release-b');
-    await copyRelease(releaseADirectory);
-    execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
-        cwd: releaseADirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    await writeUpgradeFixture(releaseADirectory, RELEASE_A);
-    execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
-        cwd: releaseADirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
-    execFileSync(process.execPath, [path.join(releaseBDirectory, 'update-version.cjs'), RELEASE_B_VERSION], {
-        cwd: releaseBDirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
-    execFileSync(process.execPath, [path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
-        cwd: releaseBDirectory,
-        stdio: 'pipe',
-        timeout: 20_000,
-        windowsHide: true,
-    });
-    return { temporaryDirectory, releaseADirectory, releaseBDirectory };
+    try {
+        const releaseADirectory = path.join(temporaryDirectory, 'release-a');
+        const releaseBDirectory = path.join(temporaryDirectory, 'release-b');
+        await copyRelease(releaseADirectory);
+        execFileSync(process.execPath, [path.join(releaseADirectory, 'update-version.cjs'), '2.7.0'], {
+            cwd: releaseADirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        await writeUpgradeFixture(releaseADirectory, RELEASE_A);
+        execFileSync(process.execPath, [path.join(releaseADirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
+            cwd: releaseADirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        await fs.cp(releaseADirectory, releaseBDirectory, { recursive: true });
+        execFileSync(process.execPath, [path.join(releaseBDirectory, 'update-version.cjs'), RELEASE_B_VERSION], {
+            cwd: releaseBDirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        await writeUpgradeFixture(releaseBDirectory, RELEASE_B);
+        execFileSync(process.execPath, [path.join(releaseBDirectory, 'scripts', 'release-integrity.mjs'), '--write'], {
+            cwd: releaseBDirectory,
+            stdio: 'pipe',
+            timeout: 20_000,
+            windowsHide: true,
+        });
+        return { temporaryDirectory, releaseADirectory, releaseBDirectory };
+    } catch (error) {
+        await removeOwnedTemp(temporaryDirectory, 'gym-pwa-upgrade-');
+        throw error;
+    }
 }
 
 function contentType(filePath) {
@@ -210,9 +216,16 @@ function contentType(filePath) {
 
 async function createSwitchingServer(initialRoot) {
     let activeRoot = initialRoot;
+    let online = true;
     const server = createServer(async (request, response) => {
+        if (!online) { response.destroy(); return; }
         try {
             const requestUrl = new URL(request.url || '/', 'http://127.0.0.1');
+            if (requestUrl.pathname === '/smoke-connectivity') {
+                response.writeHead(200, { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain' });
+                response.end('online');
+                return;
+            }
             const relativePath = decodeURIComponent(requestUrl.pathname).replace(/^\/+/, '') || 'index.html';
             const filePath = path.resolve(activeRoot, relativePath);
             if (!filePath.startsWith(`${path.resolve(activeRoot)}${path.sep}`)) {
@@ -243,71 +256,8 @@ async function createSwitchingServer(initialRoot) {
         setRoot(nextRoot) {
             activeRoot = nextRoot;
         },
+        setOnline(value) { online = value; },
     };
-}
-
-class DevToolsClient {
-    constructor(webSocketUrl, onEvent) {
-        this.nextId = 1;
-        this.pending = new Map();
-        this.socket = new WebSocket(webSocketUrl);
-        this.rejectPending = error => {
-            for (const request of this.pending.values()) request.reject(error);
-            this.pending.clear();
-        };
-        this.socket.addEventListener('message', event => {
-            const message = JSON.parse(String(event.data));
-            if (message.id && this.pending.has(message.id)) {
-                const request = this.pending.get(message.id);
-                this.pending.delete(message.id);
-                if (message.error) request.reject(new Error(message.error.message));
-                else request.resolve(message.result || {});
-            } else if (message.method) onEvent(message);
-        });
-        this.socket.addEventListener('close', () => this.rejectPending(new Error('Browser CDP socket closed')));
-        this.socket.addEventListener('error', event => this.rejectPending(new Error(event.message || 'Browser CDP socket error')));
-        this.openPromise = new Promise((resolve, reject) => {
-            this.socket.addEventListener('open', resolve, { once: true });
-            this.socket.addEventListener('error', event => reject(new Error(event.message || 'Browser CDP socket error')), { once: true });
-            this.socket.addEventListener('close', () => reject(new Error('Browser CDP socket closed')), { once: true });
-        });
-    }
-
-    async send(method, params = {}) {
-        await this.openPromise;
-        const id = this.nextId++;
-        return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                this.pending.delete(id);
-                reject(new Error(`CDP command timed out: ${method}`));
-            }, 10_000);
-            this.pending.set(id, {
-                resolve: value => { clearTimeout(timeout); resolve(value); },
-                reject: error => { clearTimeout(timeout); reject(error); },
-            });
-            try {
-                this.socket.send(JSON.stringify({ id, method, params }));
-            } catch (error) {
-                this.pending.get(id)?.reject(error);
-                this.pending.delete(id);
-            }
-        });
-    }
-
-    async evaluate(expression) {
-        const result = await this.send('Runtime.evaluate', {
-            expression, awaitPromise: true, returnByValue: true, userGesture: true,
-        });
-        if (result.exceptionDetails) {
-            throw new Error(result.exceptionDetails.description || result.exceptionDetails.text || 'Browser evaluation failed');
-        }
-        return result.result?.value;
-    }
-
-    close() {
-        this.rejectPending(new Error('Browser CDP client closed'));
-        this.socket.terminate();
-    }
 }
 
 async function removeOwnedTemp(directory, prefix) {
@@ -320,47 +270,26 @@ async function removeOwnedTemp(directory, prefix) {
 
 async function openChrome(url, userDataDirectory, onEvent, signal) {
     const chromePath = await resolveChromePath();
-    const owner = spawnOwnedBrowser(chromePath, [
+    const args = [
         '--headless=new', '--disable-gpu', '--use-angle=swiftshader',
         '--disable-gpu-compositing', '--disable-dev-shm-usage', '--disable-extensions',
         '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*',
         '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0',
         `--user-data-dir=${userDataDirectory}`, '--window-size=1440,900', 'about:blank',
-    ], { afterClose: () => removeOwnedTemp(userDataDirectory, 'gym-pwa-chrome-profile-') });
-    let startupError;
-    owner.process.once('error', error => { startupError = error; });
-    owner.process.once('exit', code => {
-        if (code !== 0) startupError ||= new Error(`Chrome exited with code ${code}`);
-    });
+    ];
+    const owner = spawnOwnedBrowser(chromePath, args, { afterClose: () => removeOwnedTemp(userDataDirectory, 'gym-pwa-chrome-profile-') });
+    const diagnostics = captureBrowserDiagnostics(owner, { kind: 'chromium', executable: chromePath, args, onEvent });
     try {
-        const deadline = Date.now() + 30_000;
-        let pageTarget;
-        let port;
-        while (Date.now() < deadline) {
-            signal.throwIfAborted();
-            if (startupError) throw startupError;
-            try {
-                const activePort = await fs.readFile(path.join(userDataDirectory, 'DevToolsActivePort'), 'utf8');
-                port = Number(activePort.split(/\r?\n/)[0]);
-                if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid owned Chrome port');
-                const targets = await fetch(`http://127.0.0.1:${port}/json/list`, { signal: AbortSignal.timeout(1_000) }).then(response => response.json());
-                pageTarget = targets.find(target => target.type === 'page' && target.url === 'about:blank' && target.webSocketDebuggerUrl);
-                if (pageTarget) break;
-            } catch {
-                // Only the unique profile's own DevToolsActivePort is accepted.
-            }
-            await sleep(50);
+        const connection = await connectOwnedChromium(owner, userDataDirectory, url, onEvent, signal);
+        const expected = process.env.CHROME_EXPECTED_VERSION;
+        if (expected && connection.version.product.split('/').pop() !== expected) {
+            throw new Error(`Browser version mismatch: expected ${expected}, got ${connection.version.product}`);
         }
-        if (!pageTarget) throw new Error('Owned Chrome debugging endpoint did not start');
-        const client = new DevToolsClient(pageTarget.webSocketDebuggerUrl, onEvent);
-        owner.setClient(client);
-        for (const domain of ['Runtime', 'Page', 'Network', 'Log', 'ServiceWorker']) await client.send(`${domain}.enable`);
-        await client.send('Page.setLifecycleEventsEnabled', { enabled: true });
-        await client.send('Page.navigate', { url });
-        return { owner, client, port };
+        return { owner, ...connection, diagnostics };
     } catch (error) {
-        await owner.close();
-        throw error;
+        try { await owner.close(); }
+        catch (cleanupError) { error.browserCleanupError = cleanupError.message; }
+        throw diagnostics.failure(error);
     }
 }
 
@@ -399,6 +328,9 @@ async function pageState(client) {
          session: localStorage.getItem('${SESSION_KEY}'),
          updateMessageSeen: sessionStorage.getItem('${UPDATE_MESSAGE_KEY}') === 'true',
          status: document.getElementById('status')?.textContent || null,
+         statusRole: document.getElementById('status')?.getAttribute('role'),
+         statusLive: document.getElementById('status')?.getAttribute('aria-live'),
+         labelFor: document.querySelector('label')?.htmlFor,
          initialized: window.upgradeFixture?.initialized === true,
          controllerIsActive: navigator.serviceWorker.controller === registration?.active,
          activeState: registration?.active?.state || null,
@@ -430,6 +362,9 @@ function assertReleaseState(state, revision, metadata, session, updated = false)
     assert.deepEqual(state.metadata, metadata, 'Served release manifest differs from the built target');
     assert.equal(state.progressHash, metadata.assets['js/progress.js'], 'Progress module hash differs from target release');
     assert.equal(state.initialized, true, 'Fixture bootstrap/listeners are not initialized');
+    assert.equal(state.statusRole, 'status');
+    assert.equal(state.statusLive, 'polite');
+    assert.equal(state.labelFor, 'workout');
     assert.equal(state.activeState, 'activated');
     assert.equal(state.controllerIsActive, true, 'Page is not controlled by the active worker');
     assert.equal(state.session, session, 'In-progress workout differs from the exact saved session');
@@ -454,14 +389,19 @@ async function clickApplyUpdate(client) {
     await client.send('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, ...point });
 }
 
-async function run() {
+export async function runUpgradeSmoke({
+    openBrowser = openChrome, browserName = 'Chromium', networkMode = 'CDP offline emulation',
+    setOffline = (browser, _server, offline) => browser.client.send('Network.emulateNetworkConditions',
+        { offline, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }),
+} = {}) {
     if (!Number.isInteger(BOOTSTRAP_DELAY_MS) || BOOTSTRAP_DELAY_MS < 0 || BOOTSTRAP_DELAY_MS > 10_000) {
         throw new Error('UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS must be an integer from 0 to 10000');
     }
     if (!['', 'corrupt-session'].includes(NEGATIVE_CASE)) throw new Error('Unknown UPGRADE_SMOKE_NEGATIVE_CASE');
     await fs.mkdir(evidenceDirectory, { recursive: true });
     const evidence = {
-        status: 'running', startedAt: new Date().toISOString(), browser: 'Chromium',
+        status: 'running', startedAt: new Date().toISOString(), browser: browserName,
+        nodeVersion: process.version, platform: process.platform, syntheticDataOnly: true, networkMode,
         releaseA: RELEASE_A, releaseB: RELEASE_B, bootstrapDelayMs: BOOTSTRAP_DELAY_MS,
         checkoutSha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(),
         negativeCase: NEGATIVE_CASE || null, stages: [], console: [], exceptions: [], network: [], serviceWorkerEvents: [],
@@ -476,6 +416,8 @@ async function run() {
                 headers: event.params.response.headers, fromServiceWorker: event.params.response.fromServiceWorker || false });
         }
         if (event.method.startsWith('ServiceWorker.')) evidence.serviceWorkerEvents.push(event);
+        if (event.method === 'log.entryAdded') evidence.console.push(event.params);
+        if (event.method === 'network.responseCompleted') evidence.network.push(event.params);
     };
     const stage = name => {
         evidence.stage = name;
@@ -498,9 +440,10 @@ async function run() {
         const metadataB = JSON.parse(await fs.readFile(path.join(releases.releaseBDirectory, 'release.json'), 'utf8'));
         browserProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-pwa-chrome-profile-'));
         server = await createSwitchingServer(releases.releaseADirectory);
-        browser = await openChrome(server.url, browserProfile, onEvent, controller.signal);
+        browser = await openBrowser(server.url, browserProfile, onEvent, controller.signal);
         evidence.browserVersion = await browser.client.send('Browser.getVersion');
         evidence.ownedDebugPort = browser.port;
+        if (browser.targetId) evidence.ownedTarget = { targetId: browser.targetId, sessionId: browser.sessionId };
         stage('wait-for-initialized-active-controlled-A');
         await waitFor(browser.client, async function initializedReleaseA() {
             const registration = await navigator.serviceWorker.getRegistration();
@@ -562,16 +505,21 @@ async function run() {
                 `Release ${revision} did not complete the requested bootstrap barrier`);
         }
         stage('offline-restart');
-        await browser.client.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+        await setOffline(browser, server, true);
         // This is the deliberate offline restart, after B has already passed all update assertions.
         await browser.client.send('Page.reload', { ignoreCache: false });
         await waitFor(browser.client, async function offlineReleaseB() {
             return window.upgradeFixture?.initialized && document.querySelector('meta[name="gym-release-revision"]')?.content === 'v2.7.1';
         }, controller.signal);
+        evidence.offlineProbe = await browser.client.evaluate(`fetch('./smoke-connectivity?probe=' + Date.now(), { cache: 'no-store' })
+            .then(() => ({ rejected: false }), error => ({ rejected: true, error: error.message }))`);
+        assert.equal(evidence.offlineProbe.rejected, true, 'An uncached network request succeeded during the outage');
         evidence.offlineRestart = await pageState(browser.client);
         assertReleaseState(evidence.offlineRestart, RELEASE_B, metadataB, savedSession, true);
         stage('online-recovery');
-        await browser.client.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+        await setOffline(browser, server, false);
+        evidence.onlineProbe = await browser.client.evaluate(`fetch('./smoke-connectivity?probe=' + Date.now(), { cache: 'no-store' }).then(response => response.text())`);
+        assert.equal(evidence.onlineProbe, 'online', 'Network did not recover');
         evidence.onlineRecovery = await pageState(browser.client);
         assertReleaseState(evidence.onlineRecovery, RELEASE_B, metadataB, savedSession, true);
         await captureScreenshot(browser.client, path.join(evidenceDirectory, 'desktop.png'), 1440, 900, false);
@@ -580,6 +528,8 @@ async function run() {
     } catch (error) {
         failure = error;
         evidence.error = error.stack || error.message;
+        if (error.browserDiagnostics) evidence.browserProcess = error.browserDiagnostics;
+        if (error.browserCleanupError) evidence.cleanupError = error.browserCleanupError;
         if (browser) {
             try { evidence.failureState = await pageState(browser.client); }
             catch (captureError) { evidence.failureStateError = captureError.message; }
@@ -609,16 +559,20 @@ async function run() {
             failure ||= controller.signal.reason;
             evidence.deadlineError = controller.signal.reason.message;
         }
+        if (browser?.diagnostics) evidence.browserProcess = browser.diagnostics.snapshot();
         evidence.status = failure ? 'failed' : 'passed';
         evidence.completedAt = new Date().toISOString();
         await fs.writeFile(path.join(evidenceDirectory, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`);
         await fs.writeFile(path.join(evidenceDirectory, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
     }
     if (failure) throw failure;
-    console.log(`[browser-upgrade-smoke] Chromium release upgrade passed; artifacts: ${evidenceDirectory}`);
+    console.log(`[browser-upgrade-smoke] ${browserName} release upgrade passed; artifacts: ${evidenceDirectory}`);
 }
 
-run().catch(error => {
-    console.error(`[browser-upgrade-smoke] ${error.stack || error.message}; artifacts: ${evidenceDirectory}`);
-    process.exitCode = 1;
-});
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+    runUpgradeSmoke().catch(error => {
+        console.error(`[browser-upgrade-smoke] ${error.stack || error.message}; artifacts: ${evidenceDirectory}`);
+        process.exitCode = 1;
+    });
+}

@@ -64,6 +64,23 @@ afterEach(async () => {
 });
 
 describe('owned browser process lifecycle', () => {
+    it('gives a child its explicit environment without changing the parent', async () => {
+        const { profileDirectory } = await fixture();
+        const output = path.join(profileDirectory, 'environment.txt');
+        const owner = spawnOwnedBrowser(process.execPath, ['-e',
+            'require("node:fs").writeFileSync(process.argv[1], process.env.GYM_OWNED_CHILD_VALUE)', output], {
+            env: { ...process.env, GYM_OWNED_CHILD_VALUE: 'isolated-child-value' },
+        });
+        owners.push(owner);
+        await new Promise((resolve, reject) => {
+            owner.process.once('error', reject);
+            owner.process.once('close', code => code === 0 ? resolve() : reject(new Error(`Child exited ${code}`)));
+        });
+        expect(await fs.readFile(output, 'utf8')).toBe('isolated-child-value');
+        expect(process.env.GYM_OWNED_CHILD_VALUE).not.toBe('isolated-child-value');
+        await owner.close();
+    });
+
     it.each(['success', 'protocol-failure', 'protocol-timeout', 'startup-failure'])('terminates a real wrapper and inherited-handle descendant on %s', async mode => {
         const { profileDirectory, recordPath, getProcesses } = await fixture();
         const unrelated = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
