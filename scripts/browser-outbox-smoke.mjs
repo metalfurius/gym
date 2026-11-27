@@ -18,11 +18,13 @@ window.outbox = new OfflineManager(); await outbox.restorePersistedQueue(); wind
 </script>`;
 const signal = AbortSignal.timeout(180_000);
 const trace = []; const connections = []; const cleanupErrors = [];
-let browser; let server; let profile; let baseUrl;
+const servers = [];
+let browser; let profile; let activeScenario;
 let applicationPage;
 const result = { status: 'running', runId: crypto.randomUUID(), startedAt: new Date().toISOString(),
     checkoutSha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
-    mode: 'actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend', negativeCase };
+    mode: 'actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend', negativeCase,
+    ownedProfileId: crypto.randomUUID(), scenarios: [], servers: [] };
 function event(stage, detail = {}) { trace.push({ method: 'OutboxSmoke.stage', params: { runId: result.runId, stage, at: new Date().toISOString(), ...detail } }); }
 function serializedError(error) { return { message: error.message, stack: error.stack }; }
 async function appHtml() {
@@ -37,9 +39,9 @@ async function appHtml() {
         .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/[^"]+"><\/script>/, '')
         .replace('src="js/app.js"', 'src="tests/browser/outbox-app-bootstrap.js"');
 }
-async function startServer() {
+async function startServer(scenarioId) {
     const html = await appHtml();
-    server = createServer(async (request, response) => {
+    const server = createServer(async (request, response) => {
         try {
             const pathname = new URL(request.url, 'http://localhost').pathname;
             if (pathname === '/fixture' || pathname === '/app-fixture') {
@@ -53,15 +55,104 @@ async function startServer() {
             response.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' }); response.end(body);
         } catch { response.writeHead(404); response.end(); }
     });
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-    baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const record = { server, scenarioId };
+    servers.push(record);
+    await new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', () => { server.off('error', reject); resolve(); });
+    });
+    record.origin = `http://127.0.0.1:${server.address().port}`;
+    // Keep every server listening until final cleanup. A later independent case
+    // cannot reuse its port/origin and inherit another case's durable storage.
+    result.servers.push({ scenarioId, origin: record.origin, closed: false });
+    return record.origin;
 }
 async function ready(client, app = false) {
     await waitForSmoke(client, app ? 'window.appOutboxFixture && !document.getElementById("dashboard-view").classList.contains("hidden")' : 'window.ready === true', signal);
 }
-async function page(app = false, coldCapture = false) {
-    const connection = await connectOwnedChromium(browser.owner, profile, `${baseUrl}/${app ? 'app-fixture' : 'fixture'}${coldCapture ? '?coldCapture=1' : ''}`, item => trace.push(item), signal);
-    connections.push(connection); await ready(connection.client, app); return connection;
+function trackPage(connection, app, coldCapture, origin) {
+    assert.equal(origin, activeScenario.origin);
+    connection.fixtureOrigin = origin;
+    connections.push(connection);
+    activeScenario.connections.push(connection);
+    activeScenario.proof.pages.push({ targetId: connection.targetId, origin, app, coldCapture,
+        ownedProfileId: result.ownedProfileId });
+}
+async function page(app = false, coldCapture = false, origin = activeScenario.origin) {
+    const connection = await connectOwnedChromium(browser.owner, profile, `${origin}/${app ? 'app-fixture' : 'fixture'}${coldCapture ? '?coldCapture=1' : ''}`, item => trace.push(item), signal);
+    trackPage(connection, app, coldCapture, origin);
+    if (app) applicationPage = connection;
+    await ready(connection.client, app); return connection;
+}
+async function journalFootprint(client) {
+    return client.evaluate(`(async () => {
+        const {localFirstCache:cache}=await import('/js/utils/local-first-cache.js');
+        const prefix='offline:journal:v3:batch:';
+        const rows=await cache.getAllFromIndexedDb(prefix);
+        rows.sort((left,right)=>left.key.localeCompare(right.key));
+        const bytes=new TextEncoder().encode(JSON.stringify(rows));
+        const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),value=>value.toString(16).padStart(2,'0')).join('');
+        return {indexedDbBatches:rows.length,indexedDbBytes:bytes.byteLength,indexedDbSha256:digest,
+            localMirrorBatches:cache.localStorageKeys(prefix).length};
+    })()`);
+}
+async function finishScenario() {
+    if (!activeScenario) return;
+    const scenario = activeScenario;
+    const last = scenario.connections.at(-1);
+    scenario.proof.journalAfter = await journalFootprint(last.client);
+    const ownedIds = new Set(scenario.connections.map(connection => connection.targetId));
+    const { targetInfos } = await last.client.send('Target.getTargets');
+    const targets = targetInfos.filter(target => ownedIds.has(target.targetId));
+    for (const target of targets) await last.client.send('Target.closeTarget', { targetId: target.targetId });
+    scenario.proof.closedTargetIds = targets.map(target => target.targetId);
+    scenario.proof.assertionsCompleted = true;
+    scenario.proof.completedAt = new Date().toISOString();
+    scenario.proof.elapsedMs = Math.round(performance.now() - scenario.started);
+    scenario.proof.profileAndStorageRetained = true;
+    event('completed-fixture-scenario', scenario.proof);
+    activeScenario = null;
+}
+async function startScenario(id) {
+    await finishScenario();
+    const origin = await startServer(id);
+    const proof = { id, origin, ownedProfileId: result.ownedProfileId, startedAt: new Date().toISOString(),
+        assertionsCompleted: false, pages: [] };
+    activeScenario = { origin, connections: [], proof, started: performance.now() };
+    result.scenarios.push(proof);
+    event('started-fixture-scenario', { id, origin, ownedProfileId: result.ownedProfileId });
+    return origin;
+}
+async function appScenario(id) {
+    await startScenario(id);
+    // Observe the new origin before application startup. Startup may itself
+    // durably journal and acknowledge an owned fetch through the real manager.
+    const storageProbe = await page();
+    activeScenario.proof.journalBefore = await journalFootprint(storageProbe.client);
+    assert.equal(activeScenario.proof.journalBefore.indexedDbBatches, 0);
+    assert.equal(activeScenario.proof.journalBefore.localMirrorBatches, 0);
+    await storageProbe.client.send('Target.closeTarget', { targetId: storageProbe.targetId });
+    const connection = await page(true);
+    applicationPage = connection;
+    activeScenario.proof.journalAfterAppStartup = await journalFootprint(connection.client);
+    return connection;
+}
+async function verifyRetainedScenarios() {
+    result.retainedOrigins = [];
+    for (const scenario of result.scenarios) {
+        // A module-only probe restores the real journal without starting the
+        // app, executing its queued operations, or changing any fixture data.
+        const connection = await connectOwnedChromium(browser.owner, profile, `${scenario.origin}/fixture`, item => trace.push(item), signal);
+        connections.push(connection);
+        await ready(connection.client);
+        const footprint = await journalFootprint(connection.client);
+        assert.deepEqual(footprint, scenario.journalAfter);
+        await connection.client.send('Target.closeTarget', { targetId: connection.targetId });
+        const proof = { scenarioId: scenario.id, origin: scenario.origin, ownedProfileId: result.ownedProfileId,
+            targetId: connection.targetId, footprint, verifiedAt: new Date().toISOString() };
+        result.retainedOrigins.push(proof);
+        event('verified-retained-fixture-storage', proof);
+    }
 }
 async function enqueue(connection, id, owner) {
     return connection.client.evaluate(`(async () => {
@@ -89,9 +180,11 @@ async function screenshot(connection, name) {
     await fs.writeFile(path.join(output, `${name}.png`), Buffer.from(image.data, 'base64'));
 }
 async function run() {
-    await startServer(); profile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-smoke-outbox-'));
-    browser = await openSmokeBrowser('chromium', `${baseUrl}/fixture`, profile, item => trace.push(item), signal);
-    connections.push(browser); await ready(browser.client); result.browser = browser.version;
+    const coreOrigin = await startScenario('core-cross-tab-causal-barriers');
+    profile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-smoke-outbox-'));
+    browser = await openSmokeBrowser('chromium', `${coreOrigin}/fixture`, profile, item => trace.push(item), signal);
+    trackPage(browser, false, false, coreOrigin); await ready(browser.client); result.browser = browser.version;
+    activeScenario.proof.journalBefore = await journalFootprint(browser.client);
     event('two-independent-native-tabs');
     const second = await page();
     await enqueue(browser, 'intent-A', 'owner-A'); await enqueue(second, 'intent-B', 'owner-B');
@@ -172,8 +265,9 @@ async function run() {
     assert.equal(result.localStorageFallback.ghost, false); assert.equal(result.localStorageFallback.pending, false);
 
     event('actual-app-native-idb-transaction-negatives');
-    const app = await page(true); applicationPage = app; result.appCases = [];
+    let app; result.appCases = [];
     for (const mode of ['success-abort', 'request-error-complete']) {
+        app = await appScenario(`quicklog-${mode}`);
         await app.client.evaluate(`appOutboxFixture.configure(${JSON.stringify(`native-${mode}`)})`);
         await app.client.evaluate(`appOutboxFixture.nativeFault(${JSON.stringify(mode)})`); await network(app, true);
         const first = await app.client.evaluate('appOutboxFixture.save()'); assert.equal(first.ok, false);
@@ -193,6 +287,7 @@ async function run() {
         result.appCases.push({ mode, first, retry, nativeEvents: events, sessions: state.sessions });
     }
     for (const mode of ['mirror', 'refresh', 'ack-abort', 'lost-rpc']) {
+        app = await appScenario(`quicklog-${mode}`);
         await app.client.evaluate(`appOutboxFixture.configure(${JSON.stringify(`native-${mode}`)})`);
         const method = { mirror: 'mirrorFault()', refresh: 'refreshFault()', 'ack-abort': "nativeFault('ack-abort')", 'lost-rpc': 'lostRpcAcknowledgement()' }[mode];
         await app.client.evaluate(`appOutboxFixture.${method}`);
@@ -205,6 +300,7 @@ async function run() {
     }
     event('actual-routine-capture-queued-terminal-identity'); result.captureCases = [];
     for (const mode of ['offline', 'lost-rpc', 'unknown-journal', 'unknown-before-commit', 'draft-cleanup']) {
+        app = await appScenario(`capture-${mode}`);
         await network(app, false);
         await app.client.evaluate(`appOutboxFixture.configure(${JSON.stringify(`native-capture-${mode}`)})`);
         await app.client.evaluate('appOutboxFixture.captureStart()');
@@ -227,7 +323,7 @@ async function run() {
             writeAhead = await app.client.evaluate('appOutboxFixture.rawCaptureDrafts()');
             assert.equal(writeAhead.primary.captureId, saved.sessionId); assert.deepEqual(writeAhead.primary, writeAhead.mirror);
             assert.equal((await app.client.evaluate('appOutboxFixture.coldQueue()')).length, 0);
-            await app.client.evaluate('appOutboxFixture.persistFixtureBackend()'); replayPage = await page(true, true);
+            await app.client.evaluate('appOutboxFixture.persistFixtureBackend()'); replayPage = await page(true, true, app.fixtureOrigin);
             await replayPage.client.evaluate('appOutboxFixture.settleOwner()'); await network(replayPage, true);
             await replayPage.client.evaluate('delete navigator.onLine');
             assert.equal(await replayPage.client.evaluate('appOutboxFixture.offerCaptureResume()'), true);
@@ -246,6 +342,7 @@ async function run() {
         result.captureCases.push({ mode, saved, first, repeated, writeAhead, final });
     }
     event('actual-routine-capture-native-abort-retry');
+    app = await appScenario('capture-native-abort-retry');
     await app.client.evaluate("appOutboxFixture.configure('native-capture-abort')");
     await app.client.evaluate('appOutboxFixture.captureStart()'); await network(app, true);
     await app.client.evaluate("appOutboxFixture.nativeFault('success-abort','session.save')");
@@ -264,6 +361,7 @@ async function run() {
     result.captureCases.push({ mode: 'native-proven-abort-retry', failedCapture, abortedCapture, retriedCapture, finalCapture });
 
     event('actual-routine-capture-aba-new-form');
+    app = await appScenario('capture-auth-and-form-generation');
     await app.client.evaluate("appOutboxFixture.configure('native-capture-ABA')");
     await app.client.evaluate("appOutboxFixture.captureStart('Old A capture')"); await network(app, true);
     await app.client.evaluate('appOutboxFixture.holdQueuedCaptureCompletion();appOutboxFixture.beginCaptureSave()');
@@ -286,6 +384,7 @@ async function run() {
     await app.client.evaluate('appOutboxFixture.clearFault()'); await network(app, false);
 
     event('actual-routine-two-deliberate-identical-starts');
+    app = await appScenario('capture-two-deliberate-starts');
     await app.client.evaluate("appOutboxFixture.configure('native-capture-two-deliberate')"); await network(app, true);
     await app.client.evaluate('appOutboxFixture.captureStart();');
     const deliberateA = await app.client.evaluate('appOutboxFixture.captureSave()');
@@ -299,6 +398,7 @@ async function run() {
     event('consumed-primary-mirror-drafts-warm-and-cold-native-realms'); result.durableCaptureCases = [];
     for (const slot of ['primary', 'mirror']) {for (const acknowledged of [false, true]) {for (const cold of [false, true]) {
         const owner = `durable-${slot}-${acknowledged}-${cold}`;
+        app = await appScenario(owner);
         await network(app, false); await app.client.evaluate(`appOutboxFixture.configure(${JSON.stringify(owner)})`);
         await app.client.evaluate('appOutboxFixture.captureStart()'); await network(app, true);
         await app.client.evaluate(`appOutboxFixture.draftCleanupFault(${JSON.stringify(slot)})`);
@@ -309,7 +409,7 @@ async function run() {
         if (acknowledged) { await network(app, false); await app.client.evaluate('appOutboxFixture.replay()'); await network(app, true); }
         let target = app;
         if (cold) {
-            await app.client.evaluate('appOutboxFixture.persistFixtureBackend()'); target = await page(true, true);
+            await app.client.evaluate('appOutboxFixture.persistFixtureBackend()'); target = await page(true, true, app.fixtureOrigin);
             await target.client.evaluate('appOutboxFixture.settleOwner()'); await network(target, true);
             await target.client.evaluate('delete navigator.onLine');
         }
@@ -325,6 +425,7 @@ async function run() {
         result.durableCaptureCases.push({ slot, acknowledged, coldRealm: cold, saved, stale, final });
     }}}
     event('native-PWA5-no-ID-backup-explicit-resume-preflight');
+    app = await appScenario('capture-legacy-PWA5-backup');
     await network(app, false); await app.client.evaluate("appOutboxFixture.configure('native-legacy-no-ID')"); await network(app, true);
     result.legacyCapture = await app.client.evaluate('appOutboxFixture.legacyPwaBackup()'); assert.equal(result.legacyCapture.restored, true);
     assert.equal(await app.client.evaluate('appOutboxFixture.offerCaptureResume()'), true);
@@ -345,6 +446,7 @@ async function run() {
     assert.equal(result.legacyCapture.final.sessions[0].sessionId, legacySaved.sessionId);
 
     event('actual-settings-authoritative-journal-over-advisory-cache');
+    app = await appScenario('weekly-advisory-cache');
     await app.client.evaluate("appOutboxFixture.configure('native-weekly-advisory')"); await network(app, true);
     await app.client.evaluate("appOutboxFixture.weeklyCacheFault();appOutboxFixture.weekly(4,'weekly-advisory-first')");
     const advisoryFirst = await app.client.evaluate('appOutboxFixture.state()'); assert.equal(advisoryFirst.uiTarget, '4');
@@ -363,6 +465,7 @@ async function run() {
     result.weeklyAdvisoryFailure = { advisoryFirst, afterMemoryRestart, advisoryIntents, advisoryFinal };
 
     event('actual-settings-causal-chain');
+    app = await appScenario('weekly-causal-chain');
     await app.client.evaluate("appOutboxFixture.configure('native-weekly')"); await network(app, true);
     await app.client.evaluate("appOutboxFixture.setClock(1806321600000);appOutboxFixture.weekly(4,'z-first')");
     await app.client.evaluate("appOutboxFixture.setClock(1806321540000);appOutboxFixture.weekly(7,'a-second')");
@@ -373,6 +476,13 @@ async function run() {
     result.weekly = await app.client.evaluate('appOutboxFixture.state()');
     assert.equal(result.weekly.target, 7); assert.equal(result.weekly.uiTarget, '7');
     result.weekly.originalIntents = targets.map(entry => ({ id: entry.id, timestamp: entry.timestamp, payload: entry.descriptor.payload }));
+    await finishScenario();
+    assert.equal(result.scenarios.length, 26);
+    assert.equal(new Set(result.scenarios.map(scenario => scenario.origin)).size, 26);
+    assert(result.scenarios.every(scenario => scenario.assertionsCompleted && scenario.profileAndStorageRetained));
+    assert.equal(result.appCases.length, 6); assert.equal(result.captureCases.length, 6);
+    assert.equal(result.durableCaptureCases.length, 8);
+    await verifyRetainedScenarios();
     event('passed-assertions-awaiting-cleanup');
 }
 
@@ -383,6 +493,9 @@ try {
         'js/utils/outbox-journal-storage.js', 'js/utils/offline-manager.js', 'js/utils/local-first-cache.js', 'js/app.js', 'js/modules/session-manager.js',
         'js/i18n.js', 'js/version-manager.js', 'tests/browser/outbox-app-bootstrap.js', 'tests/browser/outbox-app-environment.js'].map(async file => [file,
         crypto.createHash('sha256').update((await fs.readFile(path.join(root, file), 'utf8')).replace(/\r\n?/g, '\n')).digest('hex')])));
+    result.fixtureSourceHashesLf = Object.fromEntries(await Promise.all(['scripts/browser-outbox-smoke.mjs',
+        'scripts/verify-outbox-smoke-negative.mjs'].map(async file => [file,
+        crypto.createHash('sha256').update((await fs.readFile(path.join(root, file), 'utf8')).replace(/\r\n?/g, '\n')).digest('hex')])));
     if (negativeCase && !['cleanup-owner', 'cleanup-connection', 'cleanup-server'].includes(negativeCase)) throw new Error('Unknown outbox smoke negative case');
     await run();
 } catch (error) {
@@ -391,17 +504,28 @@ try {
     catch (captureError) { result.captureError = serializedError(captureError); }
 }
 finally {
-    const cleanup = async (stage, operation) => {
-        try { await operation(); if (negativeCase === stage) throw new Error(`Deliberately injected ${stage} failure after real cleanup`); event(stage, { status: 'done' }); }
-        catch (error) { cleanupErrors.push({ stage, ...serializedError(error) }); event(stage, { status: 'failed', message: error.message }); }
+    const cleanup = async (stage, operation, detail = {}) => {
+        try { await operation(); if (negativeCase === stage) throw new Error(`Deliberately injected ${stage} failure after real cleanup`); event(stage, { ...detail, status: 'done' }); }
+        catch (error) { cleanupErrors.push({ stage, ...detail, ...serializedError(error) }); event(stage, { ...detail, status: 'failed', message: error.message }); }
     };
     await cleanup('cleanup-owner', async () => { if (browser) await browser.owner.close(); else if (profile) await removeSmokeProfile(profile); });
     for (const connection of connections) await cleanup('cleanup-connection', async () => { connection.client.close(); });
-    await cleanup('cleanup-server', async () => { if (server) { server.closeAllConnections(); await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())); } });
+    for (const { server, origin, scenarioId } of servers) {
+        await cleanup('cleanup-server', async () => {
+            if (server.listening) {
+                server.closeAllConnections();
+                await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+            }
+            const proof = result.servers.find(item => item.origin === origin);
+            if (proof) { proof.closed = true; proof.closedAt = new Date().toISOString(); }
+        }, { origin, scenarioId });
+    }
     result.cleanupErrors = cleanupErrors;
     try { await fs.writeFile(path.join(output, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`); }
     catch (error) { cleanupErrors.push({ stage: 'cleanup-trace', ...serializedError(error) }); }
+    if (signal.aborted && !result.primaryError) result.primaryError = serializedError(signal.reason);
     result.status = result.primaryError || cleanupErrors.length ? 'failed' : 'passed'; result.completedAt = new Date().toISOString();
+    result.elapsedMs = Date.parse(result.completedAt) - Date.parse(result.startedAt);
     // Publish final status only after every owner/connection/server/trace cleanup.
     await fs.writeFile(path.join(output, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
     if (result.status !== 'passed') process.exitCode = 1;

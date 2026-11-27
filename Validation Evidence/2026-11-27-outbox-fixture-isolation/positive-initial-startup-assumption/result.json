@@ -1,0 +1,342 @@
+{
+  "status": "failed",
+  "runId": "4a706186-5995-4328-9f41-21794a537439",
+  "startedAt": "2026-11-27T17:29:13.975Z",
+  "checkoutSha": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "mode": "actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend",
+  "negativeCase": null,
+  "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23",
+  "scenarios": [
+    {
+      "id": "core-cross-tab-causal-barriers",
+      "origin": "http://127.0.0.1:57561",
+      "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23",
+      "startedAt": "2026-11-27T17:29:14.031Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "242B901CCF492ACDC68D9954BB8AB6A1",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "E986022505489A87AC3B62EB50187126",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "2B69D2661D07362EE0E64C2226E50775",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "78E355B5E087B5305543B16F3346FC13",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "D479DD9EDAAD7C3DBFA7599764ECF177",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "E1AB6977B88B23D9F9AE0B04B118C387",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "508B70D612DB7A3D086F20AD04AF0BAF",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "889368DF083E950FC30BB46244F6BD0C",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "D3BF6BCE4B84DA82B6A576AAD58A48D1",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "B083443C5D2707AC25667B3CA4BD065D",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "8F2EB4446537F580C7E6ADDB986C832E",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        },
+        {
+          "targetId": "AA8AF77E75DA0440D52239ED6735E934",
+          "origin": "http://127.0.0.1:57561",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "localMirrorBatches": 0
+      },
+      "journalAfter": {
+        "indexedDbBatches": 10,
+        "indexedDbBytes": 6470,
+        "localMirrorBatches": 10
+      },
+      "closedTargetIds": [
+        "508B70D612DB7A3D086F20AD04AF0BAF",
+        "2B69D2661D07362EE0E64C2226E50775",
+        "78E355B5E087B5305543B16F3346FC13",
+        "D479DD9EDAAD7C3DBFA7599764ECF177",
+        "E1AB6977B88B23D9F9AE0B04B118C387",
+        "D3BF6BCE4B84DA82B6A576AAD58A48D1",
+        "AA8AF77E75DA0440D52239ED6735E934",
+        "889368DF083E950FC30BB46244F6BD0C",
+        "8F2EB4446537F580C7E6ADDB986C832E",
+        "B083443C5D2707AC25667B3CA4BD065D"
+      ],
+      "completedAt": "2026-11-27T17:29:17.445Z",
+      "elapsedMs": 3413,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-success-abort",
+      "origin": "http://127.0.0.1:52713",
+      "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23",
+      "startedAt": "2026-11-27T17:29:17.448Z",
+      "assertionsCompleted": false,
+      "pages": [
+        {
+          "targetId": "98D13F6DA6AA4423BF307C9E160916EC",
+          "origin": "http://127.0.0.1:52713",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "199c8a02-530b-443c-b0fd-2173d264cd23"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "localMirrorBatches": 2
+      }
+    }
+  ],
+  "servers": [
+    {
+      "scenarioId": "core-cross-tab-causal-barriers",
+      "origin": "http://127.0.0.1:57561",
+      "closed": true,
+      "closedAt": "2026-11-27T17:29:18.606Z"
+    },
+    {
+      "scenarioId": "quicklog-success-abort",
+      "origin": "http://127.0.0.1:52713",
+      "closed": true,
+      "closedAt": "2026-11-27T17:29:18.606Z"
+    }
+  ],
+  "sourceHashesLf": {
+    "js/utils/durable-outbox.js": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+    "js/utils/outbox-order.js": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+    "js/utils/outbox-journal-storage.js": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+    "js/utils/offline-manager.js": "225434ba7f5b1c3de4c1d046c1859b06796a72fb06741cedac89eae4a31df4c8",
+    "js/utils/local-first-cache.js": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+    "js/app.js": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+    "js/modules/session-manager.js": "10ff438dfd362c61642b96bc1839aa6fd8680d6a07b27e913e9ea16f21d2daf8",
+    "js/i18n.js": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50",
+    "js/version-manager.js": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983",
+    "tests/browser/outbox-app-bootstrap.js": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+    "tests/browser/outbox-app-environment.js": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+  },
+  "fixtureSourceHashesLf": {
+    "scripts/browser-outbox-smoke.mjs": "108738e2f0ef51050b3133f94a350a47ba296acc57893d26b20f19634000f24a",
+    "scripts/verify-outbox-smoke-negative.mjs": "88137dc11cd6385687fd833b1685ae05d0d8e5c2bd23cd2c3dc4e6f1a01edccf"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "afterReopen": {
+    "pending": [
+      {
+        "id": "intent-A",
+        "status": "pending",
+        "owner": "owner-A"
+      },
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      }
+    ],
+    "local": [
+      "intent:intent-A:",
+      "intent:intent-B:"
+    ],
+    "indexedDb": [
+      "intent:intent-A:",
+      "intent:intent-B:"
+    ],
+    "durableBatches": 2
+  },
+  "afterAcknowledgement": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 4
+  },
+  "afterConflict": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "conflict",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 5
+  },
+  "afterResolution": {
+    "pending": [
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "ack:intent-B:resolved",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "ack:intent-B:resolved",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 6
+  },
+  "sameOwnerCausal": {
+    "before": [
+      {
+        "id": "same-z-first",
+        "timestamp": 1806321600000
+      },
+      {
+        "id": "same-a-second",
+        "timestamp": 1806321540000
+      }
+    ],
+    "calls": [
+      "same-op-A",
+      "same-op-B"
+    ],
+    "remaining": 0
+  },
+  "afterUnknownMutation": {
+    "blockedBefore": true,
+    "blockedAfter": true,
+    "pending": [
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete"
+    ]
+  },
+  "coldUnknownSnapshot": null,
+  "localStorageFallback": {
+    "mode": "simulated no-IDB capability; native Storage.setItem QuotaExceededError injection",
+    "error": {
+      "message": "Durable local storage unavailable",
+      "provenNotCommitted": true
+    },
+    "ghost": false,
+    "pending": false
+  },
+  "appCases": [],
+  "primaryError": {
+    "message": "Expected values to be strictly equal:\n\n2 !== 0\n",
+    "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2 !== 0\n\n    at appScenario (file:///C:/tmp/gym-roadmap-outbox-fixture-isolation/scripts/browser-outbox-smoke.mjs:128:12)\n    at async run (file:///C:/tmp/gym-roadmap-outbox-fixture-isolation/scripts/browser-outbox-smoke.mjs:245:15)\n    at async file:///C:/tmp/gym-roadmap-outbox-fixture-isolation/scripts/browser-outbox-smoke.mjs:474:5"
+  },
+  "cleanupErrors": [],
+  "completedAt": "2026-11-27T17:29:18.615Z",
+  "elapsedMs": 4640
+}

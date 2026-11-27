@@ -1,0 +1,94 @@
+{
+  "base": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "basis": "Canonical Git index bytes; LF with original BOM retained",
+  "protectedFiles": [
+    "js/utils/durable-outbox.js",
+    "js/utils/outbox-order.js",
+    "js/utils/outbox-journal-storage.js",
+    "js/utils/offline-manager.js",
+    "js/utils/local-first-cache.js",
+    "js/app.js",
+    "js/modules/session-manager.js",
+    "js/i18n.js",
+    "js/version-manager.js",
+    "tests/browser/outbox-app-bootstrap.js",
+    "tests/browser/outbox-app-environment.js"
+  ],
+  "files": {
+    ".gitattributes": {
+      "bytes": 3305,
+      "sha256": "59f9e825dcb572c3d506b653b05b9127f9d53dbddca75744e49d92436f84bb63",
+      "utf8Bom": false
+    },
+    "scripts/browser-outbox-smoke.mjs": {
+      "bytes": 41769,
+      "sha256": "f95b8450c8e1bee73bb3f8ca4e78be202e5f3679dc251a68c0f1fda1ff8f8450",
+      "utf8Bom": false
+    },
+    "scripts/verify-outbox-smoke-negative.mjs": {
+      "bytes": 3316,
+      "sha256": "672cf2f3f096a1520e5864840d55a76ea3f7a86083f82cbd7ebdea8165ca4647",
+      "utf8Bom": false
+    },
+    ".github/workflows/test.yml": {
+      "bytes": 3111,
+      "sha256": "04a1ce0e3c36fb394de609f4949cac5436e2d31725a0962f23a16f0ef1be17fb",
+      "utf8Bom": false
+    },
+    "js/utils/durable-outbox.js": {
+      "bytes": 10757,
+      "sha256": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+      "utf8Bom": false
+    },
+    "js/utils/outbox-order.js": {
+      "bytes": 3567,
+      "sha256": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+      "utf8Bom": false
+    },
+    "js/utils/outbox-journal-storage.js": {
+      "bytes": 4126,
+      "sha256": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+      "utf8Bom": false
+    },
+    "js/utils/offline-manager.js": {
+      "bytes": 34586,
+      "sha256": "225434ba7f5b1c3de4c1d046c1859b06796a72fb06741cedac89eae4a31df4c8",
+      "utf8Bom": false
+    },
+    "js/utils/local-first-cache.js": {
+      "bytes": 24049,
+      "sha256": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+      "utf8Bom": false
+    },
+    "js/app.js": {
+      "bytes": 82872,
+      "sha256": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+      "utf8Bom": true
+    },
+    "js/modules/session-manager.js": {
+      "bytes": 43196,
+      "sha256": "10ff438dfd362c61642b96bc1839aa6fd8680d6a07b27e913e9ea16f21d2daf8",
+      "utf8Bom": false
+    },
+    "js/i18n.js": {
+      "bytes": 61015,
+      "sha256": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50",
+      "utf8Bom": false
+    },
+    "js/version-manager.js": {
+      "bytes": 15696,
+      "sha256": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983",
+      "utf8Bom": false
+    },
+    "tests/browser/outbox-app-bootstrap.js": {
+      "bytes": 12187,
+      "sha256": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+      "utf8Bom": false
+    },
+    "tests/browser/outbox-app-environment.js": {
+      "bytes": 1639,
+      "sha256": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e",
+      "utf8Bom": false
+    }
+  }
+}

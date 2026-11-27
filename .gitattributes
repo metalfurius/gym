@@ -54,3 +54,7 @@ firestore.rules text eol=lf
 "Validation Evidence/2026-11-27-objective2-review-bdab/**/*.md" text eol=lf
 "Validation Evidence/2026-11-27-objective2-review-bdab/**/*.txt" text eol=lf
 "Validation Evidence/2026-11-27-objective2-review-bdab/**/*.png" -text
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.png" -text
