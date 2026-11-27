@@ -1,11 +1,11 @@
 # My Workout Tracker - Product and Technical Roadmap
 
-Last reviewed: November 20, 2026
+Last reviewed: November 27, 2026
 
 ## Scope and Status
 
-This is the ordered product and technical backlog. The published baseline is **v2.8.4**, on
-[`main` at `9028320`](https://github.com/metalfurius/gym/commit/9028320061aa388cd529a5a415d4785e1e084a82).
+This is the ordered product and technical backlog. The published baseline is **v2.8.5**, on
+[`main` at `fd82d80`](https://github.com/metalfurius/gym/commit/fd82d8080007c19426a47a17cddb3428ea6ab59d).
 Status is based on merged code, release checks, and the latest deployment results, rather than the age of a plan.
 
 - **Done:** merged into `main` with validation evidence.
@@ -20,17 +20,17 @@ Port useful changes onto current `main` and validate them against the newer rele
 
 ## Verified Baseline
 
-- Version **2.8.4** was released and deployed on November 20, 2026; a fresh isolated production client loaded that revision.
-- **848 tests across 56 suites** passed on the reviewed implementation. Application statements coverage was **74.95%**, above the current **70%** gate.
+- Version **2.8.5** was released and deployed on November 27, 2026; its exact Pages deployment and public delivery checks passed.
+- **894 tests across 60 suites** passed on the reviewed implementation. Application statements coverage was **74.95%**, above the permanent **70%** gate.
 - Lint, CodeQL, release verification, app/offline journeys and Chromium checks passed. Main's first upgrade-smoke attempt failed with an old shell after activation; its second attempt passed. The reproduced fixture race was then fixed in reviewed [PR #105](https://github.com/metalfurius/gym/pull/105), with normal and delayed-bootstrap cases passing in Linux CI; both earlier results remain recorded.
-- The scoped Cloudflare credential and rule precedence are repaired. The real production workflow purged **64 canonical URLs** after the matching Pages deployment; **two complete 64-response sweeps** agreed on v2.8.4. **Objective 1 remains partial** because the old installed-client preservation/offline/reconnect journey and final two-judge closure review are outstanding.
-- Open maintenance PRs at review time: [#67](https://github.com/metalfurius/gym/pull/67) and [#70](https://github.com/metalfurius/gym/pull/70). There are no open standalone issues; this does not mean the backlog is empty.
+- The scoped Cloudflare credential and rule precedence are repaired. The real production workflow purged **64 canonical URLs** after the matching Pages deployment; **two complete 64-response sweeps** agreed on v2.8.5. **Objective 1 remains partial** because the old installed-client preservation/offline/reconnect journey and final two-judge closure review are outstanding.
+- Maintenance [#109](https://github.com/metalfurius/gym/pull/109) is merged and published; superseded PRs [#67](https://github.com/metalfurius/gym/pull/67) and [#70](https://github.com/metalfurius/gym/pull/70) are closed with replacement references. Eight real Linux/Windows browser checks and the Firestore rules emulator are required on main. The reviewed stricter rules source is merged, but **not deployed or activated**.
 
-Evidence: [release v2.8.4](https://github.com/metalfurius/gym/releases/tag/v2.8.4),
-[reviewed-head tests](https://github.com/metalfurius/gym/actions/runs/44732937375),
-[matching Pages deployment](https://github.com/metalfurius/gym/actions/runs/44733781150),
-[successful production cache workflow](https://github.com/metalfurius/gym/actions/runs/44733829284),
-[full operational record and open criteria](docs/production-cache-evidence-2026-11-20.md).
+Evidence: [release v2.8.5](https://github.com/metalfurius/gym/releases/tag/v2.8.5),
+[reviewed-head tests](https://github.com/metalfurius/gym/actions/runs/46019955555),
+[matching Pages deployment](https://github.com/metalfurius/gym/actions/runs/46022677867),
+[successful production cache workflow](https://github.com/metalfurius/gym/actions/runs/46022758077),
+[maintenance publication record and open criteria](docs/maintenance-evidence-2026-11-27.md).
 These are dated observations, not a guarantee that future commits or deployments pass.
 
 ## Delivered
@@ -63,18 +63,18 @@ No calendar dates are committed until the preceding completion conditions are me
 | Order | Priority | Improvement                                                      | State                           | Completion condition                                                                                                     |
 | ----- | -------- | ---------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | 1     | P0       | Reliable production cache delivery                               | Partial; live purge/coherence pass, installed-client proof open | Purge and canonical production verification both pass for a deployed revision, with preserved installed-client workouts. |
-| 2     | P1       | History, progress, and sync correctness                          | Planned verification and fixes  | Cross-view, account-switch, date-boundary, and reconnect scenarios produce the same saved data and metrics.              |
+| 2     | P1       | History, progress, and sync correctness                          | Local implementation and review fixes; backend activation open | Cross-view, account-switch, date-boundary, and reconnect scenarios produce the same saved data and metrics.              |
 | 3     | P1       | Complete read-optimized weekly consistency v1.1                  | Partial / local                 | Measurably fewer Firestore reads, persistent per-user Daily Hub cache, and no correctness regression.                    |
-| 4     | P1       | Maintain dependencies and make quality checks reproducible       | Planned; #67 and #70 open       | Current compatible dependency updates pass, documented commands match `main`, and browser checks are reproducible.       |
-| 5     | P2       | Portable workout-history backup                                  | New; planned                    | A user can export a complete, versioned copy of their own saved workouts with clear completeness information.            |
-| 6     | P2       | Correct saved workouts without recreating them                   | New; planned                    | A correction keeps the session ID/date, validates values, and refreshes affected views without duplicate sessions.       |
-| 7     | P2       | Separate dashboard, Quick Log, and weekly state responsibilities | Planned                         | Smaller modules retain existing behavior, compatibility fields, offline ordering, and measured read ceilings.            |
+| 4     | P1       | Maintain dependencies and make quality checks reproducible       | Published foundations; actual iOS evidence open | Current compatible dependency updates pass, documented commands match `main`, and actual Safari/Home Screen PWA scenarios pass. |
+| 5     | P2       | Portable workout-history backup                                  | Local implementation; real paginated exporter proof passed | A user can export a complete, versioned copy of their own saved workouts with clear completeness information.            |
+| 6     | P2       | Correct saved workouts without recreating them                   | First local implementation; independent preliminary reviews | A correction keeps the session ID/date, validates values, and refreshes affected views without duplicate sessions.       |
+| 7     | P2       | Separate dashboard, Quick Log, and weekly state responsibilities | Local pure-helper foundation; orchestration pending | Smaller modules retain existing behavior, compatibility fields, offline ordering, and measured read ceilings.            |
 
 ### 1. Reliable Production Cache Delivery
 
 The Cloudflare credential and Gym rule order are repaired by [PR #103](https://github.com/metalfurius/gym/pull/103).
 The workflow now binds its immutable checkouts and purge to the successful matching Pages deployment and validates
-two complete canonical sweeps. The real v2.8.4 run passed; see the [operational evidence](docs/production-cache-evidence-2026-11-20.md).
+two complete canonical sweeps. Real v2.8.4 and v2.8.5 runs passed; see the [latest publication evidence](docs/maintenance-evidence-2026-11-27.md).
 
 Still required: verify an already-installed previous-release client updates and restarts offline without losing
 its in-progress workout, then reconnects and saves once. Obtain both judges' review of the full closure evidence.
@@ -105,15 +105,16 @@ must still work, and high-volume/truncated results must not corrupt historical o
 
 ### 4. Dependencies and Reproducible Quality Checks
 
-Re-evaluate #67 and #70 against current `main`; split incompatible major upgrades from routine maintenance.
-Address deprecated action runtimes without changing application behavior in the same PR. Align the README,
-testing/contribution policy, versioning documentation, and executable scripts before claiming additional gates
-are enforced. The local `merge-ready` proposal and repository-wide blocking formatting are not delivered policy.
+Published foundations: reviewed browser infrastructure in #107 and maintenance in #109. The latter replaces
+#67/#70, migrates ESLint 10 with its configuration, updates the Jest/Prettier toolchain and four pinned Actions,
+aligns executable documentation, and makes the coverage floor permanent. The eight Linux/Windows browser jobs,
+normal/delayed Chromium upgrade, app/offline checks and actual rules emulator all passed on the published SHA.
+Formatting remains advisory and `merge-ready` is not a delivered command. Eighteen moderate audit findings
+remain documented; zero high/critical were reported in the application tooling audit.
 
-Chromium upgrade coverage already runs in CI. Reuse the existing Firefox upgrade, numeric-input, and
-session-counting smoke scripts; make their execution and evidence reproducible, adding appropriate CI jobs.
-Add a focused mobile Safari/iOS installed-PWA check, initially manual if necessary. Keep coverage at or above
-70% and prioritize regression cases over increasing the percentage for its own sake.
+Still required: actual mobile Safari and Home Screen PWA scenarios, including offline cold start, preserved
+workout and old-installed-to-new update. No physical iOS result has been observed. See the
+[criterion-by-criterion record](docs/maintenance-evidence-2026-11-27.md). Keep coverage at or above 70%.
 
 ### 5. Portable Workout-History Backup
 
@@ -153,8 +154,8 @@ when modules change. Measure against the read budget established in priority 3.
 - **Retired as new features:** Quick Log, weekly streaks, language switching, routine import, best-record/trend
   statistics, previous-workout suggestions, accessible chart alternatives, and the recent numeric/target fixes.
   Their follow-ups belong to the specific items above.
-- **Reclassified:** cross-browser testing is partly implemented, not wholly deferred. The remaining work is
-  CI integration and real mobile coverage. PWA update code is shipped; operational cache delivery is not closed.
+- **Reclassified:** Linux/Windows Chromium/Firefox browser CI is delivered. Physical mobile coverage remains
+  open. PWA update code and public cache delivery pass; the installed-client acceptance is not closed.
 - **Deferred:** optional personal challenges until the core flow is reliable and a concrete user need is defined.
   Social sharing, leaderboards, and competitive mechanics have no implementation commitment.
 - **Deferred:** nutrition and broader body-composition/goal schemas. Reconsider only with a concrete use case,

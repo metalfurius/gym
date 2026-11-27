@@ -1,21 +1,24 @@
 # Roadmap execution plans
 
-Status: execution in progress, November 20, 2026. No objective has closed. Objective 1's prerequisite is merged;
-its real policy repair, purge and canonical sweeps passed. Installed-client evidence remains open.
-[Operational record](../production-cache-evidence-2026-11-20.md).
+Status: execution in progress, November 27, 2026. No objective has closed. Production delivery and maintenance
+prerequisites are published in v2.8.5; public purge/coherence and desktop browser CI pass. Old installed-client
+and actual iOS evidence remain open. [Latest publication record](../maintenance-evidence-2026-11-27.md).
 
 [UPGRADE-PLAN.md](../../UPGRADE-PLAN.md) owns priority and shipped status. These plans turn its seven active
-objectives into implementation and acceptance work. They use published `main`
+objectives into implementation and acceptance work. Their original planning baseline was published `main`
 `d4c6d0d2b8e3950ab1bc97ce9c371dde166fe612` (v2.8.3), including the later counting, numeric-input,
 weekly-target and PWA fixes. Local branch `codex/stabilize-read-optimized-v1` and commit `9a6d883` are
-reference material, not a delivered implementation or an acceptable substitute baseline.
+reference material, not a delivered implementation or an acceptable substitute baseline. Current published
+source is `fd82d8080007c19426a47a17cddb3428ea6ab59d` (v2.8.5); refresh dependency integration and both
+reviews against the actual final implementation head. Local implementations of objectives 2/3/5/6 and the
+pure-helper foundation for 7 are not shipped features.
 
 | Order | Individual plan                                            | Required dependencies                                  | Closure evidence                                                                                                |
 | ----- | ---------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
 | 1     | [Production delivery](01-production-delivery.md)           | Repaired Cloudflare token/policy; installed client     | Successful real purge, repeated canonical coherence, preserved workout through update/offline/reconnect         |
 | 2     | [History, progress and sync](02-history-progress-sync.md)  | Independent clients and a designated real test account | Deterministic race/date tests, cross-view agreement, real two-device reconnect/conflict run                     |
 | 3     | [Read-optimized Daily Hub](03-read-optimized-daily-hub.md) | Objective 2 account/mutation/completeness contracts    | Current-main baseline versus candidate read counts, persistent offline snapshot, zero fresh-cache session reads |
-| 4     | [Maintenance and quality](04-maintenance-quality.md)       | Current #67/#70 diffs; actual iOS device               | Compatible maintenance, reproducible browser CI, observed Safari and installed iOS PWA results                  |
+| 4     | [Maintenance and quality](04-maintenance-quality.md)       | Published #107/#109 foundations; actual iOS device     | Compatible maintenance, reproducible browser CI, observed Safari and installed iOS PWA results                  |
 | 5     | [Portable backup](05-portable-backup.md)                   | Objective 2 account/completeness rules                 | Full paginated export fidelity, honest local-only export, reviewed restore design                               |
 | 6     | [Saved-workout editing](06-saved-workout-editing.md)       | Objective 2 invalidation/conflict foundations          | Same-ID/date corrections, durable offline/reconnect, conflicts, ES/EN keyboard journeys                         |
 | 7     | [Module boundaries](07-module-boundaries.md)               | Objectives 2/3 contracts; finished behavior from 5/6   | Behavioral parity, unchanged wire/queue contracts, unchanged read ceilings, valid PWA graph                     |
@@ -90,8 +93,11 @@ device never becomes a passing manual test.
 ## Operational and device gates still open
 
 - Cloudflare: a new zone-scoped account token is verified, the production secret is updated, and the real
-  workflow repaired rule order, purged 64 URLs and passed two canonical sweeps on v2.8.4. Credentials are absent
+  workflow repaired rule order, purged 64 URLs and passed two canonical sweeps on v2.8.4 and v2.8.5. Credentials are absent
   from the evidence. This closes the access dependency, not the installed-client or objective-closure gates.
 - Real devices/accounts: retain or obtain a designated test account, two independent devices for sync evidence,
   a previously installed client for production upgrades, and an actual iOS device for Safari/Home Screen PWA
   evidence. Record unavailable access as a dependency and keep the corresponding criteria open.
+- Backend activation: stricter rules source and its required emulator checks are merged. Actual rules deployment,
+  readback/propagation verification and the administrator-owned global sync attestation remain open. Client
+  features depending on that protocol are local until their own accepted rollout; do not infer deployment from CI.

@@ -73,12 +73,13 @@ Planning docs:
 - [docs/browser-quality-gates.md](docs/browser-quality-gates.md) - isolated, pinned Chromium/Firefox smoke commands and CI matrix
 - [docs/eslint-10-migration.md](docs/eslint-10-migration.md) - major linter migration rationale and acceptance boundary
 
-### Published Baseline (November 20, 2026)
+### Published Baseline (November 27, 2026)
 
-- Published version: **2.8.4**, with **848 passing tests** and **74.95% application statements coverage** on its reviewed implementation.
+- Published version: **2.8.5**, with **894 passing tests** and **74.95% application statements coverage** on its reviewed implementation.
 - Delivered: Quick Log, Daily Hub/calendar, session variants, ES/EN, weekly streaks, consistent session counting, decimal-weight validation, accessible chart alternatives, and routine JSON export/import.
 - Weekly target changes now work any day without an edit cap and persist across login and offline replay.
-- Cloudflare credentials and cache-rule order are repaired: the real workflow purged 64 URLs and verified two complete canonical sweeps of v2.8.4. The old installed-client workout/offline/reconnect journey remains open. [Evidence and limitations](docs/production-cache-evidence-2026-11-20.md).
+- Cloudflare credentials and cache-rule order are repaired: the real workflow purged 64 URLs and verified two complete canonical sweeps of v2.8.5. The old installed-client workout/offline/reconnect journey remains open. [Evidence and limitations](docs/maintenance-evidence-2026-11-27.md).
+- Maintenance #109 and eight required Linux/Windows browser checks are published; superseded #67/#70 are closed. Actual Safari/iOS acceptance remains open.
 - Read-optimized weekly consistency v1.1 is **partial**: bounded reads and memory caching are shipped; additional local cache/navigation improvements are not merged into `main`.
 
 ### Next Priorities
@@ -86,7 +87,7 @@ Planning docs:
 1. **P0:** finish installed-client preservation/offline/reconnect evidence and the production-delivery closure review; live purge and public coherence now pass.
 2. **P1:** verify and harden history, progress, account changes, date boundaries, and cross-device/offline sync.
 3. **P1:** complete Daily Hub v1.1 with persistent per-user caching and measured read reduction.
-4. **P1:** maintain dependencies and align documented quality gates with reproducible CI/browser checks.
+4. **P1:** complete actual Safari/Home Screen PWA acceptance; maintenance and reproducible desktop browser CI are published.
 5. **P2:** add a portable workout-history backup, extending beyond existing routine sharing.
 6. **P2:** let users correct saved workout values without deleting and recreating a session.
 7. **P2:** separate dashboard, Quick Log, weekly calculations, and preference persistence into smaller modules.
@@ -109,7 +110,7 @@ lines thresholds with that floor and removes the expired date bypass. `test:cove
 enforces Jest's thresholds; `test:coverage:gate` additionally validates the fresh statement summary after tests
 pass. Formatting remains advisory in CI. The local `merge-ready` proposal is not an implemented command.
 See [TESTING-PLAN.md](TESTING-PLAN.md) for exact commands, CI jobs and limitations. Objective 4 remains open,
-including actual Safari/Home Screen PWA evidence; unmerged maintenance is not a published release.
+including actual Safari/Home Screen PWA evidence. [Published maintenance evidence](docs/maintenance-evidence-2026-11-27.md) records the completed prerequisites separately.
 
 ### How We Ship Major Features
 

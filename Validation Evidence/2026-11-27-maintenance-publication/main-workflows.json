@@ -1,0 +1,74 @@
+[
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:12:07Z",
+    "databaseId": 46022758077,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Purge and Verify Canonical Cache"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678285,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Lint"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678176,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Format Check"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678206,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Create Release"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022677867,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "pages-build-deployment"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678133,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Firestore Rules"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678289,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "CodeQL Security Scan"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678425,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Browser Gates"
+  },
+  {
+    "conclusion": "success",
+    "createdAt": "2026-11-27T15:11:35Z",
+    "databaseId": 46022678348,
+    "headSha": "fd82d8080007c19426a47a17cddb3428ea6ab59d",
+    "status": "completed",
+    "workflowName": "Tests"
+  }
+]

@@ -2,7 +2,9 @@
 
 Status: partial; prerequisite [PR #103](https://github.com/metalfurius/gym/pull/103) merged and v2.8.4 deployed.
 Token/policy repair, real purge and two full canonical sweeps passed. The installed old-client journey and
-two-judge closure review remain open. [Dated evidence](../production-cache-evidence-2026-11-20.md).
+two-judge closure review remain open. [Original evidence](../production-cache-evidence-2026-11-20.md).
+The subsequent v2.8.5 publication passed the same exact-deployment/purge/two-sweep workflow on November 27;
+[latest evidence](../maintenance-evidence-2026-11-27.md) preserves the installed-client limitation.
 The starting-point observations below describe the original v2.8.3 / `d4c6d0d` baseline.
 Follow the [shared review protocol](README.md#two-judge-merge-protocol).
 

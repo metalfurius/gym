@@ -1,0 +1,28 @@
+[
+  {
+    "headRefOid": "86d65343810c7f66ceb47a2777c530ef3d122856",
+    "mergeCommit": null,
+    "mergedAt": null,
+    "number": 67,
+    "state": "CLOSED",
+    "url": "https://github.com/metalfurius/gym/pull/67"
+  },
+  {
+    "headRefOid": "f1b165d5890f92e9c6086870f1c5209f7a64df8b",
+    "mergeCommit": null,
+    "mergedAt": null,
+    "number": 70,
+    "state": "CLOSED",
+    "url": "https://github.com/metalfurius/gym/pull/70"
+  },
+  {
+    "headRefOid": "3e30a1b195225bd37efb10371444ba73d8b5f5f2",
+    "mergeCommit": {
+      "oid": "fd82d8080007c19426a47a17cddb3428ea6ab59d"
+    },
+    "mergedAt": "2026-11-27T15:11:32Z",
+    "number": 109,
+    "state": "MERGED",
+    "url": "https://github.com/metalfurius/gym/pull/109"
+  }
+]
