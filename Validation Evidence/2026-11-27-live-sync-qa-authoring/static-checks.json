@@ -1,0 +1,41 @@
+{
+  "status": "authoring-checks-passed",
+  "live": "NOT RUN",
+  "node": "v24.12.0",
+  "syntax": [
+    {
+      "file": "scripts/live-sync-qa.mjs",
+      "status": "passed"
+    },
+    {
+      "file": "scripts/live-sync-qa-browser.mjs",
+      "status": "passed"
+    },
+    {
+      "file": "scripts/live-sync-qa-protocol.mjs",
+      "status": "passed"
+    },
+    {
+      "file": "scripts/live-sync-qa-scenarios.mjs",
+      "status": "passed"
+    }
+  ],
+  "workflow": {
+    "parser": "PyYAML 6.0.4",
+    "matrixCases": 8,
+    "default": "false",
+    "permissions": {
+      "contents": "read"
+    }
+  },
+  "negativeCli": {
+    "exit": 1,
+    "error": "QA_CREDENTIALS_JSON_REQUIRED"
+  },
+  "syntaxSources": {
+    "scripts/live-sync-qa.mjs": "766596bc15e83302cf9ff66b620c29cd678db70e44bdd09b0951d8b29a7a1add",
+    "scripts/live-sync-qa-browser.mjs": "6d84b2cd162c42c5bfecec62732190c516b4e3acf3e0f75d7547e4d3ee464a36",
+    "scripts/live-sync-qa-protocol.mjs": "2cce94b2b684a1313f1ec61ed5d63d016fc4c4c9f7c65a97ba203940b2805543",
+    "scripts/live-sync-qa-scenarios.mjs": "bdea40cdb9d7be1558de86bcb1ffd780c20d9946c32a9daf1c5a152056db81ce"
+  }
+}

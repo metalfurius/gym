@@ -1,0 +1,5 @@
+
+> my-workout-tracker@1.0.2 test:no-skips
+> node scripts/no-skipped-tests.mjs
+
+[no-skipped-tests] OK: no skipped tests found.

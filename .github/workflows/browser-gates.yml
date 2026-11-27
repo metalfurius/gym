@@ -6,6 +6,22 @@ on:
     pull_request:
         branches: [main]
     workflow_dispatch:
+        inputs:
+            real_firebase_qa:
+                description: Run role B of the explicitly coordinated real Firebase acceptance
+                type: boolean
+                required: false
+                default: false
+            qa_run_id:
+                description: Shared new UUID for the Windows A and Ubuntu B run
+                type: string
+                required: false
+                default: ''
+            base_calendar_iso:
+                description: Shared noon UTC calendar fixture; second date is exactly seven days later
+                type: string
+                required: false
+                default: '2026-11-27T12:00:00.000Z'
 
 permissions:
     contents: read
@@ -112,3 +128,53 @@ jobs:
                   name: browser-${{ matrix.os }}-${{ matrix.case }}-${{ github.sha }}-${{ github.run_attempt }}
                   path: ${{ runner.temp }}/gym-browser-gates/${{ matrix.case }}
                   if-no-files-found: error
+
+    real-sync-qa:
+        name: Opt-in real Firebase / Ubuntu role B
+        if: github.event_name == 'workflow_dispatch' && inputs.real_firebase_qa == true && github.ref == 'refs/heads/codex/roadmap-02-history-sync'
+        runs-on: ubuntu-24.04
+        timeout-minutes: 30
+        permissions:
+            contents: read
+        env:
+            GYM_QA_RUN_ID: ${{ inputs.qa_run_id }}
+            GYM_QA_BASE_CALENDAR_ISO: ${{ inputs.base_calendar_iso }}
+        steps:
+            - name: Checkout exact candidate
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+            - name: Setup Node.js
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version: '22'
+                  cache: npm
+            - name: Install locked dependencies
+              run: npm ci
+            - name: Validate explicit run identity without credentials or services
+              id: validate
+              run: node scripts/live-sync-qa.mjs --validate-run --role B --run-id "$GYM_QA_RUN_ID" --expected-sha "$GITHUB_SHA" --base-calendar-iso "$GYM_QA_BASE_CALENDAR_ISO"
+            - name: Install and verify exact Chrome for Testing
+              timeout-minutes: 5
+              run: node scripts/install-smoke-browser.mjs chromium
+              env:
+                  BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-live-sync-qa/${{ github.sha }}/${{ github.run_id }}/browser-install.json
+                  BROWSER_SMOKE_CACHE_DIR: ${{ runner.temp }}/gym-smoke-browser-runtimes
+            - name: Install the verified Linux sandbox helper
+              timeout-minutes: 2
+              run: node scripts/install-linux-browser-sandbox.mjs
+              env:
+                  BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-live-sync-qa/${{ github.sha }}/${{ github.run_id }}/browser-install.json
+                  BROWSER_SMOKE_SANDBOX_RECEIPT: ${{ runner.temp }}/gym-live-sync-qa/${{ github.sha }}/${{ github.run_id }}/sandbox-helper.json
+            - name: Run coordinated real acceptance role B
+              timeout-minutes: 18
+              run: node scripts/live-sync-qa.mjs --live --role B --run-id "$GYM_QA_RUN_ID" --expected-sha "$GITHUB_SHA" --base-calendar-iso "$GYM_QA_BASE_CALENDAR_ISO" --output "$GYM_QA_OUTPUT"
+              env:
+                  GYM_LIVE_QA_CREDENTIALS_JSON: ${{ secrets.GYM_LIVE_QA_CREDENTIALS_JSON }}
+                  BROWSER_SMOKE_INSTALL_RECEIPT: ${{ runner.temp }}/gym-live-sync-qa/${{ github.sha }}/${{ github.run_id }}/browser-install.json
+                  GYM_QA_OUTPUT: ${{ runner.temp }}/gym-live-sync-qa/${{ github.sha }}/${{ github.run_id }}/role-B
+            - name: Upload opt-in real acceptance evidence
+              if: always()
+              uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+              with:
+                  name: real-sync-qa-${{ github.sha }}-${{ steps.validate.outputs.qa_run_id || 'invalid-run-id' }}-B-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/gym-live-sync-qa/${{ github.sha }}/${{ github.run_id }}
+                  if-no-files-found: warn

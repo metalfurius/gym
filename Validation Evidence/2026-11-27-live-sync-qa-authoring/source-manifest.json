@@ -1,0 +1,41 @@
+{
+  "status": "authoring-only-live-NOT-RUN",
+  "base": "9a69595b33d6eb5f49475b5849e4a3e0d2bb0bb3",
+  "branch": "codex/roadmap-live-sync-qa",
+  "sourceBytes": "UTF-8 canonical LF; BOM retained",
+  "artifactBytes": "raw file bytes",
+  "sources": {
+    "scripts/live-sync-qa.mjs": "766596bc15e83302cf9ff66b620c29cd678db70e44bdd09b0951d8b29a7a1add",
+    "scripts/live-sync-qa-browser.mjs": "6d84b2cd162c42c5bfecec62732190c516b4e3acf3e0f75d7547e4d3ee464a36",
+    "scripts/live-sync-qa-protocol.mjs": "2cce94b2b684a1313f1ec61ed5d63d016fc4c4c9f7c65a97ba203940b2805543",
+    "scripts/live-sync-qa-scenarios.mjs": "bdea40cdb9d7be1558de86bcb1ffd780c20d9946c32a9daf1c5a152056db81ce",
+    "tests/unit/live-sync-qa.test.js": "85c535d724f33a999953351d38d0995fac8faab57da856e74f85689b8366d814",
+    ".github/workflows/browser-gates.yml": "93669c8f3c758f6f79d481ce2c7bdc52bb2f995063296d70c312265eb562a007",
+    "docs/live-sync-qa.md": "31383d71f2b608eca64016cc3db9ce04617512ced38fabcdc202a37e94cfade1"
+  },
+  "sourceBundleSha256": "3caaf41a70c16d2a98f09c247bd651799a2c5a05504dbf833837cc4479bfe5d4",
+  "unchangedApplicationTree": "b293a6c91b47ec1bd9bf015ea49489d32c27fb83",
+  "unchangedMetadata": {
+    "index.html": "58a9cf61da3625d9d992235f7ae32fcd69636f1e9c160e39a5e5bb4c841c01b9",
+    "manifest.json": "faa705b62ceeafa627d09d4c805fa4b7871a2d199ba548b2cce05a4ae7d8094a",
+    "release.json": "b798ef5596a6cfb4138d83d997a9c0d428c9263e171a49b907b5c505fcd46020",
+    "sw.js": "8632f04188be0aef5577e8a45e8dfaaa1376eda19c4386e4b01327cd5e2c3927",
+    "package.json": "6eb39010e82fd6313307ad76b0a4ebea72d1690a4b04ccbed29e49feb7fa70fc",
+    "package-lock.json": "4708814f70ffb2a98f999f54c42e7f016edadda6fc2faac40e21d47960ebcadd"
+  },
+  "artifacts": {
+    "focused.txt": "1bc6b594a85410a0a80cf5a62e4fe8d3eb7408284a6e4085068a5f1f7b4cf365",
+    "lint.txt": "5781e5bca89dc89ce4b92a561b8b0927d60d96fd4835698e0ae2a9ceece520a3",
+    "no-skips.txt": "3d452cda51f3972563c3dd5162880aa7bf9666413deda8b62753e675bb2e9706",
+    "README.md": "78a4ef198e2b3c8fcfbadf731d08aeb7e2ef8792b1771e190c4f25f8ed9c36c6",
+    "release.txt": "353af2ece1a7b99cd36be5759685cd534eeb577cde8384be5ff24456816867aa",
+    "static-checks.json": "47a8046271c7c6b97fb59502eb74c86db5240c6658b9b46a036cb6db0db9722d"
+  },
+  "requiredLivePhases": 39,
+  "authoringTests": {
+    "suites": 4,
+    "tests": 49,
+    "live": false
+  },
+  "finalAcceptance": "Pending root paired execution and independent final-head judges"
+}
