@@ -42,7 +42,7 @@ export function parseRoutineImport(text) {
     let payload;
     try {
         payload = JSON.parse(text);
-    } catch (_error) {
+    } catch {
         throw new RoutineImportError('json');
     }
 

@@ -1,98 +1,29 @@
 #!/usr/bin/env node
-
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
-const COVERAGE_SUMMARY_PATH = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
+export const COVERAGE_THRESHOLD = 70;
 
-const STAGES = [
-    { from: '2026-04-06', threshold: 64 },
-    { from: '2026-04-20', threshold: 67 },
-    { from: '2026-05-04', threshold: 70 }
-];
-
-function parseDateOnly(value) {
-    const date = new Date(`${value}T00:00:00.000Z`);
-    if (Number.isNaN(date.getTime())) {
-        throw new Error(`Invalid date: ${value}`);
+export function evaluateCoverageSummary(summary) {
+    const statements = summary?.total?.statements?.pct;
+    if (!Number.isFinite(statements) || statements < 0 || statements > 100) {
+        throw new Error('Invalid coverage-summary.json: total.statements.pct must be a finite percentage');
     }
-    return date;
-}
-
-function getEffectiveThreshold(dateOnlyUtc) {
-    let selected = null;
-    for (const stage of STAGES) {
-        if (dateOnlyUtc >= parseDateOnly(stage.from)) {
-            selected = stage.threshold;
-        }
-    }
-    return selected;
-}
-
-function getGateDate() {
-    const override = process.env.COVERAGE_GATE_DATE;
-    if (override) {
-        return parseDateOnly(override);
-    }
-
-    const now = new Date();
-    const yyyy = now.getUTCFullYear();
-    const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(now.getUTCDate()).padStart(2, '0');
-    return parseDateOnly(`${yyyy}-${mm}-${dd}`);
-}
-
-function formatDateOnly(date) {
-    const yyyy = date.getUTCFullYear();
-    const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(date.getUTCDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-function readCoverageSummary() {
-    if (!fs.existsSync(COVERAGE_SUMMARY_PATH)) {
-        throw new Error(`Coverage summary not found: ${COVERAGE_SUMMARY_PATH}`);
-    }
-
-    const raw = fs.readFileSync(COVERAGE_SUMMARY_PATH, 'utf8');
-    const parsed = JSON.parse(raw);
-
-    const statements = parsed?.total?.statements?.pct;
-    if (typeof statements !== 'number') {
-        throw new Error('Invalid coverage-summary.json: missing total.statements.pct');
-    }
-
-    return statements;
+    return { statements, threshold: COVERAGE_THRESHOLD, passed: statements >= COVERAGE_THRESHOLD };
 }
 
 function main() {
-    const gateDate = getGateDate();
-    const gateDateLabel = formatDateOnly(gateDate);
-    const threshold = getEffectiveThreshold(gateDate);
-    const statementsPct = readCoverageSummary();
-
-    if (threshold == null) {
-        console.log(`[coverage-gate] ${gateDateLabel}: baseline window (no staged threshold yet).`);
-        console.log(`[coverage-gate] statements=${statementsPct.toFixed(2)}%.`);
-        return;
-    }
-
-    console.log(`[coverage-gate] ${gateDateLabel}: required statements >= ${threshold}%.`);
-    console.log(`[coverage-gate] statements=${statementsPct.toFixed(2)}%.`);
-
-    if (statementsPct < threshold) {
-        console.error(
-            `[coverage-gate] FAILED: ${statementsPct.toFixed(2)}% is below ${threshold}% staged gate.`
-        );
-        process.exit(1);
-    }
-
+    const file = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
+    const result = evaluateCoverageSummary(JSON.parse(fs.readFileSync(file, 'utf8')));
+    console.log(`[coverage-gate] required statements >= ${result.threshold}%.`);
+    console.log(`[coverage-gate] statements=${result.statements.toFixed(2)}%.`);
+    if (!result.passed) throw new Error(`${result.statements.toFixed(2)}% is below the ${result.threshold}% coverage floor`);
     console.log('[coverage-gate] PASSED.');
 }
 
-try {
-    main();
-} catch (error) {
-    console.error(`[coverage-gate] ERROR: ${error.message}`);
-    process.exit(1);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    try { main(); }
+    catch (error) { console.error(`[coverage-gate] ERROR: ${error.message}`); process.exitCode = 1; }
 }

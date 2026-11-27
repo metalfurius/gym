@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:all": "npm run lint:errors && npm run test:no-skips && npm run test:unit -- --runInBand && npm run test:integration -- --runInBand && npm run test:coverage -- --runInBand",
+    "test:all": "npm run lint:ratchet && npm run test:no-skips && npm run test:coverage:gate",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "test:no-skips": "node scripts/no-skipped-tests.mjs",
@@ -28,10 +28,10 @@
     "cloudflare:cache:purge": "node scripts/cloudflare-cache-control.mjs --validate-and-purge",
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",
     "serve": "node scripts/serve-local.mjs",
-    "lint": "eslint . --ext .js,.cjs",
-    "lint:ratchet": "eslint . --ext .js,.cjs --max-warnings 0",
-    "lint:errors": "eslint . --ext .js,.cjs --quiet",
-    "lint:fix": "eslint . --ext .js,.cjs --fix",
+    "lint": "eslint .",
+    "lint:ratchet": "eslint . --max-warnings 0",
+    "lint:errors": "eslint . --quiet",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore",
     "format:check": "prettier --check \"js/**/*.js\" \"css/**/*.css\" \"*.html\" \"*.json\" --ignore-path .gitignore"
   },
@@ -44,12 +44,18 @@
   "author": "metalfurius",
   "license": "SEE LICENSE IN README.md",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@jest/globals": "^30.5.2",
-    "eslint": "^8.57.0",
+    "@stylistic/eslint-plugin": "^6.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "jest-junit": "^16.0.0",
+    "jest-junit": "^17.0.0",
     "prettier": "^3.10.1",
     "ws": "^8.23.0"
+  },
+  "engines": {
+    "node": "^22.13.0 || >=24"
   }
 }

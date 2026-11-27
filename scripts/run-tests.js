@@ -38,7 +38,7 @@ function runCommand(command, description) {
         });
         log(`✅ ${description} completed`, 'green');
         return true;
-    } catch (error) {
+    } catch {
         log(`❌ ${description} failed`, 'red');
         return false;
     }

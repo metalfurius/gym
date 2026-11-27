@@ -212,7 +212,7 @@ function applyStartAfterConstraint(docs, constraints) {
     }
 
     const markerPath =
-    startAfterConstraint.snapshot.__path ||
+        startAfterConstraint.snapshot.__path ||
     startAfterConstraint.snapshot.ref?.path ||
     null;
 

@@ -4,11 +4,11 @@ export default {
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
         '^https://www\\.gstatic\\.com/firebasejs/11\\.6\\.1/firebase-app\\.js$':
-      '<rootDir>/tests/mocks/firebase-app.js',
+            '<rootDir>/tests/mocks/firebase-app.js',
         '^https://www\\.gstatic\\.com/firebasejs/11\\.6\\.1/firebase-auth\\.js$':
-      '<rootDir>/tests/mocks/firebase-auth.js',
+            '<rootDir>/tests/mocks/firebase-auth.js',
         '^https://www\\.gstatic\\.com/firebasejs/11\\.6\\.1/firebase-firestore\\.js$':
-      '<rootDir>/tests/mocks/firebase-firestore.js',
+            '<rootDir>/tests/mocks/firebase-firestore.js',
     },
     testMatch: [
         '**/tests/**/*.test.js',
@@ -22,8 +22,8 @@ export default {
     coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
     coverageThreshold: {
         global: {
-            statements: 60,
-            lines: 60
+            statements: 70,
+            lines: 70
         }
     },
     reporters: [

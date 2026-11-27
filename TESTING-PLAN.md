@@ -1,64 +1,58 @@
-# Testing Policy and Enforcement Plan
+# Testing policy and executed checks
 
-Last updated: March 25, 2026
+Updated November 27, 2026. This is the continuing policy after the expired March–May stabilization cycle.
+The executable contract is [package.json](package.json), [jest.config.js](jest.config.js),
+[eslint.config.mjs](eslint.config.mjs) and the linked workflows. Use Node 22.13 or newer on the Node 22 line
+(CI installs the latest 22 patch) and `npm ci` from the lockfile. Node 24 is also supported by the toolchain.
 
-## Purpose
+## Command to CI mapping
 
-This document defines testing policy and enforcement rules for the 6-week stabilization cycle (March 30, 2026 to May 10, 2026).
-It is policy-first by design; detailed test inventory remains in `tests/README.md`.
+| Local command/check | Executed CI location | Enforcement |
+| --- | --- | --- |
+| `npm run lint:ratchet` | [Lint / ESLint](.github/workflows/lint.yml) | Zero errors and zero warnings across authored JS/CJS/MJS |
+| `npm run test:app` | [Tests / Run Tests](.github/workflows/test.yml) | Errors-only lint, then the app journeys in jsdom/Firebase mocks |
+| `npm run test:app:offline` | Tests / Run Tests | Dedicated recovery/retry subset must pass |
+| `npm run test:no-skips` | Tests / Run Tests | Rejects `.skip`, `xit` and `xdescribe` |
+| `npm run test:coverage:gate` | Tests / Run Tests | Full Jest suite, then permanent statement floor of 70% |
+| `npm run release:check` (`build:check`) | Tests / Run Tests; [Version Metadata](.github/workflows/version-bump.yml) for matching PR paths; [Create Release](.github/workflows/release.yml) | Coherent revision, cached-asset hashes and two deterministic builds |
+| `npm run test:e2e:upgrade` | Tests / Run Tests, normal and 1,000 ms delayed bootstrap | Real isolated Chromium two-release fixture with update, exact workout, offline/reconnect and hashes |
+| `npm run test:e2e:canonical-transport` | Tests / Run Tests | Canonical network body despite an active worker; bounded owned-browser cleanup |
+| Firefox upgrade, numeric in both browsers, Chromium counting | [Browser Gates](.github/workflows/browser-gates.yml), eight Linux/Windows jobs | Real assertions, pinned browser archives, negative runner and evidence artifacts |
+| CodeQL | [CodeQL](.github/workflows/codeql.yml) | Hosted security analysis; there is no equivalent npm script |
+| `npm run format:check` | [Format Check](.github/workflows/format-check.yml) | Advisory: workflow reports warnings without failing for formatting differences |
 
-## Hard Quality Gates
+Browser environment variables, installation, timeouts and artifact commands are in
+[browser-quality-gates.md](docs/browser-quality-gates.md). Repository rules must require the intended contexts;
+listing a workflow here does not configure branch protection. Codecov retains `fail_ci_if_error: false`.
+JUnit annotations retain `fail-on-error: false` and the fork guard; a missing report still uses the upstream
+`fail-on-empty: true` default. Neither reporting step replaces the blocking test/coverage exit codes.
 
-These gates are required for both PR and `main` validation:
+## Permanent coverage floor
 
-1. `npm run lint:ratchet` (zero warnings)
-2. `npm run test:app` (lint errors gate + app journeys)
-3. `npm run test:app:offline` (offline recovery/retry journeys)
-4. `npm run test:coverage:gate` meeting the active staged threshold
-5. No new skipped tests (`.skip`, `xit`, `xdescribe`)
+Jest requires **at least 70% global statements and lines**. `npm run test:coverage` runs that full suite and
+writes `coverage/coverage-summary.json`, LCOV, HTML and JUnit. It does not run the separate no-skips, lint or
+browser gates. `npm run coverage:gate` only validates an existing summary's statement percentage: it does not
+prove the tests passed or that a report is fresh. Use `npm run test:coverage:gate` to run tests first and check
+their freshly generated summary only on success. Expired dates and `COVERAGE_GATE_DATE` cannot lower the floor.
+Branch and function coverage are reported; no extra branch/function threshold is claimed.
 
-## Staged Coverage Thresholds
+`npm run test:all` combines the zero-warning ratchet, no-skips and full gated coverage suite. That suite
+includes unit and integration/app/offline tests. It does not install dependencies, regenerate a release,
+run real browsers or replace hosted CodeQL. Run the dedicated app/offline commands too when reproducing CI.
 
-- Week 1 (March 30 to April 5): baseline tracking, no new threshold
-- Week 2 (April 6 to April 12): >= 64%
-- Week 3 (April 13 to April 19): >= 64% (hold)
-- Week 4 (April 20 to April 26): >= 67%
-- Week 5 (April 27 to May 3): >= 67% (hold)
-- Week 6 (May 4 to May 10): >= 70%
+## Review and release candidates
 
-## Required Checks Per Pull Request
+Keep meaningful regressions for changed behavior, including account ownership, offline replay and date
+boundaries where relevant. A failed gate blocks a merge candidate; resolve it before resuming feature merges.
+Do not add skipped tests, lower thresholds or disable a rule to hide failures. Formatting is advisory, so avoid
+unrelated repository-wide rewrites.
 
-Every PR must meet all of the following:
+Follow the [release contract](docs/commit-versioning.md) for cached-asset changes. A metadata mismatch is a
+failure until the final generated contract is committed and rechecked, even for behavior-neutral JS changes.
+Preserve dated evidence as historical evidence and pin fresh CI/manual results to the exact reviewed SHA.
+Roadmap implementations require the [two-judge protocol](docs/roadmap/README.md); older-head approvals do not
+approve a changed candidate.
 
-1. Hard quality gates are green.
-2. Tests are updated for changed behavior in touched areas.
-3. Offline reliability gate remains green (`npm run test:app:offline`) and is required on PR checks.
-4. If session/version/offline flows are touched, related regression tests are included or updated.
-5. Documentation is kept consistent when plan or policy behavior changes.
-
-## Required Checks Per Release Candidate
-
-A release candidate requires:
-
-1. All PR-level requirements.
-2. `npm run test:all` passes in release validation.
-3. Coverage meets the active staged gate for the release week.
-4. No unresolved hard-gate failures in the current cycle.
-
-## Freeze Rule
-
-If any hard quality gate fails on PR or `main`:
-
-1. Pause feature/fun lane merges.
-2. Allow only stabilization and test/doc recovery work.
-3. Resume feature/fun lane only after hard gates return green.
-
-## Command Reference
-
-- `npm run lint:ratchet`
-- `npm run test:app`
-- `npm run test:app:offline`
-- `npm run test:coverage`
-- `npm run test:coverage:gate`
-- `npm run test:no-skips`
-- `npm run test:all`
+Jest uses Firebase mocks; browser smokes use loopback fixtures. Neither proves live cross-account/device
+sync, production delivery or physical iOS behavior. QA-05 and objective 4 remain open until the actual Safari
+and installed Home Screen PWA scenarios in the [objective plan](docs/roadmap/04-maintenance-quality.md) pass.

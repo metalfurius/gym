@@ -66,11 +66,11 @@ jobs:
       - name: Fail on skipped tests
         run: npm run test:no-skips
 
-      - name: Run tests with staged coverage gate
+      - name: Run tests with permanent 70% coverage gate
         run: npm run test:coverage:gate
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
@@ -78,7 +78,7 @@ jobs:
           verbose: true
 
       - name: Test Report Annotations
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@d1b5dff021aa968b288b02285a8bf47471c5928a # v3
         # Skip for fork PRs as they don't have write permissions
         if: (success() || failure()) && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:

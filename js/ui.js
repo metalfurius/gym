@@ -1143,7 +1143,7 @@ export function showSessionDetail(sessionData) {
 
                 ex.sets.forEach((set, index) => {
                     const setLi = document.createElement('li');
-                    let setContent = '';
+                    let setContent;
 
                     if (isBodyweightExercise) {
                         const extraLoad = parseDecimalInput(set.peso, {
