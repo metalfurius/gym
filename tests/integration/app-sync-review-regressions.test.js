@@ -36,6 +36,38 @@ describe('actual app independent-review regressions', () => {
     });
     afterAll(async () => { __resetMockFirestoreBehavior(); await authenticate(null); setCalendarClock(); });
 
+    it('retires an undated legacy target conflict after an explicit save for its original week', async () => {
+        seedSyncProtocol('A'); await authenticate('A');
+        const preferencesPath = 'users/A/app_data/user_preferences';
+        const pressTarget = async value => {
+            field('#weekly-target-days-select', String(value));
+            document.getElementById('weekly-target-save-btn').click();
+            await until(() => !document.getElementById('weekly-target-save-btn').disabled
+                && __firestoreState.documents.get(preferencesPath)?.weeklyTargetDays === value);
+        };
+        await pressTarget(6);
+        const descriptor = { type: 'preferences.saveWeeklyTarget', payload: {
+            userId: 'A', weeklyTargetDays: 5, updatedAtIso: '2026-11-20T11:12:13.456Z',
+        } };
+        offlineManager.queueOperation(null, 'Legacy target', { id: 'legacy-no-week', descriptor });
+        await offlineManager.persistQueue(); await offlineManager.processPendingOperations();
+        expect(offlineManager.getConflictCount()).toBe(1);
+        const immutableDescriptor = JSON.stringify(offlineManager.pendingOperations.find(entry => entry.id === 'legacy-no-week').descriptor);
+        const receipt = [...__firestoreState.documents].find(([key, value]) => key.includes('/weekly_operations/')
+            && value.status === 'conflict' && value.updatedAtIso === descriptor.payload.updatedAtIso);
+        expect(receipt?.[1].weekKey).toBe('2026-11-16');
+        const immutableReceipt = JSON.stringify(receipt[1]);
+        await pressTarget(5);
+        expect(offlineManager.getPendingCount()).toBe(0);
+        expect(offlineManager.getConflictCount()).toBe(0);
+        expect(document.getElementById('weekly-target-conflict-status').classList.contains('hidden')).toBe(true);
+        await offlineManager.restorePersistedQueue();
+        expect(offlineManager.pendingOperations.some(entry => entry.id === 'legacy-no-week')).toBe(false);
+        expect(offlineManager.acknowledged.get('legacy-no-week')).toBe('resolved');
+        expect(JSON.stringify(descriptor)).toBe(immutableDescriptor);
+        expect(JSON.stringify(__firestoreState.documents.get(receipt[0]))).toBe(immutableReceipt);
+    });
+
     it('preserves B notes when A Quick Log finishes after the account transition', async () => {
         await authenticate('A');
         let release; let held = false;

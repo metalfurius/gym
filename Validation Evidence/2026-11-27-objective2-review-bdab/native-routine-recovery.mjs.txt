@@ -1,0 +1,128 @@
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { createServer } from 'node:http';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { openSmokeBrowser, removeSmokeProfile, waitForSmoke } from 'file:///C:/tmp/gym-roadmap-02-legacy-fix/scripts/browser-smoke-driver.mjs';
+import { connectOwnedChromium } from 'file:///C:/tmp/gym-roadmap-02-legacy-fix/scripts/browser-cdp-target.mjs';
+
+const root = path.resolve('C:/tmp/gym-roadmap-02-legacy-fix');
+const output = path.resolve(process.env.OUTBOX_SMOKE_EVIDENCE_DIR || path.join(root, 'tmp', 'outbox-smoke', String(Date.now())));
+const negativeCase = process.env.OUTBOX_SMOKE_NEGATIVE_CASE || null;
+const fixture = `<!doctype html><title>Durable outbox fixture</title><script type="module">
+import {OfflineManager} from '/js/utils/offline-manager.js';
+window.outbox = new OfflineManager(); await outbox.restorePersistedQueue(); window.ready = true;
+</script>`;
+const signal = AbortSignal.timeout(180_000);
+const trace = []; const connections = []; const cleanupErrors = [];
+let browser; let server; let profile; let baseUrl;
+let applicationPage;
+const result = { status: 'running', runId: crypto.randomUUID(), startedAt: new Date().toISOString(),
+    checkoutSha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
+    mode: 'actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend', negativeCase };
+function event(stage, detail = {}) { trace.push({ method: 'OutboxSmoke.stage', params: { runId: result.runId, stage, at: new Date().toISOString(), ...detail } }); }
+function serializedError(error) { return { message: error.message, stack: error.stack }; }
+async function appHtml() {
+    const imports = {
+        'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js': '/tests/mocks/firebase-app.js',
+        'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js': '/tests/mocks/firebase-auth.js',
+        'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js': '/tests/mocks/firebase-firestore.js',
+    };
+    return (await fs.readFile(path.join(root, 'index.html'), 'utf8'))
+        .replace('<head>', `<head><script type="importmap">${JSON.stringify({ imports })}</script><script>Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:undefined});</script>`)
+        .replace(/\s*<link\b[^>]*https:\/\/fonts\.[^>]*>/g, '')
+        .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/[^"]+"><\/script>/, '')
+        .replace('src="js/app.js"', 'src="tests/browser/outbox-app-bootstrap.js"');
+}
+async function startServer() {
+    const html = await appHtml();
+    server = createServer(async (request, response) => {
+        try {
+            const pathname = new URL(request.url, 'http://localhost').pathname;
+            if (pathname === '/fixture' || pathname === '/app-fixture') {
+                response.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+                response.end(pathname === '/fixture' ? fixture : html); return;
+            }
+            const file = path.resolve(root, `.${pathname}`);
+            if (!file.startsWith(`${root}${path.sep}`)) { response.writeHead(403); response.end(); return; }
+            const body = await fs.readFile(file);
+            const type = ({ '.css': 'text/css', '.html': 'text/html', '.json': 'application/json', '.png': 'image/png', '.ico': 'image/x-icon' })[path.extname(file)] || 'application/javascript';
+            response.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' }); response.end(body);
+        } catch { response.writeHead(404); response.end(); }
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    baseUrl = `http://127.0.0.1:${server.address().port}`;
+}
+async function ready(client, app = false) {
+    await waitForSmoke(client, app ? 'window.appOutboxFixture && !document.getElementById("dashboard-view").classList.contains("hidden")' : 'window.ready === true', signal);
+}
+async function page(app = false, coldCapture = false) {
+    const connection = await connectOwnedChromium(browser.owner, profile, `${baseUrl}/${app ? 'app-fixture' : 'fixture'}${coldCapture ? '?coldCapture=1' : ''}`, item => trace.push(item), signal);
+    connections.push(connection); await ready(connection.client, app); return connection;
+}
+async function enqueue(connection, id, owner) {
+    return connection.client.evaluate(`(async () => {
+        outbox.queueOperation(null, 'Synthetic fixture', {id:${JSON.stringify(id)}, descriptor:{
+            type:'preferences.saveWeeklyTarget',payload:{userId:${JSON.stringify(owner)},weekKey:'2026-11-23',target:4}
+        }}); await outbox.persistQueue(); return outbox.pendingOperations.map(entry => entry.id).sort();
+    })()`);
+}
+async function inspect(connection) {
+    return connection.client.evaluate(`(async () => {
+        const {localFirstCache:cache}=await import('/js/utils/local-first-cache.js');
+        const prefix='offline:journal:v3:batch:';
+        const flatten=rows=>rows.flatMap(row=>JSON.parse(row.value.eventsJson)).map(event=>event.kind+':'+event.id+':'+(event.outcome||'')).sort();
+        const local=cache.localStorageKeys(prefix).map(key=>cache.readFromLocalStorage(key));
+        const disk=await cache.getAllFromIndexedDb(prefix);
+        const pending=outbox.pendingOperations.map(entry=>({id:entry.id,status:entry.status||'pending',owner:entry.descriptor.payload.userId})).sort((a,b)=>a.id.localeCompare(b.id));
+        return {pending,local:flatten(local),indexedDb:flatten(disk),durableBatches:disk.length};
+    })()`);
+}
+async function network(connection, offline) {
+    await connection.client.send('Network.emulateNetworkConditions', { offline, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+}
+async function screenshot(connection, name) {
+    const image = await connection.client.send('Page.captureScreenshot', { format: 'png' });
+    await fs.writeFile(path.join(output, `${name}.png`), Buffer.from(image.data, 'base64'));
+}
+async function run(){
+ await startServer();profile=await fs.mkdtemp(path.join(os.tmpdir(),'gym-smoke-outbox-'));browser=await openSmokeBrowser('chromium',baseUrl+'/fixture',profile,item=>trace.push(item),signal);connections.push(browser);await ready(browser.client);result.browser=browser.version;
+ const app=await page(true);applicationPage=app;await app.client.evaluate("appOutboxFixture.configure('judge-bdab-routine-change')");await app.client.evaluate('appOutboxFixture.captureStart()');await network(app,true);await app.client.evaluate('appOutboxFixture.draftWriteFault()');const failed=await app.client.evaluate('appOutboxFixture.captureSave()');result.beforeRetry=await app.client.evaluate('appOutboxFixture.state()');await app.client.evaluate('appOutboxFixture.clearFault()');
+ const retry=await app.client.evaluate(`(async()=>{const c=await import('/js/modules/session-manager.js');const old=c.loadInProgressSession();c.setCurrentRoutineForSession(null);const routine={id:'capture-routine',name:'One ongoing workout',exercises:[{name:'Bench',type:'strength',sets:1,reps:'10',executionMode:'two_hand'}]};await c.checkAndOfferResumeSession([routine]);await document.getElementById('resume-session-btn').onclick();const before={routine:c.getCurrentRoutineForSession(),weight:document.querySelector('input[name="weight-0-0"]').value,reps:document.querySelector('input[name="reps-0-0"]').value,locked:document.querySelector('input[name="weight-0-0"]').disabled};const result=await c.saveSessionData();return {old,before,result,queued:await appOutboxFixture.coldQueue()};})()`);
+ result.rootRecoveryProbe={scope:'own targeted harness; actual app/native localStorage partial write-ahead and Resume; SDK backend synthetic',first:failed,retry};await screenshot(app,'routine-original-recovered');assert.equal(retry.result.ok,true,'unchanged saved submission must remain retryable after routine goal changes');assert.equal(retry.result.queued,true);assert.equal(result.beforeRetry.sessions.length,0);assert.equal(retry.queued.length,1);assert.equal(retry.queued[0].id,retry.old.submission.queueId);assert.deepEqual(retry.queued[0].descriptor.payload,retry.old.submission.payload);assert.equal(retry.before.routine.exercises[0].reps,'8');assert.equal(retry.before.locked,true);await network(app,false);await app.client.evaluate('appOutboxFixture.replay()');result.afterReplay=await app.client.evaluate('appOutboxFixture.state()');assert.equal(result.afterReplay.sessions.length,1);assert.equal(result.afterReplay.sessions[0].sessionId,retry.old.submission.payload.sessionId);assert.equal(result.afterReplay.sessions[0].fechaIso,retry.old.submission.payload.sessionData.fechaIso);
+}
+
+await fs.mkdir(output, { recursive: true });
+await fs.writeFile(path.join(output, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
+try {
+    result.sourceHashesLf = Object.fromEntries(await Promise.all(['js/utils/durable-outbox.js', 'js/utils/outbox-order.js',
+        'js/utils/outbox-journal-storage.js', 'js/utils/offline-manager.js', 'js/utils/local-first-cache.js', 'js/app.js', 'js/modules/session-manager.js',
+        'js/i18n.js', 'js/version-manager.js', 'tests/browser/outbox-app-bootstrap.js', 'tests/browser/outbox-app-environment.js'].map(async file => [file,
+        crypto.createHash('sha256').update((await fs.readFile(path.join(root, file), 'utf8')).replace(/\r\n?/g, '\n')).digest('hex')])));
+    if (negativeCase && !['cleanup-owner', 'cleanup-connection', 'cleanup-server'].includes(negativeCase)) throw new Error('Unknown outbox smoke negative case');
+    await run();
+} catch (error) {
+    result.primaryError = serializedError(error);
+    try { if (applicationPage || browser) await screenshot(applicationPage || browser, 'failure'); }
+    catch (captureError) { result.captureError = serializedError(captureError); }
+}
+finally {
+    const cleanup = async (stage, operation) => {
+        try { await operation(); if (negativeCase === stage) throw new Error(`Deliberately injected ${stage} failure after real cleanup`); event(stage, { status: 'done' }); }
+        catch (error) { cleanupErrors.push({ stage, ...serializedError(error) }); event(stage, { status: 'failed', message: error.message }); }
+    };
+    await cleanup('cleanup-owner', async () => { if (browser) await browser.owner.close(); else if (profile) await removeSmokeProfile(profile); });
+    for (const connection of connections) await cleanup('cleanup-connection', async () => { connection.client.close(); });
+    await cleanup('cleanup-server', async () => { if (server) { server.closeAllConnections(); await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())); } });
+    result.cleanupErrors = cleanupErrors;
+    try { await fs.writeFile(path.join(output, 'trace.json'), `${JSON.stringify(trace, null, 2)}\n`); }
+    catch (error) { cleanupErrors.push({ stage: 'cleanup-trace', ...serializedError(error) }); }
+    result.status = result.primaryError || cleanupErrors.length ? 'failed' : 'passed'; result.completedAt = new Date().toISOString();
+    // Publish final status only after every owner/connection/server/trace cleanup.
+    await fs.writeFile(path.join(output, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
+    if (result.status !== 'passed') process.exitCode = 1;
+    console.log(JSON.stringify({ status: result.status, primaryError: result.primaryError?.message, cleanupErrors: cleanupErrors.map(item => item.stage), output }));
+}

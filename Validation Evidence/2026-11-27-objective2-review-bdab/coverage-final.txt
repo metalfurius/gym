@@ -1,0 +1,155 @@
+
+> my-workout-tracker@1.0.2 test:coverage:gate
+> npm run test:coverage -- --runInBand && npm run coverage:gate
+
+
+> my-workout-tracker@1.0.2 test:coverage
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand
+
+(node:26924) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/unit/progress-flow.test.js
+PASS tests/integration/app-outbox-journal-v3.test.js
+PASS tests/unit/outbox-journal-v3.test.js
+PASS tests/unit/live-sync-qa.test.js
+PASS tests/unit/quick-log.test.js
+PASS tests/unit/progress.test.js
+PASS tests/unit/ui-dom.test.js
+PASS tests/unit/calendar.test.js
+PASS tests/unit/offline-manager.test.js
+PASS tests/unit/sync-protocol.test.js
+PASS tests/unit/app-core.test.js
+PASS tests/unit/history-manager.test.js
+PASS tests/unit/cloudflare-cache-control.test.js
+PASS tests/integration/app-user-journey.test.js (7.632 s)
+PASS tests/integration/firebase-integration.test.js
+PASS tests/unit/validation.test.js
+PASS tests/integration/app-routine-import.test.js
+PASS tests/unit/local-first-cache.test.js
+PASS tests/unit/exercise-cache.test.js
+PASS tests/unit/ui-escape-html.test.js
+PASS tests/unit/weekly-preferences.test.js
+PASS tests/unit/timer.test.js
+PASS tests/integration/app-offline-recovery.test.js (6.321 s)
+PASS tests/integration/app-sync-accounts.test.js
+PASS tests/unit/settings.test.js
+PASS tests/unit/denied-transaction-retry.test.js
+PASS tests/unit/exercise-cache-comprehensive.test.js
+PASS tests/unit/notifications.test.js
+PASS tests/unit/production-release-smoke.test.js
+PASS tests/unit/debounce.test.js
+PASS tests/unit/pagination.test.js
+PASS tests/unit/auth.test.js
+PASS tests/unit/event-manager.test.js
+PASS tests/integration/app-offline-retry.test.js (5.262 s)
+PASS tests/integration/app-sync-surfaces.test.js
+PASS tests/unit/version-manager.test.js
+PASS tests/integration/app-workflow.test.js
+PASS tests/unit/firestore-serialization.test.js
+PASS tests/unit/scroll-to-top.test.js
+PASS tests/unit/theme-manager-actual.test.js
+PASS tests/integration/app-auth-navigation.test.js
+PASS tests/unit/owned-browser-process.test.js
+PASS tests/unit/browser-sandbox-permissions.test.js
+PASS tests/unit/browser-smoke-runtime.test.js
+PASS tests/unit/data-models.test.js
+PASS tests/unit/offline-owner-queue.test.js
+PASS tests/integration/app-numeric-inputs.test.js
+PASS tests/unit/routine-import.test.js
+PASS tests/integration/app-sync-completeness.test.js
+PASS tests/unit/session-variant-overrides.test.js
+PASS tests/unit/service-worker-release.test.js
+PASS tests/unit/ui-session-inputs.test.js
+PASS tests/unit/production-cache-delivery.test.js
+PASS tests/unit/github-pages-deployment.test.js
+PASS tests/unit/numeric-input.test.js
+PASS tests/unit/logger.test.js
+PASS tests/unit/app-session.test.js
+PASS tests/integration/app-language-switch.test.js
+PASS tests/unit/eslint-config.test.js
+PASS tests/unit/storage-manager.test.js
+PASS tests/unit/release-updater.test.js
+PASS tests/unit/i18n.test.js
+PASS tests/unit/labeler-prs.test.js
+PASS tests/unit/execution-mode.test.js
+PASS tests/unit/coverage-gate.test.js
+PASS tests/unit/load-type.test.js
+PASS tests/unit/secure-id.test.js
+PASS tests/unit/firebase-usage-tracker.test.js
+PASS tests/unit/calendar-clock.test.js
+PASS tests/unit/bodyweight.test.js
+PASS tests/unit/release-integrity.test.js
+PASS tests/integration/app-capture-durable-identity.test.js
+PASS tests/integration/app-sync-review-regressions.test.js
+PASS tests/unit/session-manager.test.js
+PASS tests/unit/weekly-conflict-resolution.test.js
+PASS tests/unit/durable-outbox.test.js
+-------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                      |   80.89 |    71.47 |   87.81 |   83.48 |
+ js                            |    73.2 |    60.28 |   76.54 |   75.05 |
+  app.js                       |   76.43 |    61.52 |    78.4 |   79.61 | 98-104,221-222,237,243,255-256,266-267,272-275,293,296-297,353,383,411-463,473,476-478,485,494,498-499,503-506,511,639-640,779-783,807,863,894-896,915,920,926,953,959,964-977,983,997,1014,1024-1028,1033-1036,1047,1070,1074,1086,1092,1140-1141,1194-1207,1228-1229,1240-1250,1259-1260,1277-1278,1292-1293,1316,1332,1353,1375-1376,1380,1386-1387,1407-1411,1418,1423-1479,1497-1498,1504-1505,1539-1540,1564-1567,1591-1592,1605-1608,1659,1703,1719,1727,1737,1756-1758,1771,1778,1784-1789,1804-1805,1812-1813,1837,1846,1855,1875-1876
+  auth.js                      |   63.09 |    32.55 |   57.14 |   62.19 | 27-38,48-49,52-53,63-67,83-84,94-98,114-115,122,128
+  exercise-cache.js            |   59.51 |    55.39 |   72.97 |    63.6 | 69,105,153,156,194,286-317,345-379,411,494,518-523,542-637
+  i18n.js                      |   83.69 |    68.91 |   95.23 |    87.5 | 949,959-960,969,975,1000-1007,1043,1088
+  progress.js                  |   89.16 |    72.27 |   94.52 |   92.05 | 58,94-95,142-158,228-229,233-234,260,270,311-314,344-345,388-389,551-552,596-599,608,621-624,721-723,925-926
+  storage-manager.js           |   60.52 |    61.11 |     100 |   60.52 | 30-39,60-61,71,77-78,88-89,106
+  theme-manager.js             |   36.36 |    29.03 |   34.61 |   36.36 | 53-54,68-70,79-219,265-270,280
+  timer.js                     |   36.17 |       28 |   41.17 |   37.07 | 18-26,79-174,185-201,210-213
+  ui.js                        |   77.77 |    63.46 |   83.07 |   78.06 | 57-70,85,239,254,282-284,313-314,336,347-350,359,392-393,410-415,432,469,599,639-644,664-665,701-702,729,780-782,823-824,920-921,951-952,983,1031-1034,1068,1078-1216,1282-1283,1404-1406,1416-1418,1473-1483,1498-1535
+  version-manager.js           |    57.2 |    52.35 |   58.62 |   60.47 | 34,46,63,103,111-173,187-200,207-209,216-219,224-225,233-247,286,291-292,299-311,333,343
+ js/modules                    |   84.55 |     75.5 |      95 |   88.18 |
+  calendar.js                  |   83.94 |    78.07 |   96.77 |   87.83 | 85,155-156,217-219,230-232,248-249,267-269,310,358-373,391-395,497-498,533-534,579-584,635-636,667-672
+  history-manager.js           |   74.74 |    63.49 |   83.33 |   79.47 | 108-109,120-122,138-140,160,168,176-197,211-213
+  pagination.js                |    87.5 |    68.75 |     100 |   87.34 | 112,120,148-152,206,232,242-243
+  scroll-to-top.js             |   91.17 |    71.42 |     100 |   93.75 | 16,38
+  session-manager.js           |   84.36 |    78.54 |      96 |   88.22 | 46,51,77,86,91,137-140,151,170,205,221,270,298,321,324,326,340,344,418,436,483,514,519,629-630,645-647,715-717,720-721,734,763,775-776,798-799,804-805,810-811,866-867,967-968,975-976,980,1003-1004,1011
+  settings.js                  |   97.81 |    70.96 |     100 |   97.79 | 45,187,247
+ js/utils                      |   89.22 |     80.9 |    94.4 |   93.09 |
+  account-scope.js             |     100 |      100 |     100 |     100 |
+  auth-state.js                |     100 |      100 |     100 |     100 |
+  bodyweight.js                |   88.46 |    88.88 |     100 |   88.46 | 30,37,43
+  cache-mutation-lock.js       |   91.66 |       90 |      75 |     100 | 11
+  calendar-clock.js            |    87.5 |    85.71 |     100 |     100 | 11
+  debounce.js                  |   95.74 |    85.18 |     100 |   95.65 | 110,131-133
+  durable-outbox.js            |   87.65 |    79.54 |   96.55 |   97.02 | 73,79,110
+  event-manager.js             |   96.96 |      100 |     100 |   96.96 | 53
+  execution-mode.js            |     100 |    81.81 |     100 |     100 | 18,36
+  firebase-usage-tracker.js    |   83.05 |    48.88 |     100 |   87.03 | 22-26,37,45,59
+  firestore-serialization.js   |   93.42 |    79.62 |     100 |   93.24 | 9,13,21,64,79
+  input-validation.js          |   92.15 |    67.64 |     100 |   92.15 | 48,88-90
+  load-type.js                 |     100 |    81.81 |     100 |     100 | 15,30
+  local-first-cache.js         |   79.45 |    76.92 |    82.6 |   86.37 | 25-26,36-37,84-104,132,149-150,209-210,218,266-267,311-326,339-340
+  logger.js                    |   95.45 |    77.27 |     100 |      95 | 15
+  notifications.js             |     100 |    83.87 |     100 |     100 | 169-171,180,228-238
+  numeric-input.js             |   93.33 |       84 |     100 |   93.22 | 64,164,224,233
+  offline-manager.js           |   89.27 |     85.4 |   94.68 |   90.83 | 106,115-120,155,158,307-308,358,409,427,442,453,476,500-501,521,529,539-551,635,655-656,674-676,699,706,714,785
+  outbox-journal-storage.js    |   86.66 |    78.12 |     100 |   97.56 | 38
+  outbox-order.js              |   98.41 |    90.24 |     100 |     100 | 3,26,62
+  owned-transaction.js         |   95.38 |    91.66 |     100 |   96.22 | 30-31
+  quick-log.js                 |   91.22 |    76.06 |   91.11 |   93.95 | 39-40,178,195,206-211,223-225,350-351,405,409,416
+  release-updater.js           |   81.25 |    58.92 |    87.5 |   96.77 | 59,101
+  routine-import.js            |      95 |    94.23 |     100 |     100 | 28,112-118
+  secure-id.js                 |     100 |      100 |     100 |     100 |
+  session-mutations.js         |    82.6 |       40 |     100 |   94.11 | 42
+  session-store.js             |   91.07 |     91.8 |     100 |   95.34 | 69,80
+  session-variant-overrides.js |    87.5 |    73.68 |     100 |    87.5 | 23,34,69,89,96,118,130
+  sync-protocol-contract.js    |     100 |      100 |     100 |     100 |
+  sync-protocol.js             |    91.3 |    95.23 |     100 |   95.23 | 40
+  validation.js                |   91.37 |    82.85 |     100 |   91.37 | 113,172,198-200
+  weekly-preferences.js        |   93.44 |    86.04 |     100 |   98.14 | 126,176
+-------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Test Suites: 76 passed, 76 total
+Tests:       1130 passed, 1130 total
+Snapshots:   0 total
+Time:        62.733 s
+Ran all test suites.
+
+> my-workout-tracker@1.0.2 coverage:gate
+> node scripts/coverage-gate.mjs
+
+[coverage-gate] required statements >= 70%.
+[coverage-gate] statements=80.89%.
+[coverage-gate] PASSED.

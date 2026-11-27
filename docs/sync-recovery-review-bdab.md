@@ -1,0 +1,13 @@
+# Recovery and legacy conflict corrections after bdab review
+
+Local follow-up to candidate bdab128435e128a70bce1a382bfa22340cb64c74. Objective 2 remains open.
+
+A prepared capture now retries its verified original queue/session ID, complete payload and training date. Routine definitions may change goals, name, type or load handling, or be removed, during authentication/recovery. The read-only recovery view reconstructs the original recorded context, and retry does not reinterpret it through newer routine validation. Owner, capture and routine identity are verified before enqueue/RPC. A raw snapshot of the locked editable controls still rejects changes to those controls under an old submission; current goals and other derived fields do not redefine its immutable body. No queue schema or submission shape changes, content deduplication or replacement ID is introduced.
+
+Legacy weekly operations without weekKey can conflict correctly but previously remained pending after an explicit replacement save. Conflict metadata now preserves the canonical receipt week; older conflicts fall back to their original logical timestamp with the same calendar conversion as legacy replay. Explicit resolution remains restricted to the same owner, weekly operation type and week. Foreign work, malformed dates, other weeks and session operations remain pending. Original descriptors and immutable server receipts are preserved.
+
+Root reproduced both failures before correcting them, including real native-storage recovery based on Judge A's independent reproducer. New cases cover goal/name/type/load changes, deleted definitions, cold/stale conflict consumers, timezone metadata, unchanged receipts and negative ownership/date/type selection. Existing anti-tamper behavior remains required; an intermediate broad retry attempt failed that regression before the independent raw-control guard was retained.
+
+Final local full gate: 76 suites / 1,130 tests, 80.89% statements, first complete run 62.733 seconds; lint/no-skips and v2.8.6/75-asset two-build integrity passed. Root targeted pinned Chromium 158.0.8127.36/native localStorage+IndexedDB checks passed for original-context retry and legacy conflict resolution, both cleanupErrors empty. Backend transport in these probes is synthetic, with no real account or service operation.
+
+The Windows full smoke timeout observed independently on bdab remains a failed historical run. Its isolation repair, complete native ± rerun, expanded actual two-machine acceptance, final hosted checks and two new identical-head independent approvals remain required before merge.

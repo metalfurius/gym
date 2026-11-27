@@ -1,0 +1,182 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { __authState, __firestoreState, __notifyAuthListeners, __resetMockFirebase, MockTimestamp } from '../tests/mocks/firebase-state.js';
+import { __resetMockFirestoreBehavior } from '../tests/mocks/firebase-firestore.js';
+
+const sourceRoot = process.env.MODULE_BOUNDARIES_SOURCE_ROOT || fileURLToPath(new URL('../../', import.meta.url));
+const sourceUrl = file => pathToFileURL(path.join(sourceRoot, file)).href;
+const RealDate = Date;
+const wallNow = RealDate.now.bind(RealDate);
+const clockIso = '2026-11-27T12:00:00.000Z';
+const phases = [];
+const pause = () => new Promise(resolve => setTimeout(resolve, 5));
+const online = value => Object.defineProperty(navigator, 'onLine', { configurable: true, value });
+const preferences = uid => `users/${uid}/app_data/user_preferences`;
+let queue;
+let cache;
+let setCalendarClock;
+let uuidSpy;
+let completed = false;
+
+async function wait(predicate) {
+    const deadline = wallNow() + 3000;
+    while (!predicate()) {
+        if (wallNow() > deadline) throw new Error('Module boundary parity fixture did not settle');
+        await pause();
+    }
+}
+function typed(value) {
+    if (value === undefined) return { $type: 'undefined' };
+    if (value instanceof MockTimestamp) return { $type: 'Timestamp', seconds: value.seconds, nanoseconds: value.nanoseconds };
+    if (value instanceof RealDate) return { $type: 'Date', iso: value.toISOString() };
+    if (Array.isArray(value)) return value.map(typed);
+    if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, typed(value[key])]));
+    return value;
+}
+function record(name) {
+    phases.push({ name,
+        documents: typed(Object.fromEntries([...__firestoreState.documents].filter(([key]) => key.startsWith('users/')).sort(([a], [b]) => a.localeCompare(b)))),
+        queue: typed(queue.getOrderedPendingOperations().map(entry => ({ id: entry.id, ownerId: entry.ownerId,
+            timestamp: entry.timestamp, status: entry.status, descriptor: entry.descriptor }))),
+        ui: Object.fromEntries(['daily-hub-month-count', 'daily-hub-weekly-progress', 'daily-hub-current-streak',
+            'daily-hub-best-streak', 'daily-hub-sync-status'].map(id => [id, document.getElementById(id).textContent])),
+        target: document.getElementById('weekly-target-days-select').value,
+    });
+}
+async function authenticate(uid) {
+    __authState.currentUser = uid ? { uid, email: `${uid}@example.test` } : null;
+    await __notifyAuthListeners();
+    await wait(() => !queue.isProcessing);
+}
+async function pressTarget(target) {
+    document.getElementById('weekly-target-days-select').value = `${target}`;
+    document.getElementById('weekly-target-save-btn').click();
+    await wait(() => !document.getElementById('weekly-target-save-btn').disabled);
+}
+
+describe('typed application wire/queue parity across manager extraction (mock Firebase)', () => {
+    beforeAll(async () => {
+        __resetMockFirebase(); __resetMockFirestoreBehavior(); localStorage.clear(); sessionStorage.clear();
+        global.Date = class extends RealDate {
+            constructor(...args) { super(...(args.length ? args : [clockIso])); }
+            static now() { return RealDate.parse(clockIso); }
+        };
+        let sequence = 0;
+        uuidSpy = jest.spyOn(globalThis.crypto, 'randomUUID').mockImplementation(() => `00000000-0000-4000-8000-${String(++sequence).padStart(12, '0')}`);
+        document.open(); document.write(fs.readFileSync(path.join(sourceRoot, 'index.html'), 'utf8')); document.close();
+        online(true);
+        Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: { register: async () => ({ scope: '/' }) } });
+        window.confirm = () => true; window.alert = () => {}; window.scrollTo = () => {};
+        global.Chart = window.Chart = class { destroy() {} };
+        HTMLCanvasElement.prototype.getContext = () => ({});
+        ({ setCalendarClock } = await import(sourceUrl('js/utils/calendar-clock.js')));
+        setCalendarClock(() => new Date(clockIso));
+        ({ offlineManager: queue } = await import(sourceUrl('js/utils/offline-manager.js')));
+        ({ localFirstCache: cache } = await import(sourceUrl('js/utils/local-first-cache.js')));
+        await import(sourceUrl('js/app.js'));
+        const { setLanguage } = await import(sourceUrl('js/i18n.js'));
+        setLanguage('es', { persist: false, apply: true });
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+        await authenticate(null); await cache.clearAll(); queue.clearPending(); await queue.persistQueue();
+    });
+
+    it('retains typed documents, legacy descriptors, ownership, original timestamps, counts and recompute outcomes', async () => {
+        __firestoreState.documents.set('runtime_config/sync_protocol', { version: 1, epoch: 'gym-sync-v1-2026-11' });
+        for (const uid of ['A', 'B']) {
+            __firestoreState.documents.set(`users/${uid}/app_data/sync_protocol`, { version: 1, epoch: 'gym-sync-v1-2026-11' });
+            __firestoreState.documents.set(`users/${uid}/app_data/session_revision`, { revision: 0, lastSessionId: null });
+        }
+        __firestoreState.documents.set(preferences('A'), { weeklyTargetDays: 7, untouchedLegacy: { alias: 'keep', values: [null, false, 0, '07'] } });
+        __firestoreState.documents.set(preferences('B'), { weeklyTargetDays: 2 });
+        __firestoreState.documents.set('users/A/routines/fixed-routine', { name: 'Rutina de paridad', exercises: [
+            { name: 'Pulley', type: 'strength', sets: 1, reps: '8', executionMode: 'pulley', loadType: 'external' },
+        ] });
+        for (const [id, date] of [['past-1', '2026-11-17'], ['past-2', '2026-11-17'], ['same-day-1', '2026-11-27'], ['same-day-2', '2026-11-27']]) {
+            __firestoreState.documents.set(`users/A/sesiones_entrenamiento/${id}`, {
+                id: 'untrusted-duplicate-data-id', fecha: MockTimestamp.fromDate(new Date(`${date}T10:15:12.345Z`)),
+                nombreEntrenamiento: 'Legacy same day', userId: 'A', pesoUsuario: '75,3',
+                ejercicios: [{ nombre: 'Legacy pulley', tipo: 'strength', variant: { unknown: ['x', 0, null] },
+                    sets: [{ peso: 50.5, repeticiones: 8, future: false }] }], unknown: { exact: '01.00' },
+            });
+        }
+        // Cache B while online so the later offline switch has an owned saved
+        // value and does not legitimately enqueue an unrelated routine fetch.
+        await authenticate('B');
+        await authenticate('A');
+        expect(__firestoreState.documents.get(preferences('A')).weeklyOutcomesByWeek['2026-11-16'])
+            .toMatchObject({ targetSessions: 7, sessionCount: 2, met: false });
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('2/7');
+        record('legacy-state-and-same-day-counts');
+
+        online(false); await pressTarget(4); await pressTarget(6);
+        const targets = queue.getOrderedPendingOperations().filter(entry => entry.descriptor.type === 'preferences.saveWeeklyTarget');
+        expect(targets).toHaveLength(2);
+        expect(targets[1].descriptor.payload.baseOperationId).toBe(targets[0].descriptor.payload.operationId);
+        expect(targets.map(entry => entry.descriptor.payload.updatedAtIso)).toEqual([clockIso, clockIso]);
+        const preserved = typed(targets.map(entry => entry.descriptor));
+        record('two-tied-clock-offline-targets');
+        await authenticate('B'); expect(document.getElementById('weekly-target-days-select').value).toBe('2');
+        expect(queue.getPendingCount()).toBe(0); record('other-owner-isolated');
+        await authenticate('A'); expect(document.getElementById('weekly-target-days-select').value).toBe('6');
+        expect(typed(queue.getOrderedPendingOperations().map(entry => entry.descriptor))).toEqual(preserved);
+        record('same-owner-return-durable-overlay');
+        online(true); await queue.processPendingOperations();
+        expect(queue.getPendingCount()).toBe(0);
+        expect(__firestoreState.documents.get(preferences('A')).weeklyTargetsByWeek['2026-11-23']).toMatchObject({ targetSessions: 6, revision: 2 });
+        record('causal-target-replay');
+
+        queue.queueOperation(null, 'Legacy target fixture', { id: 'legacy-target-intent', descriptor: { type: 'preferences.saveWeeklyTarget',
+            payload: { userId: 'A', weeklyTargetDays: 5, updatedAtIso: '2026-11-27T11:12:13.456Z' } } });
+        await queue.persistQueue(); record('legacy-target-descriptor'); await queue.processPendingOperations();
+        expect(queue.getConflictCount()).toBe(1);
+        expect(__firestoreState.documents.get(preferences('A')).weeklyTargetDays).toBe(6);
+        record('legacy-unknown-base-conflict');
+        if (process.env.MODULE_BOUNDARIES_PROBE_LEGACY_RESOLUTION === '1') {
+            await pressTarget(5);
+            record('known-baseline-legacy-after-deliberate-save');
+            expect(__firestoreState.documents.get(preferences('A')).weeklyTargetDays).toBe(5);
+            expect(queue.getPendingCount()).toBe(0);
+        }
+        // Fixture teardown for this deliberately obsolete descriptor. This is
+        // not evidence that today's Settings UI resolves an undated legacy
+        // conflict; that baseline limitation is reported separately.
+        await queue.cancelOperation('legacy-target-intent');
+        await pressTarget(5); expect(queue.getPendingCount()).toBe(0);
+
+        queue.queueOperation(null, 'Legacy derived fixture', { id: 'legacy-derived-intent', descriptor: { type: 'preferences.syncWeeklyState', payload: {
+            userId: 'A', weeklyTargetDays: 1, weeklyOutcomesByWeek: { '2026-11-16': { targetDays: 1, activeDays: 99, met: true } },
+        } } });
+        await queue.persistQueue(); record('legacy-derived-descriptor'); await queue.processPendingOperations();
+        expect(queue.getPendingCount()).toBe(0);
+        expect(__firestoreState.documents.get(preferences('A')).weeklyOutcomesByWeek['2026-11-16']).toMatchObject({ targetSessions: 7, sessionCount: 2, met: false });
+        record('legacy-derived-recomputed');
+
+        online(false);
+        document.getElementById('quick-log-label').value = 'Movilidad rápida';
+        document.getElementById('quick-log-datetime').value = '2026-11-27T12:30';
+        document.getElementById('quick-log-notes').value = 'Notas originales\nSegunda línea';
+        document.getElementById('quick-log-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await wait(() => !document.getElementById('quick-log-save-btn').disabled);
+        expect(queue.getPendingCount()).toBe(1); record('quick-log-wire-offline');
+        online(true); await queue.processPendingOperations();
+        expect(queue.getPendingCount()).toBe(0);
+        expect(document.getElementById('daily-hub-month-count').textContent).toBe('5');
+        record('quick-log-wire-replayed');
+        completed = true;
+    });
+
+    afterAll(async () => {
+        if (process.env.MODULE_BOUNDARIES_PARITY_OUTPUT) {
+            fs.writeFileSync(process.env.MODULE_BOUNDARIES_PARITY_OUTPUT, `${JSON.stringify({
+                status: completed ? 'characterized-mock' : 'failed-partial', clockIso,
+                transport: 'mock-firestore-in-actual-app', phases,
+            }, null, 2)}\n`);
+        }
+        __resetMockFirestoreBehavior(); online(true);
+        if (setCalendarClock) setCalendarClock();
+        if (queue) await authenticate(null);
+        uuidSpy?.mockRestore(); global.Date = RealDate;
+    });
+});

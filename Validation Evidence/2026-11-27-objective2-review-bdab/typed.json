@@ -1,0 +1,5729 @@
+{
+  "status": "failed-partial",
+  "clockIso": "2026-11-27T12:00:00.000Z",
+  "transport": "mock-firestore-in-actual-app",
+  "phases": [
+    {
+      "name": "legacy-state-and-same-day-counts",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 1,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 7,
+          "weeklyTargetSessions": 7,
+          "weeklyTargetsByWeek": {}
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/7",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "En línea"
+      },
+      "target": "7"
+    },
+    {
+      "name": "two-tied-clock-offline-targets",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 1,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 7,
+          "weeklyTargetSessions": 7,
+          "weeklyTargetsByWeek": {}
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [
+        {
+          "descriptor": {
+            "payload": {
+              "baseFingerprint": "absent",
+              "baseOperationId": null,
+              "baseRevision": 0,
+              "operationId": "target-00000000-0000-4000-8000-000000000014",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "userId": "A",
+              "weekKey": "2026-11-23",
+              "weekRecord": {
+                "savesUsed": 1,
+                "targetDays": 4,
+                "targetSessions": 4,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "offline-00000000-0000-4000-8000-000000000015",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        },
+        {
+          "descriptor": {
+            "payload": {
+              "baseFingerprint": "[4,4,1,\"2026-11-27T12:00:00.000Z\"]",
+              "baseOperationId": "target-00000000-0000-4000-8000-000000000014",
+              "baseRevision": 1,
+              "operationId": "target-00000000-0000-4000-8000-000000000017",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "userId": "A",
+              "weekKey": "2026-11-23",
+              "weekRecord": {
+                "savesUsed": 2,
+                "targetDays": 6,
+                "targetSessions": 6,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "offline-00000000-0000-4000-8000-000000000018",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        }
+      ],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/6",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "Sin conexión (2 en cola)"
+      },
+      "target": "6"
+    },
+    {
+      "name": "other-owner-isolated",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 1,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 7,
+          "weeklyTargetSessions": 7,
+          "weeklyTargetsByWeek": {}
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [
+        {
+          "descriptor": {
+            "payload": {
+              "baseFingerprint": "absent",
+              "baseOperationId": null,
+              "baseRevision": 0,
+              "operationId": "target-00000000-0000-4000-8000-000000000014",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "userId": "A",
+              "weekKey": "2026-11-23",
+              "weekRecord": {
+                "savesUsed": 1,
+                "targetDays": 4,
+                "targetSessions": 4,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "offline-00000000-0000-4000-8000-000000000015",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        },
+        {
+          "descriptor": {
+            "payload": {
+              "baseFingerprint": "[4,4,1,\"2026-11-27T12:00:00.000Z\"]",
+              "baseOperationId": "target-00000000-0000-4000-8000-000000000014",
+              "baseRevision": 1,
+              "operationId": "target-00000000-0000-4000-8000-000000000017",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "userId": "A",
+              "weekKey": "2026-11-23",
+              "weekRecord": {
+                "savesUsed": 2,
+                "targetDays": 6,
+                "targetSessions": 6,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "offline-00000000-0000-4000-8000-000000000018",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        }
+      ],
+      "ui": {
+        "daily-hub-month-count": "0",
+        "daily-hub-weekly-progress": "0/2",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "Sin conexión"
+      },
+      "target": "2"
+    },
+    {
+      "name": "same-owner-return-durable-overlay",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 1,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 7,
+          "weeklyTargetSessions": 7,
+          "weeklyTargetsByWeek": {}
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [
+        {
+          "descriptor": {
+            "payload": {
+              "baseFingerprint": "absent",
+              "baseOperationId": null,
+              "baseRevision": 0,
+              "operationId": "target-00000000-0000-4000-8000-000000000014",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "userId": "A",
+              "weekKey": "2026-11-23",
+              "weekRecord": {
+                "savesUsed": 1,
+                "targetDays": 4,
+                "targetSessions": 4,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "offline-00000000-0000-4000-8000-000000000015",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        },
+        {
+          "descriptor": {
+            "payload": {
+              "baseFingerprint": "[4,4,1,\"2026-11-27T12:00:00.000Z\"]",
+              "baseOperationId": "target-00000000-0000-4000-8000-000000000014",
+              "baseRevision": 1,
+              "operationId": "target-00000000-0000-4000-8000-000000000017",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "userId": "A",
+              "weekKey": "2026-11-23",
+              "weekRecord": {
+                "savesUsed": 2,
+                "targetDays": 6,
+                "targetSessions": 6,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "offline-00000000-0000-4000-8000-000000000018",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        }
+      ],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/6",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "Sin conexión (2 en cola)"
+      },
+      "target": "6"
+    },
+    {
+      "name": "causal-target-replay",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 3,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "updatedAt": {
+            "$type": "Timestamp",
+            "seconds": 1795780800,
+            "nanoseconds": 0
+          },
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 6,
+          "weeklyTargetSessions": 6,
+          "weeklyTargetsByWeek": {
+            "2026-11-23": {
+              "commitRevision": 3,
+              "operationId": "target-00000000-0000-4000-8000-000000000017",
+              "pending": false,
+              "revision": 2,
+              "savesUsed": 2,
+              "targetDays": 6,
+              "targetSessions": 6,
+              "updatedAtIso": "2026-11-27T12:00:00.000Z"
+            }
+          }
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000014": {
+          "operationId": "target-00000000-0000-4000-8000-000000000014",
+          "revision": 1,
+          "status": "applied",
+          "targetSessions": 4,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000017": {
+          "operationId": "target-00000000-0000-4000-8000-000000000017",
+          "revision": 2,
+          "status": "applied",
+          "targetSessions": 6,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/6",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "En línea"
+      },
+      "target": "6"
+    },
+    {
+      "name": "legacy-target-descriptor",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 3,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "updatedAt": {
+            "$type": "Timestamp",
+            "seconds": 1795780800,
+            "nanoseconds": 0
+          },
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 6,
+          "weeklyTargetSessions": 6,
+          "weeklyTargetsByWeek": {
+            "2026-11-23": {
+              "commitRevision": 3,
+              "operationId": "target-00000000-0000-4000-8000-000000000017",
+              "pending": false,
+              "revision": 2,
+              "savesUsed": 2,
+              "targetDays": 6,
+              "targetSessions": 6,
+              "updatedAtIso": "2026-11-27T12:00:00.000Z"
+            }
+          }
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000014": {
+          "operationId": "target-00000000-0000-4000-8000-000000000014",
+          "revision": 1,
+          "status": "applied",
+          "targetSessions": 4,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000017": {
+          "operationId": "target-00000000-0000-4000-8000-000000000017",
+          "revision": 2,
+          "status": "applied",
+          "targetSessions": 6,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [
+        {
+          "descriptor": {
+            "payload": {
+              "updatedAtIso": "2026-11-27T11:12:13.456Z",
+              "userId": "A",
+              "weeklyTargetDays": 5
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "legacy-target-intent",
+          "ownerId": "A",
+          "status": {
+            "$type": "undefined"
+          },
+          "timestamp": 1795780800000
+        }
+      ],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/6",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "En línea"
+      },
+      "target": "6"
+    },
+    {
+      "name": "legacy-unknown-base-conflict",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 3,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "updatedAt": {
+            "$type": "Timestamp",
+            "seconds": 1795780800,
+            "nanoseconds": 0
+          },
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 6,
+          "weeklyTargetSessions": 6,
+          "weeklyTargetsByWeek": {
+            "2026-11-23": {
+              "commitRevision": 3,
+              "operationId": "target-00000000-0000-4000-8000-000000000017",
+              "pending": false,
+              "revision": 2,
+              "savesUsed": 2,
+              "targetDays": 6,
+              "targetSessions": 6,
+              "updatedAtIso": "2026-11-27T12:00:00.000Z"
+            }
+          }
+        },
+        "users/A/app_data/user_preferences/weekly_operations/legacy-c84a646c-77161db4": {
+          "currentRevision": 2,
+          "operationId": "legacy-c84a646c-77161db4",
+          "status": "conflict",
+          "targetSessions": 5,
+          "updatedAtIso": "2026-11-27T11:12:13.456Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000014": {
+          "operationId": "target-00000000-0000-4000-8000-000000000014",
+          "revision": 1,
+          "status": "applied",
+          "targetSessions": 4,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000017": {
+          "operationId": "target-00000000-0000-4000-8000-000000000017",
+          "revision": 2,
+          "status": "applied",
+          "targetSessions": 6,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [
+        {
+          "descriptor": {
+            "payload": {
+              "updatedAtIso": "2026-11-27T11:12:13.456Z",
+              "userId": "A",
+              "weeklyTargetDays": 5
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "legacy-target-intent",
+          "ownerId": "A",
+          "status": "conflict",
+          "timestamp": 1795780800000
+        }
+      ],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/6",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "En línea (1 en cola)"
+      },
+      "target": "6"
+    },
+    {
+      "name": "known-baseline-legacy-after-deliberate-save",
+      "documents": {
+        "users/A/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/A/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/A/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/A/app_data/user_preferences": {
+          "preferencesRevision": 4,
+          "schemaVersion": 3,
+          "untouchedLegacy": {
+            "alias": "keep",
+            "values": [
+              null,
+              false,
+              0,
+              "07"
+            ]
+          },
+          "updatedAt": {
+            "$type": "Timestamp",
+            "seconds": 1795780800,
+            "nanoseconds": 0
+          },
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weeklyOutcomesByWeek": {
+            "2025-12-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2025-12-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-01-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-02-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-16": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-23": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-03-30": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-04-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-04": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-11": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-18": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-05-25": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-01": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-08": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-15": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-22": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-06-29": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-06": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-13": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-20": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-07-27": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-03": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-10": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-17": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-24": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-08-31": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-07": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-14": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-21": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-09-28": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-05": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-12": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-19": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-10-26": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-02": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-09": {
+              "activeDays": 0,
+              "activeSessions": 0,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 0,
+              "targetDays": 7,
+              "targetSessions": 7
+            },
+            "2026-11-16": {
+              "activeDays": 1,
+              "activeSessions": 2,
+              "lockedAtIso": "2026-11-27T12:00:00.000Z",
+              "met": false,
+              "sessionCount": 2,
+              "targetDays": 7,
+              "targetSessions": 7
+            }
+          },
+          "weeklyTargetBaselineSessions": 7,
+          "weeklyTargetDays": 5,
+          "weeklyTargetSessions": 5,
+          "weeklyTargetsByWeek": {
+            "2026-11-23": {
+              "commitRevision": 4,
+              "operationId": "target-00000000-0000-4000-8000-000000000024",
+              "pending": false,
+              "revision": 3,
+              "savesUsed": 3,
+              "targetDays": 5,
+              "targetSessions": 5,
+              "updatedAtIso": "2026-11-27T12:00:00.000Z"
+            }
+          }
+        },
+        "users/A/app_data/user_preferences/weekly_operations/legacy-c84a646c-77161db4": {
+          "currentRevision": 2,
+          "operationId": "legacy-c84a646c-77161db4",
+          "status": "conflict",
+          "targetSessions": 5,
+          "updatedAtIso": "2026-11-27T11:12:13.456Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000014": {
+          "operationId": "target-00000000-0000-4000-8000-000000000014",
+          "revision": 1,
+          "status": "applied",
+          "targetSessions": 4,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000017": {
+          "operationId": "target-00000000-0000-4000-8000-000000000017",
+          "revision": 2,
+          "status": "applied",
+          "targetSessions": 6,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/app_data/user_preferences/weekly_operations/target-00000000-0000-4000-8000-000000000024": {
+          "operationId": "target-00000000-0000-4000-8000-000000000024",
+          "revision": 3,
+          "status": "applied",
+          "targetSessions": 5,
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "weekKey": "2026-11-23"
+        },
+        "users/A/routines/fixed-routine": {
+          "exercises": [
+            {
+              "executionMode": "pulley",
+              "loadType": "external",
+              "name": "Pulley",
+              "reps": "8",
+              "sets": 1,
+              "type": "strength"
+            }
+          ],
+          "name": "Rutina de paridad"
+        },
+        "users/A/sesiones_entrenamiento/past-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/past-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1794910512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-1": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/A/sesiones_entrenamiento/same-day-2": {
+          "ejercicios": [
+            {
+              "nombre": "Legacy pulley",
+              "sets": [
+                {
+                  "future": false,
+                  "peso": 50.5,
+                  "repeticiones": 8
+                }
+              ],
+              "tipo": "strength",
+              "variant": {
+                "unknown": [
+                  "x",
+                  0,
+                  null
+                ]
+              }
+            }
+          ],
+          "fecha": {
+            "$type": "Timestamp",
+            "seconds": 1795774512,
+            "nanoseconds": 345000000
+          },
+          "id": "untrusted-duplicate-data-id",
+          "nombreEntrenamiento": "Legacy same day",
+          "pesoUsuario": "75,3",
+          "unknown": {
+            "exact": "01.00"
+          },
+          "userId": "A"
+        },
+        "users/B/app_data/exercise_cache": {
+          "cache": {},
+          "lastSync": "2026-11-27T12:00:00.000Z",
+          "version": "1.0"
+        },
+        "users/B/app_data/session_revision": {
+          "lastSessionId": null,
+          "revision": 0
+        },
+        "users/B/app_data/sync_protocol": {
+          "epoch": "gym-sync-v1-2026-11",
+          "version": 1
+        },
+        "users/B/app_data/user_preferences": {
+          "weeklyTargetDays": 2
+        }
+      },
+      "queue": [
+        {
+          "descriptor": {
+            "payload": {
+              "updatedAtIso": "2026-11-27T11:12:13.456Z",
+              "userId": "A",
+              "weeklyTargetDays": 5
+            },
+            "type": "preferences.saveWeeklyTarget"
+          },
+          "id": "legacy-target-intent",
+          "ownerId": "A",
+          "status": "conflict",
+          "timestamp": 1795780800000
+        }
+      ],
+      "ui": {
+        "daily-hub-month-count": "4",
+        "daily-hub-weekly-progress": "2/5",
+        "daily-hub-current-streak": "0",
+        "daily-hub-best-streak": "0",
+        "daily-hub-sync-status": "En línea (1 en cola)"
+      },
+      "target": "5"
+    }
+  ]
+}

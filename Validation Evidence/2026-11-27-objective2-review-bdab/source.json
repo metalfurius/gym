@@ -1,0 +1,6 @@
+{
+  "head": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "harnessSource": "Planner parity real app reducers synthetic SDK",
+  "changes": "Only test-relative mock import location adjusted; production source untouched",
+  "harnessSha256": "cb4e6a0460a062d4c05f745997203722f7bb9af87478435b9d4155243614dda0"
+}

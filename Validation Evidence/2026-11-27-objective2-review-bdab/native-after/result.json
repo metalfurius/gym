@@ -1,0 +1,274 @@
+{
+  "status": "passed",
+  "runId": "d3c3fae7-b22c-49c2-802c-c08fa41d021c",
+  "startedAt": "2026-11-27T17:33:20.392Z",
+  "checkoutSha": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "mode": "actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend",
+  "negativeCase": null,
+  "sourceHashesLf": {
+    "js/utils/durable-outbox.js": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+    "js/utils/outbox-order.js": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+    "js/utils/outbox-journal-storage.js": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+    "js/utils/offline-manager.js": "cb5c6c5f19dff5c2b7841b2df37531dd2be51737512915106079096993b105f7",
+    "js/utils/local-first-cache.js": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+    "js/app.js": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+    "js/modules/session-manager.js": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c",
+    "js/i18n.js": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50",
+    "js/version-manager.js": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983",
+    "tests/browser/outbox-app-bootstrap.js": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+    "tests/browser/outbox-app-environment.js": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "beforeRetry": {
+    "owner": "judge-bdab-routine-change",
+    "online": false,
+    "sessions": [],
+    "target": 3,
+    "uiTarget": "3",
+    "capture": {
+      "routine": "One ongoing workout",
+      "visible": true,
+      "saveEnabled": true,
+      "weight": "50",
+      "draft": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "judge-bdab-routine-change",
+        "captureId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+        "submission": {
+          "queueId": "capture-save-0c37d127-15c5-4caf-acae-706222364143",
+          "payload": {
+            "userId": "judge-bdab-routine-change",
+            "sessionData": {
+              "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "judge-bdab-routine-change",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a"
+          }
+        }
+      }
+    },
+    "pending": [],
+    "nativeEvents": []
+  },
+  "rootRecoveryProbe": {
+    "scope": "own targeted harness; actual app/native localStorage partial write-ahead and Resume; SDK backend synthetic",
+    "first": {
+      "ok": false
+    },
+    "retry": {
+      "old": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "judge-bdab-routine-change",
+        "captureId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+        "submission": {
+          "queueId": "capture-save-0c37d127-15c5-4caf-acae-706222364143",
+          "payload": {
+            "userId": "judge-bdab-routine-change",
+            "sessionData": {
+              "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "judge-bdab-routine-change",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a"
+          }
+        }
+      },
+      "before": {
+        "routine": {
+          "id": "capture-routine",
+          "name": "One ongoing workout",
+          "exercises": [
+            {
+              "name": "Bench",
+              "type": "strength",
+              "sets": 1,
+              "reps": "8",
+              "notes": "",
+              "executionMode": "two_hand",
+              "loadType": "external"
+            }
+          ]
+        },
+        "weight": "50",
+        "reps": "8",
+        "locked": true
+      },
+      "result": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a"
+      },
+      "queued": [
+        {
+          "id": "capture-save-0c37d127-15c5-4caf-acae-706222364143",
+          "description": "Sin conexión. La sesión se guardará automáticamente al recuperar Internet.",
+          "timestamp": 1795780800000,
+          "predecessorIds": [
+            "offline-e8c57ca7-a701-47a4-9351-08a5ac392e86"
+          ],
+          "semanticDependencyIds": [],
+          "ownerId": "judge-bdab-routine-change",
+          "descriptor": {
+            "type": "session.save",
+            "payload": {
+              "userId": "judge-bdab-routine-change",
+              "sessionData": {
+                "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+                "routineId": "capture-routine",
+                "nombreEntrenamiento": "One ongoing workout",
+                "userId": "judge-bdab-routine-change",
+                "ejercicios": [
+                  {
+                    "nombreEjercicio": "Bench",
+                    "tipoEjercicio": "strength",
+                    "objetivoSets": 1,
+                    "objetivoReps": "8",
+                    "sets": [
+                      {
+                        "peso": 50,
+                        "reps": 8,
+                        "tiempoDescanso": "00:00"
+                      }
+                    ],
+                    "notasEjercicio": "",
+                    "modoEjecucion": "two_hand",
+                    "tipoCarga": "external"
+                  }
+                ],
+                "pesoUsuario": null,
+                "fechaIso": "2026-11-27T12:00:00.000Z"
+              },
+              "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a"
+            }
+          },
+          "operation": null
+        }
+      ]
+    }
+  },
+  "afterReplay": {
+    "owner": "judge-bdab-routine-change",
+    "online": true,
+    "sessions": [
+      {
+        "path": "users/judge-bdab-routine-change/sesiones_entrenamiento/session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+        "sessionId": "session-b91112b6-20ca-4bd5-bf81-b676dd491a2a",
+        "fechaIso": "2026-11-27T12:00:00.000Z"
+      }
+    ],
+    "target": 3,
+    "uiTarget": "3",
+    "capture": {
+      "routine": null,
+      "visible": false,
+      "saveEnabled": true,
+      "weight": "",
+      "draft": null
+    },
+    "pending": [],
+    "nativeEvents": []
+  },
+  "cleanupErrors": [],
+  "completedAt": "2026-11-27T17:33:24.623Z"
+}

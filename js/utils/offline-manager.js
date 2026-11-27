@@ -10,12 +10,33 @@ import { DurableOutbox } from './durable-outbox.js';
 import { t } from '../i18n.js';
 import { createSecureId } from './secure-id.js';
 import { orderOutboxEntries, causalFrontier, outboxOwner, stableOutboxJson } from './outbox-order.js';
+import { getWeekKeyForDate } from './quick-log.js';
 
 const ACCOUNT_OPERATION_TYPES = new Set([
     'session.save', 'session.delete', 'quicklog.save', 'preferences.saveWeeklyTarget',
     'preferences.syncWeeklyState', 'routines.fetch',
 ]);
 const isOwnerId = value => typeof value === 'string' && value.trim().length > 0;
+const isWeekKey = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+function weeklyConflictDetails(error) {
+    return { code: 'sync/conflict', currentRevision: error.result?.currentRevision ?? null,
+        ...(isWeekKey(error.result?.weekKey) ? { weekKey: error.result.weekKey } : {}) };
+}
+
+function weeklyOperationWeek(entry) {
+    const payload = entry.descriptor?.payload;
+    if (isWeekKey(payload?.weekKey)) return payload.weekKey;
+    // A server conflict receipt records the canonical week even if this legacy
+    // descriptor predates weekKey, or the device later changes timezone.
+    if (isWeekKey(entry.conflict?.weekKey)) return entry.conflict.weekKey;
+    // Previously retained conflicts have only the original logical timestamp.
+    // Match the legacy replay handler; never substitute the current clock or
+    // mutate its immutable descriptor merely to resolve the local conflict.
+    const timestamp = payload?.updatedAtIso;
+    if (typeof timestamp !== 'string' || !timestamp || Number.isNaN(new Date(timestamp).getTime())) return null;
+    return getWeekKeyForDate(new Date(timestamp));
+}
 
 function createQueueId() {
     return createSecureId('offline');
@@ -369,7 +390,7 @@ export class OfflineManager {
         const entry = this.pendingOperations.find(item => item.id === id);
         if (entry) {
             entry.status = 'conflict';
-            entry.conflict = { code: 'sync/conflict', currentRevision: error.result?.currentRevision ?? null };
+            entry.conflict = weeklyConflictDetails(error);
             await this.persistQueue();
             await this.notifyQueueChange();
         }
@@ -377,7 +398,7 @@ export class OfflineManager {
 
     async resolveConflicts(userId, weekKey) {
         const resolved = entry => ['conflict', 'blocked'].includes(entry.status) && entry.descriptor?.type === 'preferences.saveWeeklyTarget'
-            && entry.descriptor.payload?.userId === userId && entry.descriptor.payload?.weekKey === weekKey;
+            && entry.descriptor.payload?.userId === userId && weeklyOperationWeek(entry) === weekKey;
         for (const entry of this.getOrderedPendingOperations()) {
             if (resolved(entry)) {
                 this.pendingAcknowledgements.add(entry.id); this.acknowledgementOutcomes.set(entry.id, 'resolved');
@@ -670,7 +691,7 @@ export class OfflineManager {
                     logger.error(`Failed queued operation: ${queueEntry.description}`, error);
                     if (error.code === 'sync/conflict') {
                         const current = this.pendingOperations.find(entry => entry.id === queueEntry.id);
-                        if (current) { current.status = 'conflict'; current.conflict = { code: error.code, currentRevision: error.result?.currentRevision ?? null }; }
+                        if (current) { current.status = 'conflict'; current.conflict = weeklyConflictDetails(error); }
                     }
                 }
                 // Keep in-flight work durable until each individual acknowledgement.

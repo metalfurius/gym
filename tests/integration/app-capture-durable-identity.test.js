@@ -98,6 +98,42 @@ describe('actual app durable capture identity through stale draft recovery', () 
         expect(sessions()).toHaveLength(1); expect(sessions()[0][1]).toMatchObject({ sessionId: adopted.captureId, pesoUsuario: 75.3 });
     });
 
+    it.each(['goal', 'exercise-name', 'exercise-type', 'load-type', 'deleted-definition'])(
+        'retries the immutable write-ahead after the routine %s changes across reauthentication', async change => {
+            const originalRoutine = change === 'load-type' ? { ...routine, exercises: [{ ...routine.exercises[0],
+                executionMode: 'two_hand', loadType: 'bodyweight' }] } : routine;
+            await capture.startSession('r', [originalRoutine]);
+            field('input[name="weight-0-0"]', change === 'load-type' ? '-12.5' : '62.5');
+            field('input[name="reps-0-0"]', '8'); online(false);
+            const set = Storage.prototype.setItem;
+            const fault = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(function(key, value) {
+                if (key === mirror && String(value).includes('"submission":')) throw new Error('Injected partial write-ahead');
+                return set.call(this, key, value);
+            });
+            try { expect((await capture.saveSessionData())?.ok).not.toBe(true); } finally { fault.mockRestore(); }
+            const original = JSON.parse(localStorage.getItem(primary)).submission;
+            expect(original).toBeTruthy(); expect((await offlineManager.outbox.read()).entries).toHaveLength(0);
+            capture.setCurrentRoutineForSession(null); await auth(null); await auth('A');
+            const exercise = { ...originalRoutine.exercises[0],
+                ...(change === 'goal' ? { reps: '10' } : {}),
+                ...(change === 'exercise-name' ? { name: 'Renamed exercise' } : {}),
+                ...(change === 'exercise-type' ? { type: 'cardio', duration: '40' } : {}),
+                ...(change === 'load-type' ? { loadType: 'external' } : {}) };
+            await capture.checkAndOfferResumeSession(change === 'deleted-definition' ? [] : [{ ...originalRoutine, exercises: [exercise] }]);
+            await document.getElementById('resume-session-btn').onclick();
+            expect(capture.getCurrentRoutineForSession()).toMatchObject({ id: 'r', name: originalRoutine.name,
+                exercises: [{ name: 'Bench', type: 'strength', reps: '8' }] });
+            expect(document.querySelector('input[name="weight-0-0"]').disabled).toBe(true);
+            const result = await capture.saveSessionData();
+            expect(result).toMatchObject({ ok: true, queued: true, sessionId: original.payload.sessionId });
+            const [intent] = (await offlineManager.outbox.read()).entries;
+            expect(intent.id).toBe(original.queueId); expect(intent.descriptor.payload).toEqual(original.payload);
+            online(true); await offlineManager.processPendingOperations();
+            expect(sessions()).toHaveLength(1); expect(sessions()[0][1].sessionId).toBe(original.payload.sessionId);
+            expect(sessions()[0][1].fecha.toDate().toISOString()).toBe(original.payload.sessionData.fechaIso);
+        }
+    );
+
     it('blocks a legacy Resume whose identity cannot reach the compatibility mirror, retaining the original data', async () => {
         const legacy = { routineId: 'r', timestamp: 1700000000000, data: { ejercicios: [{ sets: [{ peso: 62.5, reps: 8 }] }] } };
         localStorage.setItem(mirror, JSON.stringify(legacy)); await capture.checkAndOfferResumeSession([routine]);
