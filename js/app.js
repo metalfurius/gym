@@ -261,12 +261,23 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
     if (weeklyTargetCacheUserId !== user.uid) {
         applyWeeklyTargetState({}); weeklyTargetCacheUserId = user.uid; weeklyTargetLastFetchTimestamp = 0;
     }
+    try { await offlineManager.restorePersistedQueue?.(); }
+    catch (error) {
+        if (isCurrent()) logger.warn('Could not verify queued weekly targets:', error);
+        return weeklyTargetDays;
+    }
+    if (!isCurrent()) return WEEKLY_TARGET_DEFAULT;
     if (!options.forceRefresh && weeklyTargetLastFetchTimestamp > 0
-        && Date.now() - weeklyTargetLastFetchTimestamp <= USER_PREFERENCES_CACHE_TTL_MS) return weeklyTargetDays;
+        && Date.now() - weeklyTargetLastFetchTimestamp <= USER_PREFERENCES_CACHE_TTL_MS) {
+        const fetchedAt = weeklyTargetLastFetchTimestamp;
+        applyWeeklyTargetState(overlayQueuedWeeklyTargets(weeklyState()));
+        weeklyTargetLastFetchTimestamp = fetchedAt;
+        return weeklyTargetDays;
+    }
     const cached = await readWeeklyTargetStateFromCache(user.uid);
     if (!isCurrent()) return WEEKLY_TARGET_DEFAULT;
     if (!offlineManager.checkOnline()) {
-        if (cached) applyWeeklyTargetState(cached);
+        applyWeeklyTargetState(overlayQueuedWeeklyTargets(cached || weeklyState()));
         return weeklyTargetDays;
     }
     try {
@@ -277,12 +288,13 @@ async function fetchWeeklyTargetPreference(user, options = {}) {
         await offlineManager.restorePersistedQueue?.();
         if (!isCurrent()) return WEEKLY_TARGET_DEFAULT;
         next = overlayQueuedWeeklyTargets(next);
-        await cacheWeeklyTargetState(user.uid, next, next.updatedAtIso, isCurrent);
         if (isCurrent()) applyWeeklyTargetState(next);
+        try { await cacheWeeklyTargetState(user.uid, next, next.updatedAtIso, isCurrent); }
+        catch (error) { logger.warn('Weekly target loaded; advisory cache refresh deferred:', error); }
     } catch (error) {
         if (!isCurrent()) return WEEKLY_TARGET_DEFAULT;
         logger.warn('Could not load weekly target preference:', error);
-        if (cached) applyWeeklyTargetState(cached);
+        if (cached) applyWeeklyTargetState(overlayQueuedWeeklyTargets(cached));
     }
     return weeklyTargetDays;
 }
@@ -297,13 +309,18 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
     const now = calendarNow();
     const weekKey = getCurrentWeekKey(now);
     const target = normalizeWeeklyTargetSessions(targetDaysValue, WEEKLY_TARGET_DEFAULT);
-    const payload = createWeeklyTargetOperation(user.uid, weekKey, target, weeklyTargetsByWeek[weekKey], now.toISOString());
-    const next = applyOptimisticWeeklyTarget(payload, weeklyState());
-    const descriptor = { type: 'preferences.saveWeeklyTarget', payload };
     const triggerButton = options.triggerButton || null;
     let queueId = null; let intentCommitted = false; let accepted = false; let cancelled = false;
     showLoading(triggerButton, t('common.saving'));
     try {
+        // The journal is authoritative for local intent; the preferences cache
+        // is advisory and may have failed independently after a committed save.
+        await offlineManager.restorePersistedQueue?.();
+        if (!isCurrent()) return { ok: false, reason: 'owner-changed' };
+        const base = overlayQueuedWeeklyTargets(weeklyState());
+        const payload = createWeeklyTargetOperation(user.uid, weekKey, target, base.weeklyTargetsByWeek[weekKey], now.toISOString());
+        const next = applyOptimisticWeeklyTarget(payload, base);
+        const descriptor = { type: 'preferences.saveWeeklyTarget', payload };
         // Persist the immutable intent before acknowledging an offline save or
         // starting a network request. An ambiguous commit is safe to replay.
         queueId = offlineManager.queueOperation(null, t('settings.weekly_goal_save_offline'), { descriptor });

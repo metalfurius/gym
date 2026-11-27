@@ -30,3 +30,16 @@ firestore.rules text eol=lf
 "Validation Evidence/2026-11-27-objective2-main6/*.json" text eol=lf
 "Validation Evidence/2026-11-27-objective2-main6/*.txt" text eol=lf
 "Validation Evidence/2026-11-27-objective2-main6/*.md" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-review-353/*.json" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-review-353/*.txt" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-review-353/*.md" text eol=lf
+
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.json" text eol=lf
+
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.txt" text eol=lf
+
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.md" text eol=lf
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.png" -text

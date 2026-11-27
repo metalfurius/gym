@@ -1,0 +1,5 @@
+
+> my-workout-tracker@1.0.2 test:e2e:outbox:negative
+> node scripts/verify-outbox-smoke-negative.mjs
+
+{"status":"passed","mode":"real Chromium child; injected owner-close exception after actual owner cleanup","childExitCode":1,"evidenceStatus":"failed","traceExists":true,"cleanupErrors":["cleanup-owner"]}

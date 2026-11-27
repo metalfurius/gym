@@ -1,0 +1,71 @@
+{
+  "base": "353d569152a7aa20b1df06ec566d0da34e6d5755",
+  "workingTreeDirty": true,
+  "frozenAt": "2026-11-27T16:04:59.0968326Z",
+  "noCommitOrVersionBump": true,
+  "node": "v22.23.5",
+  "files": [
+    {
+      "path": "docs/history-sync-review-fixes-353.md",
+      "sha256": "e94a959b6c3ded7b243d439d8a34c91a3e1795f9cee81b81a2368cf6458c0f14"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "38b5bbe4263d202fcc01a4bd696d828998c08dfa9f613be9c7a07dcfea80229e"
+    },
+    {
+      "path": "js/modules/session-manager.js",
+      "sha256": "2c309f556201a586d355ec5380c1f10a44ccdca4d6f80ceb89edee7ec14a0047"
+    },
+    {
+      "path": "release.json",
+      "sha256": "b798ef5596a6cfb4138d83d997a9c0d428c9263e171a49b907b5c505fcd46020"
+    },
+    {
+      "path": "scripts/browser-outbox-smoke.mjs",
+      "sha256": "3f5bf4a2b0bf2f09d1e42a639e9fb07f5c162d47cc0be8bcbb2eab9af50aaa9f"
+    },
+    {
+      "path": "tests/browser/outbox-app-bootstrap.js",
+      "sha256": "3518007e8b46c3f317d411284b37551a9b222b51c5051dfa9c8adc2dfa2f3da5"
+    },
+    {
+      "path": "tests/integration/app-outbox-journal-v3.test.js",
+      "sha256": "ab6e90550bc8b47ea12465053d6192b30ecbbceee4fa72dd8975e7ae29157b6b"
+    }
+  ],
+  "contractsUnchanged": [
+    "js/utils/durable-outbox.js",
+    "js/utils/outbox-order.js",
+    "js/utils/outbox-journal-storage.js",
+    "js/utils/offline-manager.js",
+    "js/utils/local-first-cache.js",
+    "js/utils/weekly-preferences.js",
+    "js/utils/session-store.js",
+    "js/utils/owned-transaction.js"
+  ],
+  "checks": {
+    "lint10": "PASS zero warnings/errors",
+    "noSkips": "PASS",
+    "app": "PASS 6 suites / 6 tests",
+    "offline": "PASS 2 suites / 2 tests",
+    "coverage": "PASS 73 suites / 1083 tests / 80.76% statements",
+    "release": "PASS v2.8.6 / 75 assets / two-build",
+    "outboxNative": "PASS real Chromium native localStorage/IndexedDB, synthetic SDK",
+    "cleanupNegative": "PASS verifier; real child exit 1 / final failed JSON with later cleanup",
+    "upgrade": "PASS A -> B / session / offline / reconnect",
+    "diffCheck": "PASS"
+  },
+  "artifacts": {
+    "native": "tmp/outbox-smoke/1795795225302",
+    "cleanupNegative": "tmp/outbox-cleanup-negative/1795795263438",
+    "upgrade": "tmp/upgrade-smoke/2026-11-27T16-00-26-379Z-20100",
+    "coverage": "tmp-review-353-coverage-final.log",
+    "baselineReproduction": "tmp-review-353-baseline-fixed-harness.log"
+  },
+  "remaining": [
+    "parent final commit/rebase and frozen-source CI",
+    "two fresh independent approvals on identical final SHA",
+    "parent-owned real Firebase and multi-device acceptance"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "mode": "actual Firebase authenticated REST reads; no backend writes",
+  "ownerUid": "6WE3vNHVpcSE6vPeku9xowLmrXm2",
+  "reads": [
+    {
+      "path": "runtime_config/sync_protocol",
+      "status": 200,
+      "observedAt": "2026-11-27T15:43:00.703Z",
+      "fields": {
+        "version": {
+          "integerValue": "1"
+        },
+        "epoch": {
+          "stringValue": "gym-sync-v1-2026-11"
+        }
+      },
+      "updateTime": "2026-11-27T15:42:49.071796Z"
+    },
+    {
+      "path": "users/6WE3vNHVpcSE6vPeku9xowLmrXm2/app_data/sync_protocol",
+      "status": 404,
+      "observedAt": "2026-11-27T15:43:00.800Z",
+      "errorStatus": "NOT_FOUND"
+    },
+    {
+      "path": "users/6WE3vNHVpcSE6vPeku9xowLmrXm2/app_data/session_revision",
+      "status": 404,
+      "observedAt": "2026-11-27T15:43:00.883Z",
+      "errorStatus": "NOT_FOUND"
+    }
+  ],
+  "writes": 0
+}

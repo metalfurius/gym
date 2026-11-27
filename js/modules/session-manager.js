@@ -32,6 +32,7 @@ const IN_PROGRESS_SESSION_KEY = 'gymTracker_inProgressSession';
 
 // State
 let currentRoutineForSession = null;
+let sessionCaptureGeneration = 0;
 const savingSessions = new Set();
 const savingQuickLogs = new Set();
 
@@ -291,6 +292,7 @@ export function getCurrentRoutineForSession() {
  * @param {Object|null} routine - The routine to set
  */
 export function setCurrentRoutineForSession(routine) {
+    ++sessionCaptureGeneration;
     currentRoutineForSession = routine;
 }
 
@@ -508,14 +510,15 @@ export function getSessionFormData(options = {}) {
  */
 export async function saveSessionData(onSuccess) {
     const user = getCurrentUser();
+    const captureGeneration = sessionCaptureGeneration;
     const scope = user ? captureAccountScope(user.uid, { mutations: false }) : null;
-    const isCurrent = () => isAccountScopeCurrent(scope, getCurrentUser()?.uid);
+    const isCurrent = () => captureGeneration === sessionCaptureGeneration && isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     if (!currentRoutineForSession || !user) {
         toast.error(t('session.no_active_routine'));
         return;
     }
 
-    const saveKey = `${user.uid}:${scope.generation}`;
+    const saveKey = `${user.uid}:${scope.generation}:${captureGeneration}`;
     if (savingSessions.has(saveKey)) {
         toast.info(t('session.saved_busy'));
         return;
@@ -548,6 +551,24 @@ export async function saveSessionData(onSuccess) {
     showLoading(sessionElements.saveBtn, t('common.saving'));
     savingSessions.add(saveKey);
 
+    const finishCapture = queued => {
+        if (!isCurrent()) return;
+        // Acceptance transfers this capture to its immutable queue/server ID.
+        // Make it terminal before any fallible local cleanup or observer runs.
+        currentRoutineForSession = null;
+        for (const cleanup of [
+            () => saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario),
+            () => sessionElements.form.reset(),
+            () => clearInProgressSession(user.uid),
+            () => clearTimerData(),
+            () => showView('dashboard'),
+            () => queued ? toast.info(t('session.saved_queued')) : toast.success(t('session.saved_success')),
+        ]) {
+            if (!isCurrent()) break;
+            try { cleanup(); } catch (error) { logger.warn('Session accepted; local cleanup deferred:', error); }
+        }
+    };
+
     try {
         try {
             saveSessionVariantOverrides(user.uid, sessionVariantOverrides);
@@ -562,22 +583,19 @@ export async function saveSessionData(onSuccess) {
             payload: buildSessionQueuePayload(user.uid, finalSessionData, sessionId),
         });
 
+        finishCapture(false);
         await notifySessionPersisted({ userId: user.uid, sessionId, source: 'session', replayed: false }, mutation);
-        if (!isCurrent()) return;
-        saveLastKnownBodyweight(user.uid, finalSessionData.pesoUsuario);
-
-        toast.success(t('session.saved_success'));
-        sessionElements.form.reset();
-        clearInProgressSession();
-        clearTimerData();
-        currentRoutineForSession = null;
-        showView('dashboard');
-
-        // Call success callback if provided
-        if (typeof onSuccess === 'function') {
+        if (isCurrent() && typeof onSuccess === 'function') {
             try { onSuccess(); } catch (error) { logger.warn('Session accepted; success callback failed:', error); }
         }
+        return { ok: true, queued: false, sessionId };
     } catch (error) {
+        if (error.code === 'sync/queued') {
+            // Retained intent/unknown acknowledgement is not a server-persisted
+            // event and must not invoke the online success callback.
+            finishCapture(true);
+            return { ok: true, queued: true, sessionId };
+        }
         if (!isCurrent()) return;
         logger.error('Error adding document:', error);
 
@@ -716,7 +734,7 @@ export function checkAndOfferResumeSession(userRoutines) {
             dashboardElements.resumeSessionBtn.onclick = async () => {
                 if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
                 if (inProgress.legacyOwnerUnverified) saveInProgressSession(inProgress);
-                currentRoutineForSession = routine;
+                setCurrentRoutineForSession(routine);
                 await renderSessionView(routine, inProgress.data);
                 if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
                 dashboardElements.resumeSessionBtn.classList.add('hidden');
@@ -761,7 +779,7 @@ export async function startSession(routineId, userRoutines) {
         clearInProgressSession();
     }
 
-    currentRoutineForSession = selectedRoutine;
+    setCurrentRoutineForSession(selectedRoutine);
     await renderSessionView(selectedRoutine, inProgress && inProgress.routineId === routineId ? inProgress.data : null);
     if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
     dashboardElements.resumeSessionBtn.classList.add('hidden');
@@ -776,7 +794,7 @@ export function cancelSession() {
         sessionElements.form.reset();
         clearInProgressSession();
         clearTimerData();
-        currentRoutineForSession = null;
+        setCurrentRoutineForSession(null);
         showView('dashboard');
     }
 }

@@ -1,0 +1,14 @@
+
+> my-workout-tracker@1.0.2 test:app:offline
+> node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js --runInBand
+
+(node:24584) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/integration/app-offline-recovery.test.js (6.723 s)
+PASS tests/integration/app-offline-retry.test.js (5.331 s)
+
+Test Suites: 2 passed, 2 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        14.485 s
+Ran all test suites matching tests/integration/app-offline-recovery.test.js|tests/integration/app-offline-retry.test.js.

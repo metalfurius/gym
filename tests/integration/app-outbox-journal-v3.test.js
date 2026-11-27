@@ -6,7 +6,7 @@ import { seedSyncProtocol } from '../utils/sync-protocol-fixture.js';
 import { setCalendarClock } from '../../js/utils/calendar-clock.js';
 import { localFirstCache } from '../../js/utils/local-first-cache.js';
 import { offlineManager } from '../../js/utils/offline-manager.js';
-import { registerSessionMutationInvalidator } from '../../js/utils/session-mutations.js';
+import { registerSessionMutationInvalidator, registerSessionMutationListener } from '../../js/utils/session-mutations.js';
 import { OUTBOX_JOURNAL_PREFIX } from '../../js/utils/outbox-journal-storage.js';
 
 const now = Date.now.bind(Date);
@@ -43,10 +43,10 @@ function useIndexedAuthority(fault) {
 }
 
 describe('actual app atomic journal and causal replay', () => {
-    let saveQuickLogEntry;
+    let saveQuickLogEntry; let capture;
     beforeAll(async () => {
         __resetMockFirebase(); mountAppDom(); online(true); setCalendarClock(() => new Date(2026, 10, 27, 12));
-        await import('../../js/app.js'); ({ saveQuickLogEntry } = await import('../../js/modules/session-manager.js'));
+        await import('../../js/app.js'); capture = await import('../../js/modules/session-manager.js'); ({ saveQuickLogEntry } = capture);
         document.dispatchEvent(new Event('DOMContentLoaded')); await waitForUi(40);
     });
     beforeEach(async () => {
@@ -57,6 +57,179 @@ describe('actual app atomic journal and causal replay', () => {
         await offlineManager.queuePersistenceTail;
     });
     afterAll(async () => { __resetMockFirestoreBehavior(); online(true); setCalendarClock(); await authenticate(null); });
+
+    async function startCapture(name = 'One ongoing workout') {
+        await capture.startSession('capture-routine', [{ id: 'capture-routine', name,
+            exercises: [{ name: 'Bench', type: 'strength', sets: 1, reps: '8', executionMode: 'two_hand' }] }]);
+        field('input[name="weight-0-0"]', '50'); field('input[name="reps-0-0"]', '8');
+    }
+
+    it.each(['offline', 'lost-rpc', 'unknown-journal'])('finishes one actual routine capture after %s without allocating an identity on a repeated Save', async mode => {
+        await startCapture();
+        const accepted = jest.fn();
+        const persisted = jest.fn(); const unsubscribe = registerSessionMutationListener(persisted);
+        const append = offlineManager.outbox.storage.append.bind(offlineManager.outbox.storage);
+        let fault;
+        if (mode === 'offline') online(false);
+        if (mode === 'lost-rpc') {
+            let lost = false;
+            __setMockTransactionAfterCommit(({ writes }) => {
+                if (!lost && writes.some(write => write.reference.path.startsWith('users/A/sesiones_entrenamiento/'))) {
+                    lost = true; throw Object.assign(new Error('Injected RPC acknowledgement loss'), { code: 'unavailable' });
+                }
+            });
+        }
+        if (mode === 'unknown-journal') {
+            fault = jest.spyOn(offlineManager.outbox.storage, 'append').mockImplementationOnce(async events => {
+                await append(events); throw new Error('Injected journal completion reply loss');
+            });
+        }
+        try {
+            await capture.saveSessionData(accepted);
+            expect(capture.getCurrentRoutineForSession()).toBeNull();
+            expect(document.getElementById('session-view').classList.contains('hidden')).toBe(true);
+            expect(capture.loadInProgressSession()).toBeNull();
+            const [original] = offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save');
+            expect(original).toBeDefined(); const immutable = JSON.stringify(original.descriptor);
+            await capture.saveSessionData(accepted);
+            expect(offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(1);
+            expect(JSON.stringify(original.descriptor)).toBe(immutable);
+            expect(accepted).not.toHaveBeenCalled();
+            expect(persisted).not.toHaveBeenCalled();
+            fault?.mockRestore(); __resetMockFirestoreBehavior(); online(true);
+            await offlineManager.processPendingOperations();
+            expect(sessions()).toHaveLength(1);
+            expect(sessions()[0][1].sessionId).toBe(original.descriptor.payload.sessionId);
+            expect(sessions()[0][1].fecha.toDate().toISOString()).toBe(original.descriptor.payload.sessionData.fechaIso);
+        } finally { unsubscribe(); fault?.mockRestore(); __resetMockFirestoreBehavior(); }
+    });
+
+    it('keeps a proven-aborted capture form and owned draft for retry without a ghost', async () => {
+        await startCapture(); online(false); let fail = true;
+        const restore = useIndexedAuthority(events => fail && events.some(event => event.kind === 'intent' && event.entry.descriptor.type === 'session.save'));
+        try {
+            await capture.saveSessionData();
+            expect(capture.getCurrentRoutineForSession()?.id).toBe('capture-routine');
+            expect(document.getElementById('session-view').classList.contains('hidden')).toBe(false);
+            expect(document.querySelector('input[name="weight-0-0"]').value).toBe('50');
+            expect(capture.loadInProgressSession()?.data.ejercicios[0].sets[0]).toMatchObject({ peso: 50, reps: 8 });
+            expect((await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(0);
+            expect(sessions()).toHaveLength(0);
+            fail = false; await capture.saveSessionData();
+            expect(capture.getCurrentRoutineForSession()).toBeNull();
+            expect((await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(1);
+            online(true); await offlineManager.processPendingOperations(); expect(sessions()).toHaveLength(1);
+        } finally { restore(); }
+    });
+
+    it.each([false, true])('finishes an accepted capture before a fallible draft cleanup can make it retryable (online=%s)', async isOnline => {
+        await startCapture(); online(isOnline);
+        const remove = Storage.prototype.removeItem;
+        const fault = jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(function(key) {
+            if (key === 'gymTracker_inProgressSession:A') throw new Error('Injected draft cleanup failure');
+            return remove.call(this, key);
+        });
+        try {
+            await capture.saveSessionData(); await capture.saveSessionData();
+            expect(capture.getCurrentRoutineForSession()).toBeNull();
+            expect(offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(isOnline ? 0 : 1);
+            online(true); await offlineManager.processPendingOperations(); expect(sessions()).toHaveLength(1);
+        } finally { fault.mockRestore(); }
+    });
+
+    it('gives two deliberate identical startSession captures distinct immutable IDs', async () => {
+        online(false);
+        await startCapture(); await capture.saveSessionData();
+        await startCapture(); await capture.saveSessionData();
+        const intents = offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save');
+        expect(intents).toHaveLength(2);
+        expect(new Set(intents.map(entry => entry.descriptor.payload.sessionId)).size).toBe(2);
+        online(true); await offlineManager.processPendingOperations(); expect(sessions()).toHaveLength(2);
+    });
+
+    it('does not clear a newer capture when an old queued completion crosses account A→B→A', async () => {
+        await startCapture('Old capture'); online(false);
+        const execute = offlineManager.executeWithOfflineHandling.bind(offlineManager);
+        let release; let entered;
+        const gate = new Promise(resolve => { release = resolve; });
+        const started = new Promise(resolve => { entered = resolve; });
+        const fault = jest.spyOn(offlineManager, 'executeWithOfflineHandling').mockImplementationOnce(async (...args) => {
+            try { return await execute(...args); }
+            catch (error) { entered(); await gate; throw error; }
+        });
+        const accepted = jest.fn(); const pending = capture.saveSessionData(accepted);
+        try {
+            await started; seedSyncProtocol('B', { activated: true });
+            await authenticate('B'); await authenticate('A'); await startCapture('New A capture');
+            field('input[name="weight-0-0"]', '61'); release(); await pending;
+            expect(capture.getCurrentRoutineForSession()?.name).toBe('New A capture');
+            expect(document.querySelector('input[name="weight-0-0"]').value).toBe('61');
+            expect(capture.loadInProgressSession()?.data.ejercicios[0].sets[0].peso).toBe(61);
+            expect(accepted).not.toHaveBeenCalled();
+        } finally { release(); await pending; fault.mockRestore(); }
+    });
+
+    it('keeps a deliberate new capture in the same auth generation when the previous queued completion arrives late', async () => {
+        await startCapture('Old same-account capture'); online(false);
+        const execute = offlineManager.executeWithOfflineHandling.bind(offlineManager);
+        let release; let entered;
+        const gate = new Promise(resolve => { release = resolve; });
+        const started = new Promise(resolve => { entered = resolve; });
+        const fault = jest.spyOn(offlineManager, 'executeWithOfflineHandling').mockImplementationOnce(async (...args) => {
+            try { return await execute(...args); }
+            catch (error) { entered(); await gate; throw error; }
+        });
+        const pending = capture.saveSessionData();
+        try {
+            await started; await startCapture('New same-account capture');
+            field('input[name="weight-0-0"]', '62'); release(); await pending;
+            expect(capture.getCurrentRoutineForSession()?.name).toBe('New same-account capture');
+            expect(document.querySelector('input[name="weight-0-0"]').value).toBe('62');
+            expect(capture.loadInProgressSession()?.data.ejercicios[0].sets[0].peso).toBe(62);
+            expect(offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(1);
+        } finally { release(); await pending; fault.mockRestore(); }
+    });
+
+    it('restores the authoritative queued weekly target over stale advisory cache before showing or extending it offline', async () => {
+        online(false); const write = localFirstCache.set.bind(localFirstCache);
+        const fault = jest.spyOn(localFirstCache, 'set').mockImplementation((key, ...args) => {
+            if (key === 'user-preferences:A') throw new Error('Injected advisory preferences cache failure');
+            return write(key, ...args);
+        });
+        try {
+            field('#weekly-target-days-select', '4'); document.getElementById('weekly-target-save-btn').click();
+            await wait(() => !document.getElementById('weekly-target-save-btn').disabled);
+        } finally { fault.mockRestore(); }
+        const [first] = (await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'preferences.saveWeeklyTarget');
+        expect(first.descriptor.payload.weekRecord.targetSessions).toBe(4);
+        await authenticate(null);
+        offlineManager.pendingOperations = []; offlineManager.knownIntents.clear(); offlineManager.acknowledged.clear();
+        offlineManager.pendingAcknowledgements.clear(); offlineManager.stagedIds.clear(); offlineManager.unknownIds.clear();
+        localFirstCache.memoryCache.clear(); await authenticate('A');
+        expect(document.getElementById('weekly-target-days-select').value).toBe('4');
+        expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('0/4');
+        field('#weekly-target-days-select', '7'); document.getElementById('weekly-target-save-btn').click();
+        await wait(() => !document.getElementById('weekly-target-save-btn').disabled);
+        const intents = (await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'preferences.saveWeeklyTarget');
+        expect(intents).toHaveLength(2);
+        expect(intents[1].descriptor.payload.baseOperationId).toBe(first.descriptor.payload.operationId);
+        expect(intents[1].descriptor.payload.baseRevision).toBe(first.descriptor.payload.baseRevision + 1);
+        online(true); await offlineManager.processPendingOperations();
+        expect(__firestoreState.documents.get(path).weeklyTargetDays).toBe(7);
+        expect(offlineManager.getPendingCount()).toBe(0);
+    });
+
+    it('does not construct or acknowledge a new weekly intent when the journal cannot be verified', async () => {
+        online(false);
+        const fault = jest.spyOn(offlineManager, 'restorePersistedQueue').mockRejectedValue(new Error('Injected journal read failure'));
+        try {
+            field('#weekly-target-days-select', '7'); document.getElementById('weekly-target-save-btn').click();
+            await wait(() => !document.getElementById('weekly-target-save-btn').disabled);
+            expect(offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'preferences.saveWeeklyTarget')).toHaveLength(0);
+            expect(__firestoreState.documents.get(path).weeklyTargetDays).toBe(3);
+        } finally { fault.mockRestore(); }
+        expect((await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'preferences.saveWeeklyTarget')).toHaveLength(0);
+    });
 
     it.each([0, -60_000])('replays offline Settings 4→7 after a cold queue read under a tied/rolled-back enqueue clock (%i)', async rollback => {
         const clock = jest.spyOn(Date, 'now').mockReturnValue(1_806_321_600_000);

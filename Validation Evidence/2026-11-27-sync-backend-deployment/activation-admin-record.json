@@ -1,0 +1,25 @@
+{
+  "activatedAt": "2026-11-27T15:42:52.474Z",
+  "readBackAt": "2026-11-27T15:44:58.929Z",
+  "sourceSha256": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504",
+  "rulesetName": "projects/gymm-178fb/rulesets/6ad50078-80c5-4675-8590-e4c1241d3770",
+  "releaseUpdateTime": "2026-11-27T15:39:06.753907Z",
+  "document": {
+    "path": "runtime_config/sync_protocol",
+    "status": 200,
+    "observedAt": "2026-11-27T15:43:00.703Z",
+    "fields": {
+      "version": {
+        "integerValue": "1"
+      },
+      "epoch": {
+        "stringValue": "gym-sync-v1-2026-11"
+      }
+    },
+    "updateTime": "2026-11-27T15:42:49.071796Z"
+  },
+  "previousAuthenticatedReadStatus": 404,
+  "administratorAction": "Firebase Console create of runtime_config/sync_protocol after reviewed source deployment/readback and real-client propagation check",
+  "changesToUserDocuments": 0,
+  "clientPoliciesCreated": 0
+}

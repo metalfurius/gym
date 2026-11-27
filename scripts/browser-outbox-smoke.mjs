@@ -19,6 +19,7 @@ window.outbox = new OfflineManager(); await outbox.restorePersistedQueue(); wind
 const signal = AbortSignal.timeout(60_000);
 const trace = []; const connections = []; const cleanupErrors = [];
 let browser; let server; let profile; let baseUrl;
+let applicationPage;
 const result = { status: 'running', runId: crypto.randomUUID(), startedAt: new Date().toISOString(),
     checkoutSha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
     mode: 'actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend', negativeCase };
@@ -82,6 +83,10 @@ async function inspect(connection) {
 }
 async function network(connection, offline) {
     await connection.client.send('Network.emulateNetworkConditions', { offline, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+}
+async function screenshot(connection, name) {
+    const image = await connection.client.send('Page.captureScreenshot', { format: 'png' });
+    await fs.writeFile(path.join(output, `${name}.png`), Buffer.from(image.data, 'base64'));
 }
 async function run() {
     await startServer(); profile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-smoke-outbox-'));
@@ -167,7 +172,7 @@ async function run() {
     assert.equal(result.localStorageFallback.ghost, false); assert.equal(result.localStorageFallback.pending, false);
 
     event('actual-app-native-idb-transaction-negatives');
-    const app = await page(true); result.appCases = [];
+    const app = await page(true); applicationPage = app; result.appCases = [];
     for (const mode of ['success-abort', 'request-error-complete']) {
         await app.client.evaluate(`appOutboxFixture.configure(${JSON.stringify(`native-${mode}`)})`);
         await app.client.evaluate(`appOutboxFixture.nativeFault(${JSON.stringify(mode)})`); await network(app, true);
@@ -198,6 +203,100 @@ async function run() {
         assert.equal(state.sessions[0].sessionId, saved.sessionId);
         result.appCases.push({ mode, saved, sessions: state.sessions });
     }
+    event('actual-routine-capture-queued-terminal-identity'); result.captureCases = [];
+    for (const mode of ['offline', 'lost-rpc', 'unknown-journal', 'draft-cleanup']) {
+        await network(app, false);
+        await app.client.evaluate(`appOutboxFixture.configure(${JSON.stringify(`native-capture-${mode}`)})`);
+        await app.client.evaluate('appOutboxFixture.captureStart()');
+        if (mode !== 'lost-rpc') await network(app, true);
+        const method = { 'lost-rpc': 'lostRpcAcknowledgement()', 'unknown-journal': 'unknownJournalCompletion()', 'draft-cleanup': 'draftCleanupFault()' }[mode];
+        if (method) await app.client.evaluate(`appOutboxFixture.${method}`);
+        const saved = await app.client.evaluate('appOutboxFixture.captureSave()');
+        assert.equal(saved.ok, true); assert.equal(saved.queued, true);
+        const first = await app.client.evaluate('appOutboxFixture.state()');
+        assert.equal(first.capture.routine, null); assert.equal(first.capture.visible, false);
+        const original = first.pending.filter(entry => entry.descriptor.type === 'session.save');
+        assert.equal(original.length, 1);
+        await app.client.evaluate('appOutboxFixture.captureSave()');
+        const repeated = await app.client.evaluate('appOutboxFixture.state()');
+        assert.deepEqual(repeated.pending, first.pending);
+        await screenshot(app, `capture-${mode}`);
+        await app.client.evaluate('appOutboxFixture.clearFault()'); await network(app, false);
+        await app.client.evaluate('appOutboxFixture.replay()');
+        const final = await app.client.evaluate('appOutboxFixture.state()');
+        assert.equal(final.sessions.length, 1); assert.equal(final.sessions[0].sessionId, saved.sessionId);
+        assert.equal(final.sessions[0].fechaIso, original[0].descriptor.payload.sessionData.fechaIso);
+        result.captureCases.push({ mode, saved, first, repeated, final });
+    }
+    event('actual-routine-capture-native-abort-retry');
+    await app.client.evaluate("appOutboxFixture.configure('native-capture-abort')");
+    await app.client.evaluate('appOutboxFixture.captureStart()'); await network(app, true);
+    await app.client.evaluate("appOutboxFixture.nativeFault('success-abort','session.save')");
+    const failedCapture = await app.client.evaluate('appOutboxFixture.captureSave()'); assert.equal(failedCapture.ok, false);
+    const abortedCapture = await app.client.evaluate('appOutboxFixture.state()');
+    assert.equal(abortedCapture.capture.routine, 'One ongoing workout'); assert.equal(abortedCapture.capture.visible, true);
+    assert.equal(abortedCapture.capture.weight, '50');
+    assert.equal(abortedCapture.capture.draft.data.ejercicios[0].sets[0].peso, 50);
+    assert.equal((await app.client.evaluate('appOutboxFixture.coldQueue()')).filter(entry => entry.descriptor.type === 'session.save').length, 0);
+    await screenshot(app, 'capture-proven-abort-retained-draft');
+    await app.client.evaluate('appOutboxFixture.clearFault()');
+    const retriedCapture = await app.client.evaluate('appOutboxFixture.captureSave()'); assert.equal(retriedCapture.queued, true);
+    await network(app, false); await app.client.evaluate('appOutboxFixture.replay()');
+    const finalCapture = await app.client.evaluate('appOutboxFixture.state()');
+    assert.equal(finalCapture.sessions.length, 1); assert.equal(finalCapture.sessions[0].sessionId, retriedCapture.sessionId);
+    result.captureCases.push({ mode: 'native-proven-abort-retry', failedCapture, abortedCapture, retriedCapture, finalCapture });
+
+    event('actual-routine-capture-aba-new-form');
+    await app.client.evaluate("appOutboxFixture.configure('native-capture-ABA')");
+    await app.client.evaluate("appOutboxFixture.captureStart('Old A capture')"); await network(app, true);
+    await app.client.evaluate('appOutboxFixture.holdQueuedCaptureCompletion();appOutboxFixture.beginCaptureSave()');
+    await waitForSmoke(app.client, 'appOutboxFixture.captureCompletionHeld===true', signal);
+    await app.client.evaluate("(async()=>{await appOutboxFixture.configure('native-capture-other');await appOutboxFixture.configure('native-capture-ABA');})()");
+    await app.client.evaluate("appOutboxFixture.captureStart('New A capture')");
+    await app.client.evaluate('appOutboxFixture.releaseQueuedCaptureCompletion();appOutboxFixture.finishCaptureSave()');
+    result.captureAba = await app.client.evaluate('appOutboxFixture.state()');
+    assert.equal(result.captureAba.capture.routine, 'New A capture'); assert.equal(result.captureAba.capture.weight, '50');
+    assert.equal(result.captureAba.capture.draft.routineId, 'capture-routine');
+    await app.client.evaluate('appOutboxFixture.clearFault()');
+    await app.client.evaluate("appOutboxFixture.captureStart('Old same-owner capture')");
+    await app.client.evaluate('appOutboxFixture.holdQueuedCaptureCompletion();appOutboxFixture.beginCaptureSave()');
+    await waitForSmoke(app.client, 'appOutboxFixture.captureCompletionHeld===true', signal);
+    await app.client.evaluate("appOutboxFixture.captureStart('New same-owner capture')");
+    await app.client.evaluate('appOutboxFixture.releaseQueuedCaptureCompletion();appOutboxFixture.finishCaptureSave()');
+    result.captureSameOwner = await app.client.evaluate('appOutboxFixture.state()');
+    assert.equal(result.captureSameOwner.capture.routine, 'New same-owner capture');
+    assert.equal(result.captureSameOwner.capture.weight, '50');
+    await app.client.evaluate('appOutboxFixture.clearFault()'); await network(app, false);
+
+    event('actual-routine-two-deliberate-identical-starts');
+    await app.client.evaluate("appOutboxFixture.configure('native-capture-two-deliberate')"); await network(app, true);
+    await app.client.evaluate('appOutboxFixture.captureStart();');
+    const deliberateA = await app.client.evaluate('appOutboxFixture.captureSave()');
+    await app.client.evaluate('appOutboxFixture.captureStart();');
+    const deliberateB = await app.client.evaluate('appOutboxFixture.captureSave()');
+    assert.notEqual(deliberateA.sessionId, deliberateB.sessionId);
+    await network(app, false); await app.client.evaluate('appOutboxFixture.replay()');
+    result.deliberateCaptures = await app.client.evaluate('appOutboxFixture.state()');
+    assert.equal(result.deliberateCaptures.sessions.length, 2);
+
+    event('actual-settings-authoritative-journal-over-advisory-cache');
+    await app.client.evaluate("appOutboxFixture.configure('native-weekly-advisory')"); await network(app, true);
+    await app.client.evaluate("appOutboxFixture.weeklyCacheFault();appOutboxFixture.weekly(4,'weekly-advisory-first')");
+    const advisoryFirst = await app.client.evaluate('appOutboxFixture.state()'); assert.equal(advisoryFirst.uiTarget, '4');
+    await app.client.evaluate('appOutboxFixture.clearFault();appOutboxFixture.restartOwnedMemory()');
+    const afterMemoryRestart = await app.client.evaluate('appOutboxFixture.state()'); assert.equal(afterMemoryRestart.uiTarget, '4');
+    await screenshot(app, 'weekly-advisory-cache-cold-memory');
+    await app.client.evaluate("appOutboxFixture.weekly(7,'weekly-advisory-second')");
+    const advisoryIntents = (await app.client.evaluate('appOutboxFixture.coldQueue()')).filter(entry => entry.descriptor.type === 'preferences.saveWeeklyTarget');
+    assert.equal(advisoryIntents.length, 2);
+    assert.equal(advisoryIntents[1].descriptor.payload.baseOperationId, advisoryIntents[0].descriptor.payload.operationId);
+    assert.equal(advisoryIntents[1].descriptor.payload.baseRevision, advisoryIntents[0].descriptor.payload.baseRevision + 1);
+    await network(app, false); await app.client.evaluate('appOutboxFixture.replay()');
+    const advisoryFinal = await app.client.evaluate('appOutboxFixture.state()');
+    assert.equal(advisoryFinal.target, 7); assert.equal(advisoryFinal.uiTarget, '7');
+    assert.equal(advisoryFinal.pending.length, 0);
+    result.weeklyAdvisoryFailure = { advisoryFirst, afterMemoryRestart, advisoryIntents, advisoryFinal };
+
     event('actual-settings-causal-chain');
     await app.client.evaluate("appOutboxFixture.configure('native-weekly')"); await network(app, true);
     await app.client.evaluate("appOutboxFixture.setClock(1806321600000);appOutboxFixture.weekly(4,'z-first')");
@@ -216,11 +315,15 @@ await fs.mkdir(output, { recursive: true });
 await fs.writeFile(path.join(output, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
 try {
     result.sourceHashesLf = Object.fromEntries(await Promise.all(['js/utils/durable-outbox.js', 'js/utils/outbox-order.js',
-        'js/utils/outbox-journal-storage.js', 'js/utils/offline-manager.js', 'js/utils/local-first-cache.js', 'js/app.js'].map(async file => [file,
+        'js/utils/outbox-journal-storage.js', 'js/utils/offline-manager.js', 'js/utils/local-first-cache.js', 'js/app.js', 'js/modules/session-manager.js'].map(async file => [file,
         crypto.createHash('sha256').update((await fs.readFile(path.join(root, file), 'utf8')).replace(/\r\n?/g, '\n')).digest('hex')])));
     if (negativeCase && !['cleanup-owner', 'cleanup-connection', 'cleanup-server'].includes(negativeCase)) throw new Error('Unknown outbox smoke negative case');
     await run();
-} catch (error) { result.primaryError = serializedError(error); }
+} catch (error) {
+    result.primaryError = serializedError(error);
+    try { if (applicationPage || browser) await screenshot(applicationPage || browser, 'failure'); }
+    catch (captureError) { result.captureError = serializedError(captureError); }
+}
 finally {
     const cleanup = async (stage, operation) => {
         try { await operation(); if (negativeCase === stage) throw new Error(`Deliberately injected ${stage} failure after real cleanup`); event(stage, { status: 'done' }); }
