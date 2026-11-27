@@ -3,7 +3,7 @@
   "base": "9a69595b33d6eb5f49475b5849e4a3e0d2bb0bb3",
   "branch": "codex/roadmap-live-sync-qa",
   "sourceBytes": "UTF-8 canonical LF; BOM retained",
-  "artifactBytes": "raw file bytes",
+  "artifactBytes": "Canonical tracked Git LF for text; binary artifacts retain raw bytes",
   "sources": {
     "scripts/live-sync-qa.mjs": "766596bc15e83302cf9ff66b620c29cd678db70e44bdd09b0951d8b29a7a1add",
     "scripts/live-sync-qa-browser.mjs": "6d84b2cd162c42c5bfecec62732190c516b4e3acf3e0f75d7547e4d3ee464a36",
@@ -24,11 +24,11 @@
     "package-lock.json": "4708814f70ffb2a98f999f54c42e7f016edadda6fc2faac40e21d47960ebcadd"
   },
   "artifacts": {
-    "focused.txt": "1bc6b594a85410a0a80cf5a62e4fe8d3eb7408284a6e4085068a5f1f7b4cf365",
-    "lint.txt": "5781e5bca89dc89ce4b92a561b8b0927d60d96fd4835698e0ae2a9ceece520a3",
-    "no-skips.txt": "3d452cda51f3972563c3dd5162880aa7bf9666413deda8b62753e675bb2e9706",
-    "README.md": "78a4ef198e2b3c8fcfbadf731d08aeb7e2ef8792b1771e190c4f25f8ed9c36c6",
-    "release.txt": "353af2ece1a7b99cd36be5759685cd534eeb577cde8384be5ff24456816867aa",
+    "focused.txt": "d62960877ae022b72c9387700120ef1d8d0620b0a4485623b7bf88ea4a953722",
+    "lint.txt": "22aa9323d71d3ea28bf066294a23029669982ce4646db9d949549d1e211aa966",
+    "no-skips.txt": "ad3610f3461b3abebdd85bd73539540a508f4d493db8a966eb9391445d8c897b",
+    "README.md": "00aab3cb40cb6f8d1f017a9408a08dd88b1599400a2b84763ab464fce4e59365",
+    "release.txt": "a0246d07fce78ec5cbd914ac399843354442068cc1162e8c5b1234df10dc864b",
     "static-checks.json": "47a8046271c7c6b97fb59502eb74c86db5240c6658b9b46a036cb6db0db9722d"
   },
   "requiredLivePhases": 39,
@@ -37,5 +37,18 @@
     "tests": 49,
     "live": false
   },
-  "finalAcceptance": "Pending root paired execution and independent final-head judges"
+  "finalAcceptance": "Pending root paired execution and independent final-head judges",
+  "rawAuthorHandoff": {
+    "head": "6ba9a9d655dd41f2b612dd7a66468470f6ab025e",
+    "manifestSha256": "7a682c2da2da73dba9d3360fa2d883f1b85689856fedd2c6714d7add2884ab7e",
+    "artifacts": {
+      "focused.txt": "1bc6b594a85410a0a80cf5a62e4fe8d3eb7408284a6e4085068a5f1f7b4cf365",
+      "lint.txt": "5781e5bca89dc89ce4b92a561b8b0927d60d96fd4835698e0ae2a9ceece520a3",
+      "no-skips.txt": "3d452cda51f3972563c3dd5162880aa7bf9666413deda8b62753e675bb2e9706",
+      "README.md": "78a4ef198e2b3c8fcfbadf731d08aeb7e2ef8792b1771e190c4f25f8ed9c36c6",
+      "release.txt": "353af2ece1a7b99cd36be5759685cd534eeb577cde8384be5ff24456816867aa",
+      "static-checks.json": "47a8046271c7c6b97fb59502eb74c86db5240c6658b9b46a036cb6db0db9722d"
+    },
+    "normalization": "Four console .txt working copies had CRLF; canonical tracked LF hashes below. Original raw handoff preserved outside Git by root."
+  }
 }

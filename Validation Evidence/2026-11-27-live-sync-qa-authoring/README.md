@@ -70,3 +70,5 @@ PWA behavior or objective completion. Final integrated checks and two independen
 reviews remain the root's responsibility. No push, PR, workflow dispatch, secret write or merge was performed.
 
 Fixture reproducibility was strengthened during root review: both clients hold the shared base offline; the stale public press is durably queued before reconnect. Cold restart also waits conditionally for the verified queue/target/records to restore. These are QA fixture improvements, not claims of a newly discovered application bug.
+
+Root verification of local handoff `6ba9a9d`: all seven source hashes and six unchanged metadata hashes match Git. Four console text files were originally hashed with working-copy CRLF; the tracked artifacts use canonical Git LF. The original raw handoff is retained outside Git. The artifact hashes below describe the tracked LF bytes, including this note; source bytes and recorded test outcomes are unchanged. Root independently reran all 20 QA tests and the clean exact-SHA validation guard successfully without browser/service access.
