@@ -1,0 +1,19 @@
+{
+  "artifactRun": "https://github.com/metalfurius/gym/actions/runs/46022758077",
+  "originalDownloadedSha256": "936630b18e70b4ba95cfd7f2a44213dedc4414d659eb6bcda41311cf9cf4188e",
+  "normalization": "CRLF to LF for committed JSON only; payload unchanged",
+  "files": [
+    {
+      "path": "Validation Evidence/2026-11-27-maintenance-publication/production-release-smoke.json",
+      "sha256": "936630b18e70b4ba95cfd7f2a44213dedc4414d659eb6bcda41311cf9cf4188e"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-maintenance-publication/main-workflows.json",
+      "sha256": "9fd3616b39880e463fca650503e3a5280344c07cbb89cc76244e59079c8d2c65"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-maintenance-publication/pr-dispositions.json",
+      "sha256": "0b2d2b7465669894361dbc9b08dddeefe79f62ca866128d033c4619af1aab416"
+    }
+  ]
+}

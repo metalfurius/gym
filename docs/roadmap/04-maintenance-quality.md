@@ -1,8 +1,10 @@
 # 4. Maintain dependencies and reproduce quality checks
 
-Status: planned. Baseline: v2.8.3 / `d4c6d0d`; PRs [#67](https://github.com/metalfurius/gym/pull/67) and
-[#70](https://github.com/metalfurius/gym/pull/70) need reassessment against current main. A physical iOS device
-and an installed Home Screen app are hard dependencies for final mobile evidence. Use the [shared review protocol](README.md).
+Status: partial. Browser infrastructure #107 and maintenance #109 are merged; v2.8.5 is published at
+`fd82d8080007c19426a47a17cddb3428ea6ab59d`. Superseded PRs #67/#70 are closed. Automated QA-01/02/03/04/06
+scope passes; **QA-05 is not run and remains open**. A physical iOS device and an installed Home Screen app
+are hard dependencies for final mobile evidence. [Publication and criterion record](../maintenance-evidence-2026-11-27.md).
+The starting point below describes the original v2.8.3 baseline. Use the [shared review protocol](README.md).
 
 ## Starting point and boundaries
 
