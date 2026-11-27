@@ -1,0 +1,116 @@
+{
+  "status": "passed",
+  "mode": "actual production modules; real Chromium pages and localStorage/IndexedDB; no Firebase/backend",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "afterReopen": {
+    "pending": [
+      {
+        "id": "intent-A",
+        "status": "pending",
+        "owner": "owner-A"
+      },
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      }
+    ],
+    "local": [
+      "intent:intent-A",
+      "intent:intent-B"
+    ],
+    "indexedDb": [
+      "intent:intent-A",
+      "intent:intent-B"
+    ],
+    "durableEvents": 2
+  },
+  "afterAcknowledgement": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A",
+      "intent:intent-A",
+      "intent:intent-B",
+      "intent:intent-C"
+    ],
+    "indexedDb": [
+      "ack:intent-A",
+      "intent:intent-A",
+      "intent:intent-B",
+      "intent:intent-C"
+    ],
+    "durableEvents": 4
+  },
+  "afterConflict": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "conflict",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A",
+      "conflict:intent-B",
+      "intent:intent-A",
+      "intent:intent-B",
+      "intent:intent-C"
+    ],
+    "indexedDb": [
+      "ack:intent-A",
+      "conflict:intent-B",
+      "intent:intent-A",
+      "intent:intent-B",
+      "intent:intent-C"
+    ],
+    "durableEvents": 5
+  },
+  "afterResolution": {
+    "pending": [
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A",
+      "ack:intent-B",
+      "conflict:intent-B",
+      "intent:intent-A",
+      "intent:intent-B",
+      "intent:intent-C"
+    ],
+    "indexedDb": [
+      "ack:intent-A",
+      "ack:intent-B",
+      "conflict:intent-B",
+      "intent:intent-A",
+      "intent:intent-B",
+      "intent:intent-C"
+    ],
+    "durableEvents": 6
+  }
+}

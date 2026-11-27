@@ -1,0 +1,22 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+-   'intent-A',
+    'intent-B'
+  ]
+
+    at file:///C:/tmp/gym-outbox-negative-660/scripts/browser-outbox-smoke.mjs:74:12 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [ 'intent-B' ],
+  expected: [ 'intent-A', 'intent-B' ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.12.0

@@ -19,3 +19,4 @@ firestore.rules text eol=lf
 "Validation Evidence/2026-11-27-objective2/**/*.xml" text eol=lf
 "Validation Evidence/2026-11-27-objective2/**/*.md" text eol=lf
 "Validation Evidence/2026-11-27-objective2/**/*.sha256" text eol=lf
+"Validation Evidence/2026-11-27-objective2-outbox/**" text eol=lf

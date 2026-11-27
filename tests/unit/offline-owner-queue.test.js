@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { OfflineManager } from '../../js/utils/offline-manager.js';
 import { localFirstCache } from '../../js/utils/local-first-cache.js';
+import { DurableOutbox } from '../../js/utils/durable-outbox.js';
 const key = 'offline:pending-operations:v1';
+const persisted = async () => (await new DurableOutbox().read()).entries;
 const descriptor = (userId, target = 4) => ({ type: 'target', payload: { userId, target, updatedAtIso: '2026-11-16T09:10:11.123Z' } });
 
 describe('durable owner-scoped offline queue', () => {
@@ -18,25 +20,26 @@ describe('durable owner-scoped offline queue', () => {
         const handler = jest.fn(async () => {}); restarted.registerOperationHandler('target', handler);
         await restarted.processPendingOperations();
         expect(handler).not.toHaveBeenCalled(); expect(restarted.getPendingCount()).toBe(0);
-        expect(await localFirstCache.get(key)).toHaveLength(1);
+        expect(await persisted()).toHaveLength(1);
         restarted.setActiveUser('A'); await restarted.processPendingOperations();
         expect(handler).toHaveBeenCalledWith(descriptor('A').payload);
-        expect(await localFirstCache.get(key)).toBeNull();
+        expect(await persisted()).toHaveLength(0);
     });
 
     it('keeps in-flight and newly queued operations durable and retains original retry timestamps', async () => {
         const manager = new OfflineManager(); manager.setActiveUser('A');
         const id = manager.queueOperation(null, 'A first', { descriptor: descriptor('A') }); await manager.persistQueue();
         const originalTimestamp = manager.pendingOperations[0].timestamp;
-        let reject;
-        manager.registerOperationHandler('target', () => new Promise((_resolve, no) => { reject = no; }));
+        let reject, entered;
+        const started = new Promise(resolve => { entered = resolve; });
+        manager.registerOperationHandler('target', () => new Promise((_resolve, no) => { reject = no; entered(); }));
         const processing = manager.processPendingOperations();
-        for (let index = 0; index < 6 && !reject; index++) await Promise.resolve();
+        await started;
         manager.queueOperation(null, 'B later', { descriptor: descriptor('B', 7) }); await manager.persistQueue();
-        expect((await localFirstCache.get(key)).map(item => item.id)).toContain(id);
+        expect((await persisted()).map(item => item.id)).toContain(id);
         reject(new Error('unavailable')); await processing;
         expect(manager.pendingOperations.find(item => item.id === id).timestamp).toBe(originalTimestamp);
-        expect((await localFirstCache.get(key)).map(item => item.descriptor.payload.updatedAtIso))
+        expect((await persisted()).map(item => item.descriptor.payload.updatedAtIso))
             .toEqual(['2026-11-16T09:10:11.123Z', '2026-11-16T09:10:11.123Z']);
     });
 
@@ -81,5 +84,5 @@ it.each(['count', 'dispatch'])('quarantines an unverifiable legacy account inten
     else { await manager.processPendingOperations(); expect(handler).not.toHaveBeenCalled(); }
     expect(manager.pendingOperations[0].status).toBe('unowned');
     expect(manager.getUnownedCount()).toBe(1);
-    expect((await localFirstCache.get(key))[0].descriptor.payload.sessionData.fechaIso).toBe('2026-11-20T10:00:00Z');
+    expect((await persisted())[0].descriptor.payload.sessionData.fechaIso).toBe('2026-11-20T10:00:00Z');
 });

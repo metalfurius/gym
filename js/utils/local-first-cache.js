@@ -281,6 +281,28 @@ export class LocalFirstCache {
         return entry.value;
     }
 
+    // Durable journals must observe other tabs, even when this instance has a
+    // valid memory entry. Enumerate both stores directly and retain partial
+    // writes after a crash; callers only acknowledge success after both writes.
+    async getPersistedEntries(prefix) {
+        await this.initialize();
+        await this.persistenceTail;
+        const local = this.localStorageKeys(prefix).map(key => this.readFromLocalStorage(key)).filter(Boolean);
+        if (this.needsIndexedDb() && !this.indexedDbEnabled) throw persistenceError();
+        const disk = this.needsIndexedDb() ? await this.getAllFromIndexedDb(prefix) : [];
+        const entries = new Map();
+        for (const entry of [...local, ...disk]) {
+            if (!isValidEntry(entry) || !entry.key.startsWith(prefix)) continue;
+            const invalidation = await this.readInvalidations(entry.key);
+            if (invalidation.blocked) throw persistenceError();
+            if (!this.entryMatchesInvalidations(entry, invalidation)) continue;
+            const prior = entries.get(entry.key);
+            if (prior && JSON.stringify(prior.value) !== JSON.stringify(entry.value)) throw persistenceError();
+            entries.set(entry.key, entry);
+        }
+        return [...entries.values()];
+    }
+
     async set(key, value, options = {}) {
         if (options.ifCurrent && !options.ifCurrent()) return null;
         this.invalidations.set(key, ++this.invalidationCounter);

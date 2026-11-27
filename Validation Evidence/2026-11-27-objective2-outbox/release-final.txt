@@ -1,0 +1,6 @@
+
+> my-workout-tracker@1.0.2 release:check
+> node scripts/release-integrity.mjs --two-build
+
+[release-integrity] two-build check passed: v2.8.5 -> v2.8.6
+[release-integrity] verified v2.8.5 with 73 cached assets

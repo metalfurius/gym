@@ -6,11 +6,10 @@
 
 import { logger } from './logger.js';
 import { toast } from './notifications.js';
-import { localFirstCache } from './local-first-cache.js';
+import { DurableOutbox } from './durable-outbox.js';
 import { t } from '../i18n.js';
 import { createSecureId } from './secure-id.js';
 
-const PERSISTED_QUEUE_KEY = 'offline:pending-operations:v1';
 const ACCOUNT_OPERATION_TYPES = new Set([
     'session.save', 'session.delete', 'quicklog.save', 'preferences.saveWeeklyTarget',
     'preferences.syncWeeklyState', 'routines.fetch',
@@ -37,7 +36,7 @@ function migrateDescriptor(descriptor, queueId) {
 }
 
 export class OfflineManager {
-    constructor() {
+    constructor({ outbox = new DurableOutbox() } = {}) {
         this.isOnline = navigator.onLine;
         this.pendingOperations = [];
         this.listeners = [];
@@ -50,6 +49,8 @@ export class OfflineManager {
         this.pendingRestorePromise = null;
         this.queueRestored = false;
         this.queuePersistenceTail = Promise.resolve();
+        this.outbox = outbox;
+        this.pendingAcknowledgements = new Set();
         this.activeUserId = undefined;
         this.queueListeners = [];
         this.processingPromise = null;
@@ -146,16 +147,22 @@ export class OfflineManager {
         }
 
         this.pendingRestorePromise = (async () => {
-            const persistedQueue = await localFirstCache.get(PERSISTED_QUEUE_KEY, { allowStale: true, requireVerified: true });
-            if (!Array.isArray(persistedQueue) || persistedQueue.length === 0) {
-                return;
-            }
+            const { entries: persistedQueue, acknowledged } = await this.outbox.read();
+            this.pendingOperations = this.pendingOperations.filter(item => !acknowledged.has(item.id));
 
             const knownIds = new Set(this.pendingOperations.map((item) => item.id));
             for (const persistedItem of persistedQueue) {
                 if (!persistedItem || typeof persistedItem !== 'object') continue;
-                if (!persistedItem.id || knownIds.has(persistedItem.id)) continue;
+                if (!persistedItem.id || this.pendingAcknowledgements.has(persistedItem.id)) continue;
                 if (!isSerializableDescriptor(persistedItem.descriptor)) continue;
+
+                if (knownIds.has(persistedItem.id)) {
+                    const current = this.pendingOperations.find(item => item.id === persistedItem.id);
+                    if (persistedItem.status === 'conflict') {
+                        current.status = 'conflict'; current.conflict = persistedItem.conflict;
+                    }
+                    continue;
+                }
 
                 const entry = {
                     id: persistedItem.id,
@@ -199,20 +206,11 @@ export class OfflineManager {
 
     async persistQueue() {
         const persist = async () => {
-            if (!this.queueRestored) await this.restorePersistedQueue();
-            const persistableQueue = this.getPersistableQueue();
-            if (persistableQueue.length === 0) {
-                await localFirstCache.remove(PERSISTED_QUEUE_KEY);
-                return;
-            }
-
-            await localFirstCache.set(PERSISTED_QUEUE_KEY, persistableQueue, {
-                requireDurable: true,
-                metadata: {
-                    count: persistableQueue.length,
-                    updatedAt: Date.now()
-                }
-            });
+            await this.restorePersistedQueue();
+            const acknowledgements = [...this.pendingAcknowledgements];
+            await this.outbox.save(this.getPersistableQueue(), acknowledgements);
+            for (const id of acknowledgements) this.pendingAcknowledgements.delete(id);
+            await this.restorePersistedQueue();
         };
         const next = this.queuePersistenceTail.then(persist);
         this.queuePersistenceTail = next.catch(error => logger.warn('Failed to persist offline queue:', error));
@@ -241,6 +239,7 @@ export class OfflineManager {
     }
 
     async acknowledgeOperation(id) {
+        this.pendingAcknowledgements.add(id);
         this.pendingOperations = this.pendingOperations.filter(entry => entry.id !== id);
         await this.persistQueue();
         await this.notifyQueueChange();
@@ -257,6 +256,10 @@ export class OfflineManager {
     }
 
     async resolveConflicts(userId, weekKey) {
+        for (const entry of this.pendingOperations) {
+            if (entry.status === 'conflict' && entry.descriptor?.payload?.userId === userId
+                && entry.descriptor?.payload?.weekKey === weekKey) this.pendingAcknowledgements.add(entry.id);
+        }
         this.pendingOperations = this.pendingOperations.filter(entry => !(entry.status === 'conflict'
             && entry.descriptor?.payload?.userId === userId && entry.descriptor?.payload?.weekKey === weekKey));
         await this.persistQueue();
@@ -493,6 +496,7 @@ export class OfflineManager {
 
                 try {
                     await operationToRun();
+                    if (isSerializableDescriptor(queueEntry.descriptor)) this.pendingAcknowledgements.add(queueEntry.id);
                     this.pendingOperations = this.pendingOperations.filter(entry => entry.id !== queueEntry.id);
                     successCount++;
                     logger.info(`Completed queued operation: ${queueEntry.description}`);
@@ -585,6 +589,7 @@ export class OfflineManager {
      * Clear all pending operations.
      */
     clearPending() {
+        for (const entry of this.pendingOperations) if (isSerializableDescriptor(entry.descriptor)) this.pendingAcknowledgements.add(entry.id);
         this.pendingOperations = [];
         this.queueRestored = true;
         this.persistQueue().catch((error) => {
