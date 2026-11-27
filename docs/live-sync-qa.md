@@ -93,7 +93,7 @@ that cannot count as acceptance.
 
 ## Executed live sequence when enabled
 
-The [declarative phase list](../scripts/live-sync-qa-scenarios.mjs) contains 39 barriers. Each role publishes
+The [declarative phase list](../scripts/live-sync-qa-scenarios.mjs) contains **47 barriers**. Each role publishes
 ready/done/error state and its own results under `roleA` or `roleB` in
 `users/{primaryUid}/qa_sync_runs/{runUUID}`. Creation/role claiming uses existence/update-time preconditions;
 subsequent PATCHes mask only that role field, preserving the peer. Reads poll at one-second intervals with
@@ -113,27 +113,73 @@ bounded phase/global waits (15-minute scenario budget plus bounded cleanup). A p
    the second conflicts/blocks without changing the newer target, and an explicit new press resolves. Assertions
    compare per-week CAS revisions, immutable receipt timestamps, UI values and queue metadata; HTTP success alone
    is insufficient.
-5. A queues an owned target offline, logs out, reconnects and logs into other. Primary work stays pending and
+5. Both remain online, reload the same server week/global revision, operation ID and semantic fingerprint, and
+   prepare different public target controls (A: 4, B: 6). A separate readiness barrier precedes both Save clicks.
+   The runner requires causally overlapping real HTTP Commit windows, exactly one applied and one conflict
+   receipt, and exactly one increment of both week/global revisions. The loser makes a new explicit public
+   press to resolve to 7. Both reload with empty queues, and both original receipt contents/update times remain
+   identical. See the measurement limits below; an unproven overlap fails instead of passing as a race.
+6. A queues an owned target offline, logs out, reconnects and logs into other. Primary work stays pending and
    invisible to other's pending count; other's data remains isolated. Returning to primary replays it. Both hosts
    then logout/login/reload through the public UI.
-6. A verifies the unchanged UUID-marked pre-auth routine fixture. A creates 3 normal `50.5 × 8` captures and
-   enough Quick Logs for 11–20 total new sessions, making the total collection count end in 1. All mutations use
+7. A verifies the unchanged UUID-marked pre-auth routine fixture. A creates **four** normal captures with
+   `50.5`, `51.5`, `52.5`, `53.5` kg and 8 reps, followed by enough Quick Logs for 11–20 total new sessions,
+   making the total collection count end in 1. The four supported calendar values are `currentCalendarIso`
+   plus 1, 2, 3 and 4 seconds on the same Europe/Paris day. The runner checks their persisted original timestamps
+   and restores **exactly `currentCalendarIso`** before the surface assertions. All session mutations use
    public controls. One Quick Log sentinel is backdated through its public date input to precede the complete
-   baseline. Each click must create exactly one new ID and acknowledge in UI. Three captures also exercise the
-   actual Progress selector/chart/table threshold.
-7. Both compare all history IDs, Hub month/week totals, calendar same-day count, Progress 3-session/50.5/8 values,
-   server records and empty queues. B reaches the true last history page and deletes its single verified owned
-   sentinel through UI. Both verify every surface again.
-8. A deletes only newly identified run sessions through UI. Previous IDs and full values remain identical.
-   Fixture cleanup verifies marker/content/current update time and uses CAS deletion; changed or still-referenced
-   fixtures are retained with a failure. Receipts and the control document remain as evidence; preference changes
-   are not blindly rolled back.
+   baseline. Each click must create exactly one new ID and acknowledge in UI. The total counts are derived from
+   the complete baseline and verified creation/deletion manifests, not fixed to an empty account.
+8. Both compare all history IDs, Hub month/week/day totals, calendar same-day count, empty queues and full
+   unchanged server records. Both open every owned strength detail and the sentinel detail **by session ID**,
+   comparing the label, original model timestamp, visible localized date and original load/reps or unique note.
+   Progress must show 4 sessions, best 53.5 kg and 8 reps; the visible daily table and public Chart.js data must
+   agree. Both start a new public capture to inspect the latest 53.5/8 suggestion, press its real reuse-values
+   button and cancel. A full server ID/value comparison proves the inspection did not save another session.
+9. B reaches the true last history page and deletes its **single verified owned Quick Log sentinel** through UI.
+   Both verify every surface again; all four strength records and the 53.5 suggestion remain. B then deletes
+   the latest strength ID through UI. Both repeat all surfaces and remaining detail assertions: exactly three
+   strength records remain, Progress/chart/table best is **52.5**, and the actual capture suggestion/reuse button
+   must fall back to the preceding **52.5/8** record. The >=3 Progress threshold remains exercised after deletion.
+10. A deletes only newly identified run sessions through UI. Previous IDs and full values remain identical.
+    Fixture cleanup verifies marker/content/current update time and uses CAS deletion; changed or still-referenced
+    fixtures are retained with a failure. Receipts and the control document remain as evidence; preference changes
+    are not blindly rolled back.
+
+## Online race measurement and limits
+
+The online case sets genuine CDP network latency to 15,000 ms on each owned page, with `offline: false` and
+unlimited throughput. This delays real transport and provides an observation window; it does not intercept,
+rewrite, mock or replace a request/response. Ordinary zero latency is restored once the causal handshake ends,
+before waiting for SDK retries and the final conflict receipt. A failed observation still runs normal cleanup.
+
+The observer accepts only POSTs to the pinned SDK's exact fixed-project unary Commit endpoint. Its evidence
+contains an ordinal, monotonic start/end, start wall time and a derived end wall time, HTTP status,
+transport-failure boolean and actual `navigator.onLine` observation. It does not read headers/bodies or retain URL/query
+values, never requests a body through CDP, and does not publish CDP request IDs or raw URLs. Online is also checked
+before and after both public Save clicks. The first observed Commit must receive a real HTTP response; a failed
+transport or later retry cannot substitute for the first request in the overlap proof.
+
+No Windows/Ubuntu clock synchronization is assumed. A announces its first Commit while it is still open;
+B observes that announcement while its own first Commit is still open and acknowledges it; A observes B's
+acknowledgement while **that same A Commit** is still open. Fixed intermediate signals preserve the normal
+ready/done barrier. Both role artifacts retain this causal proof and their bounded Commit metadata windows,
+including any SDK retry attempts. Missing/expired observations fail without automatically rerunning the case.
+
+This establishes overlapping **client-observed HTTP in-flight intervals**, including the emulated response
+latency. It does **not** establish simultaneous server execution, a common server clock, or which observed HTTP
+body contains an operation ID: bodies are deliberately not inspected. Separately, the durable owned intent
+metadata and immutable Firebase receipts must prove the same base revision/operation/fingerprint, distinct
+original operation IDs/timestamps, one winner/one conflict and exact revision +1. The explicit resolution must
+preserve both old receipt hashes (including their update times). These are the precise claims a successful
+paired run may support; authorship/unit fixtures do not establish any of them against the live service.
 
 ## Evidence, cleanup and interpretation
 
 Each role writes redacted `result.json` and `trace.json`; raw CDP events, request headers/bodies, console args,
 credentials and tokens are never retained. Trace keeps method names only. Errors preserve the primary failure
-plus independent cleanup errors. Every cleanup is attempted; profile deletion requires proved browser shutdown
+plus independent cleanup errors. A failed online observation also retains its partial safe metadata window,
+explicitly marked active/complete, without presenting an incomplete observation as proof. Every cleanup is attempted; profile deletion requires proved browser shutdown
 and an exact owned `os.tmpdir()` prefix/path. A failed close retains the profile and fails acceptance.
 
 Profiles start fresh under `gym-smoke-real-sync-`; they are preserved across scenario restarts and removed only
@@ -142,7 +188,7 @@ No status is written as passed before cleanup/trace completion and paired readin
 Forced process/runner termination can prevent artifact writing; missing artifacts are failure, never success.
 
 Acceptance requires **both** complete successful role artifacts, identical final SHA/revision/UUID/calendar,
-39 completed phases each, matching control results, all actual UI/server/queue assertions and zero cleanup errors.
+47 completed phases each, matching control results, all actual UI/server/queue assertions and zero cleanup errors.
 These scripts have not run live during authorship and provide no final two-judge approval. A real paired run can
 support SYNC-04/two-device evidence as agreed; it cannot prove iOS, phones or installed-client update behavior.
 Commit-response loss injection is deliberately not implemented: existing unit/native tests cover that boundary,
@@ -151,3 +197,6 @@ and this runner makes no claim of observing a forced lost-ACK service retry.
 REST protocol references: [Firebase email/password sign-in](https://firebase.google.com/docs/reference/rest/auth#section-sign-in-email-password),
 [Firestore PATCH masks/preconditions](https://firebase.google.com/docs/firestore/reference/rest/v1/projects.databases.documents/patch),
 [Firestore paginated enumeration](https://firebase.google.com/docs/firestore/reference/rest/v1/projects.databases.documents/listDocuments).
+Observation references: [CDP Network timestamps, completion events and latency](https://chromedevtools.github.io/devtools-protocol/tot/Network/),
+[pinned Firebase 11.6.1 RPC endpoint mapping](https://raw.githubusercontent.com/firebase/firebase-js-sdk/firebase@11.6.1/packages/firestore/src/remote/rest_connection.ts),
+[public Chart.js instance lookup](https://www.chartjs.org/docs/latest/developers/api.html#static-getchart).

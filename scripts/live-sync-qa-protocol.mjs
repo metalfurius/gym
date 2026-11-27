@@ -235,6 +235,117 @@ export function sessionPlan(baseline, calendar = calendarFixture()) {
         sentinelIso: new Date(Math.min(firstOfMonth.getTime(), ...times) - 86_400_000).toISOString(),
     };
 }
+export function captureFixtures(calendar = calendarFixture()) {
+    return Array.from({ length: 4 }, (_, index) => ({
+        index,
+        weight: 50.5 + index,
+        reps: 8,
+        calendarIso: new Date(Date.parse(calendar.currentCalendarIso) + (index + 1) * 1000).toISOString(),
+    }));
+}
+
+export function verifyCaptureRecords(manifest, records) {
+    assert.equal(manifest.length, 4, 'QA_FOUR_CAPTURE_MANIFEST_REQUIRED');
+    assert.equal(new Set(manifest.map(item => item.id)).size, 4, 'QA_DUPLICATE_CAPTURE_MANIFEST');
+    const current = records
+        .map(record => {
+            const expected = manifest.find(item => item.id === record.id);
+            assert(expected, 'QA_UNEXPLAINED_CAPTURE');
+            assert.equal(record.data.nombreEntrenamiento, expected.label, 'QA_CAPTURE_LABEL_CHANGED');
+            assert.equal(record.data.ejercicios[0].sets[0].peso, expected.weight, 'QA_CAPTURE_WEIGHT_CHANGED');
+            assert.equal(record.data.ejercicios[0].sets[0].reps, expected.reps, 'QA_CAPTURE_REPS_CHANGED');
+            assert.equal(Date.parse(stamp(record.data)), Date.parse(expected.calendarIso), 'QA_CAPTURE_DATE_CHANGED');
+            assert.equal(digest(record.data), expected.dataHash, 'QA_CAPTURE_RECORD_CHANGED');
+            return expected;
+        })
+        .sort((a, b) => Date.parse(a.calendarIso) - Date.parse(b.calendarIso));
+    assert([3, 4].includes(current.length), 'QA_PROGRESS_THRESHOLD_NOT_PRESERVED');
+    assert.deepEqual(
+        current.map(item => item.id),
+        manifest.slice(0, current.length).map(item => item.id),
+        'QA_WRONG_STRENGTH_DELETED'
+    );
+    return {
+        count: current.length,
+        latest: current.at(-1),
+        best: Math.max(...current.map(item => item.weight)),
+        captures: current,
+    };
+}
+
+export function assertOnlineRace(base, actions, state) {
+    assert.equal(actions.length, 2, 'QA_TWO_ONLINE_ROLES_REQUIRED');
+    assert.deepEqual(actions.map(item => item.role).sort(), ['A', 'B'], 'QA_DISTINCT_ONLINE_ROLES_REQUIRED');
+    assert.deepEqual(
+        actions.map(item => item.receipt.status).sort(),
+        ['applied', 'conflict'],
+        'QA_ONLINE_RACE_NOT_ONE_WINNER_ONE_CONFLICT'
+    );
+    assert.equal(new Set(actions.map(item => item.intent.operationId)).size, 2, 'QA_ONLINE_DUPLICATE_OPERATION');
+    for (const action of actions) {
+        assert(action.beforeOnline === true && action.afterOnline === true, 'QA_ONLINE_RACE_WENT_OFFLINE');
+        assert.equal(action.intent.baseRevision, base.revision, 'QA_ONLINE_BASE_CHANGED');
+        assert.equal(action.intent.baseOperationId, base.operationId, 'QA_ONLINE_BASE_OPERATION_CHANGED');
+        assert.equal(action.intent.baseFingerprint, base.fingerprint, 'QA_ONLINE_BASE_SEMANTICS_CHANGED');
+        assert.equal(action.intent.target, action.role === 'A' ? 4 : 6, 'QA_ONLINE_PUBLIC_INTENT_VALUE');
+        assert.equal(action.receipt.operationId, action.intent.operationId, 'QA_ONLINE_RECEIPT_OPERATION_CHANGED');
+        assert.equal(action.receipt.weekKey, base.weekKey, 'QA_ONLINE_RECEIPT_WEEK_CHANGED');
+        assert.equal(action.receipt.updatedAtIso, action.intent.updatedAtIso, 'QA_ONLINE_ORIGINAL_TIMESTAMP_CHANGED');
+        assert.equal(action.receipt.targetSessions, action.intent.target, 'QA_ONLINE_RECEIPT_BODY_CHANGED');
+        assert(
+            action.overlap.sameARequestStillOpen &&
+                action.overlap.bObservedOpenBetween &&
+                action.overlap.clockSynchronizationAssumed === false,
+            'QA_ONLINE_OVERLAP_UNPROVEN'
+        );
+        assert(
+            action.commits.length > 0 &&
+                action.commits.every(item => item.online === true && item.endMono >= item.startMono),
+            'QA_ONLINE_COMMIT_METADATA_INCOMPLETE'
+        );
+        assert(
+            action.commits[0].failedTransport === false &&
+                Number.isInteger(action.commits[0].httpStatus) &&
+                action.commits[0].httpStatus >= 200 &&
+                action.commits[0].httpStatus <= 599,
+            'QA_FIRST_COMMIT_HTTP_RESPONSE_REQUIRED'
+        );
+    }
+    assert.equal(canonical(actions[0].overlap), canonical(actions[1].overlap), 'QA_OVERLAP_PROOFS_DISAGREE');
+    assert.equal(
+        actions[0].overlap.aOrdinal,
+        actions.find(item => item.role === 'A').commits[0].ordinal,
+        'QA_OVERLAP_A_REQUEST_CHANGED'
+    );
+    assert.equal(
+        actions[0].overlap.bOrdinal,
+        actions.find(item => item.role === 'B').commits[0].ordinal,
+        'QA_OVERLAP_B_REQUEST_CHANGED'
+    );
+    const winner = actions.find(item => item.receipt.status === 'applied');
+    const loser = actions.find(item => item.receipt.status === 'conflict');
+    assert.equal(winner.receipt.revision, base.revision + 1, 'QA_ONLINE_WINNER_RECEIPT_REVISION');
+    assert.equal(loser.receipt.currentRevision, base.revision + 1, 'QA_ONLINE_CONFLICT_RECEIPT_REVISION');
+    assert.equal(
+        state.weeklyTargetsByWeek[base.weekKey].revision,
+        base.revision + 1,
+        'QA_ONLINE_WEEK_REVISION_NOT_EXACTLY_ONE'
+    );
+    assert.equal(state.preferencesRevision, base.preferencesRevision + 1, 'QA_ONLINE_GLOBAL_REVISION_NOT_EXACTLY_ONE');
+    assert.equal(
+        state.weeklyTargetsByWeek[base.weekKey].operationId,
+        winner.intent.operationId,
+        'QA_ONLINE_WINNER_MISMATCH'
+    );
+    assert.equal(target(state, base.weekKey), winner.intent.target, 'QA_ONLINE_WINNER_TARGET_CHANGED');
+    return {
+        winner: winner.role,
+        loser: loser.role,
+        revision: base.revision + 1,
+        overlap: winner.overlap,
+        receipts: actions.map(item => ({ operationId: item.intent.operationId, dataHash: item.receiptHash })),
+    };
+}
 export function ownsSession(data, runId) {
     return (
         data.userId === PRIMARY_UID &&
@@ -356,6 +467,7 @@ export class QaCoordination {
         this.peer = role === 'A' ? 'B' : 'A';
         this.nonce = crypto.randomUUID();
         this.completed = {};
+        this.signals = {};
         this.claimed = false;
         this.resource = `users/${PRIMARY_UID}/qa_sync_runs/${runId}`;
     }
@@ -425,6 +537,8 @@ export class QaCoordination {
     async publish(phase, stage, result = null, error = null) {
         assert(this.claimed, 'QA_UNCLAIMED_ROLE_CANNOT_PUBLISH');
         if (result) this.completed[phase] = result;
+        this.phase = phase;
+        this.stage = stage;
         await this.api.request('PATCH', this.resource, {
             data: {
                 [`role${this.role}`]: {
@@ -435,11 +549,24 @@ export class QaCoordination {
                     phase,
                     stage,
                     completed: this.completed,
+                    signals: this.signals,
                     ...(error ? { error } : {}),
                 },
             },
             query: { 'updateMask.fieldPaths': `role${this.role}`, 'currentDocument.exists': 'true' },
         });
+    }
+    async publishSignal(name, value) {
+        assert(/^online-(A-open|B-saw-A|A-confirmed)$/.test(name), 'QA_UNKNOWN_FIXED_SIGNAL');
+        this.signals[name] = value;
+        await this.publish(this.phase, this.stage);
+    }
+    async waitSignal(name) {
+        assert(/^online-(A-open|B-saw-A|A-confirmed)$/.test(name), 'QA_UNKNOWN_FIXED_SIGNAL');
+        return until(
+            async () => this.verify(await this.api.request('GET', this.resource))[`role${this.peer}`]?.signals?.[name],
+            { signal: this.signal, timeoutMs: 30_000, label: name }
+        );
     }
     async wait(phase, stage) {
         return until(

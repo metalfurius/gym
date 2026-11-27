@@ -45,15 +45,23 @@ export function liveSyncPhases() {
         );
     }
     phases.push(
+        { name: 'online-race-identical-online-base', actor: 'both', action: 'online-base' },
+        { name: 'online-race-ready-public-controls', actor: 'both', action: 'online-ready' },
+        { name: 'online-race-public-press', actor: 'both', action: 'online-press' },
+        { name: 'online-race-exact-one-winner-conflict', actor: 'both', action: 'online-verify' },
+        { name: 'online-race-loser-explicit-resolution', actor: 'both', action: 'online-resolve' },
+        { name: 'online-race-both-converge', actor: 'both', action: 'converge', value: 7, onlineReceipts: true },
         { name: 'owner-A-queue-primary-offline', actor: 'A', action: 'owner-queue' },
         { name: 'owner-A-other-login-no-primary-replay', actor: 'A', action: 'owner-other' },
         { name: 'owner-A-primary-login-replays-only-primary', actor: 'A', action: 'owner-primary' },
         { name: 'both-logout-login-reload', actor: 'both', action: 'reauthenticate' },
         { name: 'session-baseline-and-verify-create-only-routine', actor: 'A', action: 'routine' },
-        { name: 'sessions-three-captures-and-quicklogs', actor: 'A', action: 'sessions' },
+        { name: 'sessions-four-captures-and-quicklogs', actor: 'A', action: 'sessions' },
         { name: 'both-all-surfaces-before-delete', actor: 'both', action: 'surfaces' },
         { name: 'B-deletes-single-owned-last-page-record', actor: 'B', action: 'delete-sentinel' },
         { name: 'both-all-surfaces-after-delete', actor: 'both', action: 'surfaces' },
+        { name: 'B-deletes-latest-owned-strength', actor: 'B', action: 'delete-latest-strength' },
+        { name: 'both-surfaces-fallback-previous-strength', actor: 'both', action: 'surfaces' },
         { name: 'A-ui-cleans-only-run-sessions', actor: 'A', action: 'cleanup-sessions' },
         { name: 'both-baseline-records-preserved', actor: 'both', action: 'baseline-preserved' }
     );

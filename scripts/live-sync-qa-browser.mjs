@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { spawnOwnedBrowser } from './owned-browser-process.mjs';
 import { connectOwnedChromium } from './browser-cdp-target.mjs';
 import { PRIMARY_UID, OTHER_UID, PROJECT, CLOCK_INITIAL, digest, until, canonical } from './live-sync-qa-protocol.mjs';
+import { CommitObservation } from './live-sync-qa-observations.mjs';
 
 const mime = {
     '.html': 'text/html; charset=utf-8',
@@ -18,6 +19,22 @@ const mime = {
     '.ico': 'image/x-icon',
     '.svg': 'image/svg+xml',
 };
+
+// Serialized into the owned page for a read-only observation of the rendered
+// detail. Kept separate so the runner's selectors also exercise the real UI
+// renderer in local DOM regressions without an account or service request.
+export function readSessionDetailDom(session, expectedDateText) {
+    return {
+        id: session?.id,
+        dateIso: session?.fecha?.toDate().toISOString(),
+        label: document.getElementById('session-detail-title').textContent,
+        expectedDateText,
+        dateText: document.getElementById('session-detail-date').textContent,
+        sets: [...document.querySelectorAll('#session-detail-exercises .sets-list li')].map(e => e.textContent),
+        body: document.getElementById('session-detail-exercises').textContent,
+    };
+}
+
 export function canonicalCandidate(
     root,
     expectedSha,
@@ -129,6 +146,7 @@ export class QaBrowser {
         this.owners = [];
         this.closedOwners = new Set();
         this.connections = [];
+        this.commitObservation = new CommitObservation();
     }
     async initialize() {
         this.profile = await fs.mkdtemp(path.join(os.tmpdir(), 'gym-smoke-real-sync-'));
@@ -170,6 +188,11 @@ export class QaBrowser {
         }
     }
     event(event) {
+        try {
+            this.commitObservation.observe(event, () => this.client.evaluate('navigator.onLine'));
+        } catch {
+            this.observationError ||= new Error('QA_COMMIT_OBSERVATION_FAILED');
+        }
         // Never retain raw CDP events: Auth requests, console args, headers and
         // Runtime exception payloads can contain credentials or private data.
         this.trace.push({
@@ -178,7 +201,7 @@ export class QaBrowser {
             ...(event.method === 'BrowserProtocol.command' ? { command: event.params?.method } : {}),
         });
         if (event.method === 'Page.javascriptDialogOpening') {
-            const accept = event.params?.type === 'confirm' && !!this.pendingDelete;
+            const accept = event.params?.type === 'confirm' && !!(this.pendingDelete || this.pendingCancel);
             this.client?.send('Page.handleJavaScriptDialog', { accept }).catch(() => {});
             if (!accept) this.unexpectedDialog = true;
         }
@@ -253,6 +276,7 @@ export class QaBrowser {
         return until(
             async () => {
                 assert(!this.unexpectedDialog, 'QA_UNEXPECTED_DIALOG');
+                if (this.observationError) throw this.observationError;
                 try {
                     return await this.client.evaluate(expression);
                 } catch (error) {
@@ -265,7 +289,7 @@ export class QaBrowser {
     }
     async field(selector, value) {
         await this.waitPage(
-            `!!document.querySelector(${JSON.stringify(selector)}) && !document.querySelector(${JSON.stringify(selector)}).disabled`,
+            `!!document.querySelector(${JSON.stringify(selector)}) && !document.querySelector(${JSON.stringify(selector)}).disabled && document.querySelector(${JSON.stringify(selector)}).getClientRects().length>0`,
             'field-ready'
         );
         await this.client.evaluate(
@@ -279,15 +303,51 @@ export class QaBrowser {
         );
         await this.client.evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
     }
-    async network(offline) {
+    async network(offline, latency = 0) {
+        assert(Number.isInteger(latency) && latency >= 0 && latency <= 15_000, 'QA_INVALID_NETWORK_LATENCY');
         await this.client.send('Network.emulateNetworkConditions', {
             offline,
-            latency: 0,
+            latency,
             downloadThroughput: -1,
             uploadThroughput: -1,
         });
         await this.waitPage(`navigator.onLine === ${!offline}`, 'browser-network-state');
         this.offline = offline;
+    }
+    beginCommitWindow() {
+        assert.equal(this.offline, false);
+        this.commitObservation.begin();
+    }
+    async waitOpenCommit() {
+        await until(
+            () => {
+                if (this.observationError) throw this.observationError;
+                return this.commitObservation.openFirst();
+            },
+            { signal: this.signal, label: 'first-real-Commit-open-online' }
+        );
+        return this.commitObservation.requireOpen();
+    }
+    requireOpenCommit(ordinal) {
+        if (this.observationError) throw this.observationError;
+        return this.commitObservation.requireOpen(ordinal);
+    }
+    async endCommitWindow() {
+        await until(
+            () => {
+                if (this.observationError) throw this.observationError;
+                return this.commitObservation.complete();
+            },
+            { signal: this.signal, label: 'Commit-metadata-complete' }
+        );
+        return this.commitObservation.finish();
+    }
+    async knownTargetIntents() {
+        return this.client.evaluate(`(async()=>{const {offlineManager:q}=await import('./js/utils/offline-manager.js');
+            const entries=new Map([...q.knownIntents,...q.pendingOperations.map(e=>[e.id,e])]);
+            return [...entries.values()].filter(e=>e.descriptor?.type==='preferences.saveWeeklyTarget'&&e.descriptor.payload?.userId===${JSON.stringify(PRIMARY_UID)})
+                .map(e=>({id:e.id,operationId:e.descriptor.payload.operationId,baseRevision:e.descriptor.payload.baseRevision,baseOperationId:e.descriptor.payload.baseOperationId,baseFingerprint:e.descriptor.payload.baseFingerprint,
+                    target:e.descriptor.payload.weekRecord.targetSessions,updatedAtIso:e.descriptor.payload.updatedAtIso}));})()`);
     }
     async clockAt(value) {
         assert(Number.isFinite(Date.parse(value)), 'QA_INVALID_CALENDAR_CLOCK');
@@ -388,6 +448,7 @@ export class QaBrowser {
             const {offlineManager:q}=await import('./js/utils/offline-manager.js'); const {getCurrentUser}=await import('./js/auth.js');
             const {auth}=await import('./js/firebase-config.js'); const uid=getCurrentUser()?.uid;
             const {localFirstCache}=await import('./js/utils/local-first-cache.js');
+            const {weeklyTargetFingerprint}=await import('./js/utils/weekly-preferences.js');
             const cached=uid?(await localFirstCache.getEntry('user-preferences:'+uid))?.value:null;
             const idbRows=await localFirstCache.getAllFromIndexedDb('offline:journal:v3:batch:');
             const idbJournalHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(idbRows))))].map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -401,7 +462,7 @@ export class QaBrowser {
             return {owner,project:auth.app.options.projectId,online:navigator.onLine,clock:globalThis.__GYM_WEEKLY_TARGET_NOW_ISO,
                 revision:document.querySelector('meta[name="gym-release-revision"]').content,controller:!!navigator.serviceWorker.controller,
                 target:Number(document.getElementById('weekly-target-days-select').value),visiblePending:q.getPendingCount(),conflicts:q.getConflictCount(),
-                preferenceRevision:cached?.preferencesRevision||0,weekRecords:Object.fromEntries(Object.entries(cached?.weeklyTargetsByWeek||{}).map(([week,r])=>[week,{target:r.targetSessions??r.targetDays,revision:r.revision||0,operationId:r.operationId||null,updatedAtIso:r.updatedAtIso||null}])),
+                preferenceRevision:cached?.preferencesRevision||0,weekRecords:Object.fromEntries(Object.entries(cached?.weeklyTargetsByWeek||{}).map(([week,r])=>[week,{target:r.targetSessions??r.targetDays,revision:r.revision||0,operationId:r.operationId||null,updatedAtIso:r.updatedAtIso||null,fingerprint:weeklyTargetFingerprint(r)}])),
                 queue,verified:q.queueViewVerified,staged:q.stagedIds.size,unknown:q.unknownIds.size,pendingAcks:q.pendingAcknowledgements.size,idbJournalRows:idbRows.length,idbJournalHash,
                 monthCount:Number(document.getElementById('daily-hub-month-count').textContent),weekly:document.getElementById('daily-hub-weekly-progress').textContent,
                 databases:(await indexedDB.databases()).map(d=>d.name).sort()};})()`);
@@ -515,6 +576,102 @@ export class QaBrowser {
         } finally {
             this.pendingDelete = null;
         }
+    }
+    async locateHistory(id) {
+        assert(/^[\w-]+$/.test(id), 'QA_INVALID_OWNED_SESSION_ID');
+        await this.reload();
+        await this.historyIds();
+        for (let page = 0; page < 30; page++) {
+            const ids = await this.client.evaluate(
+                '[...document.querySelectorAll("#history-list li[data-session-id]")].map(e=>e.dataset.sessionId)'
+            );
+            if (ids.includes(id)) return;
+            assert(
+                !(await this.client.evaluate('document.getElementById("history-next-page-btn").disabled')),
+                'QA_DETAIL_ID_NOT_FOUND'
+            );
+            await this.click('#history-next-page-btn');
+            await this.waitPage(
+                `document.getElementById('history-loading').classList.contains('hidden')&&!document.querySelector(${JSON.stringify(`#history-list li[data-session-id="${ids[0]}"]`)})`,
+                'detail-next-page'
+            );
+        }
+        throw new Error('QA_DETAIL_PAGE_LIMIT');
+    }
+    async detail(expected) {
+        await this.locateHistory(expected.id);
+        await this.click(`#history-list li[data-session-id="${expected.id}"] button[data-action="view-session"]`);
+        await this.waitPage(
+            'document.getElementById("session-detail-modal").getClientRects().length>0',
+            'owned-detail-open'
+        );
+        try {
+            const result = await this.client
+                .evaluate(`(async()=>{const {getSessionsCache}=await import('./js/modules/history-manager.js');
+                const {formatDate}=await import('./js/ui.js');const session=getSessionsCache().find(e=>e.id===${JSON.stringify(expected.id)});
+                return (${readSessionDetailDom.toString()})(session,formatDate(new Date(${JSON.stringify(expected.calendarIso)})));})()`);
+            assert.equal(result.id, expected.id);
+            assert.equal(result.label, expected.label, 'QA_DETAIL_LABEL');
+            assert.equal(Date.parse(result.dateIso), Date.parse(expected.calendarIso), 'QA_DETAIL_ORIGINAL_DATE');
+            assert(result.dateText.includes(result.expectedDateText), 'QA_DETAIL_VISIBLE_DATE');
+            if (expected.weight !== undefined) {
+                assert.equal(result.sets.length, 1, 'QA_DETAIL_SET_COUNT');
+                const set = result.sets[0].match(/(-?\d+(?:[.,]\d+)?)\s*kg\s*[x×]\s*(\d+)(?=\s|$)/i);
+                assert(
+                    set && Number(set[1].replace(',', '.')) === expected.weight && Number(set[2]) === expected.reps,
+                    'QA_DETAIL_ORIGINAL_WEIGHT_REPS'
+                );
+            } else assert(result.body.includes(expected.noteMarker), 'QA_DETAIL_QUICKLOG_MARKER');
+            return result;
+        } finally {
+            await this.click('#session-detail-modal .modal-close');
+        }
+    }
+    async suggestions(fixtureId, expected) {
+        await this.click('#nav-dashboard');
+        await this.field('#day-select', fixtureId);
+        await this.click('#start-session-btn');
+        await this.waitPage(
+            '!document.getElementById("session-view").classList.contains("hidden")&&!!document.querySelector(\'input[name="weight-0-0"]\')',
+            'suggestion-fresh-capture-view'
+        );
+        await this.waitPage(
+            `Number(document.querySelector('input[name="weight-0-0"]')?.dataset.suggestion)===${expected.weight}&&Number(document.querySelector('input[name="reps-0-0"]')?.dataset.suggestion)===${expected.reps}`,
+            'visible-latest-strength-suggestion'
+        );
+        const observed = await this.client
+            .evaluate(`({weight:Number(document.querySelector('input[name="weight-0-0"]').dataset.suggestion),
+            reps:Number(document.querySelector('input[name="reps-0-0"]').dataset.suggestion),
+            lastSet:document.querySelector('.last-workout-info .last-set')?.textContent})`);
+        assert(
+            observed.lastSet.includes(`${expected.weight}kg`) && observed.lastSet.includes(`x ${expected.reps}`),
+            'QA_SUGGESTION_VISIBLE_LAST_SET'
+        );
+        await this.click('.last-workout-info button');
+        assert.equal(
+            Number(await this.client.evaluate('document.querySelector(\'input[name="weight-0-0"]\').value')),
+            expected.weight
+        );
+        assert.equal(
+            Number(await this.client.evaluate('document.querySelector(\'input[name="reps-0-0"]\').value')),
+            expected.reps
+        );
+        this.pendingCancel = true;
+        try {
+            await this.click('#cancel-session-btn');
+        } finally {
+            this.pendingCancel = false;
+        }
+        await this.waitPage(
+            '!document.getElementById("dashboard-view").classList.contains("hidden")',
+            'suggestion-inspection-cancelled-without-save'
+        );
+        return {
+            ...observed,
+            expectedSessionId: expected.id,
+            originalDate: expected.calendarIso,
+            filledFromPublicButton: true,
+        };
     }
     async deleteOwned(id) {
         assert(/^[\w-]+$/.test(id), 'QA_INVALID_OWNED_SESSION_ID');

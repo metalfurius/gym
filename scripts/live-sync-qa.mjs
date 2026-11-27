@@ -19,11 +19,15 @@ import {
     documentData,
     assertFrozenPreserved,
     sessionPlan,
+    captureFixtures,
+    verifyCaptureRecords,
+    assertOnlineRace,
     ownsSession,
     QaFirebase,
     QaCoordination,
 } from './live-sync-qa-protocol.mjs';
 import { liveSyncPhases } from './live-sync-qa-scenarios.mjs';
+import { coordinateOnlineOverlap } from './live-sync-qa-observations.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const PREFERENCES = 'app_data/user_preferences';
@@ -121,6 +125,7 @@ export async function runLiveSync(options, credentials, candidate) {
         notes: [
             'No SDK/HTML/request replacement; all product mutations use public UI.',
             'No forced Commit-response loss is injected by this runner.',
+            'Online race records causally overlapping HTTP in-flight windows with real CDP latency; it does not establish simultaneous server execution or inspect request bodies.',
             'QA session/preference receipts and the control document are retained; fences and previous records are never reset.',
         ],
     };
@@ -252,16 +257,35 @@ export async function runLiveSync(options, credentials, candidate) {
         return { deletedOwnSessions: own.map(entry => entry.id) };
     };
     async function surfaces() {
+        await browser.clockAt(options.currentCalendarIso);
+        assert.equal((await browser.snapshot()).clock, options.currentCalendarIso, 'QA_CAPTURE_CLOCK_NOT_RESTORED');
         const { all, own } = await verifyOwnedSet();
         const captures = own.filter(entry => entry.data.routineId === `codex-live-qa-${options.runId}`);
-        assert.equal(captures.length, 3, 'QA_CAPTURE_COUNT_CHANGED');
-        for (const entry of captures) {
-            assert.equal(entry.data.ejercicios[0].sets[0].peso, 50.5);
-            assert.equal(entry.data.ejercicios[0].sets[0].reps, 8);
-        }
+        const control = documentData(await api.request('GET', coord.resource));
+        const manifest = control.roleA.completed['sessions-four-captures-and-quicklogs'].action;
+        const deleted = [
+            control.roleB?.completed?.['B-deletes-single-owned-last-page-record']?.action?.deletedId,
+            control.roleB?.completed?.['B-deletes-latest-owned-strength']?.action?.deletedId,
+        ].filter(Boolean);
+        const expectedOwn = manifest.createdIds.filter(id => !deleted.includes(id));
+        assert.deepEqual(
+            own.map(entry => entry.id).sort(),
+            [...expectedOwn].sort(),
+            'QA_UNEXPECTED_RUN_SESSION_MEMBERSHIP'
+        );
+        assert.equal(all.length, baseline.length + expectedOwn.length, 'QA_DERIVED_TOTAL_COUNT_CHANGED');
+        const expected = verifyCaptureRecords(manifest.captures, captures);
         const history = await browser.allHistoryIds();
         assert.deepEqual([...history].sort(), all.map(entry => entry.id).sort(), 'QA_HISTORY_SERVER_ID_DISAGREEMENT');
         assert.equal(new Set(history).size, history.length, 'QA_DUPLICATE_HISTORY_ID');
+        const details = [];
+        for (const entry of own) {
+            const original = manifest.records.find(item => item.id === entry.id);
+            assert(original && digest(entry.data) === original.dataHash, 'QA_CREATED_SESSION_CHANGED');
+            if (manifest.captures.some(item => item.id === entry.id) || entry.id === manifest.sentinelId) {
+                details.push(await browser.detail(original));
+            }
+        }
         await browser.click('#nav-dashboard');
         const expectedMonth = all.filter(
             entry => stampInParis(entry.data).slice(0, 7) === options.currentMonthKey
@@ -287,8 +311,8 @@ export async function runLiveSync(options, credentials, candidate) {
         await browser.click('#nav-progress');
         const exerciseName = `QA Press ${options.runId}`;
         await browser.waitPage(
-            `(async()=>{const option=[...document.querySelector('#exercise-select').options].find(e=>e.textContent.includes(${JSON.stringify(exerciseName)}));return !!option&&option.textContent.includes('(3 ')})()`,
-            'progress-three-captures'
+            `(async()=>{const option=[...document.querySelector('#exercise-select').options].find(e=>e.textContent.includes(${JSON.stringify(exerciseName)}));return !!option&&option.textContent.includes('(${expected.count} ')})()`,
+            'progress-remaining-captures'
         );
         const exerciseValue = await browser.client.evaluate(
             `[...document.querySelector('#exercise-select').options].find(e=>e.textContent.includes(${JSON.stringify(exerciseName)})).value`
@@ -297,13 +321,20 @@ export async function runLiveSync(options, credentials, candidate) {
         await browser.field('#period-select', 'all');
         await browser.field('#metric-select', 'weight');
         await browser.waitPage(
-            `document.getElementById('session-count').textContent==='3'&&document.getElementById('best-record').textContent.trim().replace(',','.')==='50.5 kg'&&document.querySelectorAll('#progress-data-table tbody tr').length===1&&Number(document.querySelector('#progress-data-table tbody tr')?.lastElementChild.textContent)===50.5`,
+            `document.getElementById('session-count').textContent==='${expected.count}'&&document.getElementById('best-record').textContent.trim().replace(',','.')==='${expected.best} kg'&&document.querySelectorAll('#progress-data-table tbody tr').length===1&&Number(document.querySelector('#progress-data-table tbody tr')?.lastElementChild.textContent)===${expected.best}&&JSON.stringify(globalThis.Chart?.getChart('progress-chart')?.data.datasets[0].data)===${JSON.stringify(JSON.stringify([expected.best]))}`,
             'progress-server-values'
         );
         await browser.field('#metric-select', 'reps');
         await browser.waitPage(
-            `document.getElementById('session-count').textContent==='3'&&document.querySelectorAll('#progress-data-table tbody tr').length===1&&Number(document.querySelector('#progress-data-table tbody tr')?.lastElementChild.textContent)===8`,
+            `document.getElementById('session-count').textContent==='${expected.count}'&&document.querySelectorAll('#progress-data-table tbody tr').length===1&&Number(document.querySelector('#progress-data-table tbody tr')?.lastElementChild.textContent)===8&&JSON.stringify(globalThis.Chart?.getChart('progress-chart')?.data.datasets[0].data)==='[8]'`,
             'progress-server-reps'
+        );
+        const suggestions = await browser.suggestions(`codex-live-qa-${options.runId}`, expected.latest);
+        const unchanged = rows => [...rows].sort((a, b) => a.id.localeCompare(b.id));
+        assert.equal(
+            digest(unchanged(await api.sessions())),
+            digest(unchanged(all)),
+            'QA_SUGGESTION_INSPECTION_CHANGED_SESSIONS'
         );
         return {
             serverCount: all.length,
@@ -313,9 +344,12 @@ export async function runLiveSync(options, credentials, candidate) {
             monthCount: ui.monthCount,
             weekCount: expectedWeek,
             dayCount: expectedDay,
-            progressSessions: 3,
-            weight: 50.5,
+            progressSessions: expected.count,
+            weight: expected.best,
             reps: 8,
+            details,
+            suggestions,
+            chartAndTableAgree: true,
             queueEmpty: true,
         };
     }
@@ -334,29 +368,38 @@ export async function runLiveSync(options, credentials, candidate) {
     async function createSessions() {
         const plan = sessionPlan(baseline, options),
             fixtureId = `codex-live-qa-${options.runId}`;
+        const fixtures = captureFixtures(options),
+            records = [],
+            captures = [];
         for (let index = 0; index < plan.count; index++) {
+            let expectedIso = fixtures[index]?.calendarIso;
+            await browser.clockAt(fixtures[index]?.calendarIso || options.currentCalendarIso);
             await browser.reload();
             await browser.assertOwner();
             const prior = (await api.sessions()).map(entry => entry.id);
-            if (index < 3) {
+            if (index < fixtures.length) {
                 await browser.waitPage(
                     `[...document.querySelector('#day-select').options].some(e=>e.value===${JSON.stringify(fixtureId)})`,
                     'fixture-routine-visible'
                 );
                 await browser.field('#day-select', fixtureId);
                 await browser.click('#start-session-btn');
-                await browser.field('input[name="weight-0-0"]', '50.5');
+                await browser.waitPage(
+                    '!document.getElementById("session-view").classList.contains("hidden")&&!!document.querySelector(\'input[name="weight-0-0"]\')',
+                    'fresh-capture-view-ready'
+                );
+                await browser.field('input[name="weight-0-0"]', fixtures[index].weight);
                 await browser.field('input[name="reps-0-0"]', '8');
                 await browser.click('#save-session-btn');
             } else {
                 await browser.field('#quick-log-label', `QA ${options.runId} ${index}`);
                 await browser.field('#quick-log-notes', `codexLiveQaRun:${options.runId}:${index}`);
-                await browser.field(
-                    '#quick-log-datetime',
+                const localDateTime =
                     index === plan.count - 1
                         ? plan.sentinelIso.slice(0, 16)
-                        : `${options.currentDateKey}T13:${String(index).padStart(2, '0')}`
-                );
+                        : `${options.currentDateKey}T13:${String(index).padStart(2, '0')}`;
+                expectedIso = await browser.client.evaluate(`new Date(${JSON.stringify(localDateTime)}).toISOString()`);
+                await browser.field('#quick-log-datetime', localDateTime);
                 await browser.click('#quick-log-save-btn');
             }
             const created = await until(
@@ -372,22 +415,44 @@ export async function runLiveSync(options, credentials, candidate) {
                 },
                 { signal, label: 'one-ui-save-one-server-session' }
             );
-            if (index < 3) assert.equal(canonical(created.data.ejercicios[0].sets[0].peso), canonical(50.5));
-            if (index < 3) assert.equal(created.data.ejercicios[0].sets[0].reps, 8);
-            if (index < 3) {
+            const original = {
+                id: created.id,
+                label: created.data.nombreEntrenamiento,
+                calendarIso: created.data.fecha.$timestamp,
+                dataHash: digest(created.data),
+            };
+            assert.equal(
+                original.label,
+                index < fixtures.length ? `Codex QA ${options.runId}` : `QA ${options.runId} ${index}`,
+                'QA_UI_LABEL_NOT_SAVED'
+            );
+            assert.equal(Date.parse(original.calendarIso), Date.parse(expectedIso), 'QA_UI_ORIGINAL_DATE_NOT_SAVED');
+            if (index < fixtures.length) {
+                assert.equal(created.data.ejercicios[0].sets[0].peso, fixtures[index].weight);
+                assert.equal(created.data.ejercicios[0].sets[0].reps, fixtures[index].reps);
+                assert.equal(
+                    Date.parse(original.calendarIso),
+                    Date.parse(fixtures[index].calendarIso),
+                    'QA_CAPTURE_EXPLICIT_CLOCK_NOT_USED'
+                );
+                Object.assign(original, fixtures[index]);
+                captures.push(original);
                 await browser.waitPage(
                     '!document.getElementById("dashboard-view").classList.contains("hidden")',
                     'capture-ui-acknowledged'
                 );
             } else {
+                original.noteMarker = `codexLiveQaRun:${options.runId}:${index}`;
                 await browser.waitPage(
                     'document.getElementById("quick-log-notes").value===""&&!document.getElementById("quick-log-save-btn").disabled',
                     'quicklog-ui-acknowledged'
                 );
             }
+            records.push(original);
             await browser.stableEmpty();
             createdSessions.push(created.id);
         }
+        await browser.clockAt(options.currentCalendarIso);
         const { all } = await verifyOwnedSet();
         assert.equal(all.length % 10, 1, 'QA_LAST_PAGE_FIXTURE_SIZE');
         return {
@@ -395,6 +460,8 @@ export async function runLiveSync(options, credentials, candidate) {
             sentinelId: createdSessions.at(-1),
             count: plan.count,
             baselineCount: baseline.length,
+            captures,
+            records,
         };
     }
     async function createRoutineFixture() {
@@ -480,6 +547,98 @@ export async function runLiveSync(options, credentials, candidate) {
                     operationId: state.weeklyTargetsByWeek?.[options.currentWeek]?.operationId || null,
                 };
             }
+            case 'online-base': {
+                await browser.network(false);
+                await browser.reload();
+                await browser.stableEmpty();
+                const state = await prefs();
+                const observed = await browser.waitQueue(
+                    value =>
+                        value.online &&
+                        (value.weekRecords[options.currentWeek]?.revision || 0) === weekRevision(state) &&
+                        value.weekRecords[options.currentWeek]?.target === currentTarget(state),
+                    'online-identical-base'
+                );
+                local.onlineBase = {
+                    weekKey: options.currentWeek,
+                    revision: weekRevision(state),
+                    preferencesRevision: state.preferencesRevision || 0,
+                    operationId: state.weeklyTargetsByWeek?.[options.currentWeek]?.operationId || null,
+                    target: currentTarget(state),
+                    fingerprint: observed.weekRecords[options.currentWeek].fingerprint,
+                    serverRecordHash: digest(state.weeklyTargetsByWeek[options.currentWeek]),
+                };
+                return local.onlineBase;
+            }
+            case 'online-ready': {
+                assert.equal((await browser.snapshot()).online, true);
+                await browser.clockAt(tick(options.role === 'A' ? 600 : 601));
+                await browser.settings();
+                await browser.field('#weekly-target-days-select', options.role === 'A' ? 4 : 6);
+                local.onlineKnown = (await browser.knownTargetIntents()).map(entry => entry.operationId);
+                await browser.network(false, 15_000);
+                browser.beginCommitWindow();
+                return { online: true, latencyMs: 15_000, controlsReady: true, base: local.onlineBase };
+            }
+            case 'online-press': {
+                const beforeOnline = await browser.client.evaluate('navigator.onLine');
+                assert(beforeOnline && browser.offline === false, 'QA_ONLINE_PRESS_OFFLINE');
+                await browser.click('#weekly-target-save-btn');
+                const overlap = await coordinateOnlineOverlap({ browser, coord, role: options.role });
+                // The causal observation is already complete; restore ordinary
+                // transport before SDK retries/conflict-receipt completion.
+                await browser.network(false);
+                await browser.waitPage(
+                    '!document.getElementById("weekly-target-save-btn").disabled',
+                    'online-public-press-settled'
+                );
+                await browser.waitQueue(
+                    value =>
+                        !value.staged &&
+                        !value.unknown &&
+                        !value.pendingAcks &&
+                        (value.visiblePending === 0 || value.conflicts === 1),
+                    'online-winner-or-explicit-conflict'
+                );
+                const added = (await browser.knownTargetIntents()).filter(
+                    entry => !local.onlineKnown.includes(entry.operationId)
+                );
+                assert.equal(added.length, 1, 'QA_ONLINE_PRESS_NOT_ONE_INTENT');
+                assert.equal(
+                    added[0].updatedAtIso,
+                    tick(options.role === 'A' ? 600 : 601),
+                    'QA_ONLINE_ORIGINAL_PUBLIC_CLOCK_CHANGED'
+                );
+                const receipt = await api.read(`${PREFERENCES}/weekly_operations/${added[0].operationId}`);
+                const commits = await browser.endCommitWindow();
+                const afterOnline = await browser.client.evaluate('navigator.onLine');
+                await browser.closeSettings();
+                return {
+                    role: options.role,
+                    beforeOnline,
+                    afterOnline,
+                    intent: added[0],
+                    receipt: receipt.data,
+                    receiptHash: digest(receipt),
+                    overlap,
+                    commits,
+                };
+            }
+            case 'online-verify': {
+                const control = documentData(await api.request('GET', coord.resource));
+                const actions = ['A', 'B'].map(
+                    role => control[`role${role}`].completed['online-race-public-press'].action
+                );
+                local.onlineRace = assertOnlineRace(local.onlineBase, actions, await prefs());
+                local.onlineReceiptHashes = actions.map(item => ({
+                    operationId: item.intent.operationId,
+                    hash: item.receiptHash,
+                }));
+                return local.onlineRace;
+            }
+            case 'online-resolve':
+                if (local.onlineRace.loser === options.role) await acceptedTarget(7);
+                return { role: options.role, resolvedByThisRole: local.onlineRace.loser === options.role };
             case 'stale': {
                 const before = await prefs();
                 const { queued, ui } = await browser.submitStaleTarget(spec.value, tick(20), local.bases.same);
@@ -493,6 +652,15 @@ export async function runLiveSync(options, credentials, candidate) {
                 await browser.stableEmpty();
                 assert.equal((await browser.snapshot()).target, spec.value);
                 assert.equal(currentTarget(await prefs()), spec.value);
+                if (spec.onlineReceipts) {
+                    for (const receipt of local.onlineReceiptHashes) {
+                        assert.equal(
+                            digest(await api.read(`${PREFERENCES}/weekly_operations/${receipt.operationId}`)),
+                            receipt.hash,
+                            'QA_ONLINE_RECEIPT_MUTATED_ON_RESOLUTION'
+                        );
+                    }
+                }
                 return { converged: spec.value };
             case 'queue-two':
                 return queueTwo(spec);
@@ -562,7 +730,7 @@ export async function runLiveSync(options, credentials, candidate) {
                 return surfaces();
             case 'delete-sentinel': {
                 const document = await api.request('GET', coord.resource);
-                const result = documentData(document).roleA.completed['sessions-three-captures-and-quicklogs'].action;
+                const result = documentData(document).roleA.completed['sessions-four-captures-and-quicklogs'].action;
                 const { all, own } = await verifyOwnedSet();
                 assert(own.some(entry => entry.id === result.sentinelId));
                 const ids = await browser.allHistoryIds();
@@ -579,6 +747,29 @@ export async function runLiveSync(options, credentials, candidate) {
                     label: 'last-page-deleted',
                 });
                 return { deletedId: result.sentinelId, lastPageHadOneOwnedRecord: true };
+            }
+            case 'delete-latest-strength': {
+                const control = documentData(await api.request('GET', coord.resource));
+                const manifest = control.roleA.completed['sessions-four-captures-and-quicklogs'].action;
+                const expected = manifest.captures.at(-1);
+                const { own } = await verifyOwnedSet();
+                const strength = own.filter(entry => entry.data.routineId === `codex-live-qa-${options.runId}`);
+                const verified = verifyCaptureRecords(manifest.captures, strength);
+                assert.equal(verified.count, 4);
+                assert.equal(verified.latest.id, expected.id);
+                const proof = await api.read(`sesiones_entrenamiento/${expected.id}`);
+                assert(ownsSession(proof.data, options.runId));
+                assert.equal(digest(proof.data), expected.dataHash);
+                await browser.deleteOwned(expected.id);
+                await until(async () => !(await api.read(`sesiones_entrenamiento/${expected.id}`, true)), {
+                    signal,
+                    label: 'latest-strength-deleted',
+                });
+                return {
+                    deletedId: expected.id,
+                    deletedWeight: expected.weight,
+                    expectedFallback: manifest.captures.at(-2),
+                };
             }
             case 'cleanup-sessions':
                 return cleanupSessions();
@@ -690,13 +881,20 @@ export async function runLiveSync(options, credentials, candidate) {
             phaseResults.push({ name: phase, at: new Date().toISOString(), ...result });
             await coord.publish(phase, 'done', result);
             const peer = await coord.wait(phase, 'done');
-            if (spec.action === 'base') {
+            if (['base', 'online-base'].includes(spec.action)) {
                 assert.equal(canonical(peer.action), canonical(action), 'QA_CLIENTS_DID_NOT_READ_IDENTICAL_BASE');
             }
         }
         assert.equal(phaseResults.length, plan.length, 'QA_INCOMPLETE_SEQUENCE');
     } catch (error) {
         primaryError = error;
+        if (browser) {
+            record.onlineCommitWindow = {
+                active: browser.commitObservation.active,
+                complete: browser.commitObservation.complete(),
+                requests: browser.commitObservation.snapshot(),
+            };
+        }
         if (browser?.client) {
             try {
                 record.failureState = clean(await browser.snapshot());

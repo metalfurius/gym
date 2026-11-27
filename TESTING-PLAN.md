@@ -18,6 +18,7 @@ The executable contract is [package.json](package.json), [jest.config.js](jest.c
 | `npm run test:e2e:upgrade` | Tests / Run Tests, normal and 1,000 ms delayed bootstrap | Real isolated Chromium two-release fixture with update, exact workout, offline/reconnect and hashes |
 | `npm run test:e2e:canonical-transport` | Tests / Run Tests | Canonical network body despite an active worker; bounded owned-browser cleanup |
 | Firefox upgrade, numeric in both browsers, Chromium counting | [Browser Gates](.github/workflows/browser-gates.yml), eight Linux/Windows jobs | Real assertions, pinned browser archives, negative runner and evidence artifacts |
+| `node scripts/live-sync-qa.mjs --validate-run ...` / `--live ...` | Browser Gates, separate explicit manual/branch/boolean opt-in Ubuntu B job; paired Windows A run by root | [47-phase real Firebase protocol](docs/live-sync-qa.md); clean identical SHA/calendar and both complete artifacts required; separate from eight fixture jobs |
 | CodeQL | [CodeQL](.github/workflows/codeql.yml) | Hosted security analysis; there is no equivalent npm script |
 | `npm run format:check` | [Format Check](.github/workflows/format-check.yml) | Advisory: workflow reports warnings without failing for formatting differences |
 
@@ -53,6 +54,11 @@ Preserve dated evidence as historical evidence and pin fresh CI/manual results t
 Roadmap implementations require the [two-judge protocol](docs/roadmap/README.md); older-head approvals do not
 approve a changed candidate.
 
-Jest uses Firebase mocks; browser smokes use loopback fixtures. Neither proves live cross-account/device
-sync, production delivery or physical iOS behavior. QA-05 and objective 4 remain open until the actual Safari
+Jest uses Firebase mocks and local DOM/synthetic protocol fixtures; browser smokes use loopback fixtures.
+Neither proves live cross-account/device sync, production delivery or physical iOS behavior. The separately
+opted-in paired Firebase runner requires actual Windows/Ubuntu accounts/SDK/UI evidence on the final reviewed
+SHA; authoring checks are not LIVE results. It preserves the last-page Quick Log sentinel and adds four distinct
+capture/details/suggestion checks, latest-strength deletion/fallback, and measured online HTTP overlap with
+one applied/one conflict receipt. Its measurement limits are explicit in the linked protocol.
+QA-05 and objective 4 remain open until the actual Safari
 and installed Home Screen PWA scenarios in the [objective plan](docs/roadmap/04-maintenance-quality.md) pass.
