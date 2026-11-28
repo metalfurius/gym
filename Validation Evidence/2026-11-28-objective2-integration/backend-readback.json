@@ -1,0 +1,56 @@
+{
+  "observedAt": "2026-11-28T17:23:18.732Z",
+  "mode": "Read-only own Firebase Console, ignore-cache reload and public CodeMirror exact hash; captured successful actual RulesAPI release response body filtered to configuration fields only. No headers, tokens, auth-store reads or account writes.",
+  "source": {
+    "ready": true,
+    "url": "https://console.firebase.google.com/project/gymm-178fb/firestore/databases/-default-/security/rules",
+    "observedAt": "2026-11-28T17:22:44.366Z",
+    "bytes": 12878,
+    "sha256": "96c0f5bbbde95808b666c62586ad5caa507f3dfe7007c65d6d4c9f97de24c451",
+    "errors": 0,
+    "resources": [
+      {
+        "path": "/v1/projects/gymm-178fb/releases/cloud.firestore",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets/000a8e44-8c4a-44f2-8c77-7eb222f7aee4",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets/6ad50078-80c5-4675-8590-e4c1241d3770",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets/63a88712-c7d7-4f7e-973c-eb7cf2aba872",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets/c86de450-7cfd-481a-88f6-65d7e2bff122",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets/478ef78c-b02d-4ba5-949c-15141b9682ea",
+        "status": 200
+      },
+      {
+        "path": "/v1/projects/gymm-178fb/rulesets/000a8e44-8c4a-44f2-8c77-7eb222f7aee4",
+        "status": 200
+      }
+    ]
+  },
+  "release": {
+    "name": "projects/gymm-178fb/releases/cloud.firestore",
+    "rulesetName": "projects/gymm-178fb/rulesets/000a8e44-8c4a-44f2-8c77-7eb222f7aee4",
+    "createTime": "2025-05-05T09:18:22.472192Z",
+    "updateTime": "2026-11-27T18:02:01.679414Z"
+  },
+  "releaseBodySha256": "c561a6de64673f9d276f1f77736a4af00d857702de4ac0d712792fb4122ca81c",
+  "responsePath": "/v1/projects/gymm-178fb/releases/cloud.firestore",
+  "httpStatus": 200,
+  "browser": "Chrome/158.0.8127.37"
+}

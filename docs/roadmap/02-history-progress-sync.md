@@ -8,6 +8,11 @@ Execution update, November 27: a [real 47-phase Windows/Ubuntu run](../real-sync
 unpublished `949c791`. Backend activation is verified. Two review findings still require correction, and both
 judges must evaluate all criteria against the final source and its evidence. This objective remains open.
 
+November 28: the [integrated candidate](../sync-integration-2026-11-28.md) contains the two review corrections
+and a further reproduced offline-resolution fix. The real runner now has 60 phases while retaining the original
+47. Its full real execution and both final same-SHA approvals are still required; the earlier 47-phase result
+must not be presented as acceptance of the later source.
+
 ## Starting point and invariants
 
 Inspect `js/progress.js`, `js/modules/history-manager.js`, session persistence listeners, calendar caches and
