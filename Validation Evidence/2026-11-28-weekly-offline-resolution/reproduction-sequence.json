@@ -1,0 +1,150 @@
+{
+  "sourceRef": "50c1aea40f9075d13ac2702b521e43be062542ac",
+  "runId": "af7a94cc-b409-4e88-8539-de16bdb8696f",
+  "scope": "Actual app and outbox, native same-profile tabs/IndexedDB, synthetic SDK only; no live backend",
+  "timezone": "Europe/Paris",
+  "logicalWeek": "2026-11-16",
+  "before": {
+    "weekRecord": {
+      "targetSessions": 3,
+      "targetDays": 3,
+      "savesUsed": 6,
+      "updatedAtIso": "2026-11-20T12:00:00.000Z",
+      "revision": 6,
+      "operationId": "target-ee60e7c5-05be-4255-a3ff-f58d1454429d",
+      "commitRevision": 6,
+      "pending": false
+    },
+    "conflictReceipt": {
+      "status": "conflict",
+      "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+      "weekKey": "2026-11-16",
+      "targetSessions": 5,
+      "updatedAtIso": "2026-11-20T11:00:00.000Z",
+      "currentRevision": 6
+    },
+    "oldIntent": {
+      "id": "old-conflict",
+      "description": "old revision-5 intent",
+      "timestamp": 1795780800000,
+      "predecessorIds": [
+        "seed-4",
+        "seed-5"
+      ],
+      "semanticDependencyIds": [
+        "seed-4"
+      ],
+      "ownerId": "weekly-resolution-owner",
+      "descriptor": {
+        "type": "preferences.saveWeeklyTarget",
+        "payload": {
+          "userId": "weekly-resolution-owner",
+          "weekKey": "2026-11-16",
+          "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+          "updatedAtIso": "2026-11-20T11:00:00.000Z",
+          "baseRevision": 5,
+          "baseOperationId": "target-9684b68d-7a76-4bc4-bc6a-0013fdca9a88",
+          "baseFingerprint": "[6,6,5,\"2026-11-20T12:00:00.000Z\"]",
+          "weekRecord": {
+            "targetSessions": 5,
+            "targetDays": 5,
+            "savesUsed": 6,
+            "updatedAtIso": "2026-11-20T11:00:00.000Z"
+          }
+        }
+      },
+      "status": "conflict",
+      "conflict": {
+        "code": "sync/conflict",
+        "currentRevision": 6,
+        "weekKey": "2026-11-16"
+      },
+      "operation": null
+    }
+  },
+  "offlineReplacement": {
+    "id": "offline-replacement",
+    "description": "Sin conexión. El objetivo semanal se guardará al volver a estar en línea.",
+    "timestamp": 1795780800000,
+    "predecessorIds": [
+      "old-conflict",
+      "seed-5"
+    ],
+    "semanticDependencyIds": [
+      "seed-5"
+    ],
+    "ownerId": "weekly-resolution-owner",
+    "descriptor": {
+      "type": "preferences.saveWeeklyTarget",
+      "payload": {
+        "userId": "weekly-resolution-owner",
+        "weekKey": "2026-11-16",
+        "operationId": "target-3fb4d73c-336a-472a-bd59-2d351a9af45a",
+        "updatedAtIso": "2026-11-20T12:00:00.000Z",
+        "baseRevision": 6,
+        "baseOperationId": "target-ee60e7c5-05be-4255-a3ff-f58d1454429d",
+        "baseFingerprint": "[3,3,6,\"2026-11-20T12:00:00.000Z\"]",
+        "weekRecord": {
+          "targetSessions": 5,
+          "targetDays": 5,
+          "savesUsed": 7,
+          "updatedAtIso": "2026-11-20T12:00:00.000Z"
+        }
+      }
+    },
+    "operation": null
+  },
+  "afterReconnect": {
+    "appliedReceipt": {
+      "status": "applied",
+      "operationId": "target-3fb4d73c-336a-472a-bd59-2d351a9af45a",
+      "weekKey": "2026-11-16",
+      "targetSessions": 5,
+      "updatedAtIso": "2026-11-20T12:00:00.000Z",
+      "revision": 7
+    },
+    "newOutcome": "accepted",
+    "oldOutcome": null,
+    "remaining": [
+      {
+        "id": "old-conflict",
+        "description": "old revision-5 intent",
+        "timestamp": 1795780800000,
+        "predecessorIds": [
+          "seed-4",
+          "seed-5"
+        ],
+        "semanticDependencyIds": [
+          "seed-4"
+        ],
+        "ownerId": "weekly-resolution-owner",
+        "descriptor": {
+          "type": "preferences.saveWeeklyTarget",
+          "payload": {
+            "userId": "weekly-resolution-owner",
+            "weekKey": "2026-11-16",
+            "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+            "updatedAtIso": "2026-11-20T11:00:00.000Z",
+            "baseRevision": 5,
+            "baseOperationId": "target-9684b68d-7a76-4bc4-bc6a-0013fdca9a88",
+            "baseFingerprint": "[6,6,5,\"2026-11-20T12:00:00.000Z\"]",
+            "weekRecord": {
+              "targetSessions": 5,
+              "targetDays": 5,
+              "savesUsed": 6,
+              "updatedAtIso": "2026-11-20T11:00:00.000Z"
+            }
+          }
+        },
+        "status": "conflict",
+        "conflict": {
+          "code": "sync/conflict",
+          "currentRevision": 6,
+          "weekKey": "2026-11-16"
+        }
+      }
+    ]
+  },
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- 'resolved'\n\n    at file:///C:/tmp/gym-weekly-offline-resolution/Validation%20Evidence/2026-11-28-weekly-offline-resolution/native-weekly-resolution.mjs:108:69",
+  "cleanupErrors": []
+}

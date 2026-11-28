@@ -1,0 +1,12 @@
+{
+  "replay": 0,
+  "ackAbort": 0,
+  "ackUnknown": 0,
+  "metadataCleanupNegative": 0,
+  "legacyOriginal": 0,
+  "outbox": 0,
+  "outboxCleanupNegative": 0,
+  "upgrade": 0,
+  "release": 0,
+  "metadataCleanupNegativeOwnedVerifier": 0
+}

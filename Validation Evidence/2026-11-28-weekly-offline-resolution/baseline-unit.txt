@@ -1,0 +1,28 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/unit/weekly-observed-resolution.test.js --silent
+
+(node:9568) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/unit/weekly-observed-resolution.test.js
+  ● observed weekly conflict resolution on accepted replay › atomically resolves the observed revision-6 conflict when its explicit replacement is replayed as revision 7
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "resolved"
+    Received: undefined
+
+      54 |         const cold = make(); await cold.restorePersistedQueue();
+      55 |         expect(cold.acknowledged.get('replacement')).toBe('accepted');
+    > 56 |         expect(cold.acknowledged.get('old-conflict')).toBe('resolved');
+         |                                                       ^
+      57 |         expect(cold.pendingOperations).toHaveLength(0);
+      58 |     });
+      59 | });
+
+      at Object.<anonymous> (tests/unit/weekly-observed-resolution.test.js:56:55)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        3.573 s

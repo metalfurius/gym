@@ -1,0 +1,34 @@
+{
+  "scope": "New command logs only; source snapshots and historical directories unchanged",
+  "transformation": "Remove formatter trailing horizontal whitespace and extra blank EOF lines only; preserve command results/errors/assertions",
+  "files": [
+    {
+      "path": "Validation Evidence/2026-11-28-weekly-offline-resolution/coverage.txt",
+      "beforeGitLfBytes": 37922,
+      "beforeGitLfSha256": "d69a8103c0287c280e959c0e9e8075882d2a7ec2153322ac94feb39ffb0c8a30",
+      "afterGitLfBytes": 11943,
+      "afterGitLfSha256": "3f9c5b5a911ea6db36dcd71836bbaf8975bbb1e7a4f1c98e875df183245bde70"
+    },
+    {
+      "path": "Validation Evidence/2026-11-28-weekly-offline-resolution/inherited-metadata-lint.txt",
+      "beforeGitLfBytes": 70,
+      "beforeGitLfSha256": "22aa9323d71d3ea28bf066294a23029669982ce4646db9d949549d1e211aa966",
+      "afterGitLfBytes": 69,
+      "afterGitLfSha256": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-28-weekly-offline-resolution/lint-first.txt",
+      "beforeGitLfBytes": 499,
+      "beforeGitLfSha256": "5a7df0171f8f107b8716014cdbf2dafed052536e7026c1518741ec68384cfc1f",
+      "afterGitLfBytes": 498,
+      "afterGitLfSha256": "d960e642c2c05f0be45cc49963daf75a0006d32fe8163a30d2a46032cf7d9d13"
+    },
+    {
+      "path": "Validation Evidence/2026-11-28-weekly-offline-resolution/lint.txt",
+      "beforeGitLfBytes": 70,
+      "beforeGitLfSha256": "22aa9323d71d3ea28bf066294a23029669982ce4646db9d949549d1e211aa966",
+      "afterGitLfBytes": 69,
+      "afterGitLfSha256": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b"
+    }
+  ]
+}

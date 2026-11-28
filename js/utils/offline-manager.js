@@ -9,7 +9,7 @@ import { toast } from './notifications.js';
 import { DurableOutbox } from './durable-outbox.js';
 import { t } from '../i18n.js';
 import { createSecureId } from './secure-id.js';
-import { orderOutboxEntries, causalFrontier, outboxOwner, stableOutboxJson, mergeOutboxConflict, validOutboxWeekKey } from './outbox-order.js';
+import { orderOutboxEntries, causalFrontier, outboxOwner, stableOutboxJson, mergeOutboxConflict, validOutboxWeekKey, validOutboxId } from './outbox-order.js';
 import { getWeekKeyForDate } from './quick-log.js';
 
 const ACCOUNT_OPERATION_TYPES = new Set([
@@ -36,6 +36,24 @@ function weeklyOperationWeek(entry) {
     const timestamp = payload?.updatedAtIso;
     if (typeof timestamp !== 'string' || !timestamp || Number.isNaN(new Date(timestamp).getTime())) return null;
     return getWeekKeyForDate(new Date(timestamp));
+}
+
+// Optional immutable client-only metadata. Legacy descriptors have no observed
+// IDs. This field never becomes a Firestore payload or a semantic dependency.
+function observedWeeklyConflictIds(entry) {
+    const descriptor = entry?.descriptor;
+    if (descriptor?.type !== 'preferences.saveWeeklyTarget' || !Object.hasOwn(descriptor, 'observedWeeklyConflictIds')) return null;
+    const ids = descriptor.observedWeeklyConflictIds;
+    if (!Array.isArray(ids) || !ids.every(validOutboxId)) {
+        throw Object.assign(new Error('Invalid observed weekly conflict identities'), { code: 'outbox/integrity' });
+    }
+    return [...new Set(ids)];
+}
+
+function isWeeklyConflictFor(entry, userId, weekKey) {
+    return ['conflict', 'blocked'].includes(entry.status) && entry.descriptor?.type === 'preferences.saveWeeklyTarget'
+        && entry.descriptor.payload?.userId === userId && (!entry.ownerId || entry.ownerId === userId)
+        && weeklyOperationWeek(entry) === weekKey;
 }
 
 function createQueueId() {
@@ -231,6 +249,7 @@ export class OfflineManager {
         const current = new Map(this.pendingOperations.filter(item => !state.acknowledged.has(item.id)).map(item => [item.id, item]));
         for (const persistedItem of state.entries) {
             if (!isSerializableDescriptor(persistedItem.descriptor) || this.pendingAcknowledgements.has(persistedItem.id)) continue;
+            observedWeeklyConflictIds(persistedItem);
             const prior = current.get(persistedItem.id);
             const entry = { ...persistedItem, operation: prior?.operation || null,
                 description: persistedItem.description || t('offline.queued_when_online'), timestamp: persistedItem.timestamp ?? 0,
@@ -379,15 +398,48 @@ export class OfflineManager {
         return ownership.kind === 'global' || (ownership.kind === 'account' && ownership.ownerId === this.activeUserId);
     }
 
+    getObservedWeeklyConflictIds(userId, weekKey) {
+        if (!this.queueViewVerified) throw Object.assign(new Error('Weekly conflict snapshot is not verified'), { code: 'outbox/unverified' });
+        if (!isOwnerId(userId) || !isWeekKey(weekKey) || this.activeUserId !== userId) {
+            throw Object.assign(new Error('Weekly conflict snapshot owner changed'), { code: 'sync/owner-changed' });
+        }
+        return this.getOrderedPendingOperations().filter(entry => isWeeklyConflictFor(entry, userId, weekKey)).map(entry => entry.id);
+    }
+
+    stageObservedWeeklyResolution(entry) {
+        const ids = observedWeeklyConflictIds(entry);
+        if (ids === null) return;
+        const { userId, weekKey } = entry.descriptor.payload || {};
+        if (!isOwnerId(userId) || !isWeekKey(weekKey) || (entry.ownerId && entry.ownerId !== userId)) {
+            throw Object.assign(new Error('Invalid weekly resolution owner/week'), { code: 'outbox/integrity' });
+        }
+        const observed = new Set(ids);
+        for (const prior of this.getOrderedPendingOperations()) {
+            if (prior.id === entry.id || !observed.has(prior.id) || !isWeeklyConflictFor(prior, userId, weekKey)) continue;
+            this.pendingAcknowledgements.add(prior.id); this.acknowledgementOutcomes.set(prior.id, 'resolved');
+            this.resolutionCriteria.set(prior.id, { userId, weekKey, fallbackWeekKey: weeklyOperationWeek(prior) });
+        }
+    }
+
     async acknowledgeOperation(id) {
-        this.pendingAcknowledgements.add(id);
-        this.acknowledgementOutcomes.set(id, 'accepted'); this.rpcSucceededIds.add(id);
+        const find = () => this.pendingOperations.find(entry => entry.id === id) || this.knownIntents.get(id) || this.retiredIntents.get(id);
+        const resolvesObserved = observedWeeklyConflictIds(find()) !== null;
         try {
+            if (resolvesObserved) {
+                await this.restorePersistedQueue();
+                // Stage both sides synchronously, then persist one atomic batch.
+                // Before this point a failed read leaves the durable intent and
+                // its observed IDs available for idempotent receipt recovery.
+                this.stageObservedWeeklyResolution(find());
+            }
+            this.pendingAcknowledgements.add(id);
+            this.acknowledgementOutcomes.set(id, 'accepted'); this.rpcSucceededIds.add(id);
             const receipt = await this.persistQueue();
             try { await this.notifyQueueChange(); } catch (error) { logger.warn('Acknowledged; queue observer failed:', error); }
             return receipt;
         } catch (error) {
             logger.warn('RPC accepted; acknowledgement remains pending:', error);
+            if (resolvesObserved) throw error;
             return { committed: false, pending: true, error };
         }
     }
@@ -413,9 +465,7 @@ export class OfflineManager {
     async resolveConflicts(userId, weekKey) {
         if (!isOwnerId(userId) || !isWeekKey(weekKey)) return;
         await this.restorePersistedQueue();
-        const resolved = entry => ['conflict', 'blocked'].includes(entry.status) && entry.descriptor?.type === 'preferences.saveWeeklyTarget'
-            && entry.descriptor.payload?.userId === userId && (!entry.ownerId || entry.ownerId === userId)
-            && weeklyOperationWeek(entry) === weekKey;
+        const resolved = entry => isWeeklyConflictFor(entry, userId, weekKey);
         for (const entry of this.getOrderedPendingOperations()) {
             if (resolved(entry)) {
                 this.pendingAcknowledgements.add(entry.id); this.acknowledgementOutcomes.set(entry.id, 'resolved');
@@ -612,6 +662,7 @@ export class OfflineManager {
      */
     queueOperation(operation, description, options = {}) {
         const descriptor = isSerializableDescriptor(options.descriptor) ? JSON.parse(JSON.stringify(options.descriptor)) : null;
+        observedWeeklyConflictIds({ descriptor });
         const id = options.id || createQueueId();
         const prior = this.pendingOperations.find(item => item.id === id) || this.knownIntents.get(id);
         if (prior) {

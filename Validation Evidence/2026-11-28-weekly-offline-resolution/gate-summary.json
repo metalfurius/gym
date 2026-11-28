@@ -1,0 +1,128 @@
+{
+  "base": "50c1aea40f9075d13ac2702b521e43be062542ac",
+  "scope": "Local candidate; actual app/native durable storage with synthetic SDK; no live acceptance",
+  "checks": {
+    "releaseWrite": 0,
+    "lint": 0,
+    "noSkips": 0,
+    "focused": 0,
+    "coverage": 0,
+    "app": 0,
+    "offline": 0,
+    "finalArtifactLint": 0,
+    "finalFocused": 0
+  },
+  "nativeExits": {
+    "replay": 0,
+    "ackAbort": 0,
+    "ackUnknown": 0,
+    "metadataCleanupNegative": 0,
+    "legacyOriginal": 0,
+    "outbox": 0,
+    "outboxCleanupNegative": 0,
+    "upgrade": 0,
+    "release": 0,
+    "metadataCleanupNegativeOwnedVerifier": 0
+  },
+  "focused": {
+    "suites": 6,
+    "tests": 103,
+    "newTests": 13
+  },
+  "full": {
+    "suites": 80,
+    "tests": 1193,
+    "elapsedSeconds": 92.292,
+    "coverage": {
+      "total": 7479,
+      "covered": 6155,
+      "skipped": 0,
+      "pct": 82.29
+    }
+  },
+  "app": {
+    "suites": 6,
+    "tests": 6
+  },
+  "offline": {
+    "suites": 2,
+    "tests": 2
+  },
+  "native": [
+    {
+      "path": "native-replay/result.json",
+      "runId": "ff8a737e-129c-405b-a125-babe88b4989c",
+      "status": "passed",
+      "cleanupErrors": [],
+      "revision": 7,
+      "oldOutcome": "resolved",
+      "newOutcome": "accepted",
+      "runnerSha256Lf": "e7e19b4eddd0aa344aec89925c835fbdff4cb281b32f999afad4bd2ee254b331"
+    },
+    {
+      "path": "native-ack-abort/result.json",
+      "runId": "25fef62a-ee6d-4dee-a5d6-f6a9915979a5",
+      "status": "passed",
+      "cleanupErrors": [],
+      "revision": 7,
+      "oldOutcome": "resolved",
+      "newOutcome": "accepted",
+      "runnerSha256Lf": "e7e19b4eddd0aa344aec89925c835fbdff4cb281b32f999afad4bd2ee254b331"
+    },
+    {
+      "path": "native-completion-unknown/result.json",
+      "runId": "0cdc7ce7-e5dc-41cf-a0dc-719fe9ca2ef9",
+      "status": "passed",
+      "cleanupErrors": [],
+      "revision": 7,
+      "oldOutcome": "resolved",
+      "newOutcome": "accepted",
+      "runnerSha256Lf": "e7e19b4eddd0aa344aec89925c835fbdff4cb281b32f999afad4bd2ee254b331"
+    }
+  ],
+  "outbox": {
+    "status": "passed",
+    "count": 26,
+    "elapsedMs": 44157,
+    "cleanupErrors": []
+  },
+  "outboxCleanupNegative": {
+    "status": "passed",
+    "mode": "real Chromium child; injected owner-close exception after actual owner cleanup",
+    "childExitCode": 1,
+    "runId": "36842425-bf8e-417c-bfd3-5a043109ec43",
+    "evidenceStatus": "failed",
+    "traceExists": true,
+    "elapsedMs": 46259,
+    "scenariosCompleted": 26,
+    "serversClosed": 26,
+    "retainedJournalsVerified": 26,
+    "cleanupErrors": [
+      "cleanup-owner"
+    ]
+  },
+  "newCleanupNegative": {
+    "status": "passed",
+    "runId": "462245d2-62ae-4d27-8bb5-f8104389e8f7",
+    "childExitCode": 1,
+    "childEvidenceStatus": "failed",
+    "primaryError": null,
+    "cleanupErrors": [
+      {
+        "step": "browser",
+        "message": "Injected owner-close failure after actual cleanup"
+      }
+    ],
+    "traceExists": true,
+    "scope": "Actual native child assertions completed; deliberate owner-close exception follows real owner cleanup; final child status is failed"
+  },
+  "legacy": {
+    "status": "passed"
+  },
+  "upgrade": {
+    "status": "passed"
+  },
+  "version": "2.8.6",
+  "assets": 75,
+  "liveAcceptance": "pending root exact-head validation"
+}

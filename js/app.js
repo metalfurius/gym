@@ -320,7 +320,8 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
         const base = overlayQueuedWeeklyTargets(weeklyState());
         const payload = createWeeklyTargetOperation(user.uid, weekKey, target, base.weeklyTargetsByWeek[weekKey], now.toISOString());
         const next = applyOptimisticWeeklyTarget(payload, base);
-        const descriptor = { type: 'preferences.saveWeeklyTarget', payload };
+        const descriptor = { type: 'preferences.saveWeeklyTarget', payload,
+            observedWeeklyConflictIds: offlineManager.getObservedWeeklyConflictIds(user.uid, weekKey) };
         // Persist the immutable intent before acknowledging an offline save or
         // starting a network request. An ambiguous commit is safe to replay.
         queueId = offlineManager.queueOperation(null, t('settings.weekly_goal_save_offline'), { descriptor });
@@ -339,7 +340,6 @@ async function saveWeeklyTargetPreference(targetDaysValue, options = {}) {
             await persistWeeklyTargetPreference(user.uid, payload);
             accepted = true;
             await offlineManager.acknowledgeOperation?.(queueId);
-            await offlineManager.resolveConflicts?.(user.uid, weekKey);
             updateWeeklyConflictNotice();
         } catch (error) {
             if (error.code === 'sync/conflict') {

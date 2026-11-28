@@ -1,0 +1,1 @@
+{"status":"failed","output":"C:\\tmp\\gym-weekly-offline-resolution\\Validation Evidence\\2026-11-28-weekly-offline-resolution\\native-cleanup-negative","cleanupErrors":[{"step":"browser","message":"Injected owner-close failure after actual cleanup"}]}

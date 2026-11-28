@@ -1,0 +1,65 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/unit/weekly-observed-resolution.test.js --silent
+
+(node:9176) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/unit/weekly-observed-resolution.test.js
+  ● observed weekly conflict resolution on accepted replay › captures a fresh copied list bound to the active UID/week, including blocked children
+
+    Conflicting durable outbox operation identity
+
+      54 |         const key = JSON.stringify([outboxOwner(entry), operationId]);
+      55 |         const prior = operationIds.get(key);
+    > 56 |         if (prior && prior !== entry.id) throw new Error('Conflicting durable outbox operation identity');
+         |                                                ^
+      57 |         operationIds.set(key, entry.id);
+      58 |     }
+      59 |     const nodes = new Map(entries.map(entry => [entry.id, { ...entry,
+
+      at orderOutboxEntries (js/utils/outbox-order.js:56:48)
+      at OfflineManager.getOrderedPendingOperations (js/utils/offline-manager.js:353:34)
+      at OfflineManager.queueOperation (js/utils/offline-manager.js:689:14)
+      at retainConflict (tests/unit/weekly-observed-resolution.test.js:44:13)
+      at Object.<anonymous> (tests/unit/weekly-observed-resolution.test.js:80:15)
+
+  ● observed weekly conflict resolution on accepted replay › resolves only captured eligible IDs through the shared direct acknowledgement path
+
+    Conflicting durable outbox operation identity
+
+      54 |         const key = JSON.stringify([outboxOwner(entry), operationId]);
+      55 |         const prior = operationIds.get(key);
+    > 56 |         if (prior && prior !== entry.id) throw new Error('Conflicting durable outbox operation identity');
+         |                                                ^
+      57 |         operationIds.set(key, entry.id);
+      58 |     }
+      59 |     const nodes = new Map(entries.map(entry => [entry.id, { ...entry,
+
+      at orderOutboxEntries (js/utils/outbox-order.js:56:48)
+      at OfflineManager.getOrderedPendingOperations (js/utils/offline-manager.js:353:34)
+      at OfflineManager.queueOperation (js/utils/offline-manager.js:689:14)
+      at retainConflict (tests/unit/weekly-observed-resolution.test.js:44:13)
+      at tests/unit/weekly-observed-resolution.test.js:97:15
+
+  ● observed weekly conflict resolution on accepted replay › resolves only captured eligible IDs through the shared replay acknowledgement path
+
+    Conflicting durable outbox operation identity
+
+      54 |         const key = JSON.stringify([outboxOwner(entry), operationId]);
+      55 |         const prior = operationIds.get(key);
+    > 56 |         if (prior && prior !== entry.id) throw new Error('Conflicting durable outbox operation identity');
+         |                                                ^
+      57 |         operationIds.set(key, entry.id);
+      58 |     }
+      59 |     const nodes = new Map(entries.map(entry => [entry.id, { ...entry,
+
+      at orderOutboxEntries (js/utils/outbox-order.js:56:48)
+      at OfflineManager.getOrderedPendingOperations (js/utils/offline-manager.js:353:34)
+      at OfflineManager.queueOperation (js/utils/offline-manager.js:689:14)
+      at retainConflict (tests/unit/weekly-observed-resolution.test.js:44:13)
+      at tests/unit/weekly-observed-resolution.test.js:97:15
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 8 passed, 11 total
+Snapshots:   0 total
+Time:        5.729 s

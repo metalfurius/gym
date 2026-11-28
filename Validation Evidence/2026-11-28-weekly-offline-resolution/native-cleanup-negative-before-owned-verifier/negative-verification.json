@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "runId": "ae303aa4-6bff-4a73-95b8-9ebc76276919",
+  "childExitCode": 1,
+  "childEvidenceStatus": "failed",
+  "primaryError": null,
+  "cleanupErrors": [
+    {
+      "step": "browser",
+      "message": "Injected owner-close failure after actual cleanup"
+    }
+  ],
+  "traceExists": true,
+  "scope": "Actual native child assertions completed; deliberate owner-close exception follows real owner cleanup; final child status is failed"
+}

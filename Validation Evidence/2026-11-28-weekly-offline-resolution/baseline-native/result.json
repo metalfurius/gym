@@ -1,0 +1,289 @@
+{
+  "status": "failed",
+  "runId": "af7a94cc-b409-4e88-8539-de16bdb8696f",
+  "startedAt": "2026-11-28T17:20:53.763Z",
+  "node": "v24.12.0",
+  "checkoutSha": "50c1aea40f9075d13ac2702b521e43be062542ac",
+  "mode": "Actual app and outbox, native same-profile tabs/IndexedDB, synthetic SDK only; no live backend",
+  "timezone": "Europe/Paris",
+  "baselineObservation": true,
+  "sourceHashesLf": {
+    "js/utils/outbox-order.js": "2edddfec323bb7d3f090224de185746a2c6e3671d23a7504e73bf7968427c66d",
+    "js/utils/durable-outbox.js": "d6ff0541b49facf80683d5cb3c179e2c8172845694a88929b604693cb4927e11",
+    "js/utils/offline-manager.js": "35e249e0cff0a7e35b1c5988552b79e0a943d549683dbf085626c9a1dd9c1843",
+    "js/modules/session-manager.js": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c",
+    "js/utils/local-first-cache.js": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+    "js/app.js": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+    "tests/browser/outbox-app-bootstrap.js": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+    "tests/browser/outbox-app-environment.js": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+  },
+  "origin": "http://127.0.0.1:56079",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.37",
+    "revision": "@b8c2be851f62f6a394ec57955d7f31335d7cb6d4",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "before": {
+    "preferences": {
+      "weeklyTargetDays": 3,
+      "weeklyTargetBaselineSessions": 3,
+      "weeklyTargetsByWeek": {
+        "2026-11-16": {
+          "targetSessions": 3,
+          "targetDays": 3,
+          "savesUsed": 6,
+          "updatedAtIso": "2026-11-20T12:00:00.000Z",
+          "revision": 6,
+          "operationId": "target-ee60e7c5-05be-4255-a3ff-f58d1454429d",
+          "commitRevision": 6,
+          "pending": false
+        }
+      },
+      "weeklyOutcomesByWeek": {},
+      "weeklyTargetSessions": 3,
+      "preferencesRevision": 6,
+      "schemaVersion": 3,
+      "updatedAtIso": "2026-11-20T12:00:00.000Z",
+      "updatedAt": {
+        "_date": {},
+        "seconds": 1795176000,
+        "nanoseconds": 0
+      }
+    },
+    "conflictReceipt": {
+      "status": "conflict",
+      "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+      "weekKey": "2026-11-16",
+      "targetSessions": 5,
+      "updatedAtIso": "2026-11-20T11:00:00.000Z",
+      "currentRevision": 6
+    },
+    "entry": {
+      "id": "old-conflict",
+      "description": "old revision-5 intent",
+      "timestamp": 1795780800000,
+      "predecessorIds": [
+        "seed-4",
+        "seed-5"
+      ],
+      "semanticDependencyIds": [
+        "seed-4"
+      ],
+      "ownerId": "weekly-resolution-owner",
+      "descriptor": {
+        "type": "preferences.saveWeeklyTarget",
+        "payload": {
+          "userId": "weekly-resolution-owner",
+          "weekKey": "2026-11-16",
+          "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+          "updatedAtIso": "2026-11-20T11:00:00.000Z",
+          "baseRevision": 5,
+          "baseOperationId": "target-9684b68d-7a76-4bc4-bc6a-0013fdca9a88",
+          "baseFingerprint": "[6,6,5,\"2026-11-20T12:00:00.000Z\"]",
+          "weekRecord": {
+            "targetSessions": 5,
+            "targetDays": 5,
+            "savesUsed": 6,
+            "updatedAtIso": "2026-11-20T11:00:00.000Z"
+          }
+        }
+      },
+      "status": "conflict",
+      "conflict": {
+        "code": "sync/conflict",
+        "currentRevision": 6,
+        "weekKey": "2026-11-16"
+      },
+      "operation": null
+    }
+  },
+  "queued": {
+    "id": "offline-replacement",
+    "description": "Sin conexión. El objetivo semanal se guardará al volver a estar en línea.",
+    "timestamp": 1795780800000,
+    "predecessorIds": [
+      "old-conflict",
+      "seed-5"
+    ],
+    "semanticDependencyIds": [
+      "seed-5"
+    ],
+    "ownerId": "weekly-resolution-owner",
+    "descriptor": {
+      "type": "preferences.saveWeeklyTarget",
+      "payload": {
+        "userId": "weekly-resolution-owner",
+        "weekKey": "2026-11-16",
+        "operationId": "target-3fb4d73c-336a-472a-bd59-2d351a9af45a",
+        "updatedAtIso": "2026-11-20T12:00:00.000Z",
+        "baseRevision": 6,
+        "baseOperationId": "target-ee60e7c5-05be-4255-a3ff-f58d1454429d",
+        "baseFingerprint": "[3,3,6,\"2026-11-20T12:00:00.000Z\"]",
+        "weekRecord": {
+          "targetSessions": 5,
+          "targetDays": 5,
+          "savesUsed": 7,
+          "updatedAtIso": "2026-11-20T12:00:00.000Z"
+        }
+      }
+    },
+    "operation": null
+  },
+  "afterReplay": {
+    "state": {
+      "owner": "weekly-resolution-owner",
+      "online": true,
+      "sessions": [],
+      "target": 5,
+      "uiTarget": "5",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "draft": null
+      },
+      "pending": [
+        {
+          "id": "old-conflict",
+          "descriptor": {
+            "type": "preferences.saveWeeklyTarget",
+            "payload": {
+              "userId": "weekly-resolution-owner",
+              "weekKey": "2026-11-16",
+              "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+              "updatedAtIso": "2026-11-20T11:00:00.000Z",
+              "baseRevision": 5,
+              "baseOperationId": "target-9684b68d-7a76-4bc4-bc6a-0013fdca9a88",
+              "baseFingerprint": "[6,6,5,\"2026-11-20T12:00:00.000Z\"]",
+              "weekRecord": {
+                "targetSessions": 5,
+                "targetDays": 5,
+                "savesUsed": 6,
+                "updatedAtIso": "2026-11-20T11:00:00.000Z"
+              }
+            }
+          },
+          "status": "conflict",
+          "timestamp": 1795780800000
+        }
+      ],
+      "nativeEvents": []
+    },
+    "preferences": {
+      "weeklyTargetDays": 5,
+      "weeklyTargetBaselineSessions": 3,
+      "weeklyTargetsByWeek": {
+        "2026-11-16": {
+          "targetSessions": 5,
+          "targetDays": 5,
+          "savesUsed": 7,
+          "updatedAtIso": "2026-11-20T12:00:00.000Z",
+          "revision": 7,
+          "operationId": "target-3fb4d73c-336a-472a-bd59-2d351a9af45a",
+          "commitRevision": 7,
+          "pending": false
+        }
+      },
+      "weeklyOutcomesByWeek": {},
+      "weeklyTargetSessions": 5,
+      "preferencesRevision": 7,
+      "schemaVersion": 3,
+      "updatedAtIso": "2026-11-20T12:00:00.000Z",
+      "updatedAt": {
+        "_date": {},
+        "seconds": 1795176000,
+        "nanoseconds": 0
+      }
+    },
+    "newOutcome": "accepted",
+    "appliedReceipt": {
+      "status": "applied",
+      "operationId": "target-3fb4d73c-336a-472a-bd59-2d351a9af45a",
+      "weekKey": "2026-11-16",
+      "targetSessions": 5,
+      "updatedAtIso": "2026-11-20T12:00:00.000Z",
+      "revision": 7
+    },
+    "remaining": [
+      {
+        "id": "old-conflict",
+        "description": "old revision-5 intent",
+        "timestamp": 1795780800000,
+        "predecessorIds": [
+          "seed-4",
+          "seed-5"
+        ],
+        "semanticDependencyIds": [
+          "seed-4"
+        ],
+        "ownerId": "weekly-resolution-owner",
+        "descriptor": {
+          "type": "preferences.saveWeeklyTarget",
+          "payload": {
+            "userId": "weekly-resolution-owner",
+            "weekKey": "2026-11-16",
+            "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+            "updatedAtIso": "2026-11-20T11:00:00.000Z",
+            "baseRevision": 5,
+            "baseOperationId": "target-9684b68d-7a76-4bc4-bc6a-0013fdca9a88",
+            "baseFingerprint": "[6,6,5,\"2026-11-20T12:00:00.000Z\"]",
+            "weekRecord": {
+              "targetSessions": 5,
+              "targetDays": 5,
+              "savesUsed": 6,
+              "updatedAtIso": "2026-11-20T11:00:00.000Z"
+            }
+          }
+        },
+        "status": "conflict",
+        "conflict": {
+          "code": "sync/conflict",
+          "currentRevision": 6,
+          "weekKey": "2026-11-16"
+        }
+      }
+    ],
+    "original": {
+      "id": "old-conflict",
+      "description": "old revision-5 intent",
+      "timestamp": 1795780800000,
+      "predecessorIds": [
+        "seed-4",
+        "seed-5"
+      ],
+      "semanticDependencyIds": [
+        "seed-4"
+      ],
+      "ownerId": "weekly-resolution-owner",
+      "descriptor": {
+        "type": "preferences.saveWeeklyTarget",
+        "payload": {
+          "userId": "weekly-resolution-owner",
+          "weekKey": "2026-11-16",
+          "operationId": "target-0c330426-668a-4d71-a4c4-b5a9a5433574",
+          "updatedAtIso": "2026-11-20T11:00:00.000Z",
+          "baseRevision": 5,
+          "baseOperationId": "target-9684b68d-7a76-4bc4-bc6a-0013fdca9a88",
+          "baseFingerprint": "[6,6,5,\"2026-11-20T12:00:00.000Z\"]",
+          "weekRecord": {
+            "targetSessions": 5,
+            "targetDays": 5,
+            "savesUsed": 6,
+            "updatedAtIso": "2026-11-20T11:00:00.000Z"
+          }
+        }
+      },
+      "status": "conflict",
+      "conflict": {
+        "code": "sync/conflict",
+        "currentRevision": 6,
+        "weekKey": "2026-11-16"
+      }
+    }
+  },
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- 'resolved'\n\n    at file:///C:/tmp/gym-weekly-offline-resolution/Validation%20Evidence/2026-11-28-weekly-offline-resolution/native-weekly-resolution.mjs:108:69",
+  "cleanupErrors": [],
+  "completedAt": "2026-11-28T17:20:56.691Z"
+}
