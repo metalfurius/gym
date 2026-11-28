@@ -1,0 +1,119 @@
+{
+  "status": "passed",
+  "runId": "28c40ec7-5906-4553-ab99-731005db8b06",
+  "startedAt": "2026-11-28T17:04:52.422Z",
+  "checkoutSha": "949c791ccc789058abe28254710c86f45326c1d0",
+  "mode": "actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend",
+  "negativeCase": null,
+  "sourceHashesLf": {
+    "js/utils/durable-outbox.js": "d6ff0541b49facf80683d5cb3c179e2c8172845694a88929b604693cb4927e11",
+    "js/utils/outbox-order.js": "2edddfec323bb7d3f090224de185746a2c6e3671d23a7504e73bf7968427c66d",
+    "js/utils/outbox-journal-storage.js": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+    "js/utils/offline-manager.js": "35e249e0cff0a7e35b1c5988552b79e0a943d549683dbf085626c9a1dd9c1843",
+    "js/utils/local-first-cache.js": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+    "js/app.js": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+    "js/modules/session-manager.js": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c",
+    "js/i18n.js": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50",
+    "js/version-manager.js": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983",
+    "tests/browser/outbox-app-bootstrap.js": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+    "tests/browser/outbox-app-environment.js": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "before": {
+    "state": {
+      "owner": "root-native-legacy",
+      "online": true,
+      "sessions": [],
+      "target": 6,
+      "uiTarget": "6",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "draft": null
+      },
+      "pending": [
+        {
+          "id": "legacy-no-week",
+          "descriptor": {
+            "type": "preferences.saveWeeklyTarget",
+            "payload": {
+              "userId": "root-native-legacy",
+              "weeklyTargetDays": 5,
+              "updatedAtIso": "2026-11-27T11:12:13.456Z"
+            }
+          },
+          "status": "conflict",
+          "timestamp": 1795780800000
+        }
+      ],
+      "nativeEvents": []
+    },
+    "conflicts": 1,
+    "pending": 1,
+    "descriptor": {
+      "type": "preferences.saveWeeklyTarget",
+      "payload": {
+        "userId": "root-native-legacy",
+        "weeklyTargetDays": 5,
+        "updatedAtIso": "2026-11-27T11:12:13.456Z"
+      }
+    },
+    "receipt": [
+      [
+        "users/root-native-legacy/app_data/user_preferences/weekly_operations/legacy-a9f9ea1f-5b708ec7",
+        {
+          "status": "conflict",
+          "operationId": "legacy-a9f9ea1f-5b708ec7",
+          "weekKey": "2026-11-23",
+          "targetSessions": 5,
+          "updatedAtIso": "2026-11-27T11:12:13.456Z",
+          "currentRevision": 1
+        }
+      ]
+    ]
+  },
+  "after": {
+    "state": {
+      "owner": "root-native-legacy",
+      "online": true,
+      "sessions": [],
+      "target": 5,
+      "uiTarget": "5",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "draft": null
+      },
+      "pending": [],
+      "nativeEvents": []
+    },
+    "conflicts": 0,
+    "pending": 0,
+    "cold": [],
+    "outcome": "resolved",
+    "receipt": [
+      [
+        "users/root-native-legacy/app_data/user_preferences/weekly_operations/legacy-a9f9ea1f-5b708ec7",
+        {
+          "status": "conflict",
+          "operationId": "legacy-a9f9ea1f-5b708ec7",
+          "weekKey": "2026-11-23",
+          "targetSessions": 5,
+          "updatedAtIso": "2026-11-27T11:12:13.456Z",
+          "currentRevision": 1
+        }
+      ]
+    ],
+    "noticeHidden": true
+  },
+  "cleanupErrors": [],
+  "completedAt": "2026-11-28T17:04:53.762Z"
+}

@@ -1,0 +1,124 @@
+{
+  "base": "949c791ccc789058abe28254710c86f45326c1d0",
+  "candidate": "uncommitted runtime, identified by native and Git-index hashes",
+  "requiredChecks": "passed",
+  "commands": {
+    "releaseWrite": 0,
+    "lint": 0,
+    "noSkips": 0,
+    "focused": 0,
+    "coverage": 0,
+    "app": 0,
+    "offline": 0
+  },
+  "requiredNativeExits": {
+    "metadataOnline": 0,
+    "legacyOriginal": 0,
+    "outbox": 0,
+    "outboxNegative": 0,
+    "upgrade": 0,
+    "release": 0
+  },
+  "focused": {
+    "suites": 5,
+    "tests": 90,
+    "newMetadataTests": 16
+  },
+  "full": {
+    "suites": 79,
+    "tests": 1180,
+    "coverage": {
+      "total": 7441,
+      "covered": 6116,
+      "skipped": 0,
+      "pct": 82.19
+    }
+  },
+  "app": {
+    "suites": 6,
+    "tests": 6
+  },
+  "offline": {
+    "suites": 2,
+    "tests": 2
+  },
+  "outbox": {
+    "runId": "cbc61450-bad7-45b9-8928-36101e77b34d",
+    "scenarios": 26,
+    "elapsedMs": 20458,
+    "cleanupErrors": []
+  },
+  "negative": {
+    "status": "passed",
+    "mode": "real Chromium child; injected owner-close exception after actual owner cleanup",
+    "childExitCode": 1,
+    "runId": "5416eb77-1493-4b81-8c09-0db444ba7e86",
+    "evidenceStatus": "failed",
+    "traceExists": true,
+    "elapsedMs": 23544,
+    "scenariosCompleted": 26,
+    "serversClosed": 26,
+    "retainedJournalsVerified": 26,
+    "cleanupErrors": [
+      "cleanup-owner"
+    ]
+  },
+  "legacyOnline": {
+    "runId": "28c40ec7-5906-4553-ab99-731005db8b06",
+    "status": "passed",
+    "cleanupErrors": []
+  },
+  "metadataOnline": {
+    "runId": "d775bfcd-f9f0-474b-91a6-d90d52e59ee7",
+    "status": "passed",
+    "cleanupErrors": []
+  },
+  "upgrade": {
+    "status": "passed"
+  },
+  "openOfflineReplay": {
+    "runId": "a70130cc-534b-4859-96f1-fec852024422",
+    "status": "failed",
+    "exitCode": 1,
+    "cleanupErrors": [],
+    "coherenceLimit": "Conflict R6 injected while server week absent/base0; needs separate coherent R6->7 reproduction",
+    "acceptedReceipt": [
+      [
+        "users/metadata-owner/app_data/user_preferences/weekly_operations/target-274984d3-d294-40fc-8669-ac272b89714a",
+        {
+          "status": "applied",
+          "operationId": "target-274984d3-d294-40fc-8669-ac272b89714a",
+          "weekKey": "2026-11-16",
+          "targetSessions": 5,
+          "updatedAtIso": "2026-11-20T12:00:00.000Z",
+          "revision": 1
+        }
+      ]
+    ],
+    "remnant": {
+      "id": "legacy-target",
+      "description": "Legacy target",
+      "timestamp": 1795885832955,
+      "predecessorIds": [
+        "offline-8be14a7a-5a18-4e11-8c13-0dc6dc59551b"
+      ],
+      "semanticDependencyIds": [],
+      "ownerId": "metadata-owner",
+      "descriptor": {
+        "type": "preferences.saveWeeklyTarget",
+        "payload": {
+          "userId": "metadata-owner",
+          "weeklyTargetDays": 5,
+          "updatedAtIso": "2026-11-22T23:30:00.000Z"
+        }
+      },
+      "status": "conflict",
+      "conflict": {
+        "code": "sync/conflict",
+        "currentRevision": 6,
+        "weekKey": "2026-11-16"
+      }
+    }
+  },
+  "liveAcceptance": "not run for candidate; historical47 belongs to base949"
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "New candidate logs only; historical evidence and exact native failed captures untouched",
+  "files": [
+    {
+      "path": "Validation Evidence/2026-11-27-outbox-conflict-metadata/coverage.txt",
+      "beforeGitLfBytes": 37861,
+      "beforeGitLfSha256": "75747855a54ad7d2ba6275f657e4dbd429c60deecbe1bdb480c5cc2f631b6cbe",
+      "afterGitLfBytes": 11882,
+      "afterGitLfSha256": "dc1cf90a9fcfdc09565376ca2ae8de51cdc6e5b6525cee059cf6a70fcdddbc96",
+      "transformation": "Remove formatter trailing horizontal whitespace and extra blank EOF lines only; command result, error and assertions retained"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-outbox-conflict-metadata/lint.txt",
+      "beforeGitLfBytes": 70,
+      "beforeGitLfSha256": "22aa9323d71d3ea28bf066294a23029669982ce4646db9d949549d1e211aa966",
+      "afterGitLfBytes": 69,
+      "afterGitLfSha256": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b",
+      "transformation": "Remove formatter trailing horizontal whitespace and extra blank EOF lines only; command result, error and assertions retained"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-outbox-conflict-metadata/lint-before-strict-comparisons.txt",
+      "beforeGitLfBytes": 472,
+      "beforeGitLfSha256": "4656f339ffdecdb12ba0a740eb0ad1f9f9fc37fa3160b7c5e570533fea85e920",
+      "afterGitLfBytes": 471,
+      "afterGitLfSha256": "eb14bc33ee2d755e6904119c5f5a01f4bbfeb1a33221c163acfc14f9d0bd032e",
+      "transformation": "Remove formatter trailing horizontal whitespace and extra blank EOF lines only; command result, error and assertions retained"
+    }
+  ]
+}

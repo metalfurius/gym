@@ -1,6 +1,7 @@
 import { localFirstCache } from './local-first-cache.js';
 import { OutboxJournalStorage, OUTBOX_JOURNAL_PREFIX } from './outbox-journal-storage.js';
-import { validOutboxId, outboxOwner, orderOutboxEntries, causalFrontier, stableOutboxJson } from './outbox-order.js';
+import { validOutboxId, outboxOwner, orderOutboxEntries, causalFrontier, stableOutboxJson,
+    mergeOutboxConflict, validOutboxWeekKey } from './outbox-order.js';
 
 const LEGACY_KEY = 'offline:pending-operations:v1';
 const V2_PREFIX = 'offline:journal:v2:';
@@ -56,14 +57,13 @@ export class DurableOutbox {
             if (prior && intentIdentity(prior) !== intentIdentity(entry)) throw invalid();
             intents.set(entry.id, { ...(prior || entry), predecessorIds: unique([...(prior?.predecessorIds || []), ...(entry.predecessorIds || [])]),
                 semanticDependencyIds: unique([...(prior?.semanticDependencyIds || []), ...(entry.semanticDependencyIds || [])]) });
-            if (entry.status === 'conflict') conflicts.set(entry.id, entry.conflict);
+            if (entry.status === 'conflict') conflicts.set(entry.id, mergeOutboxConflict(conflicts.get(entry.id), entry.conflict));
         };
         const event = (value, legacy = false) => {
             if (!value || !validOutboxId(value.id)) throw invalid();
             if (value.kind === 'intent' && value.entry?.id === value.id) mergeIntent(value.entry);
             else if (value.kind === 'conflict') {
-                const prior = conflicts.get(value.id);
-                if (!prior || (value.conflict?.currentRevision ?? -1) >= (prior.currentRevision ?? -1)) conflicts.set(value.id, value.conflict);
+                conflicts.set(value.id, mergeOutboxConflict(conflicts.get(value.id), value.conflict));
             } else if (value.kind === 'ack') {
                 if (value.entry) { if (value.entry.id !== value.id) throw invalid(); mergeIntent(value.entry); }
                 const outcome = legacy ? 'unknown' : value.outcome;
@@ -117,7 +117,17 @@ export class DurableOutbox {
     prepareSave(state, entries, acknowledged) {
         const events = []; const known = [...state.intents.values()];
         const nextConflicts = new Map(state.conflicts); const nextAcks = new Map(state.acknowledgements);
-        const ordered = orderOutboxEntries(entries, [...known, ...entries.filter(entry => !state.intents.has(entry.id))]);
+        const identities = new Map(); const inputConflicts = new Map();
+        for (const entry of entries) {
+            if (!validOutboxId(entry?.id) || !entry.descriptor || typeof entry.descriptor.type !== 'string') throw invalid();
+            const identity = intentIdentity(entry);
+            if (identities.has(entry.id) && identities.get(entry.id) !== identity) throw invalid();
+            identities.set(entry.id, identity);
+            if (entry.status === 'conflict') inputConflicts.set(entry.id, mergeOutboxConflict(inputConflicts.get(entry.id), entry.conflict));
+        }
+        const mergedEntries = entries.map(entry => inputConflicts.has(entry.id)
+            ? { ...entry, status: 'conflict', conflict: inputConflicts.get(entry.id) } : entry);
+        const ordered = orderOutboxEntries(mergedEntries, [...known, ...mergedEntries.filter(entry => !state.intents.has(entry.id))]);
         for (const entry of ordered) {
             if (!validOutboxId(entry?.id)) throw invalid();
             const prior = state.intents.get(entry.id);
@@ -128,11 +138,12 @@ export class DurableOutbox {
                 intent.predecessorIds = unique([...intent.predecessorIds, ...causalFrontier(known, outboxOwner(intent))]);
                 events.push({ kind: 'intent', id: intent.id, entry: intent }); known.push(intent);
             }
-            if (entry.status === 'conflict' && !state.acknowledged.has(entry.id)
-                && (!state.conflicts.has(entry.id) || (entry.conflict?.currentRevision ?? -1) >= (state.conflicts.get(entry.id)?.currentRevision ?? -1))
-                && stableOutboxJson(state.conflicts.get(entry.id)) !== stableOutboxJson(entry.conflict)) {
-                events.push({ kind: 'conflict', id: entry.id, conflict: entry.conflict });
-                if (!nextConflicts.has(entry.id) || (entry.conflict?.currentRevision ?? -1) >= (nextConflicts.get(entry.id)?.currentRevision ?? -1)) nextConflicts.set(entry.id, entry.conflict);
+            if (entry.status === 'conflict' && !state.acknowledged.has(entry.id)) {
+                const merged = mergeOutboxConflict(nextConflicts.get(entry.id), entry.conflict);
+                if (!nextConflicts.has(entry.id) || stableOutboxJson(nextConflicts.get(entry.id)) !== stableOutboxJson(merged)) {
+                    events.push({ kind: 'conflict', id: entry.id, conflict: merged });
+                    nextConflicts.set(entry.id, merged);
+                }
             }
         }
         const acks = acknowledged.map(value => typeof value === 'string' ? { id: value, outcome: 'accepted' } : value);
@@ -144,7 +155,25 @@ export class DurableOutbox {
                 if (prior && intentIdentity(prior) !== intentIdentity(ack.entry)) throw invalid();
                 if (!prior) known.push(ack.entry);
             }
-            if (state.acknowledgements.get(ack.id) !== 'accepted' && state.acknowledgements.get(ack.id) !== ack.outcome) events.push({ kind: 'ack', ...ack });
+            if (ack.outcome === 'resolved' && ack.resolution && !state.acknowledged.has(ack.id)) {
+                // This state came from save's fresh read, after the caller's
+                // selection. Resolution criteria are local preconditions only;
+                // they are never a new journal/schema field.
+                const entry = known.find(item => item.id === ack.id);
+                const payload = entry?.descriptor?.payload;
+                const conflict = mergeOutboxConflict(nextConflicts.get(ack.id), ack.entry?.conflict);
+                const week = validOutboxWeekKey(payload?.weekKey) ? payload.weekKey
+                    : validOutboxWeekKey(conflict?.weekKey) ? conflict.weekKey : ack.resolution.fallbackWeekKey;
+                if (!validOutboxWeekKey(ack.resolution.weekKey) || typeof ack.resolution.userId !== 'string' || !ack.resolution.userId.trim()
+                    || entry?.descriptor?.type !== 'preferences.saveWeeklyTarget' || payload?.userId !== ack.resolution.userId
+                    || (entry.ownerId && entry.ownerId !== ack.resolution.userId) || week !== ack.resolution.weekKey) {
+                    throw Object.assign(new Error('Conflict resolution requires review of the latest owner/week metadata'), {
+                        code: 'outbox/resolution-changed', resolutionIds: [ack.id],
+                    });
+                }
+            }
+            const journalAck = { ...ack }; delete journalAck.resolution;
+            if (state.acknowledgements.get(ack.id) !== 'accepted' && state.acknowledgements.get(ack.id) !== ack.outcome) events.push({ kind: 'ack', ...journalAck });
             if (nextAcks.get(ack.id) !== 'accepted') nextAcks.set(ack.id, ack.outcome);
         }
         const covered = unique([...entries.map(entry => entry.id), ...acks.map(ack => ack.id)]);

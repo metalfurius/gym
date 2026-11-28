@@ -1,0 +1,7 @@
+{
+  "original": "Validation Evidence/2026-11-27-objective2-review-bdab/native-legacy-resolution.mjs.txt",
+  "originalSha256Lf": "96c9f913c49fce6bbe1b6a52a2df062dec59ffa463042fd1b023cd3fd73787b5",
+  "adaptedSha256Lf": "3aa5ed9c6086b060bdce5ed6be5bf3a449b3467215b06831234a8f6525d110ed",
+  "adaptation": "Only two helper import prefixes and the served worktree root; all original assertions unchanged",
+  "output": "C:\\tmp\\gym-outbox-conflict-metadata\\Validation Evidence\\2026-11-27-outbox-conflict-metadata\\native-legacy-original"
+}

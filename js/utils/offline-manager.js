@@ -9,7 +9,7 @@ import { toast } from './notifications.js';
 import { DurableOutbox } from './durable-outbox.js';
 import { t } from '../i18n.js';
 import { createSecureId } from './secure-id.js';
-import { orderOutboxEntries, causalFrontier, outboxOwner, stableOutboxJson } from './outbox-order.js';
+import { orderOutboxEntries, causalFrontier, outboxOwner, stableOutboxJson, mergeOutboxConflict, validOutboxWeekKey } from './outbox-order.js';
 import { getWeekKeyForDate } from './quick-log.js';
 
 const ACCOUNT_OPERATION_TYPES = new Set([
@@ -17,7 +17,7 @@ const ACCOUNT_OPERATION_TYPES = new Set([
     'preferences.syncWeeklyState', 'routines.fetch',
 ]);
 const isOwnerId = value => typeof value === 'string' && value.trim().length > 0;
-const isWeekKey = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+const isWeekKey = validOutboxWeekKey;
 
 function weeklyConflictDetails(error) {
     return { code: 'sync/conflict', currentRevision: error.result?.currentRevision ?? null,
@@ -74,6 +74,7 @@ export class OfflineManager {
         this.outbox = outbox;
         this.pendingAcknowledgements = new Set();
         this.acknowledgementOutcomes = new Map();
+        this.resolutionCriteria = new Map();
         this.acknowledged = new Map();
         this.knownIntents = new Map();
         this.stagedIds = new Set();
@@ -188,6 +189,9 @@ export class OfflineManager {
         try {
             await this.pendingRestorePromise;
             this.queueRestored = true;
+        } catch (error) {
+            if (error.code === 'outbox/integrity') this.queueViewVerified = false;
+            throw error;
         } finally {
             this.pendingRestorePromise = null;
         }
@@ -221,6 +225,7 @@ export class OfflineManager {
             this.stagedIds.delete(id); this.unknownIds.delete(id);
             if (this.acknowledged.get(id) === 'accepted' || this.acknowledgementOutcomes.get(id) === this.acknowledged.get(id)) {
                 this.pendingAcknowledgements.delete(id); this.acknowledgementOutcomes.delete(id); this.retiredIntents.delete(id); this.rpcSucceededIds.delete(id);
+                this.resolutionCriteria.delete(id);
             }
         }
         const current = new Map(this.pendingOperations.filter(item => !state.acknowledged.has(item.id)).map(item => [item.id, item]));
@@ -230,9 +235,9 @@ export class OfflineManager {
             const entry = { ...persistedItem, operation: prior?.operation || null,
                 description: persistedItem.description || t('offline.queued_when_online'), timestamp: persistedItem.timestamp ?? 0,
                 descriptor: migrateDescriptor(persistedItem.descriptor, persistedItem.id) };
-            if (prior?.status === 'conflict' && (entry.status !== 'conflict'
-                || (prior.conflict?.currentRevision ?? -1) >= (entry.conflict?.currentRevision ?? -1))) {
-                entry.status = prior.status; entry.conflict = prior.conflict;
+            if (prior?.status === 'conflict' || entry.status === 'conflict') {
+                entry.status = 'conflict';
+                entry.conflict = mergeOutboxConflict(entry.conflict, prior?.conflict);
             }
             if (this.getOperationOwnership(entry).kind === 'unowned') entry.status = 'unowned';
             current.set(entry.id, entry); this.stagedIds.delete(entry.id); this.unknownIds.delete(entry.id);
@@ -269,7 +274,9 @@ export class OfflineManager {
                 attemptedIds = [...this.stagedIds];
                 const acknowledgements = [...this.pendingAcknowledgements].map(id => {
                     const entry = this.pendingOperations.find(item => item.id === id) || this.knownIntents.get(id) || this.retiredIntents.get(id);
-                    return { id, outcome: this.acknowledgementOutcomes.get(id) || 'accepted', ...(entry ? { entry: this.persistableEntry(entry) } : {}) };
+                    return { id, outcome: this.acknowledgementOutcomes.get(id) || 'accepted',
+                        ...(entry ? { entry: this.persistableEntry(entry) } : {}),
+                        ...(this.resolutionCriteria.has(id) ? { resolution: this.resolutionCriteria.get(id) } : {}) };
                 });
                 const entries = this.getPersistableQueue(); appendStarted = true;
                 receipt = await this.outbox.save(entries, acknowledgements);
@@ -279,13 +286,19 @@ export class OfflineManager {
                 for (const ack of acknowledgements) {
                     if (!receipt.committedIds.includes(ack.id)) continue;
                     this.pendingAcknowledgements.delete(ack.id); this.acknowledgementOutcomes.delete(ack.id);
+                    this.resolutionCriteria.delete(ack.id);
                     this.retiredIntents.delete(ack.id);
                     this.acknowledged.set(ack.id, receipt.state?.acknowledgements.get(ack.id) || ack.outcome); this.rpcSucceededIds.delete(ack.id);
                     this.pendingOperations = this.pendingOperations.filter(entry => entry.id !== ack.id);
                 }
             } catch (error) {
                 if (!appendStarted) { error.provenNotCommitted = true; error.attemptedIds = attemptedIds; }
-                if (error.provenNotCommitted === true) {
+                if (error.code === 'outbox/resolution-changed') {
+                    for (const id of error.resolutionIds || []) {
+                        if (!this.resolutionCriteria.has(id) || this.acknowledgementOutcomes.get(id) !== 'resolved') continue;
+                        this.pendingAcknowledgements.delete(id); this.acknowledgementOutcomes.delete(id); this.resolutionCriteria.delete(id);
+                    }
+                } else if (error.provenNotCommitted === true) {
                     const rollback = new Set((error.attemptedIds || attemptedIds).filter(id => this.stagedIds.has(id)
                         && !this.knownIntents.has(id) && !this.unknownIds.has(id)));
                     for (const entry of this.pendingOperations) if (rollback.has(entry.id)) this.retiredIntents.set(entry.id, this.persistableEntry(entry));
@@ -389,24 +402,32 @@ export class OfflineManager {
     async markConflict(id, error) {
         const entry = this.pendingOperations.find(item => item.id === id);
         if (entry) {
+            const merged = mergeOutboxConflict(entry.conflict, weeklyConflictDetails(error));
             entry.status = 'conflict';
-            entry.conflict = weeklyConflictDetails(error);
+            entry.conflict = merged;
             await this.persistQueue();
             await this.notifyQueueChange();
         }
     }
 
     async resolveConflicts(userId, weekKey) {
+        if (!isOwnerId(userId) || !isWeekKey(weekKey)) return;
+        await this.restorePersistedQueue();
         const resolved = entry => ['conflict', 'blocked'].includes(entry.status) && entry.descriptor?.type === 'preferences.saveWeeklyTarget'
-            && entry.descriptor.payload?.userId === userId && weeklyOperationWeek(entry) === weekKey;
+            && entry.descriptor.payload?.userId === userId && (!entry.ownerId || entry.ownerId === userId)
+            && weeklyOperationWeek(entry) === weekKey;
         for (const entry of this.getOrderedPendingOperations()) {
             if (resolved(entry)) {
                 this.pendingAcknowledgements.add(entry.id); this.acknowledgementOutcomes.set(entry.id, 'resolved');
+                this.resolutionCriteria.set(entry.id, { userId, weekKey, fallbackWeekKey: weeklyOperationWeek(entry) });
             }
         }
-        this.pendingOperations = this.pendingOperations.filter(entry => !resolved(entry));
         try { await this.persistQueue(); await this.notifyQueueChange(); }
-        catch (error) { logger.warn('Conflict resolution remains pending:', error); }
+        catch (error) {
+            if (error.code === 'outbox/integrity') throw error;
+            if (error.code === 'outbox/resolution-changed') { await this.restorePersistedQueue(); await this.notifyQueueChange(); }
+            logger.warn('Conflict resolution remains pending:', error);
+        }
     }
 
     addQueueListener(listener) { this.queueListeners.push(listener); }
@@ -691,7 +712,10 @@ export class OfflineManager {
                     logger.error(`Failed queued operation: ${queueEntry.description}`, error);
                     if (error.code === 'sync/conflict') {
                         const current = this.pendingOperations.find(entry => entry.id === queueEntry.id);
-                        if (current) { current.status = 'conflict'; current.conflict = weeklyConflictDetails(error); }
+                        if (current) {
+                            const merged = mergeOutboxConflict(current.conflict, weeklyConflictDetails(error));
+                            current.status = 'conflict'; current.conflict = merged;
+                        }
                     }
                 }
                 // Keep in-flight work durable until each individual acknowledgement.

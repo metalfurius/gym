@@ -3,6 +3,7 @@ export const outboxOwner = entry => entry?.descriptor?.payload?.userId || entry?
     ? `account:${entry?.descriptor?.payload?.userId || entry?.ownerId}` : entry?.scope === 'global' ? 'global:' : 'unowned:';
 export const operationIdForEntry = entry => entry?.descriptor?.payload?.operationId;
 const unique = values => [...new Set(values.filter(validOutboxId))].sort();
+export const validOutboxWeekKey = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
 
 export function semanticOperationIds(entry) {
     const payload = entry?.descriptor?.payload || {};
@@ -12,6 +13,35 @@ export function semanticOperationIds(entry) {
 export function stableOutboxJson(value) {
     return JSON.stringify(value, (_key, item) => item && typeof item === 'object' && !Array.isArray(item)
         ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+}
+
+// Conflict revision and immutable receipt context are independent knowledge:
+// a newer conflict lacking week metadata cannot erase a known canonical week.
+// The merge is commutative so journal row/UUID order never selects a winner.
+export function mergeOutboxConflict(left, right) {
+    const absent = value => value === undefined || value === null;
+    if (absent(left) && absent(right)) return left ?? right;
+    for (const value of [left, right]) {
+        if (!absent(value) && (typeof value !== 'object' || Array.isArray(value))) {
+            throw Object.assign(new Error('Invalid durable outbox conflict metadata'), { code: 'outbox/integrity' });
+        }
+    }
+    if (absent(left)) return { ...right };
+    if (absent(right)) return { ...left };
+    const leftWeek = validOutboxWeekKey(left.weekKey) ? left.weekKey : null;
+    const rightWeek = validOutboxWeekKey(right.weekKey) ? right.weekKey : null;
+    if (leftWeek && rightWeek && leftWeek !== rightWeek) {
+        throw Object.assign(new Error('Contradictory canonical weeks for one durable outbox intent'), {
+            code: 'outbox/integrity', reason: 'conflicting-canonical-week', canonicalWeeks: [leftWeek, rightWeek].sort(),
+        });
+    }
+    const revision = value => Number.isSafeInteger(value?.currentRevision) && value.currentRevision >= 0 ? value.currentRevision : -1;
+    const leftRevision = revision(left), rightRevision = revision(right);
+    const preferLeft = leftRevision > rightRevision || (leftRevision === rightRevision && stableOutboxJson(left) >= stableOutboxJson(right));
+    const merged = preferLeft ? { ...right, ...left } : { ...left, ...right };
+    if (leftRevision >= 0 || rightRevision >= 0) merged.currentRevision = Math.max(leftRevision, rightRevision);
+    if (leftWeek || rightWeek) merged.weekKey = leftWeek || rightWeek;
+    return merged;
 }
 
 // Ordering records observation/causality. Only semantic dependencies require a
