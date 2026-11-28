@@ -71,6 +71,12 @@ $qaOutput = Join-Path $env:TEMP ('gym-real-sync-results-' + $runId + '-A')
 node scripts/live-sync-qa.mjs --live --role A --run-id $runId --expected-sha $candidateSha --base-calendar-iso $baseCalendarIso --output $qaOutput
 ```
 
+`--output` must name a **new leaf directory** with an already existing parent outside the checkout. Do not
+create that leaf first, reuse an earlier output, or select an alias/junction/symlink. Missing parents are not
+created. The workflow's installer already creates the receipt parent; its distinct `role-B` output remains
+new. With no `--output`, the runner allocates a fresh private directory under the OS temporary directory and
+prints the actual output path. See the private artifact contract below.
+
 ## Ubuntu role B and Actions
 
 The existing eight Browser Gates matrix cases and their sandbox setup remain unchanged. A separate job runs
@@ -176,6 +182,24 @@ paired run may support; authorship/unit fixtures do not establish any of them ag
 
 ## Evidence, cleanup and interpretation
 
+Before Auth, networking or any long await, the runner exclusively creates a private output and reserves both
+`trace.json` and `result.json` with exclusive file creation and no-follow where the OS supplies that flag.
+Existing directories/files, including dangling links, fail before service use. Ancestors and the new root
+must be directories with matching real paths and stable device/inode identities, without symlinks/junctions.
+POSIX ancestors must be owned by the process or root and must not be group/other writable, except root-owned
+sticky temporary directories. The new root is owner-only `0700`, and files are owner-only `0600` with one link.
+Windows uses a protected current-owner/SYSTEM DACL **at creation** through `CreateDirectoryW`; it does not
+apply a later path-based permission change. Local drive paths are required, and Windows path aliases are rejected.
+
+The two original file descriptors stay open for the entire run. Artifact bytes are written and synced through
+those same descriptors, never by resolving an output filename again. Identity/privacy checks run before network
+use, during independent cleanup, and around final writes. A directory or file-path replacement makes the result
+fail; failure artifacts use the original retained handles when those files remain available. Windows may deny a
+directory rename while the files are open; that is a prevented substitution. On systems permitting the rename,
+the original descriptors still cannot overwrite files behind the new alias. Unexpected extra hardlinks or fd
+identity changes also prevent writing. The runner never deletes an artifact output or modifies a preexisting
+directory's permissions to make an output acceptable.
+
 Each role writes redacted `result.json` and `trace.json`; raw CDP events, request headers/bodies, console args,
 credentials and tokens are never retained. Trace keeps method names only. Errors preserve the primary failure
 plus independent cleanup errors. A failed online observation also retains its partial safe metadata window,
@@ -186,6 +210,8 @@ Profiles start fresh under `gym-smoke-real-sync-`; they are preserved across sce
 after final owned-process closure. User Chrome, the P0 retained profile and existing app data are never cleared.
 No status is written as passed before cleanup/trace completion and paired readiness. Failure exits nonzero.
 Forced process/runner termination can prevent artifact writing; missing artifacts are failure, never success.
+The early reserved empty files are not a completed result. Acceptance requires the final valid JSON, a successful
+process exit and proved closure of the retained handles as well as the cleanup/trace and paired-readiness checks.
 
 Acceptance requires **both** complete successful role artifacts, identical final SHA/revision/UUID/calendar,
 47 completed phases each, matching control results, all actual UI/server/queue assertions and zero cleanup errors.
@@ -200,3 +226,6 @@ REST protocol references: [Firebase email/password sign-in](https://firebase.goo
 Observation references: [CDP Network timestamps, completion events and latency](https://chromedevtools.github.io/devtools-protocol/tot/Network/),
 [pinned Firebase 11.6.1 RPC endpoint mapping](https://raw.githubusercontent.com/firebase/firebase-js-sdk/firebase@11.6.1/packages/firestore/src/remote/rest_connection.ts),
 [public Chart.js instance lookup](https://www.chartjs.org/docs/latest/developers/api.html#static-getchart).
+Artifact references: [Node exclusive file flags and file-descriptor writes](https://nodejs.org/docs/latest-v22.x/api/fs.html),
+[Windows atomic new-directory security attributes](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectoryw),
+[protected DACL syntax](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-string-format).

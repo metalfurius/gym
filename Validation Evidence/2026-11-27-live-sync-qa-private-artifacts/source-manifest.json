@@ -1,0 +1,74 @@
+{
+  "status": "authoring-only-no-Firebase-run",
+  "base": "949c791ccc789058abe28254710c86f45326c1d0",
+  "branch": "codex/roadmap-live-qa-private-artifacts",
+  "sourceBytes": "canonical Git LF; BOM retained",
+  "artifactBytes": "console text LF with trailing blank lines removed; baseline bytes literal, CRLF recognized as EOL by scoped attributes without newline conversion",
+  "sources": {
+    "scripts/live-sync-qa-artifacts.mjs": "b7e4fec5c8a7314e4eff38ea62dea37f4ad080227a56d70743f5a6a30d3a53e6",
+    "scripts/live-sync-qa.mjs": "1a69e9b550669a9797f325ca070a860acaef6a59dfe2ba3490fb9f5c9c8e854b",
+    "tests/unit/live-sync-qa-artifacts.test.js": "9651120abf74393aaaf1777bac3d7809e03c20d55d7c8d82551999b570914abc",
+    "docs/live-sync-qa.md": "79ad6bd0cd7dde3eb7b060aee5957e2c117b2027e4e3936b4b17a0a0a58f2e66"
+  },
+  "sourceBundleSha256": "6200dac24d5d440f997d4764b08b83a522d052d2353a7b1d66918d4c339a789e",
+  "unchangedApplicationTree": "b9c2fffbf9dc92324797d010a94fd89f58a398e3",
+  "unchanged": {
+    "index.html": "58a9cf61da3625d9d992235f7ae32fcd69636f1e9c160e39a5e5bb4c841c01b9",
+    "manifest.json": "faa705b62ceeafa627d09d4c805fa4b7871a2d199ba548b2cce05a4ae7d8094a",
+    "release.json": "8e96f409cfa28ba014d2482837e86e7bc31b5e4526124f950826f6b3e9907faf",
+    "sw.js": "8632f04188be0aef5577e8a45e8dfaaa1376eda19c4386e4b01327cd5e2c3927",
+    "package.json": "6eb39010e82fd6313307ad76b0a4ebea72d1690a4b04ccbed29e49feb7fa70fc",
+    "package-lock.json": "4708814f70ffb2a98f999f54c42e7f016edadda6fc2faac40e21d47960ebcadd",
+    ".github/workflows/browser-gates.yml": "93669c8f3c758f6f79d481ce2c7bdc52bb2f995063296d70c312265eb562a007",
+    "scripts/browser-runtime-lock.json": "4e462eaf6a9fcbcc96a69f61799f8e518e54f6def2d4063047d9f357e977ca25",
+    "scripts/owned-browser-process.mjs": "8f0d142e33d12f902bda3e8746ec812f2defd7fcc40c9de0216e23245c760076",
+    "scripts/browser-cdp-target.mjs": "237853e664813c3dc440f3ddadd627369f2c5a8b39d929d6114f3f1255edd79f",
+    "scripts/live-sync-qa-scenarios.mjs": "6b4ee425fb54babee346e10ae86610baf71f578dacf05a0690fcb640a430d588",
+    "scripts/live-sync-qa-browser.mjs": "b2b9264b20e1f49acdc3c52734274ffc955a90d5ecde7c7f4784c39562cd215b",
+    "scripts/live-sync-qa-protocol.mjs": "768272f3151f26d3ea5a9545877fb92143f1bb128b165135ae57cb25c2d0c785",
+    "scripts/live-sync-qa-observations.mjs": "c9bd5e646a7c7095fce3221665d2677ed75a333fdb603f5258555d5bec82c5d2",
+    "tests/unit/live-sync-qa.test.js": "85c535d724f33a999953351d38d0995fac8faab57da856e74f85689b8366d814",
+    "tests/unit/live-sync-qa-extension.test.js": "9dfd4d950da9f5424712d6ede1892b201899e4de2a9f2ec216ff1d67f99a1049",
+    "tests/unit/live-sync-qa-ui.test.js": "b4284098fa19122e2baa50d589209a4e335817edcc2ee3cc53c7b2a3a7df4150"
+  },
+  "baseline": {
+    "baseline/artifact-race-949.mjs.txt": {
+      "origin": "C:/tmp/gym-judge-a-02-949-probes/artifact-race.mjs",
+      "sha256": "08e84bad40ff199caf737844e7b4cc338eec63eb0b103c4ec02bf6060f89e84f",
+      "bytes": 2242,
+      "literalCopy": true
+    },
+    "baseline/artifact-race-proof.json": {
+      "origin": "C:/tmp/gym-judge-a-02-949-probes/artifact-race-proof.json",
+      "sha256": "cf9461d0576ca65de011c2236d1423db09bd57ff0f1e79886fe47bcff04e0c6f",
+      "bytes": 428,
+      "literalCopy": true
+    },
+    "baseline/artifact-race.log.txt": {
+      "origin": "C:/tmp/gym-judge-a-02-949-probes/artifact-race.log",
+      "sha256": "39dfb7371e4d9b6e5aa7525e78a8ac47a979da6e386ce427065a70fb7bf91b0f",
+      "bytes": 608,
+      "literalCopy": true
+    }
+  },
+  "artifacts": {
+    "README.md": "879db2232b8e5ca5cb45f7217c7d072635c5e9f17d910cf289dd6ffc942cb0a5",
+    "focused.txt": "8bd440632a541cd3c4d49bc452c3c6ea4a3861001b22686ec29d3f06300cf303",
+    "lint.txt": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b",
+    "no-skips.txt": "ad3610f3461b3abebdd85bd73539540a508f4d493db8a966eb9391445d8c897b",
+    "release.txt": "a0246d07fce78ec5cbd914ac399843354442068cc1162e8c5b1234df10dc864b",
+    "static-checks.json": "642e302afd918e2935dbc90407764d9a3d5584ffe951427f6fb83e103e70a481",
+    "baseline/.gitattributes": "308a40fa1d89ae5ea4390b4c9b46a0108b09f171f07898f25d451fa0c69c4e9f",
+    "baseline/artifact-race-949.mjs.txt": "08e84bad40ff199caf737844e7b4cc338eec63eb0b103c4ec02bf6060f89e84f",
+    "baseline/artifact-race-proof.json": "cf9461d0576ca65de011c2236d1423db09bd57ff0f1e79886fe47bcff04e0c6f",
+    "baseline/artifact-race.log.txt": "39dfb7371e4d9b6e5aa7525e78a8ac47a979da6e386ce427065a70fb7bf91b0f"
+  },
+  "checks": {
+    "focused": "7 suites / 101 tests (83 preserved + 18 new)",
+    "lintWarnings": 0,
+    "noSkips": "passed",
+    "release": "v2.8.6 / 75 assets unchanged",
+    "live": "not run for this fix",
+    "nativeOutbox": "not repeated: QA-only scope"
+  }
+}

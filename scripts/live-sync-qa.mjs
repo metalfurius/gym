@@ -2,7 +2,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { canonicalCandidate, startCandidateServer, QaBrowser } from './live-sync-qa-browser.mjs';
 import {
@@ -28,6 +27,7 @@ import {
 } from './live-sync-qa-protocol.mjs';
 import { liveSyncPhases } from './live-sync-qa-scenarios.mjs';
 import { coordinateOnlineOverlap } from './live-sync-qa-observations.mjs';
+import { createQaArtifacts } from './live-sync-qa-artifacts.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const PREFERENCES = 'app_data/user_preferences';
@@ -56,17 +56,36 @@ export async function finalizeQa({ primaryError, cleanups, writeTrace, writeResu
 }
 
 export async function runLiveSync(options, credentials, candidate) {
+    const artifacts = createQaArtifacts({ output: options.output, checkoutRoot: ROOT });
+    let result, failure;
+    try {
+        result = await runWithArtifacts(options, credentials, candidate, artifacts);
+    } catch (error) {
+        failure = error;
+    }
+    try {
+        artifacts.close();
+    } catch (error) {
+        if (failure) failure.message += '; QA_ARTIFACT_CLOSE_FAILED';
+        else failure = error;
+    }
+    if (failure) throw failure;
+    console.log(
+        JSON.stringify({
+            status: result.status,
+            role: options.role,
+            runId: options.runId,
+            sourceSha: candidate.sha,
+            output: artifacts.output,
+        })
+    );
+    return result;
+}
+
+async function runWithArtifacts(options, credentials, candidate, artifacts) {
     const tick = seconds => new Date(Date.parse(options.currentCalendarIso) + seconds * 1000).toISOString();
     const currentTarget = (value, week = options.currentWeek) => target(value, week);
     const weekRevision = value => value.weeklyTargetsByWeek?.[options.currentWeek]?.revision || 0;
-    const output = path.resolve(
-        options.output || path.join(os.tmpdir(), 'gym-live-sync-qa-evidence', options.runId, options.role)
-    );
-    const outputRelative = path.relative(ROOT, output);
-    assert(
-        outputRelative === '..' || outputRelative.startsWith(`..${path.sep}`) || path.isAbsolute(outputRelative),
-        'QA_OUTPUT_MUST_BE_OUTSIDE_CHECKOUT'
-    );
     const clean = redactor([
         credentials.primary.email,
         credentials.primary.password,
@@ -74,15 +93,15 @@ export async function runLiveSync(options, credentials, candidate) {
         credentials.other?.password,
         candidate.apiKey,
     ]);
-    await fs.mkdir(output, { recursive: true });
-    for (const name of ['result.json', 'trace.json']) {
+    const recordArtifactIntegrity = errors => {
         try {
-            await fs.access(path.join(output, name));
-            throw new Error('QA_EVIDENCE_ALREADY_EXISTS_USE_NEW_RUN');
+            artifacts.verify();
         } catch (error) {
-            if (error.code !== 'ENOENT') throw error;
+            if (!errors.some(entry => entry.name === 'private-artifact-identity' && entry.error === error.message)) {
+                errors.push({ name: 'private-artifact-identity', error: error.message });
+            }
         }
-    }
+    };
     const signal = AbortSignal.timeout(900_000);
     const api = new QaFirebase({
         apiKey: candidate.apiKey,
@@ -784,6 +803,7 @@ export async function runLiveSync(options, credentials, candidate) {
         }
     }
     try {
+        artifacts.verify();
         await api.authenticate(); // Fixed UID is checked before the first write.
         const global = await api.request('GET', 'runtime_config/sync_protocol');
         const policy = await api.read('app_data/sync_protocol');
@@ -964,6 +984,7 @@ export async function runLiveSync(options, credentials, candidate) {
         if (browser.profile) cleanup.push(['owned-profile-delete-after-close', () => browser.removeProfile()]);
     }
     if (server) cleanup.push(['loopback-server-close', () => server.close()]);
+    cleanup.push(['private-artifact-identity', () => artifacts.verify()]);
     cleanup.push([
         'checkout-remained-frozen',
         () => {
@@ -991,6 +1012,7 @@ export async function runLiveSync(options, credentials, candidate) {
         primaryError,
         cleanups: cleanup,
         writeTrace: async cleanupErrors => {
+            recordArtifactIntegrity(cleanupErrors);
             // Failure in an earlier independent cleanup must also reach the peer.
             if (coord?.claimed && cleanupErrors.length) {
                 try {
@@ -999,12 +1021,17 @@ export async function runLiveSync(options, credentials, candidate) {
                     /* Local failure artifact remains authoritative. */
                 }
             }
-            await fs.writeFile(
-                path.join(output, 'trace.json'),
-                `${JSON.stringify(clean({ events: trace, cleanupErrors }), null, 2)}\n`
-            );
+            recordArtifactIntegrity(cleanupErrors);
+            const before = cleanupErrors.length;
+            const write = () =>
+                artifacts.write('trace.json', `${JSON.stringify(clean({ events: trace, cleanupErrors }), null, 2)}\n`);
+            write();
+            recordArtifactIntegrity(cleanupErrors);
+            if (cleanupErrors.length !== before) write();
         },
         writeResult: async result => {
+            recordArtifactIntegrity(result.cleanupErrors);
+            if (result.cleanupErrors.length) result.status = 'failed';
             // A trace or cleanup failure must reach the other machine before
             // either local result can claim paired evidence readiness.
             if (coord?.claimed) {
@@ -1023,36 +1050,37 @@ export async function runLiveSync(options, credentials, candidate) {
                     else result.cleanupErrors.push({ name: 'peer-final-evidence', error: error.message });
                 }
             }
-            await fs.writeFile(
-                path.join(output, 'result.json'),
-                JSON.stringify(
-                    clean({
-                        ...record,
-                        ...result,
-                        completedAt: new Date().toISOString(),
-                        platform: process.platform,
-                        phaseCount: phaseResults.length,
-                        requiredPhases: plan.length,
-                        browser: browser?.version || null,
-                        ownedProfile: browser?.profile
-                            ? { basename: path.basename(browser.profile), removed: browser.profileRemoved === true }
-                            : null,
-                    }),
-                    null,
-                    2
-                ) + '\n'
-            );
+            recordArtifactIntegrity(result.cleanupErrors);
+            if (result.cleanupErrors.length) result.status = 'failed';
+            const before = result.cleanupErrors.length;
+            const write = () =>
+                artifacts.write(
+                    'result.json',
+                    JSON.stringify(
+                        clean({
+                            ...record,
+                            ...result,
+                            completedAt: new Date().toISOString(),
+                            platform: process.platform,
+                            phaseCount: phaseResults.length,
+                            requiredPhases: plan.length,
+                            browser: browser?.version || null,
+                            ownedProfile: browser?.profile
+                                ? { basename: path.basename(browser.profile), removed: browser.profileRemoved === true }
+                                : null,
+                        }),
+                        null,
+                        2
+                    ) + '\n'
+                );
+            write();
+            recordArtifactIntegrity(result.cleanupErrors);
+            if (result.cleanupErrors.length !== before) {
+                result.status = 'failed';
+                write();
+            }
         },
     });
-    console.log(
-        JSON.stringify({
-            status: result.status,
-            role: options.role,
-            runId: options.runId,
-            sourceSha: candidate.sha,
-            output,
-        })
-    );
     return result;
 }
 
