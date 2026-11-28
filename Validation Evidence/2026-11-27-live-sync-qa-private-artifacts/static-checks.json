@@ -1,0 +1,31 @@
+{
+  "status": "authoring-only-no-Firebase-run",
+  "checkedAt": "2026-11-28T17:02:58.973Z",
+  "base": "949c791ccc789058abe28254710c86f45326c1d0",
+  "branch": "codex/roadmap-live-qa-private-artifacts",
+  "node": "v22.23.5",
+  "syntax": {
+    "scripts/live-sync-qa-artifacts.mjs": "passed",
+    "scripts/live-sync-qa.mjs": "passed",
+    "tests/unit/live-sync-qa-artifacts.test.js": "passed"
+  },
+  "phases": 47,
+  "phaseSourceUnchanged": true,
+  "applicationWorkflowDependenciesRuntime": "unchanged",
+  "focused": {
+    "suites": 7,
+    "tests": 101,
+    "previousTests": 83,
+    "newFilesystemTests": 18
+  },
+  "platform": "win32",
+  "lateDirectoryRename": "Windows EPERM with retained handles (prevented substitution)",
+  "lateFileHardlinks": "actual replacement; both victims unchanged, failure written to retained originals",
+  "realNetworkRequests": 0,
+  "uncredentialedCli": {
+    "exitCode": 1,
+    "stdoutBytes": 0,
+    "expectedError": "QA_CREDENTIALS_JSON_REQUIRED"
+  },
+  "linuxExecution": "pending CI/reviewer; not claimed locally"
+}

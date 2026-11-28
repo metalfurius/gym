@@ -1,0 +1,59 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { __firestoreState, __resetMockFirebase } from '../mocks/firebase-state.js';
+import { __resetMockFirestoreBehavior } from '../mocks/firebase-firestore.js';
+import { beginAccountSession } from '../../js/utils/account-scope.js';
+import { seedSyncProtocol } from '../utils/sync-protocol-fixture.js';
+import { OfflineManager } from '../../js/utils/offline-manager.js';
+import { DurableOutbox } from '../../js/utils/durable-outbox.js';
+import { LocalFirstCache } from '../../js/utils/local-first-cache.js';
+
+let user = { uid: 'A' };
+jest.unstable_mockModule('../../js/auth.js', () => ({ getCurrentUser: () => user }));
+const { createWeeklyTargetOperation, persistWeeklyTargetOperation, normalizeWeeklyState } = await import('../../js/utils/weekly-preferences.js');
+const week = '2026-11-16', path = 'users/A/app_data/user_preferences';
+const state = () => normalizeWeeklyState(__firestoreState.documents.get(path) || {});
+const receipt = id => __firestoreState.documents.get(`${path}/weekly_operations/${id}`);
+const make = () => {
+    const manager = new OfflineManager({ outbox: new DurableOutbox(new LocalFirstCache()) });
+    manager.setActiveUser('A');
+    manager.registerOperationHandler('preferences.saveWeeklyTarget', payload => persistWeeklyTargetOperation({}, payload));
+    return manager;
+};
+async function seedCoherentConflict(manager) {
+    let stale;
+    for (let index = 0; index < 6; index++) {
+        const payload = createWeeklyTargetOperation('A', week, [4, 2, 6, 4, 6, 3][index],
+            state().weeklyTargetsByWeek[week], `2026-11-20T10:0${index}:00.000Z`);
+        await persistWeeklyTargetOperation({}, payload);
+        if (index === 4) stale = createWeeklyTargetOperation('A', week, 5,
+            state().weeklyTargetsByWeek[week], '2026-11-20T10:04:30.000Z');
+    }
+    manager.queueOperation(null, 'observed old conflict', { id: 'old-conflict', descriptor: { type: 'preferences.saveWeeklyTarget', payload: stale } });
+    await manager.persistQueue(); await manager.processPendingOperations();
+    expect(state().weeklyTargetsByWeek[week].revision).toBe(6);
+    expect(receipt(stale.operationId)).toMatchObject({ status: 'conflict', currentRevision: 6, weekKey: week });
+    return stale;
+}
+
+describe('observed weekly conflict resolution on accepted replay', () => {
+    beforeEach(() => {
+        localStorage.clear(); __resetMockFirebase(); __resetMockFirestoreBehavior();
+        user = { uid: 'A' }; beginAccountSession(user.uid); seedSyncProtocol(user.uid, { activated: true });
+    });
+
+    it('atomically resolves the observed revision-6 conflict when its explicit replacement is replayed as revision 7', async () => {
+        const manager = make(); await seedCoherentConflict(manager);
+        const payload = createWeeklyTargetOperation('A', week, 5, state().weeklyTargetsByWeek[week], '2026-11-20T11:00:00.000Z');
+        expect(payload.baseRevision).toBe(6);
+        manager.queueOperation(null, 'explicit replacement', { id: 'replacement', descriptor: {
+            type: 'preferences.saveWeeklyTarget', payload, observedWeeklyConflictIds: ['old-conflict'],
+        } });
+        await manager.persistQueue(); await manager.processPendingOperations();
+        expect(receipt(payload.operationId)).toMatchObject({ status: 'applied', revision: 7, weekKey: week });
+        expect(state().weeklyTargetsByWeek[week]).toMatchObject({ revision: 7, targetSessions: 5 });
+        const cold = make(); await cold.restorePersistedQueue();
+        expect(cold.acknowledged.get('replacement')).toBe('accepted');
+        expect(cold.acknowledged.get('old-conflict')).toBe('resolved');
+        expect(cold.pendingOperations).toHaveLength(0);
+    });
+});

@@ -1,0 +1,27 @@
+{
+  "base": "660aaeb534a051c89d809f4903780e4cd197bc74",
+  "sourceBytes": "canonical staged Git blobs, LF with BOM preserved",
+  "sources": {
+    ".gitattributes": "8a402d9d5e255db904951046fa71e9ed93c456349e5bd996c106a2a057b893ff",
+    ".github/workflows/test.yml": "61ea2b6a8dead437ca498f9844fe4b0f2f9f8aacc3e64ba12e9ff08fd864a6d1",
+    "package.json": "51ec73b119976fa8a90a0c42a166747ee9732c701ab26caac2c1bcbd7785ed17",
+    "sw.js": "41d2ccc27e61ab6e2374e7ba536faebcbf55d2773ef41331f46bb3b226c6b22c",
+    "release.json": "e380f9f6e26b06a8685248ed3ad4d9b09aaf8777077d00ae6e2b4ca9dd761d2b",
+    "js/utils/local-first-cache.js": "ce1f867b5d196087f284fadc3e19f7cb9a6352b31d8c2edd8b456329bc8f9dfd",
+    "js/utils/offline-manager.js": "9b34045a39ce5643357c234aa699c6f9defd9fa82293defa93bae7884c75bdfa",
+    "js/utils/durable-outbox.js": "301ad4d6d74eec31a7f207ba163e7a2cec21b385157109dfb83944f2cbd244f0",
+    "scripts/browser-outbox-smoke.mjs": "bb311a9edae9a5dea95c3de96accdb8782b7931ccdaab8438c3d8a53ebf26801",
+    "tests/unit/durable-outbox.test.js": "dced4d08aa6cb768af405da7abb2e5771fce329a12200c95448aa43bfce4fecc",
+    "tests/unit/offline-owner-queue.test.js": "fc7a9b9744def47168441e46678817969be316a05fde16ccbf3a648ce140f5a8"
+  },
+  "artifacts": {
+    "browser-negative-660.json": "371b88edad90729d156f132da9b8e32591afd5514aac02f8777fe8c0ea7a8e6e",
+    "browser-positive.json": "715f78cd842a22e2ec02cb8df5f7a3d1d0b67e6fa44cb98d2711efb597567e16",
+    "coverage-before-final-small-adjustment.txt": "179158d8bcbf54ef7e7f6c1d24689043e62127040a10a67d5d3548e4beba0d3f",
+    "focused-final.txt": "01b04be334cf0ac58a1a8e40998f19ebfbbcc3affef94c49dcf327a4df5e99c4",
+    "negative-control.txt": "c42e752aeb0deb16e4824bf2634dbcc71d364b00dfd408657cd409e32cec3323",
+    "release-final.txt": "44a99f2bd327e05a5b40887df3413cabdb44dfd3b1a1b4039f78f0fbae0e6fce",
+    "local-full-trace": "799b672b9574789173dcf77f1bece9424dfb7f6c0042914ed7ddf7b07b3d9f2e"
+  },
+  "logNormalization": "CRLF to LF and trailing console table-padding whitespace removed"
+}

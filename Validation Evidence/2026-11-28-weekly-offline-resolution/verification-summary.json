@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "base": "50c1aea40f9075d13ac2702b521e43be062542ac",
+  "sources": 92,
+  "artifacts": 165,
+  "releaseAssets": 75,
+  "nativeSourceProofs": [
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/outbox-positive/result.json",
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/outbox-negative/result.json",
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/native-legacy-original/result.json",
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/native-replay/result.json",
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/native-ack-abort/result.json",
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/native-completion-unknown/result.json",
+    "Validation Evidence/2026-11-28-weekly-offline-resolution/native-cleanup-negative/result.json"
+  ],
+  "baselineProof": {
+    "runId": "af7a94cc-b409-4e88-8539-de16bdb8696f",
+    "status": "failed",
+    "beforeRevision": 6,
+    "acceptedRevision": 7,
+    "oldResolved": false,
+    "sourceRef": "50c1aea40f9075d13ac2702b521e43be062542ac"
+  },
+  "changedRuntime": [
+    "js/app.js",
+    "js/utils/offline-manager.js"
+  ],
+  "protectedSources": [
+    "js/i18n.js",
+    "js/modules/session-manager.js",
+    "js/utils/durable-outbox.js",
+    "js/utils/local-first-cache.js",
+    "js/utils/outbox-journal-storage.js",
+    "js/utils/outbox-order.js",
+    "js/version-manager.js",
+    "tests/browser/outbox-app-bootstrap.js",
+    "tests/browser/outbox-app-environment.js"
+  ],
+  "sourceMismatches": [],
+  "artifactMismatches": [],
+  "historicalEvidenceChanges": [],
+  "scope": "Local integrity proof only; coherent offline replay and atomic ACK/cold recovery; no candidate live acceptance"
+}

@@ -1,0 +1,14 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/unit/browser-smoke-runtime.test.js tests/unit/owned-browser-process.test.js tests/unit/browser-sandbox-permissions.test.js --silent
+
+(node:18512) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/unit/owned-browser-process.test.js
+PASS tests/unit/browser-sandbox-permissions.test.js
+PASS tests/unit/browser-smoke-runtime.test.js
+
+Test Suites: 3 passed, 3 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+Time:        2.33 s

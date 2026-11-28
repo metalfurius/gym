@@ -4,6 +4,15 @@ Status: planned verification and fixes. Baseline: v2.8.3 / `d4c6d0d`. Requires i
 real test account for final sync evidence. Establish the mutation/account contract consumed by objectives 3, 5 and 6.
 Use the [shared checks and two-judge protocol](README.md).
 
+Execution update, November 27: a [real 47-phase Windows/Ubuntu run](../real-sync-47-2026-11-27.md) passed on
+unpublished `949c791`. Backend activation is verified. Two review findings still require correction, and both
+judges must evaluate all criteria against the final source and its evidence. This objective remains open.
+
+November 28: the [integrated candidate](../sync-integration-2026-11-28.md) contains the two review corrections
+and a further reproduced offline-resolution fix. The real runner now has 60 phases while retaining the original
+47. Its full real execution and both final same-SHA approvals are still required; the earlier 47-phase result
+must not be presented as acceptance of the later source.
+
 ## Starting point and invariants
 
 Inspect `js/progress.js`, `js/modules/history-manager.js`, session persistence listeners, calendar caches and

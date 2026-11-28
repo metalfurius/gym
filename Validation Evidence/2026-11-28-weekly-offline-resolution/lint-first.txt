@@ -1,0 +1,13 @@
+
+> my-workout-tracker@1.0.2 lint:ratchet
+> eslint . --max-warnings 0
+
+
+C:\tmp\gym-weekly-offline-resolution\Validation Evidence\2026-11-28-weekly-offline-resolution\native-weekly-resolution.mjs
+  90:26  error  Expected { after 'if' condition  curly
+
+C:\tmp\gym-weekly-offline-resolution\tests\unit\weekly-observed-resolution.test.js
+  28:26  error  Expected { after 'if' condition  curly
+
+✖ 2 problems (2 errors, 0 warnings)
+  2 errors and 0 warnings potentially fixable with the `--fix` option.

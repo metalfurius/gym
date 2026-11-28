@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "browser": "chromium",
+  "version": "158.0.8127.36",
+  "executable": "/home/runner/work/_temp/gym-smoke-browser-runtimes/chromium-158.0.8127.36-linux-dba9cc838e1c/chrome-linux64/chrome",
+  "archiveSha256": "dba9cc838e1ce269c33ea68170881127bd15d078fc3ca5891c90802819a4d7c7",
+  "linuxSandboxSource": {
+    "path": "/home/runner/work/_temp/gym-smoke-browser-runtimes/chromium-158.0.8127.36-linux-dba9cc838e1c/chrome-linux64/chrome_sandbox",
+    "sha256": "c6733ac7189cd66d34b0dc5715d58b7ae30b01984a7cc814a7cd8f824f81ea7a"
+  },
+  "completedAt": "2026-11-27T18:10:50.597Z"
+}

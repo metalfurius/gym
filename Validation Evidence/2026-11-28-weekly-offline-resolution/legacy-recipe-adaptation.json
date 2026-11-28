@@ -1,0 +1,7 @@
+{
+  "original": "Validation Evidence/2026-11-27-objective2-review-bdab/native-legacy-resolution.mjs.txt",
+  "originalSha256Lf": "96c9f913c49fce6bbe1b6a52a2df062dec59ffa463042fd1b023cd3fd73787b5",
+  "adaptedSha256Lf": "5c95f5a2f00b712a89364cb73883700aabd368c26256b49326f2cf3c9e0e6deb",
+  "adaptation": "Only two helper import prefixes and the served worktree root; all original assertions unchanged",
+  "output": "C:\\tmp\\gym-weekly-offline-resolution\\Validation Evidence\\2026-11-28-weekly-offline-resolution\\native-legacy-original"
+}

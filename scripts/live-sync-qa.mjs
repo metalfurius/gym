@@ -1,0 +1,1342 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { canonicalCandidate, startCandidateServer, QaBrowser } from './live-sync-qa-browser.mjs';
+import {
+    PROJECT,
+    PRIMARY_UID,
+    canonical,
+    digest,
+    target,
+    parseOptions,
+    parseCredentials,
+    redactor,
+    until,
+    encode,
+    documentData,
+    assertFrozenPreserved,
+    sessionPlan,
+    captureFixtures,
+    verifyCaptureRecords,
+    assertOnlineRace,
+    ownsSession,
+    QaFirebase,
+    QaCoordination,
+} from './live-sync-qa-protocol.mjs';
+import { liveSyncPhases } from './live-sync-qa-scenarios.mjs';
+import { coordinateOnlineOverlap } from './live-sync-qa-observations.mjs';
+import { createQaArtifacts } from './live-sync-qa-artifacts.mjs';
+
+const ROOT = fileURLToPath(new URL('../', import.meta.url));
+const PREFERENCES = 'app_data/user_preferences';
+
+export async function finalizeQa({ primaryError, cleanups, writeTrace, writeResult }) {
+    const cleanupErrors = [];
+    for (const [name, action] of cleanups) {
+        try {
+            await action(cleanupErrors);
+        } catch (error) {
+            cleanupErrors.push({ name, error: error.message });
+        }
+    }
+    try {
+        await writeTrace(cleanupErrors);
+    } catch (error) {
+        cleanupErrors.push({ name: 'trace', error: error.message });
+    }
+    const result = {
+        status: primaryError || cleanupErrors.length ? 'failed' : 'passed',
+        primaryError: primaryError?.message || null,
+        cleanupErrors,
+    };
+    await writeResult(result);
+    return result;
+}
+
+export async function runLiveSync(options, credentials, candidate) {
+    const artifacts = createQaArtifacts({ output: options.output, checkoutRoot: ROOT });
+    let result, failure;
+    try {
+        result = await runWithArtifacts(options, credentials, candidate, artifacts);
+    } catch (error) {
+        failure = error;
+    }
+    try {
+        artifacts.close();
+    } catch (error) {
+        if (failure) failure.message += '; QA_ARTIFACT_CLOSE_FAILED';
+        else failure = error;
+    }
+    if (failure) throw failure;
+    console.log(
+        JSON.stringify({
+            status: result.status,
+            role: options.role,
+            runId: options.runId,
+            sourceSha: candidate.sha,
+            output: artifacts.output,
+        })
+    );
+    return result;
+}
+
+async function runWithArtifacts(options, credentials, candidate, artifacts) {
+    const tick = seconds => new Date(Date.parse(options.currentCalendarIso) + seconds * 1000).toISOString();
+    const currentTarget = (value, week = options.currentWeek) => target(value, week);
+    const weekRevision = value => value.weeklyTargetsByWeek?.[options.currentWeek]?.revision || 0;
+    const clean = redactor([
+        credentials.primary.email,
+        credentials.primary.password,
+        credentials.other?.email,
+        credentials.other?.password,
+        candidate.apiKey,
+    ]);
+    const recordArtifactIntegrity = errors => {
+        try {
+            artifacts.verify();
+        } catch (error) {
+            if (!errors.some(entry => entry.name === 'private-artifact-identity' && entry.error === error.message)) {
+                errors.push({ name: 'private-artifact-identity', error: error.message });
+            }
+        }
+    };
+    const signal = AbortSignal.timeout(900_000);
+    const api = new QaFirebase({
+        apiKey: candidate.apiKey,
+        account: credentials.primary,
+        clean,
+        signal,
+        runId: options.runId,
+    });
+    const trace = [],
+        phaseResults = [],
+        local = { queued: {}, bases: {} };
+    const plan = liveSyncPhases();
+    let server,
+        browser,
+        coord,
+        primaryError,
+        baseline = [],
+        otherApi,
+        otherBaseline,
+        routineProof;
+    let frozen,
+        phase = 'startup';
+    const createdSessions = [];
+    const record = {
+        mode: 'real-Firebase-real-SDK-two-machine-acceptance',
+        live: true,
+        role: options.role,
+        runId: options.runId,
+        sourceSha: candidate.sha,
+        baseCalendarIso: options.baseCalendarIso,
+        currentCalendarIso: options.currentCalendarIso,
+        revision: candidate.release.revision,
+        project: PROJECT,
+        startedAt: new Date().toISOString(),
+        syntheticFixedAccountsOnly: true,
+        physicalPhone: false,
+        installedPwa: false,
+        plan,
+        phases: phaseResults,
+        notes: [
+            'No SDK/HTML/request replacement; all product mutations use public UI.',
+            'No forced Commit-response loss is injected by this runner.',
+            'Online race records causally overlapping HTTP in-flight windows with real CDP latency; it does not establish simultaneous server execution or inspect request bodies.',
+            'QA session/preference receipts and the control document are retained; fences and previous records are never reset.',
+        ],
+    };
+    const prefs = async () => (await api.read(PREFERENCES, true))?.data || {};
+    const serverTarget = async expected =>
+        until(
+            async () => {
+                const value = await prefs();
+                return currentTarget(value) === expected && value;
+            },
+            { signal: api.signal, label: 'server-target' }
+        );
+    const acceptedTarget = async value => {
+        const previousRevision = weekRevision(await prefs());
+        await browser.network(false);
+        await browser.saveTarget(value, tick(10 + phaseResults.length));
+        await serverTarget(value);
+        await browser.stableEmpty();
+        assert.equal(weekRevision(await prefs()), previousRevision + 1, 'QA_EXPLICIT_PRESS_MUST_COMMIT_EXACTLY_ONCE');
+        const ui = await browser.snapshot();
+        assert.equal(ui.target, value, 'QA_TARGET_UI_NOT_CONVERGED');
+    };
+    const receipts = async (entries, status) => {
+        const records = [];
+        for (const entry of entries) {
+            const receipt = await api.read(`${PREFERENCES}/weekly_operations/${entry.operationId}`, true);
+            if (!receipt) {
+                assert.equal(status, 'conflict-or-blocked', 'QA_MISSING_IMMUTABLE_RECEIPT');
+                records.push({ operationId: entry.operationId, status: 'not-submitted-blocked' });
+                continue;
+            }
+            assert.equal(receipt.data.updatedAtIso, entry.updatedAtIso, 'QA_ORIGINAL_TIMESTAMP_CHANGED');
+            assert.equal(receipt.data.targetSessions, entry.target, 'QA_RECEIPT_INTENT_CHANGED');
+            assert(
+                status === 'conflict-or-blocked' ? receipt.data.status === 'conflict' : receipt.data.status === status,
+                'QA_RECEIPT_OUTCOME_MISMATCH'
+            );
+            records.push({
+                operationId: entry.operationId,
+                status: receipt.data.status,
+                updatedAtIso: receipt.data.updatedAtIso,
+                revision: receipt.data.revision ?? null,
+            });
+        }
+        return records;
+    };
+    const queueTwo = async spec => {
+        await browser.network(true);
+        const first = spec.first ?? (options.role === 'A' ? 4 : 6),
+            second = spec.second ?? (options.role === 'A' ? 5 : 7);
+        const offset = 100 + phaseResults.length * 4 + (options.role === 'A' ? 0 : 2);
+        await browser.saveTarget(first, tick(offset));
+        await browser.saveTarget(second, tick(offset - 1)); // Deliberate clock rollback; causal FIFO must win.
+        const snapshot = await browser.waitQueue(
+            value => !value.online && value.queue.length === 2 && !value.staged && !value.unknown,
+            'two-durable-intents'
+        );
+        assert(
+            snapshot.queue.every(entry => entry.owner === 'primary' && entry.type === 'preferences.saveWeeklyTarget')
+        );
+        assert.equal(new Set(snapshot.queue.map(entry => entry.operationId)).size, 2, 'QA_DUPLICATE_OPERATION_ID');
+        local.queued[spec.key] = snapshot.queue;
+        return { queued: snapshot.queue, clockRollback: true };
+    };
+    const reconnectConflict = async spec => {
+        await browser.network(false);
+        const ui = await browser.waitQueue(
+            value =>
+                value.queue.some(entry => entry.status === 'conflict') &&
+                value.queue.some(entry => entry.status === 'blocked'),
+            'conflict-and-dependent-blocked'
+        );
+        assert.equal(currentTarget(await prefs()), spec.preserved, 'QA_DELAYED_WRITE_OVERWROTE_NEWER_SERVER');
+        assert.equal(
+            canonical(ui.queue.map(({ status: _status, ...entry }) => entry)),
+            canonical(local.queued[spec.key].map(({ status: _status, ...entry }) => entry)),
+            'QA_REPLAY_CHANGED_IMMUTABLE_INTENT'
+        );
+        return { ui, receipts: await receipts(local.queued[spec.key], 'conflict-or-blocked') };
+    };
+    const verifyOwnedSet = async () => {
+        const all = await api.sessions(),
+            before = new Map(baseline.map(entry => [entry.id, entry.data]));
+        for (const entry of baseline) {
+            assert.equal(
+                digest({ data: all.find(item => item.id === entry.id)?.data }),
+                digest({ data: entry.data }),
+                'QA_PREVIOUS_SESSION_CHANGED'
+            );
+        }
+        for (const entry of all) {
+            if (!before.has(entry.id)) {
+                assert(ownsSession(entry.data, options.runId), 'QA_UNEXPLAINED_FOREIGN_NEW_SESSION');
+            }
+        }
+        const own = all.filter(entry => ownsSession(entry.data, options.runId));
+        assert.equal(new Set(all.map(entry => entry.id)).size, all.length);
+        return { all, own };
+    };
+    const cleanupSessions = async () => {
+        assert(browser?.client, 'QA_CLEANUP_BROWSER_UNAVAILABLE');
+        await browser.network(false);
+        const state = await browser.snapshot();
+        if (state.owner !== 'primary') {
+            if (state.owner) await browser.logout();
+            await browser.login(credentials.primary);
+        }
+        const all = await api.sessions();
+        const own = all.filter(
+            entry => !baseline.some(old => old.id === entry.id) && ownsSession(entry.data, options.runId)
+        );
+        const errors = [];
+        for (const entry of own) {
+            try {
+                const current = await api.read(`sesiones_entrenamiento/${entry.id}`, true);
+                if (!current) continue;
+                assert(ownsSession(current.data, options.runId), 'QA_CLEANUP_OWNERSHIP_LOST');
+                await browser.deleteOwned(entry.id);
+                await until(async () => !(await api.read(`sesiones_entrenamiento/${entry.id}`, true)), {
+                    signal: api.signal,
+                    label: 'owned-ui-delete',
+                });
+            } catch (error) {
+                errors.push(error.message);
+            }
+        }
+        assert.equal(errors.length, 0, 'QA_UI_CLEANUP_FAILED');
+        await browser.stableEmpty();
+        return { deletedOwnSessions: own.map(entry => entry.id) };
+    };
+    async function surfaces({ offline = false, observed = null } = {}) {
+        await browser.clockAt(options.currentCalendarIso);
+        assert.equal((await browser.snapshot()).clock, options.currentCalendarIso, 'QA_CAPTURE_CLOCK_NOT_RESTORED');
+        const { all, own } = offline ? observed : await verifyOwnedSet();
+        const captures = own.filter(entry => entry.data.routineId === `codex-live-qa-${options.runId}`);
+        const control = offline ? null : documentData(await api.request('GET', coord.resource));
+        const manifest = offline ? observed.manifest : control.roleA.completed['sessions-four-captures-and-quicklogs'].action;
+        const deleted = offline ? observed.deleted : [
+            control.roleB?.completed?.['B-deletes-single-owned-last-page-record']?.action?.deletedId,
+            control.roleB?.completed?.['B-deletes-latest-owned-strength']?.action?.deletedId,
+        ].filter(Boolean);
+        const expectedOwn = manifest.createdIds.filter(id => !deleted.includes(id));
+        assert.deepEqual(
+            own.map(entry => entry.id).sort(),
+            [...expectedOwn].sort(),
+            'QA_UNEXPECTED_RUN_SESSION_MEMBERSHIP'
+        );
+        assert.equal(all.length, baseline.length + expectedOwn.length, 'QA_DERIVED_TOTAL_COUNT_CHANGED');
+        const expected = verifyCaptureRecords(manifest.captures, captures);
+        const history = await browser.allHistoryIds();
+        assert.deepEqual([...history].sort(), all.map(entry => entry.id).sort(), 'QA_HISTORY_SERVER_ID_DISAGREEMENT');
+        assert.equal(new Set(history).size, history.length, 'QA_DUPLICATE_HISTORY_ID');
+        const details = [];
+        for (const entry of own) {
+            const original = manifest.records.find(item => item.id === entry.id);
+            assert(original && digest(entry.data) === original.dataHash, 'QA_CREATED_SESSION_CHANGED');
+            if (manifest.captures.some(item => item.id === entry.id) || entry.id === manifest.sentinelId
+                || manifest.offlineQueuedIds?.includes(entry.id)) {
+                details.push(await browser.detail(original));
+            }
+        }
+        await browser.click('#nav-dashboard');
+        const expectedMonth = all.filter(
+            entry => stampInParis(entry.data).slice(0, 7) === options.currentMonthKey
+        ).length;
+        const expectedDay = all.filter(entry => stampInParis(entry.data) === options.currentDateKey).length;
+        const expectedWeek = all.filter(entry => {
+            const date = stampInParis(entry.data);
+            return date >= options.currentWeek && date <= options.currentDateKey;
+        }).length;
+        const ui = await browser.waitQueue(
+            value => value.monthCount === expectedMonth && Number(value.weekly.split('/')[0]) === expectedWeek,
+            'hub-server-counts'
+        );
+        assert.equal(ui.visiblePending, 0);
+        await browser.waitPage(
+            `(() => {const e=document.querySelector('#activity-calendar .is-today');return !!e&&${
+                expectedDay > 1
+                    ? `new RegExp('(^|[^0-9])${expectedDay} (sesiones|sessions)([^a-z]|$)').test(e.title)`
+                    : `e.classList.contains('level-${expectedDay ? 1 : 0}')`
+            }})()`,
+            'calendar-server-count'
+        );
+        await browser.click('#nav-progress');
+        const exerciseName = `QA Press ${options.runId}`;
+        await browser.waitPage(
+            `(async()=>{const option=[...document.querySelector('#exercise-select').options].find(e=>e.textContent.includes(${JSON.stringify(exerciseName)}));return !!option&&option.textContent.includes('(${expected.count} ')})()`,
+            'progress-remaining-captures'
+        );
+        const exerciseValue = await browser.client.evaluate(
+            `[...document.querySelector('#exercise-select').options].find(e=>e.textContent.includes(${JSON.stringify(exerciseName)})).value`
+        );
+        await browser.field('#exercise-select', exerciseValue);
+        await browser.field('#period-select', 'all');
+        await browser.field('#metric-select', 'weight');
+        await browser.waitPage(
+            `document.getElementById('session-count').textContent==='${expected.count}'&&document.getElementById('best-record').textContent.trim().replace(',','.')==='${expected.best} kg'&&document.querySelectorAll('#progress-data-table tbody tr').length===1&&Number(document.querySelector('#progress-data-table tbody tr')?.lastElementChild.textContent)===${expected.best}&&JSON.stringify(globalThis.Chart?.getChart('progress-chart')?.data.datasets[0].data)===${JSON.stringify(JSON.stringify([expected.best]))}`,
+            'progress-server-values'
+        );
+        await browser.field('#metric-select', 'reps');
+        await browser.waitPage(
+            `document.getElementById('session-count').textContent==='${expected.count}'&&document.querySelectorAll('#progress-data-table tbody tr').length===1&&Number(document.querySelector('#progress-data-table tbody tr')?.lastElementChild.textContent)===8&&JSON.stringify(globalThis.Chart?.getChart('progress-chart')?.data.datasets[0].data)==='[8]'`,
+            'progress-server-reps'
+        );
+        const suggestions = await browser.suggestions(`codex-live-qa-${options.runId}`, expected.latest);
+        const unchanged = rows => [...rows].sort((a, b) => a.id.localeCompare(b.id));
+        if (!offline) {
+            assert.equal(digest(unchanged(await api.sessions())), digest(unchanged(all)), 'QA_SUGGESTION_INSPECTION_CHANGED_SESSIONS');
+            local.surfaceCheckpoint = { all, own, manifest, deleted };
+        } else assert.equal((await browser.snapshot()).online, false, 'QA_OFFLINE_SURFACE_WENT_ONLINE');
+        return {
+            serverCount: all.length,
+            ownIds: own.map(entry => entry.id),
+            historyCount: history.length,
+            historyIdsHash: digest([...history].sort()),
+            monthCount: ui.monthCount,
+            weekCount: expectedWeek,
+            dayCount: expectedDay,
+            progressSessions: expected.count,
+            weight: expected.best,
+            reps: 8,
+            details,
+            suggestions,
+            chartAndTableAgree: true,
+            queueEmpty: true,
+            offline,
+            deletedIdsAbsent: deleted.every(id => !history.includes(id)),
+            offlineQueuedIdsVerified: manifest.offlineQueuedIds || [],
+        };
+    }
+    function stampInParis(data) {
+        const value = data.fecha?.$timestamp || data.fechaIso;
+        const date = new Date(value);
+        assert(Number.isFinite(date.getTime()), 'QA_SESSION_DATE_UNREADABLE');
+        const pieces = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Europe/Paris',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).formatToParts(date);
+        return ['year', 'month', 'day'].map(type => pieces.find(piece => piece.type === type).value).join('-');
+    }
+    async function createSessions() {
+        const plan = sessionPlan(baseline, options),
+            fixtureId = `codex-live-qa-${options.runId}`;
+        const fixtures = captureFixtures(options),
+            records = [...(local.offlineSessionPair?.records || [])],
+            captures = [...(local.offlineSessionPair?.captures || [])];
+        assert(local.offlineSessionPair?.replayed, 'QA_OFFLINE_PAIR_MUST_REPLAY_BEFORE_ONLINE_SESSIONS');
+        for (let index = 0; index < plan.count; index++) {
+            if (index === 0 || index === fixtures.length) continue; // Same four captures/count; these two were queued cold/offline.
+            let expectedIso = fixtures[index]?.calendarIso;
+            await browser.clockAt(fixtures[index]?.calendarIso || options.currentCalendarIso);
+            await browser.reload();
+            await browser.assertOwner();
+            const prior = (await api.sessions()).map(entry => entry.id);
+            if (index < fixtures.length) {
+                await browser.waitPage(
+                    `[...document.querySelector('#day-select').options].some(e=>e.value===${JSON.stringify(fixtureId)})`,
+                    'fixture-routine-visible'
+                );
+                await browser.field('#day-select', fixtureId);
+                await browser.click('#start-session-btn');
+                await browser.waitPage(
+                    '!document.getElementById("session-view").classList.contains("hidden")&&!!document.querySelector(\'input[name="weight-0-0"]\')',
+                    'fresh-capture-view-ready'
+                );
+                await browser.field('input[name="weight-0-0"]', fixtures[index].weight);
+                await browser.field('input[name="reps-0-0"]', '8');
+                await browser.click('#save-session-btn');
+            } else {
+                await browser.field('#quick-log-label', `QA ${options.runId} ${index}`);
+                await browser.field('#quick-log-notes', `codexLiveQaRun:${options.runId}:${index}`);
+                const localDateTime =
+                    index === plan.count - 1
+                        ? plan.sentinelIso.slice(0, 16)
+                        : `${options.currentDateKey}T13:${String(index).padStart(2, '0')}`;
+                expectedIso = await browser.client.evaluate(`new Date(${JSON.stringify(localDateTime)}).toISOString()`);
+                await browser.field('#quick-log-datetime', localDateTime);
+                await browser.click('#quick-log-save-btn');
+            }
+            const created = await until(
+                async () => {
+                    const all = await api.sessions(),
+                        added = all.filter(item => !prior.includes(item.id));
+                    assert(
+                        added.every(item => ownsSession(item.data, options.runId)),
+                        'QA_UNPROVABLE_NEW_SESSION'
+                    );
+                    assert(added.length <= 1, 'QA_DUPLICATE_UI_SAVE');
+                    return added.length === 1 && added[0];
+                },
+                { signal, label: 'one-ui-save-one-server-session' }
+            );
+            const original = {
+                id: created.id,
+                label: created.data.nombreEntrenamiento,
+                calendarIso: created.data.fecha.$timestamp,
+                dataHash: digest(created.data),
+            };
+            assert.equal(
+                original.label,
+                index < fixtures.length ? `Codex QA ${options.runId}` : `QA ${options.runId} ${index}`,
+                'QA_UI_LABEL_NOT_SAVED'
+            );
+            assert.equal(Date.parse(original.calendarIso), Date.parse(expectedIso), 'QA_UI_ORIGINAL_DATE_NOT_SAVED');
+            if (index < fixtures.length) {
+                assert.equal(created.data.ejercicios[0].sets[0].peso, fixtures[index].weight);
+                assert.equal(created.data.ejercicios[0].sets[0].reps, fixtures[index].reps);
+                assert.equal(
+                    Date.parse(original.calendarIso),
+                    Date.parse(fixtures[index].calendarIso),
+                    'QA_CAPTURE_EXPLICIT_CLOCK_NOT_USED'
+                );
+                Object.assign(original, fixtures[index]);
+                captures.push(original);
+                await browser.waitPage(
+                    '!document.getElementById("dashboard-view").classList.contains("hidden")',
+                    'capture-ui-acknowledged'
+                );
+            } else {
+                original.noteMarker = `codexLiveQaRun:${options.runId}:${index}`;
+                await browser.waitPage(
+                    'document.getElementById("quick-log-notes").value===""&&!document.getElementById("quick-log-save-btn").disabled',
+                    'quicklog-ui-acknowledged'
+                );
+            }
+            records.push(original);
+            await browser.stableEmpty();
+            createdSessions.push(created.id);
+        }
+        await browser.clockAt(options.currentCalendarIso);
+        const { all } = await verifyOwnedSet();
+        assert.equal(all.length % 10, 1, 'QA_LAST_PAGE_FIXTURE_SIZE');
+        return {
+            createdIds: createdSessions,
+            sentinelId: createdSessions.at(-1),
+            count: plan.count,
+            baselineCount: baseline.length,
+            captures,
+            records,
+            offlineQueuedIds: local.offlineSessionPair.queued.map(entry => entry.sessionId),
+        };
+    }
+    async function queueOfflineSessionPair() {
+        const before = await api.sessions();
+        local.offlineSessionRevision = (await api.read('app_data/session_revision')).data.revision;
+        const pair = await browser.queueOfflineSessions({ fixtureId: `codex-live-qa-${options.runId}`,
+            capture: captureFixtures(options)[0], runId: options.runId,
+            currentCalendarIso: options.currentCalendarIso, currentDateKey: options.currentDateKey });
+        local.offlineSessionPair = pair;
+        const ids = pair.queued.map(entry => entry.sessionId);
+        assert.equal(new Set(ids).size, 2);
+        createdSessions.push(...ids);
+        assert.equal(digest(await api.sessions()), digest(before), 'QA_OFFLINE_SAVE_REACHED_SERVER');
+        for (const id of ids) assert.equal(await api.read(`sesiones_entrenamiento/${id}`, true), null, 'QA_OFFLINE_SESSION_ALREADY_ON_SERVER');
+        return { ...pair, noServerSessionCreatedOffline: true };
+    }
+    async function replayOfflineSessionPair() {
+        const pair = local.offlineSessionPair;
+        assert(pair?.queued?.length === 2, 'QA_OFFLINE_PAIR_NOT_STAGED');
+        await browser.network(false);
+        const rows = await until(async () => {
+            const { all, own } = await verifyOwnedSet();
+            assert(own.length <= 2 && own.every(entry => pair.queued.some(intent => intent.sessionId === entry.id)), 'QA_DUPLICATE_OFFLINE_REPLAY_SESSION');
+            return own.length === 2 && all;
+        }, { signal, label: 'two-offline-sessions-replayed-once' });
+        await browser.stableEmpty();
+        const records = [], proof = [];
+        for (const [index, intent] of pair.queued.entries()) {
+            const saved = rows.find(entry => entry.id === intent.sessionId);
+            assert(saved && ownsSession(saved.data, options.runId), 'QA_OFFLINE_REPLAY_OWNER_OR_ID');
+            assert.equal(Date.parse(saved.data.fecha.$timestamp), Date.parse(intent.sessionFechaIso), 'QA_OFFLINE_REPLAY_ORIGINAL_DATE');
+            const receipt = await api.read(`session_mutations/${intent.sessionId}/receipts/create`);
+            assert.deepEqual(receipt.data, { sessionId: intent.sessionId, kind: 'create', changed: true,
+                revision: local.offlineSessionRevision + index + 1 }, 'QA_OFFLINE_CREATE_RECEIPT_OR_ORDER');
+            const original = { id: saved.id, label: saved.data.nombreEntrenamiento,
+                calendarIso: saved.data.fecha.$timestamp, dataHash: digest(saved.data) };
+            if (index === 0) {
+                const fixture = captureFixtures(options)[0];
+                assert.equal(original.label, `Codex QA ${options.runId}`);
+                assert.equal(saved.data.ejercicios[0].sets[0].peso, fixture.weight);
+                assert.equal(saved.data.ejercicios[0].sets[0].reps, fixture.reps);
+                Object.assign(original, fixture);
+            } else {
+                assert.equal(original.label, `QA ${options.runId} 4`);
+                original.noteMarker = `codexLiveQaRun:${options.runId}:4`;
+                assert(JSON.stringify(saved.data.ejercicios).includes(original.noteMarker), 'QA_OFFLINE_QUICKLOG_NOTE_CHANGED');
+            }
+            records.push(original);
+            proof.push({ sessionId: intent.sessionId, queueId: intent.id, originalFechaIso: intent.sessionFechaIso,
+                originalEnqueueTimestamp: intent.timestamp, receiptHash: digest(receipt), receiptRevision: receipt.data.revision });
+        }
+        assert.equal((await api.read('app_data/session_revision')).data.revision, local.offlineSessionRevision + 2, 'QA_OFFLINE_REPLAY_COUNTER_NOT_EXACTLY_TWO');
+        pair.records = records; pair.captures = [records[0]]; pair.replayed = true; pair.receipts = proof;
+        await browser.reload(); await browser.stableEmpty();
+        assert.equal((await verifyOwnedSet()).own.length, 2, 'QA_OFFLINE_RELOAD_DUPLICATED_SESSION');
+        for (const receipt of proof) assert.equal(digest(await api.read(`session_mutations/${receipt.sessionId}/receipts/create`)), receipt.receiptHash, 'QA_OFFLINE_REPLAY_RECEIPT_CHANGED');
+        return { records, receipts: proof, exactlyOnceAfterReconnectAndReload: true };
+    }
+    async function mixedEvidence() {
+        const control = documentData(await api.request('GET', coord.resource));
+        const queued = control.roleA.completed['mixed-A-offline-X-then-Y-return-base-clock'].action.queued;
+        const saved = await prefs();
+        assert.equal(currentTarget(saved, options.initialWeek), 6, 'QA_MIXED_STALE_X_OVERWROTE_SERVER');
+        assert.equal(currentTarget(saved), 5, 'QA_MIXED_INDEPENDENT_Y_DID_NOT_PROGRESS');
+        for (const week of [options.initialWeek, options.currentWeek]) {
+            assert.equal(saved.weeklyTargetsByWeek[week].revision,
+                (local.mixedInitial.weeklyTargetsByWeek?.[week]?.revision || 0) + 1, 'QA_MIXED_WEEK_REVISION_NOT_EXACTLY_ONE');
+        }
+        assert.equal(saved.preferencesRevision, (local.mixedInitial.preferencesRevision || 0) + 2, 'QA_MIXED_GLOBAL_REVISION_NOT_EXACTLY_TWO');
+        assert(!saved.weeklyOutcomesByWeek?.[options.initialWeek] && !saved.weeklyOutcomesByWeek?.[options.currentWeek], 'QA_MIXED_CHOSEN_WEEK_FROZEN_TOO_EARLY');
+        assertFrozenPreserved(local.mixedInitial, saved);
+        const proofs = [];
+        for (const [index, entry] of queued.entries()) {
+            const receipt = await api.read(`${PREFERENCES}/weekly_operations/${entry.operationId}`);
+            assert.equal(receipt.data.status, index ? 'applied' : 'conflict', 'QA_MIXED_WRONG_RECEIPT_OUTCOME');
+            assert.equal(receipt.data.weekKey, entry.weekKey);
+            assert.equal(receipt.data.updatedAtIso, entry.updatedAtIso, 'QA_MIXED_ORIGINAL_DATE_CHANGED');
+            assert.equal(receipt.data.targetSessions, entry.target);
+            assert.equal(index ? receipt.data.revision : receipt.data.currentRevision,
+                (local.mixedInitial.weeklyTargetsByWeek?.[entry.weekKey]?.revision || 0) + 1, 'QA_MIXED_RECEIPT_REVISION');
+            proofs.push({ operationId: entry.operationId, weekKey: entry.weekKey, status: receipt.data.status,
+                originalUpdatedAtIso: entry.updatedAtIso, receiptHash: digest(receipt) });
+        }
+        const state = await browser.snapshot();
+        assert.equal(state.clock, options.baseCalendarIso, 'QA_MIXED_RECONNECTED_AT_FUTURE_CLOCK');
+        if (options.role === 'A') {
+            assert.equal(state.queue.length, 1, 'QA_MIXED_CONFLICT_DISCARDED_OR_Y_NOT_DRAINED');
+            const pending = state.queue[0];
+            assert.equal(pending.status, 'conflict', 'QA_MIXED_X_AUTO_ACKNOWLEDGED');
+            const immutable = entry => Object.fromEntries(Object.entries(entry).filter(([key]) => key !== 'status'));
+            assert.equal(canonical(immutable(pending)), canonical(immutable(queued[0])), 'QA_MIXED_CONFLICT_INTENT_MUTATED');
+        } else assert.equal(state.visiblePending, 0);
+        return { receipts: proofs, conflictXRetained: options.role === 'A', independentYDrained: true, baseClock: state.clock };
+    }
+    async function resolveMixedOffline() {
+        const control = documentData(await api.request('GET', coord.resource));
+        const prior = control.roleA.completed['mixed-A-reconnect-X-conflict-Y-applied'].action;
+        const old = (await browser.snapshot()).queue;
+        assert.equal(old.length, 1); assert.equal(old[0].status, 'conflict');
+        assert.equal(old[0].operationId, prior.receipts[0].operationId, 'QA_MIXED_RESOLUTION_OTHER_CONFLICT');
+        assert.equal(browser.clock, options.baseCalendarIso, 'QA_MIXED_RESOLUTION_REQUIRES_BASE_CLOCK');
+        await browser.network(true);
+        await browser.saveTarget(3, options.baseCalendarIso);
+        const durable = await browser.waitQueue(state => !state.online && state.verified && !state.staged && !state.unknown
+            && !state.pendingAcks && state.queue.length === 2 && state.queue.some(entry => entry.id === old[0].id && entry.status === 'conflict')
+            && state.queue.some(entry => entry.id !== old[0].id && entry.weekKey === options.initialWeek && entry.target === 3 && entry.status === 'pending'), 'mixed-offline-resolution-durable');
+        const intent = durable.queue.find(entry => entry.id !== old[0].id);
+        assert.deepEqual(intent.observedWeeklyConflictIds, [old[0].id], 'QA_MIXED_RESOLUTION_OBSERVED_DESCRIPTOR_IDS');
+        assert.equal(intent.updatedAtIso, options.baseCalendarIso, 'QA_MIXED_RESOLUTION_ORIGINAL_TIME');
+        await browser.network(false);
+        await browser.stableEmpty();
+        const state = await prefs();
+        assert.equal(currentTarget(state, options.initialWeek), 3); assert.equal(currentTarget(state), 5);
+        assert.equal(state.weeklyTargetsByWeek[options.initialWeek].revision,
+            (local.mixedInitial.weeklyTargetsByWeek?.[options.initialWeek]?.revision || 0) + 2, 'QA_MIXED_RESOLUTION_REVISION');
+        assert.equal(state.preferencesRevision, (local.mixedInitial.preferencesRevision || 0) + 3, 'QA_MIXED_RESOLUTION_GLOBAL_REVISION');
+        assertFrozenPreserved(local.mixedInitial, state);
+        const receipt = await api.read(`${PREFERENCES}/weekly_operations/${intent.operationId}`);
+        assert.equal(receipt.data.status, 'applied', 'QA_MIXED_OFFLINE_RESOLUTION_NOT_APPLIED');
+        assert.equal(receipt.data.updatedAtIso, intent.updatedAtIso, 'QA_MIXED_OFFLINE_RESOLUTION_TIME_CHANGED');
+        assert.equal(receipt.data.targetSessions, 3);
+        assert.equal(receipt.data.operationId, intent.operationId);
+        assert.equal(receipt.data.weekKey, options.initialWeek);
+        assert.equal(receipt.data.revision, state.weeklyTargetsByWeek[options.initialWeek].revision);
+        const acknowledgements = await browser.queueAcknowledgements([old[0].id, intent.id]);
+        assert.deepEqual(acknowledgements, [{ id: old[0].id, outcome: 'resolved', pending: false },
+            { id: intent.id, outcome: 'accepted', pending: false }], 'QA_MIXED_OFFLINE_RESOLUTION_ACK_OUTCOMES');
+        for (const original of prior.receipts) {
+            assert.equal(digest(await api.read(`${PREFERENCES}/weekly_operations/${original.operationId}`)), original.receiptHash,
+                'QA_MIXED_RESOLUTION_CHANGED_OLD_RECEIPT');
+        }
+        return { resolvedXByOfflinePublicNewPressAndReplay: true, independentY: 5, queuedResolution: intent,
+            resolutionReceiptHash: digest(receipt), originalReceiptsPreserved: true, acknowledgements };
+    }
+    async function observeCleanupSurfaces() {
+        await browser.network(false); await browser.clockAt(options.currentCalendarIso); await browser.reload();
+        await browser.stableEmpty();
+        const { own, all } = await verifyOwnedSet();
+        assert.equal(own.length, 0); assert.equal(all.length, baseline.length);
+        const history = await browser.allHistoryIds({ allowEmpty: true });
+        assert.deepEqual([...history].sort(), baseline.map(entry => entry.id).sort(), 'QA_CLEANUP_HISTORY_NOT_BASELINE');
+        await browser.click('#nav-dashboard');
+        const month = baseline.filter(entry => stampInParis(entry.data).slice(0, 7) === options.currentMonthKey).length;
+        const day = baseline.filter(entry => stampInParis(entry.data) === options.currentDateKey).length;
+        const week = baseline.filter(entry => { const date = stampInParis(entry.data); return date >= options.currentWeek && date <= options.currentDateKey; }).length;
+        await browser.waitQueue(state => state.monthCount === month && Number(state.weekly.split('/')[0]) === week, 'cleanup-hub-baseline');
+        await browser.waitPage(`(()=>{const e=document.querySelector('#activity-calendar .is-today');return !!e&&${day > 1
+            ? `new RegExp('(^|[^0-9])${day} (sesiones|sessions)([^a-z]|$)').test(e.title)` : `e.classList.contains('level-${day ? 1 : 0}')`}})()`, 'cleanup-calendar-baseline');
+        await browser.click('#nav-progress');
+        await browser.waitPage(`(async()=>{const {t}=await import('./js/i18n.js');const s=document.querySelector('#exercise-select');return !!s&&document.getElementById('progress-loading').classList.contains('hidden')&&s.options[0]?.textContent!==t('progress.loading_exercises')&&s.options[0]?.textContent!==t('progress.loading_error')&&![...s.options].some(e=>e.textContent.includes(${JSON.stringify(`QA Press ${options.runId}`)}));})()`, 'cleanup-progress-own-exercise-absent');
+        const suggestions = await browser.suggestions(`codex-live-qa-${options.runId}`, null);
+        assert.equal(digest((await verifyOwnedSet()).all), digest(all), 'QA_CLEANUP_INSPECTION_SAVED_SESSION');
+        return { baselineCount: baseline.length, baselinePreserved: true, ownSessionsRemaining: 0,
+            bothUiObservedByRole: options.role, historyIdsHash: digest([...history].sort()), monthCount: month,
+            dayCount: day, weekCount: week, ownProgressAbsent: true, suggestions };
+    }
+    async function createRoutineFixture() {
+        const data = {
+            name: `Codex QA ${options.runId}`,
+            codexLiveQaRun: options.runId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            exercises: [
+                {
+                    name: `QA Press ${options.runId}`,
+                    type: 'strength',
+                    sets: 1,
+                    reps: '8',
+                    duration: '',
+                    notes: '',
+                    executionMode: 'two_hand',
+                },
+            ],
+        };
+        routineProof = { updateTime: null, data: documentData({ fields: encode(data).mapValue.fields }) };
+        try {
+            const document = await api.request(
+                'PATCH',
+                `users/${PRIMARY_UID}/routines/codex-live-qa-${options.runId}`,
+                { data, query: { 'currentDocument.exists': 'false' } }
+            );
+            routineProof.updateTime = document.updateTime;
+        } catch (error) {
+            if ([409, 412].includes(error.status)) routineProof = null;
+            throw error;
+        }
+        return { fixtureId: `codex-live-qa-${options.runId}`, createOnly: true };
+    }
+    async function perform(spec) {
+        if (spec.actor !== 'both' && spec.actor !== options.role) return { standby: true };
+        switch (spec.action) {
+            case 'initial':
+                await browser.authenticated();
+                await browser.stableEmpty();
+                return { clock: options.baseCalendarIso };
+            case 'mixed-base':
+                await browser.clockAt(options.baseCalendarIso); await browser.reload(); await browser.stableEmpty();
+                local.mixedInitial = await prefs();
+                assert(!local.mixedInitial.weeklyOutcomesByWeek?.[options.initialWeek]
+                    && !local.mixedInitial.weeklyOutcomesByWeek?.[options.currentWeek], 'QA_MIXED_REQUIRES_UNFROZEN_PAIR');
+                return { initialWeek: options.initialWeek, currentWeek: options.currentWeek, frozenHash: digest(local.mixedInitial.weeklyOutcomesByWeek || {}) };
+            case 'mixed-queue': {
+                await browser.network(true);
+                await browser.saveTarget(4, options.baseCalendarIso);
+                await browser.saveTarget(5, options.currentCalendarIso);
+                // Return to X BEFORE any reconnect: Y's calendar must not freeze X.
+                await browser.clockAt(options.baseCalendarIso);
+                const state = await browser.waitQueue(value => !value.online && value.queue.length === 2
+                    && value.verified && !value.staged && !value.unknown && !value.pendingAcks, 'mixed-two-weeks-durable');
+                assert.deepEqual(state.queue.map(entry => entry.weekKey), [options.initialWeek, options.currentWeek]);
+                assert.deepEqual(state.queue.map(entry => entry.updatedAtIso), [options.baseCalendarIso, options.currentCalendarIso]);
+                return { queued: state.queue, restoredBaseClockBeforeReconnect: state.clock === options.baseCalendarIso };
+            }
+            case 'mixed-new-X':
+                await browser.saveTarget(6, options.baseCalendarIso); await browser.stableEmpty();
+                assert.equal(currentTarget(await prefs(), options.initialWeek), 6);
+                return { newServerX: 6 };
+            case 'mixed-reconnect':
+                assert.equal(browser.clock, options.baseCalendarIso, 'QA_MIXED_CLOCK_MUST_RETURN_BEFORE_CONNECT');
+                await browser.network(false);
+                await browser.waitQueue(value => value.conflicts === 1 && value.queue.length === 1
+                    && value.queue[0].weekKey === options.initialWeek && value.queue[0].status === 'conflict'
+                    && !value.staged && !value.unknown && !value.pendingAcks, 'mixed-X-conflict-Y-drained');
+                return mixedEvidence();
+            case 'mixed-verify':
+                await browser.reload();
+                return mixedEvidence();
+            case 'mixed-resolve':
+                return resolveMixedOffline();
+            case 'mixed-converge': {
+                await browser.clockAt(options.baseCalendarIso); await browser.reload(); await browser.stableEmpty();
+                const state = await prefs();
+                assert.equal(currentTarget(state, options.initialWeek), 3); assert.equal(currentTarget(state), 5);
+                assertFrozenPreserved(local.mixedInitial, state);
+                const control = documentData(await api.request('GET', coord.resource));
+                const prior = control.roleA.completed['mixed-A-reconnect-X-conflict-Y-applied'].action;
+                for (const receipt of prior.receipts) {
+                    assert.equal(digest(await api.read(`${PREFERENCES}/weekly_operations/${receipt.operationId}`)), receipt.receiptHash, 'QA_MIXED_IMMUTABLE_RECEIPT_CHANGED');
+                }
+                return { X: 3, Y: 5, clock: options.baseCalendarIso, bothQueuesDrained: true };
+            }
+            case 'different-offline':
+                await browser.network(true);
+                await browser.saveTarget(4, options.currentCalendarIso);
+                return browser.waitQueue(
+                    value => value.queue.length === 1 && !value.staged && !value.unknown,
+                    'different-week-durable-intent'
+                );
+            case 'different-reconnect':
+                await browser.network(false);
+                await browser.stableEmpty();
+                assert.equal(currentTarget(await prefs(), options.initialWeek), 6);
+                assert.equal(currentTarget(await prefs()), 4);
+                return { bothWeeksPreserved: true };
+            case 'different-converge':
+                await browser.clockAt(options.currentCalendarIso);
+                await browser.reload();
+                await browser.stableEmpty();
+                assert.equal((await browser.snapshot()).weekRecords[options.initialWeek].target, 6);
+                assert.equal((await browser.snapshot()).weekRecords[options.currentWeek].target, 4);
+                return { oldWeek: 6, currentWeek: 4 };
+            case 'target':
+                if (spec.initialWeek) {
+                    assert.equal(browser.clock, options.baseCalendarIso);
+                    await browser.saveTarget(spec.value);
+                    await browser.stableEmpty();
+                    assert.equal(currentTarget(await prefs(), options.initialWeek), spec.value);
+                    return { oldWeekApplied: spec.value };
+                }
+                await acceptedTarget(spec.value);
+                return { accepted: spec.value };
+            case 'base': {
+                await browser.network(false);
+                await browser.reload();
+                await browser.stableEmpty();
+                const state = await prefs();
+                const ui = await browser.snapshot();
+                assert.equal(ui.weekRecords[options.currentWeek]?.revision || 0, weekRevision(state));
+                local.bases[spec.key] = weekRevision(state);
+                await browser.network(true); // Hold this exact base until the intended public press.
+                return {
+                    revision: weekRevision(state),
+                    operationId: state.weeklyTargetsByWeek?.[options.currentWeek]?.operationId || null,
+                };
+            }
+            case 'online-base': {
+                await browser.network(false);
+                await browser.reload();
+                await browser.stableEmpty();
+                const state = await prefs();
+                const observed = await browser.waitQueue(
+                    value =>
+                        value.online &&
+                        (value.weekRecords[options.currentWeek]?.revision || 0) === weekRevision(state) &&
+                        value.weekRecords[options.currentWeek]?.target === currentTarget(state),
+                    'online-identical-base'
+                );
+                local.onlineBase = {
+                    weekKey: options.currentWeek,
+                    revision: weekRevision(state),
+                    preferencesRevision: state.preferencesRevision || 0,
+                    operationId: state.weeklyTargetsByWeek?.[options.currentWeek]?.operationId || null,
+                    target: currentTarget(state),
+                    fingerprint: observed.weekRecords[options.currentWeek].fingerprint,
+                    serverRecordHash: digest(state.weeklyTargetsByWeek[options.currentWeek]),
+                };
+                return local.onlineBase;
+            }
+            case 'online-ready': {
+                assert.equal((await browser.snapshot()).online, true);
+                await browser.clockAt(tick(options.role === 'A' ? 600 : 601));
+                await browser.settings();
+                await browser.field('#weekly-target-days-select', options.role === 'A' ? 4 : 6);
+                local.onlineKnown = (await browser.knownTargetIntents()).map(entry => entry.operationId);
+                await browser.network(false, 15_000);
+                browser.beginCommitWindow();
+                return { online: true, latencyMs: 15_000, controlsReady: true, base: local.onlineBase };
+            }
+            case 'online-press': {
+                const beforeOnline = await browser.client.evaluate('navigator.onLine');
+                assert(beforeOnline && browser.offline === false, 'QA_ONLINE_PRESS_OFFLINE');
+                await browser.click('#weekly-target-save-btn');
+                const overlap = await coordinateOnlineOverlap({ browser, coord, role: options.role });
+                // The causal observation is already complete; restore ordinary
+                // transport before SDK retries/conflict-receipt completion.
+                await browser.network(false);
+                await browser.waitPage(
+                    '!document.getElementById("weekly-target-save-btn").disabled',
+                    'online-public-press-settled'
+                );
+                await browser.waitQueue(
+                    value =>
+                        !value.staged &&
+                        !value.unknown &&
+                        !value.pendingAcks &&
+                        (value.visiblePending === 0 || value.conflicts === 1),
+                    'online-winner-or-explicit-conflict'
+                );
+                const added = (await browser.knownTargetIntents()).filter(
+                    entry => !local.onlineKnown.includes(entry.operationId)
+                );
+                assert.equal(added.length, 1, 'QA_ONLINE_PRESS_NOT_ONE_INTENT');
+                assert.equal(
+                    added[0].updatedAtIso,
+                    tick(options.role === 'A' ? 600 : 601),
+                    'QA_ONLINE_ORIGINAL_PUBLIC_CLOCK_CHANGED'
+                );
+                const receipt = await api.read(`${PREFERENCES}/weekly_operations/${added[0].operationId}`);
+                const commits = await browser.endCommitWindow();
+                const afterOnline = await browser.client.evaluate('navigator.onLine');
+                await browser.closeSettings();
+                return {
+                    role: options.role,
+                    beforeOnline,
+                    afterOnline,
+                    intent: added[0],
+                    receipt: receipt.data,
+                    receiptHash: digest(receipt),
+                    overlap,
+                    commits,
+                };
+            }
+            case 'online-verify': {
+                const control = documentData(await api.request('GET', coord.resource));
+                const actions = ['A', 'B'].map(
+                    role => control[`role${role}`].completed['online-race-public-press'].action
+                );
+                local.onlineRace = assertOnlineRace(local.onlineBase, actions, await prefs());
+                local.onlineReceiptHashes = actions.map(item => ({
+                    operationId: item.intent.operationId,
+                    hash: item.receiptHash,
+                }));
+                return local.onlineRace;
+            }
+            case 'online-resolve':
+                if (local.onlineRace.loser === options.role) await acceptedTarget(7);
+                return { role: options.role, resolvedByThisRole: local.onlineRace.loser === options.role };
+            case 'stale': {
+                const before = await prefs();
+                const { queued, ui } = await browser.submitStaleTarget(spec.value, tick(20), local.bases.same);
+                assert.equal(currentTarget(await prefs()), spec.preserved);
+                assert.equal(weekRevision(await prefs()), weekRevision(before));
+                return { ui, queued, receipts: await receipts(queued, 'conflict-or-blocked') };
+            }
+            case 'converge':
+                await browser.network(false);
+                await browser.reload();
+                await browser.stableEmpty();
+                assert.equal((await browser.snapshot()).target, spec.value);
+                assert.equal(currentTarget(await prefs()), spec.value);
+                if (spec.onlineReceipts) {
+                    for (const receipt of local.onlineReceiptHashes) {
+                        assert.equal(
+                            digest(await api.read(`${PREFERENCES}/weekly_operations/${receipt.operationId}`)),
+                            receipt.hash,
+                            'QA_ONLINE_RECEIPT_MUTATED_ON_RESOLUTION'
+                        );
+                    }
+                }
+                return { converged: spec.value };
+            case 'queue-two':
+                return queueTwo(spec);
+            case 'cold-restart':
+                return browser.coldOffline();
+            case 'reconnect-conflict':
+                return reconnectConflict(spec);
+            case 'reconnect-accepted': {
+                await browser.network(false);
+                await browser.stableEmpty();
+                assert.equal(currentTarget(await prefs()), spec.value);
+                assert.equal(weekRevision(await prefs()), local.bases[spec.key] + 2, 'QA_CAUSAL_REPLAY_REVISION_COUNT');
+                return { finalTarget: spec.value, receipts: await receipts(local.queued[spec.key], 'applied') };
+            }
+            case 'owner-queue':
+                await browser.network(true);
+                await browser.saveTarget(2, tick(300));
+                local.ownerQueued = (
+                    await browser.waitQueue(
+                        value => value.queue.length === 1 && !value.staged && !value.unknown,
+                        'owner-durable-intent'
+                    )
+                ).queue;
+                local.ownerServer = digest(await prefs());
+                return { queue: local.ownerQueued };
+            case 'owner-other': {
+                await browser.logout();
+                await browser.network(false);
+                await browser.login(credentials.other);
+                const ui = await browser.snapshot();
+                assert.equal(ui.owner, 'other');
+                assert.equal(ui.visiblePending, 0);
+                assert.deepEqual(
+                    ui.queue.map(entry => entry.id),
+                    local.ownerQueued.map(entry => entry.id)
+                );
+                assert.equal(digest(await prefs()), local.ownerServer, 'QA_PRIMARY_REPLAYED_DURING_OTHER_ACCOUNT');
+                assert.equal(digest((await otherApi.sessions()).map(item => item.id).sort()), otherBaseline.sessions);
+                assert.equal(currentTarget((await otherApi.read(PREFERENCES, true))?.data || {}), otherBaseline.target);
+                assert(
+                    !(await browser.client.evaluate(
+                        `document.getElementById('dashboard-view').textContent.includes(${JSON.stringify(options.runId)})`
+                    ))
+                );
+                return { ui, primaryDidNotReplay: true, otherUnchanged: true };
+            }
+            case 'owner-primary':
+                await browser.logout();
+                await browser.login(credentials.primary);
+                await browser.stableEmpty();
+                assert.equal(currentTarget(await prefs()), 2);
+                return { receipts: await receipts(local.ownerQueued, 'applied') };
+            case 'reauthenticate':
+                await browser.logout();
+                await browser.login(credentials.primary);
+                await browser.reload();
+                await browser.stableEmpty();
+                return { ownerRestored: true };
+            case 'routine': {
+                const current = await api.read('routines/codex-live-qa-' + options.runId);
+                assert.equal(digest(current.data), digest(routineProof.data), 'QA_FIXTURE_CHANGED_BEFORE_CAPTURE');
+                return { fixtureId: 'codex-live-qa-' + options.runId, createOnly: true, preAuthFixtureVerified: true };
+            }
+            case 'sessions':
+                return createSessions();
+            case 'offline-sessions-queue':
+                return queueOfflineSessionPair();
+            case 'offline-sessions-cold': {
+                const proof = await browser.coldOffline({ observeNetwork: true });
+                assert.equal(canonical(proof.after.queue), canonical(local.offlineSessionPair.queued), 'QA_COLD_OFFLINE_SESSION_METADATA_CHANGED');
+                return { ...proof, network: browser.endOfflineObservation() };
+            }
+            case 'offline-sessions-replay':
+                return replayOfflineSessionPair();
+            case 'surfaces':
+                return surfaces();
+            case 'deleted-warm':
+                await browser.reload(); await browser.stableEmpty();
+                return surfaces();
+            case 'deleted-cold': {
+                assert(local.surfaceCheckpoint?.deleted.length === 2, 'QA_BOTH_DELETIONS_MUST_BE_OBSERVED_ONLINE_FIRST');
+                await browser.network(true);
+                const restart = await browser.coldOffline({ minimum: 0, requireEmpty: true, observeNetwork: true });
+                const ui = await surfaces({ offline: true, observed: local.surfaceCheckpoint });
+                assert(ui.deletedIdsAbsent, 'QA_DELETED_SESSION_RESURRECTED_OFFLINE');
+                return { restart, ui, network: browser.endOfflineObservation() };
+            }
+            case 'deleted-reconcile':
+                await browser.network(false); await browser.reload(); await browser.stableEmpty();
+                return surfaces();
+            case 'delete-sentinel': {
+                const document = await api.request('GET', coord.resource);
+                const result = documentData(document).roleA.completed['sessions-four-captures-and-quicklogs'].action;
+                const { all, own } = await verifyOwnedSet();
+                assert(own.some(entry => entry.id === result.sentinelId));
+                const ids = await browser.allHistoryIds();
+                assert.equal(ids.length, all.length);
+                const visible = await browser.client.evaluate(
+                    '[...document.querySelectorAll("#history-list li[data-session-id]")].map(e=>e.dataset.sessionId)'
+                );
+                assert.deepEqual(visible, [result.sentinelId], 'QA_LAST_PAGE_NOT_EXACT_OWN_SENTINEL');
+                const proof = await api.read(`sesiones_entrenamiento/${result.sentinelId}`);
+                assert(ownsSession(proof.data, options.runId));
+                await browser.deleteVisible(result.sentinelId);
+                await until(async () => !(await api.read(`sesiones_entrenamiento/${result.sentinelId}`, true)), {
+                    signal,
+                    label: 'last-page-deleted',
+                });
+                return { deletedId: result.sentinelId, lastPageHadOneOwnedRecord: true };
+            }
+            case 'delete-latest-strength': {
+                const control = documentData(await api.request('GET', coord.resource));
+                const manifest = control.roleA.completed['sessions-four-captures-and-quicklogs'].action;
+                const expected = manifest.captures.at(-1);
+                const { own } = await verifyOwnedSet();
+                const strength = own.filter(entry => entry.data.routineId === `codex-live-qa-${options.runId}`);
+                const verified = verifyCaptureRecords(manifest.captures, strength);
+                assert.equal(verified.count, 4);
+                assert.equal(verified.latest.id, expected.id);
+                const proof = await api.read(`sesiones_entrenamiento/${expected.id}`);
+                assert(ownsSession(proof.data, options.runId));
+                assert.equal(digest(proof.data), expected.dataHash);
+                await browser.deleteOwned(expected.id);
+                await until(async () => !(await api.read(`sesiones_entrenamiento/${expected.id}`, true)), {
+                    signal,
+                    label: 'latest-strength-deleted',
+                });
+                return {
+                    deletedId: expected.id,
+                    deletedWeight: expected.weight,
+                    expectedFallback: manifest.captures.at(-2),
+                };
+            }
+            case 'cleanup-sessions':
+                return cleanupSessions();
+            case 'baseline-preserved': {
+                return observeCleanupSurfaces();
+            }
+            default:
+                throw new Error('QA_UNKNOWN_DECLARED_ACTION');
+        }
+    }
+    try {
+        artifacts.verify();
+        await api.authenticate(); // Fixed UID is checked before the first write.
+        const global = await api.request('GET', 'runtime_config/sync_protocol');
+        const policy = await api.read('app_data/sync_protocol');
+        assert.equal(digest(documentData(global)), digest(policy.data), 'QA_SERVER_PROTOCOL_NOT_ATTESTED');
+        assert.equal(policy.data.version, 1);
+        assert.equal(policy.data.epoch, 'gym-sync-v1-2026-11');
+        assert.equal(Object.keys(policy.data).sort().join(','), 'epoch,version', 'QA_CANONICAL_UID_POLICY_REQUIRED');
+        const counter = (await api.read('app_data/session_revision')).data;
+        assert(
+            Object.keys(counter).sort().join(',') === 'lastSessionId,revision' &&
+                Number.isInteger(counter.revision) &&
+                counter.revision >= 0 &&
+                (counter.lastSessionId === null ||
+                    (typeof counter.lastSessionId === 'string' &&
+                        counter.lastSessionId.length > 0 &&
+                        !counter.lastSessionId.includes('/'))),
+            'QA_SERVER_REVISION_REQUIRED'
+        );
+        baseline = await api.sessions();
+        assert(
+            !baseline.some(entry => ownsSession(entry.data, options.runId)),
+            'QA_RUN_MARKER_ALREADY_PRESENT_IN_BASELINE'
+        );
+        sessionPlan(baseline, options);
+        frozen = await prefs();
+        assert(
+            !frozen.weeklyOutcomesByWeek?.[options.initialWeek] && !frozen.weeklyOutcomesByWeek?.[options.currentWeek],
+            'QA_REQUIRED_WEEKS_ALREADY_FROZEN'
+        );
+        record.baseline = {
+            count: baseline.length,
+            hash: digest(baseline),
+            frozenHash: digest(frozen.weeklyOutcomesByWeek || {}),
+        };
+        if (credentials.other && options.role === 'A') {
+            otherApi = new QaFirebase({
+                apiKey: candidate.apiKey,
+                account: credentials.other,
+                clean,
+                signal,
+                runId: options.runId,
+            });
+            await otherApi.authenticate();
+            otherBaseline = {
+                sessions: digest((await otherApi.sessions()).map(item => item.id).sort()),
+                target: currentTarget((await otherApi.read(PREFERENCES, true))?.data || {}),
+            };
+        }
+        coord = new QaCoordination(api, { ...options, revision: candidate.release.revision, signal });
+        await coord.claim();
+        phase = 'preflight';
+        await coord.publish(phase, 'ready');
+        await coord.wait(phase, 'ready');
+        await coord.publish(phase, 'done', { sharedSourceAndCalendarValidated: true });
+        await coord.wait(phase, 'done');
+        phase = 'fixture-before-auth';
+        await coord.publish(phase, 'ready');
+        await coord.wait(phase, 'ready');
+        const fixture = options.role === 'A' ? await createRoutineFixture() : { waitingForA: true };
+        await coord.publish(phase, 'done', fixture);
+        const peerFixture = await coord.wait(phase, 'done');
+        record.startupFixture = options.role === 'A' ? fixture : peerFixture;
+        server = await startCandidateServer(candidate);
+        browser = new QaBrowser({
+            url: server.url,
+            candidate,
+            clean,
+            signal,
+            trace,
+            role: options.role,
+            baseCalendarIso: options.baseCalendarIso,
+        });
+        await browser.initialize();
+        await browser.start();
+        await browser.login(credentials.primary);
+        for (const spec of plan) {
+            phase = spec.name;
+            await coord.publish(phase, 'ready');
+            await coord.wait(phase, 'ready');
+            const action = await perform(spec);
+            const serverPreferences = await prefs();
+            assertFrozenPreserved(frozen, serverPreferences);
+            frozen = serverPreferences;
+            const result = clean({
+                action,
+                ui: await browser.snapshot(),
+                server: {
+                    currentTarget: currentTarget(serverPreferences),
+                    oldWeekTarget: currentTarget(serverPreferences, options.initialWeek),
+                    weekRevision: weekRevision(serverPreferences),
+                    frozenWeeks: Object.keys(serverPreferences.weeklyOutcomesByWeek || {}),
+                    frozenHash: digest(serverPreferences.weeklyOutcomesByWeek || {}),
+                },
+            });
+            phaseResults.push({ name: phase, at: new Date().toISOString(), ...result });
+            await coord.publish(phase, 'done', result);
+            const peer = await coord.wait(phase, 'done');
+            if (['base', 'online-base'].includes(spec.action)) {
+                assert.equal(canonical(peer.action), canonical(action), 'QA_CLIENTS_DID_NOT_READ_IDENTICAL_BASE');
+            }
+        }
+        assert.equal(phaseResults.length, plan.length, 'QA_INCOMPLETE_SEQUENCE');
+    } catch (error) {
+        primaryError = error;
+        if (browser) {
+            record.onlineCommitWindow = {
+                active: browser.commitObservation.active,
+                complete: browser.commitObservation.complete(),
+                requests: browser.commitObservation.snapshot(),
+            };
+        }
+        if (browser?.client) {
+            try {
+                record.failureState = clean(await browser.snapshot());
+            } catch {
+                record.failureStateUnavailable = true;
+            }
+        }
+        if (coord?.claimed) {
+            try {
+                await coord.publish(phase, 'failed', null, clean({ message: error.message }));
+            } catch {
+                /* Preserve primary failure. */
+            }
+        }
+    }
+    const cleanupSignal = AbortSignal.timeout(60_000);
+    api.signal = cleanupSignal;
+    if (browser) browser.signal = cleanupSignal;
+    const cleanup = [];
+    if (options.role === 'A' && browser && routineProof) cleanup.push(['owned-sessions-public-ui', cleanupSessions]);
+    if (options.role === 'A' && routineProof) {
+        cleanup.push([
+            'owned-routine-compare-and-delete',
+            async () => {
+                assert(
+                    !(await api.sessions()).some(entry => ownsSession(entry.data, options.runId)),
+                    'QA_ROUTINE_RETAINED_RESIDUAL_SESSIONS'
+                );
+                const suffix = `routines/codex-live-qa-${options.runId}`,
+                    current = await api.read(suffix, true);
+                if (!current) return;
+                assert.equal(current.data.codexLiveQaRun, options.runId);
+                assert.equal(digest(current.data), digest(routineProof.data), 'QA_ROUTINE_CHANGED_RETAINED');
+                await api.request('DELETE', `users/${PRIMARY_UID}/${suffix}`, {
+                    query: { 'currentDocument.updateTime': current.updateTime },
+                });
+            },
+        ]);
+    }
+    if (api.token && routineProof) {
+        cleanup.push([
+            'residual-run-session-evidence',
+            async () => {
+                record.residualOwnSessionIds = (await api.sessions())
+                    .filter(entry => ownsSession(entry.data, options.runId))
+                    .map(entry => entry.id);
+                assert.equal(record.residualOwnSessionIds.length, 0, 'QA_OWNED_SESSIONS_REMAIN_AFTER_CLEANUP');
+            },
+        ]);
+    }
+    if (browser) {
+        for (const owner of browser.owners) {
+            cleanup.push([
+                'owned-browser-close',
+                async () => {
+                    await owner.close();
+                    browser.closedOwners.add(owner);
+                },
+            ]);
+        }
+        cleanup.push([
+            'owned-connections-close',
+            () => {
+                for (const connection of browser.connections) connection.close();
+            },
+        ]);
+        if (browser.profile) cleanup.push(['owned-profile-delete-after-close', () => browser.removeProfile()]);
+    }
+    if (server) cleanup.push(['loopback-server-close', () => server.close()]);
+    cleanup.push(['private-artifact-identity', () => artifacts.verify()]);
+    cleanup.push([
+        'checkout-remained-frozen',
+        () => {
+            canonicalCandidate(ROOT, options.sha);
+        },
+    ]);
+    if (coord?.claimed) {
+        cleanup.push([
+            'both-machine-cleanup-barrier',
+            async cleanupErrors => {
+                api.signal = AbortSignal.timeout(90_000);
+                coord.signal = api.signal;
+                const failed = primaryError || cleanupErrors.length;
+                await coord.publish(
+                    'local-cleanup-complete',
+                    failed ? 'failed' : 'done',
+                    { complete: !failed },
+                    failed ? { message: 'QA_ROLE_OR_CLEANUP_FAILED' } : null
+                );
+                await coord.wait('local-cleanup-complete', 'done');
+            },
+        ]);
+    }
+    const result = await finalizeQa({
+        primaryError,
+        cleanups: cleanup,
+        writeTrace: async cleanupErrors => {
+            recordArtifactIntegrity(cleanupErrors);
+            // Failure in an earlier independent cleanup must also reach the peer.
+            if (coord?.claimed && cleanupErrors.length) {
+                try {
+                    await coord.publish('cleanup-failed', 'failed', null, { message: 'QA_LOCAL_CLEANUP_FAILED' });
+                } catch {
+                    /* Local failure artifact remains authoritative. */
+                }
+            }
+            recordArtifactIntegrity(cleanupErrors);
+            const before = cleanupErrors.length;
+            const write = () =>
+                artifacts.write('trace.json', `${JSON.stringify(clean({ events: trace, cleanupErrors }), null, 2)}\n`);
+            write();
+            recordArtifactIntegrity(cleanupErrors);
+            if (cleanupErrors.length !== before) write();
+        },
+        writeResult: async result => {
+            recordArtifactIntegrity(result.cleanupErrors);
+            if (result.cleanupErrors.length) result.status = 'failed';
+            // A trace or cleanup failure must reach the other machine before
+            // either local result can claim paired evidence readiness.
+            if (coord?.claimed) {
+                try {
+                    await coord.publish(
+                        'final-evidence-ready',
+                        result.status === 'passed' ? 'done' : 'failed',
+                        { status: result.status },
+                        result.status === 'failed' ? { message: 'QA_FINAL_EVIDENCE_FAILED' } : null
+                    );
+                    const peer = await coord.wait('final-evidence-ready', 'done');
+                    assert.equal(peer.status, 'passed', 'QA_PEER_FINAL_EVIDENCE_FAILED');
+                } catch (error) {
+                    result.status = 'failed';
+                    if (!result.primaryError) result.primaryError = error.message;
+                    else result.cleanupErrors.push({ name: 'peer-final-evidence', error: error.message });
+                }
+            }
+            recordArtifactIntegrity(result.cleanupErrors);
+            if (result.cleanupErrors.length) result.status = 'failed';
+            const before = result.cleanupErrors.length;
+            const write = () =>
+                artifacts.write(
+                    'result.json',
+                    JSON.stringify(
+                        clean({
+                            ...record,
+                            ...result,
+                            completedAt: new Date().toISOString(),
+                            platform: process.platform,
+                            phaseCount: phaseResults.length,
+                            requiredPhases: plan.length,
+                            browser: browser?.version || null,
+                            ownedProfile: browser?.profile
+                                ? { basename: path.basename(browser.profile), removed: browser.profileRemoved === true }
+                                : null,
+                        }),
+                        null,
+                        2
+                    ) + '\n'
+                );
+            write();
+            recordArtifactIntegrity(result.cleanupErrors);
+            if (result.cleanupErrors.length !== before) {
+                result.status = 'failed';
+                write();
+            }
+        },
+    });
+    return result;
+}
+
+export async function main(argv = process.argv.slice(2)) {
+    const options = parseOptions(argv);
+    if (options['validate-run']) {
+        canonicalCandidate(ROOT, options.sha);
+        if (process.env.GITHUB_OUTPUT) await fs.appendFile(process.env.GITHUB_OUTPUT, `qa_run_id=${options.runId}\n`);
+        console.log(
+            JSON.stringify({
+                status: 'validated-only-no-services',
+                role: options.role,
+                runId: options.runId,
+                sha: options.sha,
+                baseCalendarIso: options.baseCalendarIso,
+                currentCalendarIso: options.currentCalendarIso,
+            })
+        );
+        return;
+    }
+    const credentials = parseCredentials(process.env.GYM_LIVE_QA_CREDENTIALS_JSON, options.role);
+    const candidate = canonicalCandidate(ROOT, options.sha);
+    const result = await runLiveSync(options, credentials, candidate);
+    if (result.status !== 'passed') process.exitCode = 1;
+}
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    main().catch(error => {
+        console.error(
+            JSON.stringify({ status: 'failed', phase: 'guard-or-final-artifact', error: redactor()(error.message) })
+        );
+        process.exitCode = 1;
+    });
+}

@@ -1,5 +1,9 @@
 // progress.js - Progress view and charting logic
 
+import { getCurrentUser } from './utils/auth-state.js';
+import { captureAccountScope, isAccountScopeCurrent } from './utils/account-scope.js';
+import { calendarNow, localDateKey } from './utils/calendar-clock.js';
+import { registerSessionMutationInvalidator } from './utils/session-mutations.js';
 import { progressElements } from './ui.js';
 import { logger } from './utils/logger.js';
 import { localFirstCache } from './utils/local-first-cache.js';
@@ -16,6 +20,12 @@ import { parseDecimalInput, parseIntegerInput } from './utils/numeric-input.js';
 import { t, getLocale } from './i18n.js';
 
 let progressChart = null;
+let progressOwnerId = null;
+let chartRequestId = 0;
+let listRequestId = 0;
+let dataGeneration = 0;
+const loadingOwners = new Map();
+let sessionCompleteness = { complete: false };
 const exerciseDataCache = new Map();
 
 const PROGRESS_SESSIONS_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -170,17 +180,41 @@ function isProgressOnline() {
     return typeof navigator === 'undefined' || navigator.onLine !== false;
 }
 
-export function invalidateProgressCache() {
-    progressTabCache.exercisesList = null;
-    progressTabCache.exercisesWithCount = null;
-    progressTabCache.lastCacheTime = null;
-    progressTabCache.isInitialized = false;
-    exerciseDataCache.clear();
-
-    localFirstCache.clearByPrefix('progress:sessions:').catch(error => {
-        logger.warn('Could not invalidate cached progress sessions:', error);
-    });
+function resetProgressMemory() {
+    ++dataGeneration; ++chartRequestId; ++listRequestId;
+    hideProgressLoading();
+    progressTabCache.exercisesList = null; progressTabCache.exercisesWithCount = null;
+    progressTabCache.lastCacheTime = null; progressTabCache.isInitialized = false;
+    sessionCompleteness = { complete: false }; exerciseDataCache.clear();
 }
+
+function ensureProgressOwner() {
+    const userId = getCurrentUser()?.uid || null;
+    if (progressOwnerId !== userId) {
+        resetProgressMemory(); progressOwnerId = userId;
+        hideChart(); hideStats(); hideNoDataMessage();
+        if (progressChart) { progressChart.destroy(); progressChart = null; }
+    }
+    return userId;
+}
+
+export function invalidateProgressCache(userId = getCurrentUser()?.uid, { durable = true } = {}) {
+    if (!progressOwnerId || progressOwnerId === userId) resetProgressMemory();
+    if (!durable || !userId) return Promise.resolve();
+    return localFirstCache.remove(`progress:sessions:${userId}`);
+}
+
+function showDataCompleteness(metadata) {
+    const element = document.getElementById('progress-data-status');
+    if (element) {
+        element.textContent = metadata.complete ? '' : t('progress.limited_data', { limit: MAX_PROGRESS_SESSIONS });
+        element.classList.toggle('hidden', metadata.complete === true);
+    }
+    const allOption = progressElements.periodSelect?.querySelector('option[value="all"]');
+    if (allOption) allOption.textContent = t(metadata.complete ? 'progress.period_all' : 'progress.period_available');
+}
+
+function staleRead() { const error = new Error('Superseded progress request'); error.code = 'sync/stale'; return error; }
 
 function cacheExercisesList(exercises, exercisesWithCount = null) {
     progressTabCache.exercisesList = [...exercises];
@@ -206,10 +240,12 @@ export async function initializeProgressView() {
 function populateExerciseSelector(exercises, fromCache = false, exercisesWithCount = null) {
     if (!progressElements.exerciseSelect) return;
 
+    const previousSelection = progressElements.exerciseSelect.value;
     progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.select_placeholder')}</option>`;
 
     if (exercises.length === 0) {
         progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.no_history')}</option>`;
+        hideChart(); hideStats();
         showNoDataMessage();
         return;
     }
@@ -237,13 +273,15 @@ function populateExerciseSelector(exercises, fromCache = false, exercisesWithCou
         progressElements.exerciseSelect.appendChild(option);
     });
 
+    if ([...progressElements.exerciseSelect.options].some(option => option.value === previousSelection)) {
+        progressElements.exerciseSelect.value = previousSelection;
+    }
     if (!fromCache) {
         cacheExercisesList(exercises, exercisesWithCount);
     } else {
         showCacheIndicator();
     }
 
-    hideProgressLoading();
 }
 
 function showCacheIndicator() {
@@ -281,148 +319,127 @@ function showCacheIndicator() {
 
 export async function loadExerciseList() {
     if (!progressElements.exerciseSelect) return;
-
-    if (isProgressCacheValid() && progressTabCache.exercisesList && progressTabCache.exercisesWithCount) {
+    const userId = ensureProgressOwner();
+    const request = ++listRequestId;
+    const scope = captureAccountScope(userId);
+    const generation = dataGeneration;
+    const isCurrent = () => request === listRequestId && generation === dataGeneration
+        && isAccountScopeCurrent(scope, getCurrentUser()?.uid);
+    if (!userId) { resetProgressView(); return; }
+    const loadingOwner = { kind: 'list', request };
+    showProgressLoading(loadingOwner);
+    if (isProgressCacheValid() && progressTabCache.exercisesWithCount) {
         populateExerciseSelector(progressTabCache.exercisesList, true, progressTabCache.exercisesWithCount);
-        return;
+        showDataCompleteness(sessionCompleteness); hideProgressLoading(loadingOwner); return;
     }
-
-    showProgressLoading();
-
     try {
-        const sessionHistory = await loadExercisesFromSessionHistory();
-        populateExerciseSelector(sessionHistory.names, false, sessionHistory.withCounts);
+        const history = await loadSessionHistoryForProgress(scope, isCurrent);
+        if (!isCurrent()) return;
+        const result = await loadExercisesFromSessionHistory(history.sessions);
+        if (!isCurrent()) return;
+        populateExerciseSelector(result.names, false, result.withCounts);
+        showDataCompleteness(history);
     } catch (error) {
+        if (!isCurrent()) return;
         logger.error('Error loading exercise list:', error);
         progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.loading_error')}</option>`;
-        hideProgressLoading();
+    } finally {
+        hideProgressLoading(loadingOwner);
     }
 }
 
-export async function handleExerciseChange() {
-    const selectedExercise = progressElements.exerciseSelect?.value;
-
-    if (!selectedExercise) {
-        hideChart();
-        hideStats();
-        hideNoDataMessage();
-        return;
-    }
-
-    await updateChart();
-}
+export async function handleExerciseChange() { await updateChart(); }
 
 export async function updateChart() {
-    const selectedExerciseValue = progressElements.exerciseSelect?.value;
+    const userId = ensureProgressOwner();
+    const request = ++chartRequestId;
+    const generation = dataGeneration;
+    const scope = captureAccountScope(userId);
+    const selectedValue = progressElements.exerciseSelect?.value;
     const selectedMetric = progressElements.metricSelect?.value;
     const selectedPeriod = progressElements.periodSelect?.value;
-    const selectedExercise = parseExerciseSelectionValue(selectedExerciseValue);
-
-    if (!selectedExerciseValue || !selectedExercise) {
-        hideChart();
-        hideStats();
-        return;
+    const selectedExercise = parseExerciseSelectionValue(selectedValue);
+    const now = calendarNow();
+    const isCurrent = () => request === chartRequestId && generation === dataGeneration
+        && isAccountScopeCurrent(scope, getCurrentUser()?.uid)
+        && progressElements.exerciseSelect?.value === selectedValue
+        && progressElements.metricSelect?.value === selectedMetric
+        && progressElements.periodSelect?.value === selectedPeriod;
+    const loadingOwner = { kind: 'chart', request };
+    showProgressLoading(loadingOwner);
+    if (!selectedValue || !selectedExercise || !userId) {
+        hideChart(); hideStats(); hideNoDataMessage(); hideProgressLoading(loadingOwner); return;
     }
-
-    showProgressLoading();
-
     try {
-        const exerciseData = await getExerciseData(selectedExercise, selectedPeriod);
-
+        const result = await getExerciseData(selectedExercise, selectedPeriod, now, scope, isCurrent);
+        if (!isCurrent()) return;
+        const exerciseData = result.data;
+        showDataCompleteness(result);
         if (!exerciseData || exerciseData.length < 3) {
-            hideChart();
-            hideStats();
-            showNoDataMessage();
-            return;
+            hideChart(); hideStats(); showNoDataMessage(); return;
         }
-
         const chartData = processChartData(exerciseData, selectedMetric);
-        createOrUpdateChart(chartData, selectedExercise.label, selectedMetric);
+        createOrUpdateChart(chartData, selectedExercise.label, selectedMetric, isCurrent);
         updateProgressStats(exerciseData, selectedMetric);
-
-        showChart();
-        showStats();
-        hideNoDataMessage();
+        renderAccessibleTable(chartData, selectedExercise.label, selectedMetric);
+        showChart(); showStats(); hideNoDataMessage();
     } catch (error) {
+        if (!isCurrent()) return;
         logger.error('Error updating chart:', error);
-        hideChart();
-        hideStats();
-        showNoDataMessage();
+        hideChart(); hideStats(); showNoDataMessage();
     } finally {
-        hideProgressLoading();
+        hideProgressLoading(loadingOwner);
     }
 }
 
-async function getExerciseData(exerciseSelection, period) {
-    try {
-        const cacheKey = `${exerciseSelection.value}_${period}`;
-        if (exerciseDataCache.has(cacheKey)) {
-            return exerciseDataCache.get(cacheKey);
-        }
-
-        const processedData = await getExerciseDataFromSessionHistory(exerciseSelection, period);
-        exerciseDataCache.set(cacheKey, processedData);
-
-        return processedData;
-    } catch (error) {
-        logger.error('Error getting exercise data:', error);
-        return [];
-    }
+async function getExerciseData(selection, period, now, scope, isCurrent) {
+    const key = `${scope.userId}:${selection.value}:${period}:${localDateKey(now)}`;
+    const cached = exerciseDataCache.get(key);
+    if (cached && isAccountScopeCurrent(cached.scope, getCurrentUser()?.uid)
+        && Date.now() - cached.fetchedAt <= PROGRESS_SESSIONS_CACHE_TTL_MS) return cached;
+    const history = await loadSessionHistoryForProgress(scope, isCurrent);
+    if (!isCurrent()) throw staleRead();
+    const data = await getExerciseDataFromSessionHistory(selection, period, history.sessions, now);
+    if (!isCurrent()) throw staleRead();
+    const result = { data, complete: history.complete, fetchedAt: Date.now(), scope };
+    exerciseDataCache.set(key, result);
+    return result;
 }
 
-async function loadSessionHistoryForProgress() {
-    const { getCurrentUser } = await import('./auth.js');
-    const user = getCurrentUser();
-    if (!user) return [];
-
-    const cacheKey = `progress:sessions:${user.uid}`;
-    const cachedEntry = await localFirstCache.getEntry(cacheKey);
-    const hasCachedSessions = Array.isArray(cachedEntry?.value);
-    const cachedSessions = hasCachedSessions
-        ? deserializeSessionsFromCache(cachedEntry.value).slice(0, MAX_PROGRESS_SESSIONS)
-        : [];
-
-    if (
-        hasCachedSessions &&
-        (localFirstCache.isFresh(cachedEntry, PROGRESS_SESSIONS_CACHE_TTL_MS) || !isProgressOnline())
-    ) {
-        return cachedSessions;
+async function loadSessionHistoryForProgress(scope, isCurrent) {
+    const cacheKey = `progress:sessions:${scope.userId}`;
+    const cached = await localFirstCache.getEntry(cacheKey);
+    if (!isCurrent()) throw staleRead();
+    const cachedArray = Array.isArray(cached?.value) ? cached.value : cached?.value?.sessions;
+    const fromCache = { sessions: deserializeSessionsFromCache(cachedArray || []).slice(0, MAX_PROGRESS_SESSIONS),
+        complete: isProgressOnline() && cached?.metadata?.complete === true && localFirstCache.isFresh(cached, PROGRESS_SESSIONS_CACHE_TTL_MS) };
+    if (Array.isArray(cachedArray) && (localFirstCache.isFresh(cached, PROGRESS_SESSIONS_CACHE_TTL_MS) || !isProgressOnline())) {
+        sessionCompleteness = fromCache; return fromCache;
     }
-
-    if (!isProgressOnline()) {
-        return cachedSessions;
-    }
-
+    if (!isProgressOnline()) { sessionCompleteness = { ...fromCache, complete: false }; return sessionCompleteness; }
     const { db } = await import('./firebase-config.js');
-    const { collection, query, orderBy, limit, getDocs } =
-        await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-
-    const sessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-    const q = query(sessionsRef, orderBy('fecha', 'desc'), limit(MAX_PROGRESS_SESSIONS));
-    const querySnapshot = await getDocs(q);
-
-    firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'progress.sessionHistoryFallback', {
-        limit: MAX_PROGRESS_SESSIONS,
-    });
-
-    const sessions = querySnapshot.docs
-        .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
-        .slice(0, MAX_PROGRESS_SESSIONS);
-
+    const { collection, query, orderBy, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+    if (!isCurrent()) throw staleRead();
+    const snapshot = await getDocs(query(collection(db, 'users', scope.userId, 'sesiones_entrenamiento'),
+        orderBy('fecha', 'desc'), limit(MAX_PROGRESS_SESSIONS + 1)));
+    if (!isCurrent()) throw staleRead();
+    firebaseUsageTracker.trackRead(snapshot.docs.length || 1, 'progress.sessionHistoryFallback', { limit: MAX_PROGRESS_SESSIONS + 1 });
+    const seen = new Set();
+    const sessions = snapshot.docs.slice(0, MAX_PROGRESS_SESSIONS).map(item => ({ ...item.data(), id: item.id }))
+        .filter(item => { if (seen.has(item.id)) return false; seen.add(item.id); return true; });
+    const complete = snapshot.docs.length <= MAX_PROGRESS_SESSIONS && snapshot.metadata?.fromCache !== true
+        && snapshot.metadata?.hasPendingWrites !== true;
     await localFirstCache.set(cacheKey, serializeSessionsForCache(sessions), {
-        metadata: {
-            source: 'firestore',
-            limit: MAX_PROGRESS_SESSIONS,
-        },
+        metadata: { source: 'firestore', ownerId: scope.userId, limit: MAX_PROGRESS_SESSIONS, complete }, ifCurrent: isCurrent,
     });
-
-    return sessions;
+    if (!isCurrent()) throw staleRead();
+    sessionCompleteness = { sessions, complete };
+    return sessionCompleteness;
 }
 
-async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
+async function getExerciseDataFromSessionHistory(exerciseSelection, period, sessions, now) {
     try {
         logger.info(`Analytical history: Loading ${exerciseSelection.label} data from bounded sessions`);
-        const sessions = await loadSessionHistoryForProgress();
 
         const exerciseData = [];
         const normalizedSelectedName = normalizeExerciseName(exerciseSelection.name);
@@ -430,14 +447,21 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
         const selectedLoadType = normalizeLoadType(exerciseSelection.loadType);
         let lastKnownBodyweight = null;
 
-        const sortedSessions = [...sessions].sort((a, b) => {
+        const seenSessionIds = new Set();
+        const distinctSessions = sessions.filter((session, index) => {
+            const id = session.id || session.sessionId || `legacy-${index}`;
+            if (seenSessionIds.has(id)) return false;
+            seenSessionIds.add(id); return true;
+        });
+        const sortedSessions = [...distinctSessions].sort((a, b) => {
             const dateA = a.fecha && a.fecha.toDate ? a.fecha.toDate() : new Date(0);
             const dateB = b.fecha && b.fecha.toDate ? b.fecha.toDate() : new Date(0);
             return dateA - dateB;
         });
 
-        sortedSessions.forEach(sessionData => {
-            const sessionDate = sessionData.fecha && sessionData.fecha.toDate ? sessionData.fecha.toDate() : new Date();
+        sortedSessions.forEach((sessionData, sessionIndex) => {
+            const sessionDate = sessionData.fecha?.toDate?.();
+            if (!(sessionDate instanceof Date) || Number.isNaN(sessionDate.getTime())) return;
             const sessionBodyweightResult = parseDecimalInput(sessionData.pesoUsuario ?? sessionData.userWeight, {
                 maxFractionDigits: null,
                 roundTo: null,
@@ -484,6 +508,7 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
 
                         exerciseData.push({
                             date: sessionDate,
+                            sessionId: sessionData.id || sessionData.sessionId || `legacy-${sessionIndex}`,
                             weight: maxWeight === Number.NEGATIVE_INFINITY ? 0 : maxWeight,
                             volume: totalVolume,
                             reps: maxReps,
@@ -494,8 +519,7 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
             }
         });
 
-        const now = new Date();
-        let startDate = new Date();
+        let startDate = new Date(now);
 
         switch (period) {
             case '3m':
@@ -509,14 +533,20 @@ async function getExerciseDataFromSessionHistory(exerciseSelection, period) {
                 break;
             case 'all':
             default:
-                startDate = new Date('2020-01-01');
+                startDate = new Date(0);
                 break;
         }
 
         const filteredData = exerciseData.filter(record => record.date >= startDate);
         filteredData.sort((a, b) => a.date - b.date);
 
-        return filteredData;
+        const bySession = new Map();
+        for (const record of filteredData) {
+            const current = bySession.get(record.sessionId);
+            if (!current) bySession.set(record.sessionId, record);
+            else { current.weight = Math.max(current.weight, record.weight); current.reps = Math.max(current.reps, record.reps); current.volume += record.volume; }
+        }
+        return [...bySession.values()];
     } catch (error) {
         logger.error('Error in analytical exercise history loading:', error);
         return [];
@@ -529,7 +559,7 @@ function processChartData(exerciseData, metric) {
     const dataByDate = new Map();
 
     exerciseData.forEach(entry => {
-        const dateKey = entry.date.toISOString().split('T')[0];
+        const dateKey = localDateKey(entry.date);
 
         if (!dataByDate.has(dateKey)) {
             dataByDate.set(dateKey, {
@@ -575,15 +605,16 @@ function processChartData(exerciseData, metric) {
     return { labels, data: chartData };
 }
 
-function createOrUpdateChart(chartData, exerciseName, metric) {
+function createOrUpdateChart(chartData, exerciseName, metric, isCurrent = () => true, attempt = 0) {
+    if (!isCurrent()) return;
     if (typeof Chart === 'undefined') {
         if (!createOrUpdateChart.retryCount) {
             createOrUpdateChart.retryCount = 0;
         }
 
-        if (createOrUpdateChart.retryCount < 10) {
-            createOrUpdateChart.retryCount++;
-            setTimeout(() => createOrUpdateChart(chartData, exerciseName, metric), 200);
+        if (attempt < 10) {
+            createOrUpdateChart.retryCount = attempt + 1;
+            setTimeout(() => createOrUpdateChart(chartData, exerciseName, metric, isCurrent, attempt + 1), 200);
             return;
         }
 
@@ -698,8 +729,7 @@ function updateProgressStats(exerciseData, metric) {
     const lastValue = values[values.length - 1];
     const totalProgress = lastValue - firstValue;
 
-    const uniqueDates = new Set(exerciseData.map(entry => entry.date.toDateString()));
-    const sessionCount = uniqueDates.size;
+    const sessionCount = new Set(exerciseData.map(entry => entry.sessionId)).size;
 
     const units = {
         weight: t('progress.unit_weight'),
@@ -738,16 +768,15 @@ function formatDateForChart(date) {
     });
 }
 
-function showProgressLoading() {
-    if (progressElements.loadingSpinner) {
-        progressElements.loadingSpinner.classList.remove('hidden');
-    }
+function showProgressLoading(owner) {
+    loadingOwners.set(owner.kind, owner);
+    progressElements.loadingSpinner?.classList.remove('hidden');
 }
 
-function hideProgressLoading() {
-    if (progressElements.loadingSpinner) {
-        progressElements.loadingSpinner.classList.add('hidden');
-    }
+function hideProgressLoading(owner = null) {
+    if (!owner) loadingOwners.clear();
+    else if (loadingOwners.get(owner.kind) === owner) loadingOwners.delete(owner.kind);
+    progressElements.loadingSpinner?.classList.toggle('hidden', loadingOwners.size === 0);
 }
 
 function showChart() {
@@ -756,7 +785,23 @@ function showChart() {
     }
 }
 
+function renderAccessibleTable(chartData, exerciseName, metric) {
+    const container = progressElements.chartContainer;
+    if (!container) return;
+    let table = document.getElementById('progress-data-table');
+    if (!table) { table = document.createElement('table'); table.id = 'progress-data-table'; container.appendChild(table); }
+    table.replaceChildren();
+    const caption = table.createCaption(); caption.textContent = t('progress.chart_title', { exercise: exerciseName, metric: t(`progress.metric_${metric}`) });
+    const header = table.createTHead().insertRow();
+    for (const label of [t('progress.table_date'), t(`progress.metric_${metric}`)]) {
+        const cell = document.createElement('th'); cell.scope = 'col'; cell.textContent = label; header.appendChild(cell);
+    }
+    const body = table.createTBody();
+    chartData.labels.forEach((label, index) => { const row = body.insertRow(); row.insertCell().textContent = label; row.insertCell().textContent = `${chartData.data[index]}`; });
+}
+
 function hideChart() {
+    document.getElementById('progress-data-table')?.remove();
     if (progressElements.chartContainer) {
         progressElements.chartContainer.classList.add('hidden');
     }
@@ -787,10 +832,7 @@ function hideNoDataMessage() {
 }
 
 export function clearExerciseCache() {
-    exerciseDataCache.clear();
-    localFirstCache.clearByPrefix('progress:sessions:').catch(error => {
-        logger.warn('Could not clear cached progress sessions:', error);
-    });
+    return invalidateProgressCache();
 }
 
 export function resetProgressView() {
@@ -802,21 +844,28 @@ export function resetProgressView() {
     hideChart();
     hideStats();
     hideNoDataMessage();
-    clearExerciseCache();
+    resetProgressMemory();
+    hideProgressLoading();
 
     if (progressElements.exerciseSelect) {
         progressElements.exerciseSelect.innerHTML = `<option value="">${t('progress.loading_exercises')}</option>`;
     }
 }
 
-async function loadExercisesFromSessionHistory() {
+registerSessionMutationInvalidator(({ userId }) => invalidateProgressCache(userId, { durable: false }));
+
+async function loadExercisesFromSessionHistory(sessions) {
     try {
-        const sessions = await loadSessionHistoryForProgress();
 
         const exerciseCount = new Map();
         const descriptors = new Map();
 
-        sessions.forEach(sessionData => {
+        const seenSessions = new Set();
+        sessions.forEach((sessionData, sessionIndex) => {
+            const sessionId = sessionData.id || sessionData.sessionId || `legacy-${sessionIndex}`;
+            if (seenSessions.has(sessionId)) return;
+            seenSessions.add(sessionId);
+            const seenExercises = new Set();
             if (sessionData.ejercicios && Array.isArray(sessionData.ejercicios)) {
                 sessionData.ejercicios.forEach(ejercicio => {
                     const exerciseName = ejercicio.nombreEjercicio || ejercicio.name || ejercicio.ejercicio;
@@ -830,6 +879,8 @@ async function loadExercisesFromSessionHistory() {
                         const loadType = normalizeLoadType(resolveExerciseLoadType(ejercicio));
                         const descriptor = buildExerciseDescriptor(exerciseName, executionMode, loadType);
                         const key = descriptor.value;
+                        if (seenExercises.has(key)) return;
+                        seenExercises.add(key);
                         const count = exerciseCount.get(key) || 0;
                         exerciseCount.set(key, count + 1);
                         if (!descriptors.has(key)) {

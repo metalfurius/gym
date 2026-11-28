@@ -554,3 +554,10 @@ describe('quick-log utils', () => {
         expect(metrics.currentWeeklyStreak).toBe(0);
     });
 });
+
+it('carries the preserved legacy baseline into unfrozen weeks before the first dated target', () => {
+    const sessions = Array.from({ length: 4 }, (_, index) => ({ id: `baseline-${index}`, fecha: { toDate: () => new Date(2026, 10, 20, 8 + index) } }));
+    const timeline = buildWeeklyConsistencyTimeline({ now: new Date(2026, 10, 23, 12), sessions, lookbackWeeks: 2,
+        weeklyTargetDays: 5, weeklyTargetBaselineSessions: 7, weeklyTargetsByWeek: { '2026-11-23': { targetSessions: 5 } } });
+    expect(timeline.timeline[0]).toMatchObject({ weekKey: '2026-11-16', targetSessions: 7, sessionCount: 4, met: false });
+});

@@ -1,0 +1,39 @@
+{
+  "candidate": "62b71bdf8831b1d5140c2f6103aceca370ad4d7e",
+  "mode": "actual app/public Quick Log save; injected IndexedDB intent-put failure; repository Firestore transport mock; not live Firebase",
+  "first": {
+    "ok": false,
+    "reason": "error",
+    "error": "Durable local storage unavailable"
+  },
+  "second": {
+    "ok": true,
+    "queued": true
+  },
+  "afterError": [
+    {
+      "id": "offline-0b36ab53-3ecd-4c59-9639-501e3c09cbec",
+      "sessionId": "session-e8b570bf-6efa-4bd6-816a-208586068bf8"
+    }
+  ],
+  "beforeReconnect": [
+    {
+      "id": "offline-0b36ab53-3ecd-4c59-9639-501e3c09cbec",
+      "sessionId": "session-e8b570bf-6efa-4bd6-816a-208586068bf8"
+    },
+    {
+      "id": "offline-2fbc5b3e-948b-4e46-81ee-15d561abd139",
+      "sessionId": "session-90fb29ab-6497-4140-b632-959e5fcddeb4"
+    }
+  ],
+  "sessions": [
+    {
+      "path": "users/A/sesiones_entrenamiento/session-e8b570bf-6efa-4bd6-816a-208586068bf8",
+      "label": "Quick Log"
+    },
+    {
+      "path": "users/A/sesiones_entrenamiento/session-90fb29ab-6497-4140-b632-959e5fcddeb4",
+      "label": "Quick Log"
+    }
+  ]
+}

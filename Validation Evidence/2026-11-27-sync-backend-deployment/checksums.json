@@ -1,0 +1,31 @@
+{
+  "approvedRulesHead": "feef930ea9cae7184e5141175b47a0d9b47de8fe",
+  "sourceSha256": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504",
+  "normalization": "JSON LF, PNG unchanged",
+  "files": [
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/rules-before.json",
+      "sha256": "c5ed85f6e1386d520f7224b4489005bfc9cefc017d3a2698efd01e13ae59ff13"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/rules-after.json",
+      "sha256": "91ca871dbc63b7dc726477565ababdef1281893c31bdff77b3ea7297c0f4545b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/propagation-client.json",
+      "sha256": "cd7fc42913f5075552b950e3f904b21eb3dafee26c9faa45ed0995a37c1d75fb"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/activation-admin-record.json",
+      "sha256": "33f4aa4ee2b6947d1f060c9882d9934a400fdb32e044b48806f6a96eed961ca5"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/activation-client-readback.json",
+      "sha256": "11fb45f5027474a89ee99b9113159b9361f00878112221835ff11c9ffc351484"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/activation-console.png",
+      "sha256": "75bb0cc550f66f9db91d4b90f70367e2d9c37474e88ad7ae0d0a87ecfa109ef1"
+    }
+  ]
+}

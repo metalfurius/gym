@@ -1,0 +1,13 @@
+
+> my-workout-tracker@1.0.2 lint:ratchet
+> eslint . --max-warnings 0
+
+
+C:\tmp\gym-outbox-conflict-metadata\js\utils\outbox-order.js
+  22:14  error  Expected '===' and instead saw '=='  eqeqeq
+  22:31  error  Expected '===' and instead saw '=='  eqeqeq
+  24:19  error  Expected '!==' and instead saw '!='  eqeqeq
+  28:14  error  Expected '===' and instead saw '=='  eqeqeq
+  29:15  error  Expected '===' and instead saw '=='  eqeqeq
+
+✖ 5 problems (5 errors, 0 warnings)

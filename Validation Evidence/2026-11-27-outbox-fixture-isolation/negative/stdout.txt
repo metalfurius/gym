@@ -1,0 +1,1 @@
+{"status":"failed","cleanupErrors":["cleanup-owner"],"output":"C:\\tmp\\gym-roadmap-outbox-fixture-isolation\\Validation Evidence\\2026-11-27-outbox-fixture-isolation\\negative"}

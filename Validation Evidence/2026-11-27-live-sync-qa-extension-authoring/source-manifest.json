@@ -1,0 +1,52 @@
+{
+  "status": "authoring-only-live-NOT-RUN",
+  "base": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "branch": "codex/roadmap-live-sync-qa-extension",
+  "sourceBytes": "UTF-8 canonical Git LF; BOM retained",
+  "artifactBytes": "UTF-8 canonical Git LF, trailing blank console lines removed; no live artifacts",
+  "sources": {
+    "scripts/live-sync-qa.mjs": "dde035923479cae9893707a3676128cf34e872affd0566c3d82562531c6cc5ea",
+    "scripts/live-sync-qa-browser.mjs": "b2b9264b20e1f49acdc3c52734274ffc955a90d5ecde7c7f4784c39562cd215b",
+    "scripts/live-sync-qa-protocol.mjs": "768272f3151f26d3ea5a9545877fb92143f1bb128b165135ae57cb25c2d0c785",
+    "scripts/live-sync-qa-scenarios.mjs": "6b4ee425fb54babee346e10ae86610baf71f578dacf05a0690fcb640a430d588",
+    "scripts/live-sync-qa-observations.mjs": "c9bd5e646a7c7095fce3221665d2677ed75a333fdb603f5258555d5bec82c5d2",
+    "tests/unit/live-sync-qa.test.js": "85c535d724f33a999953351d38d0995fac8faab57da856e74f85689b8366d814",
+    "tests/unit/live-sync-qa-extension.test.js": "9dfd4d950da9f5424712d6ede1892b201899e4de2a9f2ec216ff1d67f99a1049",
+    "tests/unit/live-sync-qa-ui.test.js": "b4284098fa19122e2baa50d589209a4e335817edcc2ee3cc53c7b2a3a7df4150",
+    "docs/live-sync-qa.md": "206d29cba8e67871d06716cba180fe80c01ecefac5ce9d3098c15e9e576702f6",
+    "TESTING-PLAN.md": "9ea1c474ba960012b3800ddbedfbf76c5c4b2912fe1111782eccf75210897504"
+  },
+  "sourceBundleSha256": "a54b61637e1599b755c92abc050c0740b118742c6055cf90b5719acc246f191a",
+  "unchangedApplicationTree": "a4c80c328b42085e62509579324c8dc5b70aa0c0",
+  "unchangedMetadata": {
+    "index.html": "58a9cf61da3625d9d992235f7ae32fcd69636f1e9c160e39a5e5bb4c841c01b9",
+    "manifest.json": "faa705b62ceeafa627d09d4c805fa4b7871a2d199ba548b2cce05a4ae7d8094a",
+    "release.json": "9e03a8c4d079f27997490beb1126a14803e3360960d4df089aff850bcc6b9dad",
+    "sw.js": "8632f04188be0aef5577e8a45e8dfaaa1376eda19c4386e4b01327cd5e2c3927",
+    "package.json": "6eb39010e82fd6313307ad76b0a4ebea72d1690a4b04ccbed29e49feb7fa70fc",
+    "package-lock.json": "4708814f70ffb2a98f999f54c42e7f016edadda6fc2faac40e21d47960ebcadd",
+    ".github/workflows/browser-gates.yml": "93669c8f3c758f6f79d481ce2c7bdc52bb2f995063296d70c312265eb562a007",
+    "scripts/browser-runtime-lock.json": "4e462eaf6a9fcbcc96a69f61799f8e518e54f6def2d4063047d9f357e977ca25",
+    "scripts/owned-browser-process.mjs": "8f0d142e33d12f902bda3e8746ec812f2defd7fcc40c9de0216e23245c760076",
+    "scripts/browser-cdp-target.mjs": "237853e664813c3dc440f3ddadd627369f2c5a8b39d929d6114f3f1255edd79f"
+  },
+  "artifacts": {
+    "README.md": "a4b90f94b18dc9b07ed8e424fdee34baca7a103c85f9978bd243c1cde936e4ab",
+    "focused.txt": "18de6148928b544d2ea882c9518c1aef1aa9da694019333377f2d988d395cc2d",
+    "lint.txt": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b",
+    "no-skips.txt": "ad3610f3461b3abebdd85bd73539540a508f4d493db8a966eb9391445d8c897b",
+    "release.txt": "a0246d07fce78ec5cbd914ac399843354442068cc1162e8c5b1234df10dc864b",
+    "static-checks.json": "1b9db386f21cb8454191391c50859d68a75cc3739e75998c838b289f8f9aaad6"
+  },
+  "requiredLivePhases": 47,
+  "authoringChecks": {
+    "focusedSuites": 6,
+    "focusedTests": 83,
+    "qaTests": 54,
+    "lintWarnings": 0,
+    "noSkips": "passed",
+    "release": "v2.8.6 / 75 assets",
+    "nativeOutbox": "not repeated: QA-only scope",
+    "live": "NOT RUN"
+  }
+}

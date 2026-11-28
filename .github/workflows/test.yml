@@ -45,7 +45,19 @@ jobs:
           UPGRADE_SMOKE_BOOTSTRAP_DELAY_MS: '1000'
           UPGRADE_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/delayed-1000
 
-      - name: Upload Chromium upgrade evidence
+      - name: Verify cross-tab durable outbox and acknowledgement tombstones
+        timeout-minutes: 4
+        run: npm run test:e2e:outbox
+        env:
+          OUTBOX_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/outbox
+
+      - name: Verify outbox cleanup failures retain failed evidence
+        timeout-minutes: 4
+        run: npm run test:e2e:outbox:negative
+        env:
+          OUTBOX_SMOKE_EVIDENCE_DIR: ${{ runner.temp }}/gym-upgrade-smoke/outbox-cleanup-negative
+
+      - name: Upload Chromium upgrade and outbox evidence
         if: always()
         uses: actions/upload-artifact@v6
         with:

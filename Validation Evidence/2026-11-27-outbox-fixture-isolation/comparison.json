@@ -1,0 +1,645 @@
+{
+  "base": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "scope": "Local fixture isolation only; not product/backend performance or an SLA",
+  "node": "v24.12.0",
+  "platform": "win32",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "deadlineMs": 180000,
+  "unchangedCiTimeoutMinutes": 4,
+  "independentBaseline": {
+    "runId": "9c061e9b-52bf-40c0-a541-011f773f91c2",
+    "status": "failed",
+    "elapsedMs": 216303,
+    "captureCases": 6,
+    "durableCases": 7,
+    "cleanupErrors": []
+  },
+  "finalPositive": {
+    "runId": "8a2c270a-cf22-4c31-b642-33bb00657dfa",
+    "status": "passed",
+    "elapsedMs": 24729,
+    "scenarios": 26,
+    "retainedJournals": 26,
+    "serversClosed": 26,
+    "appCases": 6,
+    "captureCases": 6,
+    "durableCases": 8,
+    "cleanupErrors": []
+  },
+  "finalNegative": {
+    "runId": "b0320be9-50e9-4bf2-9b80-217f516d7442",
+    "status": "failed",
+    "elapsedMs": 26337,
+    "scenarios": 26,
+    "retainedJournals": 26,
+    "serversClosed": 26,
+    "appCases": 6,
+    "captureCases": 6,
+    "durableCases": 8,
+    "cleanupErrors": [
+      "cleanup-owner"
+    ],
+    "verifierStatus": "passed",
+    "childExitCode": 1
+  },
+  "journalFootprints": [
+    {
+      "id": "core-cross-tab-causal-barriers",
+      "origin": "http://127.0.0.1:50016",
+      "elapsedMs": 3219,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "after": {
+        "indexedDbBatches": 10,
+        "indexedDbBytes": 6470,
+        "indexedDbSha256": "d1f9dce997a9a8d59d038fc73278ab950db336fa01f89fc5a75c31e693ef0db7",
+        "localMirrorBatches": 10
+      }
+    },
+    {
+      "id": "quicklog-success-abort",
+      "origin": "http://127.0.0.1:55032",
+      "elapsedMs": 732,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "7c740ee478c2c9fbe84710ef77bddf72d5303ed716db349575b7f98bde5ecaa5",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7047,
+        "indexedDbSha256": "d240eff993b3aa6b51621435ab572136001ec06b9891673080e59787144803be",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "quicklog-request-error-complete",
+      "origin": "http://127.0.0.1:51859",
+      "elapsedMs": 562,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "7ec92845d46631e60c442f45e555be988279a124e2166316daea22892e3f3e59",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7164,
+        "indexedDbSha256": "6d908032724740e64c83be69b39c8bbd77a96d2058cded80e4a8ff0eed213b77",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "quicklog-mirror",
+      "origin": "http://127.0.0.1:64764",
+      "elapsedMs": 541,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0ce496b87ad1c65950d70d926b87499260f78564ba19899a6f5b019c96edc3f5",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5749,
+        "indexedDbSha256": "7e0b8d6220180a88a76b3d11f90b1c7e204c26aee175a68d47eaec6e9eb08215",
+        "localMirrorBatches": 4
+      }
+    },
+    {
+      "id": "quicklog-refresh",
+      "origin": "http://127.0.0.1:61030",
+      "elapsedMs": 421,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "180d8ee07203fc3c4565fb2c7da41f6a3f53c482640a79ca83415f457cb7e6c0",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5759,
+        "indexedDbSha256": "5cdb2d705a8000f700a1c6b1c46dae8782dcecc643abe321136157ccb7d29fb1",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "quicklog-ack-abort",
+      "origin": "http://127.0.0.1:49550",
+      "elapsedMs": 547,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "505414a0e83ac682278c0757d4103020537d9c63530f83a0bc275adb8c858533",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5779,
+        "indexedDbSha256": "be6f179921061934f9a36ae450db13689b0eb8ba92848cd36b4eab3db821ab77",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "quicklog-lost-rpc",
+      "origin": "http://127.0.0.1:64789",
+      "elapsedMs": 590,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "c846561ab01213327b7ea3f7a10e480bbae99475980f1ee972c870001d6545bd",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5769,
+        "indexedDbSha256": "4a30959ccfb5c16e0650939a80c1282fbed876e99b4dfd0804a8fdda0646188b",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-offline",
+      "origin": "http://127.0.0.1:59355",
+      "elapsedMs": 713,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "375589435b54d46a58e2e6b6927a816d15fed9690779b556f5cca89c563d69b0",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5837,
+        "indexedDbSha256": "06e68fd4def26a6c61e7fa4c17e5efea3bc272153a17b8cc32466a9e6011bbab",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-lost-rpc",
+      "origin": "http://127.0.0.1:50930",
+      "elapsedMs": 688,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "e41bfb7852e7a84220039e28c26b92770acb2d3d54793718fcfae3f240df5efe",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5847,
+        "indexedDbSha256": "59b878a93601ddf19b33e67c2fb089dd747186a72d9cf4dc68aefed8b96386ec",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-unknown-journal",
+      "origin": "http://127.0.0.1:55487",
+      "elapsedMs": 661,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "3d94acc25b80b90d083ea2a716b22f2a869770e644a0b6957be2772cb478e2e1",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5917,
+        "indexedDbSha256": "585b2b42934be34c9c7abbf5df56f1b7e5b717e5e5ea6926436148b223413b3c",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-unknown-before-commit",
+      "origin": "http://127.0.0.1:64551",
+      "elapsedMs": 1394,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "8cf82c5b99e29ca0edb7fb9a076c8b12510d2990bb8e0668033f8fc6787085ba",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5977,
+        "indexedDbSha256": "1c58fbe438a8e5bb2f59f1f54fecfb9275e006bb64237f04182402997b4af9aa",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-draft-cleanup",
+      "origin": "http://127.0.0.1:53295",
+      "elapsedMs": 553,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "a4e458553f54a782fa7e028c899be62786ef6f9acbfcf5340f771670c5acd9ee",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5897,
+        "indexedDbSha256": "4d884a24817fec595352021a4b5b672381b7e2c1737e2cad94352924083ff03f",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-native-abort-retry",
+      "origin": "http://127.0.0.1:52974",
+      "elapsedMs": 714,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "6195ab11be2029660c4713dad774e6abb2ed02e033bd43761ea84b4a2d713638",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7054,
+        "indexedDbSha256": "c7e07aecfd4c329597a514fad346c761fea06974ffc527da6f3fdd924844ec44",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-auth-and-form-generation",
+      "origin": "http://127.0.0.1:63095",
+      "elapsedMs": 764,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "6413c27def2c70debb298ad81f0151780a2c8fbda3886dfc422b8cc1e5ee4456",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 7,
+        "indexedDbBytes": 6526,
+        "indexedDbSha256": "d7f727d19f0b34f3f63e0a3e92888b4364f808d8d0be636f389902c26c93495c",
+        "localMirrorBatches": 7
+      }
+    },
+    {
+      "id": "capture-two-deliberate-starts",
+      "origin": "http://127.0.0.1:64506",
+      "elapsedMs": 483,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "f8c9130238cd622293e362e6ed307f51092d1f5fb5e5dbd79820432333496973",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 8755,
+        "indexedDbSha256": "fcade9a0f62bb00eb03226dc03c26fb306b04cf6c7936bda112a04565085a717",
+        "localMirrorBatches": 8
+      }
+    },
+    {
+      "id": "durable-primary-false-false",
+      "origin": "http://127.0.0.1:52559",
+      "elapsedMs": 683,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "b3281c6b61735b7ee21a1cdba28d06ef134cdfaedf5f42c7e19d0c385f8f8797",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5887,
+        "indexedDbSha256": "4365b202ca8dedca7885797c7f830f049e19132b44d1f3ba62656cd60cb899e8",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-primary-false-true",
+      "origin": "http://127.0.0.1:54512",
+      "elapsedMs": 942,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "f0ed9dc86d018570b81a39aeac546a4733930c0829d74d00f999e4b30cbf7a77",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "ed562b9cb6b3dbe0ece7dbe304d51d16a9cfaf715a45ed90711ad17e029dee3d",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-primary-true-false",
+      "origin": "http://127.0.0.1:62846",
+      "elapsedMs": 616,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "b3cb4e882b33c556b78bf96e53831983cf8237c88045c13977dffcd53f3818b6",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "7e9505b914909808edd4522b505f1949d83d27e83ff4776ff642cbd38bb440f3",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-primary-true-true",
+      "origin": "http://127.0.0.1:64919",
+      "elapsedMs": 839,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "4b0e16da3b35fac0ac0f383cb6085fb5fe5bc7cbf290fa6e857fceb580745601",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "da90ca708a672775e1acc0baad792cd9e8a3b32c0b7c1266e8201f5046a4c52a",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-mirror-false-false",
+      "origin": "http://127.0.0.1:59491",
+      "elapsedMs": 664,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0e67b59c52ca2b0cb83678e043f2958d5b7b996dd4992c7d1a47d57c728580ec",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "a98293d82f7326ba17b57c73857fdafdde4ba102ff49aa53ae417ca8dc24cd0b",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-mirror-false-true",
+      "origin": "http://127.0.0.1:49392",
+      "elapsedMs": 947,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "f4f8142740e56136a0d4d18b82d724b49e399c5e316d7c4b1914fc0680219f63",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "5de660c4f2f7c9cb0339c5d98f83df7e8a8d0fb9bca443133aad6736b6c8aaaa",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-mirror-true-false",
+      "origin": "http://127.0.0.1:62007",
+      "elapsedMs": 730,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "c4c0032dfe0f9e9252e8b649f49c5646ae4b760faecb23702d8da295d08bc76c",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "7f3a88a08883230ddd05f9e410f49ce28e31b986381616880d2fcd56a6f1b08c",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "durable-mirror-true-true",
+      "origin": "http://127.0.0.1:50610",
+      "elapsedMs": 1030,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "270ed106488c4f7c76045673fe136721b0c8289fecb5dff010573af35cc2cf29",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5857,
+        "indexedDbSha256": "062a11d60e9f26bd0ef3eecc514a656a5be6a0d78b484778a722d811c5f60e6e",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "capture-legacy-PWA5-backup",
+      "origin": "http://127.0.0.1:64377",
+      "elapsedMs": 698,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0e2bfb2d81001c2756c37960be52a151872d6325194dc72df4e506720dff0f0f",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5807,
+        "indexedDbSha256": "7f37dafc227490b568c883138cea4889035e3a35e2506d66626452579aa869b0",
+        "localMirrorBatches": 6
+      }
+    },
+    {
+      "id": "weekly-advisory-cache",
+      "origin": "http://127.0.0.1:64112",
+      "elapsedMs": 912,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "6bf42e7399b19fde105eacf73e0a20d1a6dcab9df2794e3b096999a16bd7f63e",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 7559,
+        "indexedDbSha256": "df6170cd4c05b952be9c12de42b26edbb66fc0c43cd7632e8ee9bb7e94840a15",
+        "localMirrorBatches": 8
+      }
+    },
+    {
+      "id": "weekly-causal-chain",
+      "origin": "http://127.0.0.1:56288",
+      "elapsedMs": 579,
+      "before": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "afterStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "1ed7efd78999b835e245d035870dff821882d9aba6cceb2bf485efac0af723ae",
+        "localMirrorBatches": 2
+      },
+      "after": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 7283,
+        "indexedDbSha256": "52f9c3d60079fa6f5ae5f877ed17a629d329f69bbfe17d0cf01c02e2573c3e5b",
+        "localMirrorBatches": 8
+      }
+    }
+  ]
+}

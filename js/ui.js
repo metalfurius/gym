@@ -1,5 +1,6 @@
 // --- DOM Elements ---
 import { resetTimerInitialization } from './timer.js';
+import { captureAccountScope, isAccountScopeCurrent, getAccountOwnerId } from './utils/account-scope.js';
 import { logger } from './utils/logger.js';
 import { toast } from './utils/notifications.js';
 import { cleanupViewListeners } from './utils/event-manager.js';
@@ -336,7 +337,12 @@ export function populateDaySelector(userRoutines) {
     }
 }
 
+let sessionRenderRequestId = 0;
+
 export async function renderSessionView(routine, inProgressData = null) {
+    const request = ++sessionRenderRequestId;
+    const generation = captureAccountScope(null).generation;
+    const requestedOwnerId = getAccountOwnerId();
     if (!routine || !routine.exercises) {
         logger.error('Routine data is invalid for session view:', routine);
         toast.error(t('session.invalid_routine_data'));
@@ -349,6 +355,11 @@ export async function renderSessionView(routine, inProgressData = null) {
 
     const { getCurrentUser } = await import('./auth.js');
     const currentUserId = getCurrentUser()?.uid || null;
+    if (request !== sessionRenderRequestId || generation !== captureAccountScope(null).generation
+        || (requestedOwnerId && requestedOwnerId !== currentUserId)) return;
+    const scope = captureAccountScope(currentUserId);
+    const isCurrent = () => request === sessionRenderRequestId
+        && (currentUserId ? isAccountScopeCurrent(scope, getCurrentUser()?.uid) : !getCurrentUser());
 
     const userWeightDiv = document.createElement('div');
     userWeightDiv.className = 'user-weight-input';
@@ -519,6 +530,7 @@ export async function renderSessionView(routine, inProgressData = null) {
             exerciseBlock.appendChild(variantControls);
 
             const { exerciseCache } = await import('./exercise-cache.js');
+            if (!isCurrent()) return;
             const buildVariantSuffix = (executionMode, loadType) => {
                 const variantLabels = [];
                 if (executionMode !== DEFAULT_EXECUTION_MODE) {

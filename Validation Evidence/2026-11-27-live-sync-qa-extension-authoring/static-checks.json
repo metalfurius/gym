@@ -1,0 +1,27 @@
+{
+  "status": "authoring-only-live-NOT-RUN",
+  "checkedAt": "2026-11-27T17:57:14.047Z",
+  "base": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "branch": "codex/roadmap-live-sync-qa-extension",
+  "node": "v22.23.5",
+  "syntax": {
+    "scripts/live-sync-qa.mjs": "passed",
+    "scripts/live-sync-qa-browser.mjs": "passed",
+    "scripts/live-sync-qa-protocol.mjs": "passed",
+    "scripts/live-sync-qa-scenarios.mjs": "passed",
+    "scripts/live-sync-qa-observations.mjs": "passed",
+    "tests/unit/live-sync-qa.test.js": "passed",
+    "tests/unit/live-sync-qa-extension.test.js": "passed",
+    "tests/unit/live-sync-qa-ui.test.js": "passed"
+  },
+  "phases": 47,
+  "uniquePhases": true,
+  "applicationAndWorkflowDiff": "unchanged",
+  "uncredentialedCli": {
+    "exitCode": 1,
+    "stdoutBytes": 0,
+    "expectedError": "QA_CREDENTIALS_JSON_REQUIRED",
+    "beforeBrowserOrService": true
+  },
+  "liveExecuted": false
+}

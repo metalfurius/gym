@@ -1,0 +1,46 @@
+{
+  "status": "authoring-checks-passed",
+  "live": "NOT RUN",
+  "base": "949c791ccc789058abe28254710c86f45326c1d0",
+  "node": "v24.12.0",
+  "syntax": [
+    {
+      "file": "scripts/live-sync-qa.mjs",
+      "status": "passed",
+      "sha256Lf": "2bb802f7d5e2442fb9e76d3d5213ce41cb7020e49d02cfba287c42f8bc296260"
+    },
+    {
+      "file": "scripts/live-sync-qa-browser.mjs",
+      "status": "passed",
+      "sha256Lf": "4179b4cb3ae1efd9d7ca2c0fa343d5ab7c3a3e11480485098ffa4aff13f6f609"
+    },
+    {
+      "file": "scripts/live-sync-qa-scenarios.mjs",
+      "status": "passed",
+      "sha256Lf": "56be850454040bc394eed2c89c251b18425e9fa9c41dd12df19d007ed1f93437"
+    },
+    {
+      "file": "tests/unit/live-sync-qa-offline.test.js",
+      "status": "passed",
+      "sha256Lf": "a3c1923505fbcdba703306dc451ebc640817f4ea9cb48b753d600886dfeebaa1"
+    }
+  ],
+  "originalPhasesPreserved": 47,
+  "totalPhases": 60,
+  "negativeCli": {
+    "exit": 1,
+    "stdoutEmpty": true,
+    "error": "QA_CREDENTIALS_JSON_REQUIRED",
+    "services": false
+  },
+  "unchangedEntrySlices": {
+    "startupAndAllocationPrefixSha256Lf": "2be760c2528e14a1341c715356a7da277a42934871e2ba8d1cc2136acfdebe8d",
+    "authPreflightLoopFinalWriteMainSuffixSha256Lf": "e1ee61a06062819fa181c1c482a314810fa6e79af3353dbf0d2ab36bb7f837c9"
+  },
+  "unchangedBrowserStartSha256Lf": "c1f6088aefb17a30cdb7bbf2ac8530f60d68b69ea49b2619dfc67d908d0313ae",
+  "appRuntimeChanged": false,
+  "workflowChanged": false,
+  "packageOrDependenciesChanged": false,
+  "backendChanged": false,
+  "credentialAccess": false
+}

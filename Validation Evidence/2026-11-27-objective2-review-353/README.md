@@ -1,0 +1,5 @@
+# Objective 2 corrections after independent H353 reviews
+
+Historical author handoff on H353d569152a7aa20b1df06ec566d0da34e6d5755 plus seven corrected source files, verified raw before staging and canonical Git afterwards. docs/history-sync-review-fixes-353.md records the two findings, six baseline failures, unchanged journal contracts, capture-generation/terminal cleanup and causal cold preference overlay. All source/native tests use SDK fixtures; actual backend deployment is a separate dated operational record.
+
+73 suites /1083 tests at80.76% passed. Initial coverage beforeAll timeout and the complete isolated successful rerun are both retained, without raising thresholds/timeouts. Native positive, real failing-child cleanup verifier and upgrade passed; source hashes identify the actual WIP on baseline H353. Text artifacts normalize CRLF to LF and remove console padding/redundant EOF blank lines; ignored raw logs/traces remain locally. No live client acceptance or merge approval is claimed.

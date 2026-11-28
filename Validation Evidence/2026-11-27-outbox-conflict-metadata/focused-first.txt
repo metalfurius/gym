@@ -1,0 +1,16 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/unit/outbox-conflict-metadata.test.js tests/unit/weekly-conflict-resolution.test.js tests/unit/durable-outbox.test.js tests/unit/outbox-journal-v3.test.js tests/unit/offline-manager.test.js --silent
+
+(node:17364) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/unit/outbox-conflict-metadata.test.js
+PASS tests/unit/outbox-journal-v3.test.js
+PASS tests/unit/offline-manager.test.js
+PASS tests/unit/durable-outbox.test.js
+PASS tests/unit/weekly-conflict-resolution.test.js
+
+Test Suites: 5 passed, 5 total
+Tests:       75 passed, 75 total
+Snapshots:   0 total
+Time:        1.898 s

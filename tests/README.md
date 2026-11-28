@@ -138,3 +138,9 @@ the same four key binaries matched, but directory ACLs differed. Both outcomes a
 [maintenance record](../docs/maintenance-toolchain-2026-11-27.md). If reproducing that environment, configure
 `BROWSER_SMOKE_CACHE_DIR` to a new dedicated automation directory before the documented installer runs;
 do not change a personal profile's ACL or turn off the sandbox. Fresh hosted CI remains required.
+
+## Durable outbox browser regression
+
+`npm run test:e2e:outbox` uses independent Chromium pages in one fresh owned profile, the actual app/queue/cache modules and real localStorage/IndexedDB. It checks cross-tab intents, acknowledgement tombstones, cold restoration and storage/commit faults. Firebase transport is synthetic; this does not establish real-backend or two-device acceptance. Set `OUTBOX_SMOKE_EVIDENCE_DIR` for evidence and `CHROME_PATH` for an explicit browser. CI runs the positive smoke and uploads its JSON/trace with upgrade evidence.
+
+`npm run test:e2e:outbox:negative` runs a real Chromium child with an injected owner-cleanup exception after actual browser cleanup. Its verifier requires child exit 1, failed result JSON, the matching trace and subsequent server cleanup. CI requires this negative check and uploads its evidence alongside the positive smoke.

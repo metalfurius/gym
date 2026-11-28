@@ -1,0 +1,34 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import { runLiveSync } from 'file:///C:/tmp/gym-judge-a-02-949/scripts/live-sync-qa.mjs';
+import { canonicalCandidate } from 'file:///C:/tmp/gym-judge-a-02-949/scripts/live-sync-qa-browser.mjs';
+import { PRIMARY_UID, calendarFixture } from 'file:///C:/tmp/gym-judge-a-02-949/scripts/live-sync-qa-protocol.mjs';
+const root='C:/tmp/gym-judge-a-02-949';
+const base=await fs.mkdtemp('C:/tmp/gym-judge-a-02-949-probes/artifact-race-');
+const output=path.join(base,'evidence'); const victim=path.join(base,'unrelated-files');
+await fs.mkdir(victim); await fs.writeFile(path.join(victim,'result.json'),'UNRELATED RESULT MUST SURVIVE');
+await fs.writeFile(path.join(victim,'trace.json'),'UNRELATED TRACE MUST SURVIVE');
+let fetchCalls=0;
+globalThis.fetch=async()=>{
+ fetchCalls++;
+ await fs.rename(output,output+'-before-swap');
+ await fs.symlink(victim,output,'junction');
+ throw new Error('LOCAL_SYNTHETIC_STARTUP_FAILURE_NO_NETWORK');
+};
+const sha='949c791ccc789058abe28254710c86f45326c1d0';
+const candidate=canonicalCandidate(root,sha);
+const result=await runLiveSync({role:'B',output,sha,runId:crypto.randomUUID(),...calendarFixture()},
+ {primary:{uid:PRIMARY_UID,email:'synthetic-judge@example.invalid',password:'LOCAL_SYNTHETIC_ONLY'}},candidate);
+const victimResult=await fs.readFile(path.join(victim,'result.json'),'utf8');
+const victimTrace=await fs.readFile(path.join(victim,'trace.json'),'utf8');
+assert.equal(fetchCalls,1); assert.equal(result.status,'failed');
+assert.notEqual(victimResult,'UNRELATED RESULT MUST SURVIVE');
+assert.notEqual(victimTrace,'UNRELATED TRACE MUST SURVIVE');
+const proof={scope:'Actual runLiveSync artifact sink only, all fetch calls throw locally, no network/services/credentials',sha,
+ fixture:base,fetchCalls,resultStatus:result.status,primaryError:result.primaryError,
+ unrelatedResultOverwritten:JSON.parse(victimResult).sourceSha===sha,
+ unrelatedTraceOverwritten:Array.isArray(JSON.parse(victimTrace).events)};
+await fs.writeFile('C:/tmp/gym-judge-a-02-949-probes/artifact-race-proof.json',JSON.stringify(proof,null,2)+'\n');
+console.log(JSON.stringify(proof));

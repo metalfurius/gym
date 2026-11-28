@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "mode": "actual Firebase authenticated REST reads; no backend writes",
+  "ownerUid": "6WE3vNHVpcSE6vPeku9xowLmrXm2",
+  "reads": [
+    {
+      "path": "runtime_config/sync_protocol",
+      "status": 404,
+      "observedAt": "2026-11-27T15:40:12.989Z",
+      "errorStatus": "NOT_FOUND"
+    },
+    {
+      "path": "users/6WE3vNHVpcSE6vPeku9xowLmrXm2/app_data/sync_protocol",
+      "status": 404,
+      "observedAt": "2026-11-27T15:40:13.113Z",
+      "errorStatus": "NOT_FOUND"
+    },
+    {
+      "path": "users/6WE3vNHVpcSE6vPeku9xowLmrXm2/app_data/session_revision",
+      "status": 404,
+      "observedAt": "2026-11-27T15:40:13.205Z",
+      "errorStatus": "NOT_FOUND"
+    }
+  ],
+  "writes": 0
+}

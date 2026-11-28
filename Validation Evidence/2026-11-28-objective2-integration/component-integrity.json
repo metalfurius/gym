@@ -1,0 +1,13 @@
+{
+  "sourceParent": "eed83cb6ff2b47935f011d4f6511b2d80482d730",
+  "observedResolutionAuthor": "8c91a2bdf5ddd56b42fe542725300f794b9f529e",
+  "rootSourceChecks": 92,
+  "rootArtifactChecks": 165,
+  "expectedSourceDifference": [
+    ".gitattributes"
+  ],
+  "rootPNGExactRestorations": 51,
+  "mismatchesOutsideDocumentedAttributeUnion": 0,
+  "qa60PriorIntegratedChecks": "147tests/8suites PASS on875d7f8; actual60 stillnotrun",
+  "fullIntegratedChecks": "pending after freeze; no finalapprovalclaimed"
+}

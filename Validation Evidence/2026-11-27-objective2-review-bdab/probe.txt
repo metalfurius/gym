@@ -1,0 +1,28 @@
+(node:23012) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tmp/root-legacy-conflict.test.js
+  typed application wire/queue parity across manager extraction (mock Firebase)
+    × retains typed documents, legacy descriptors, ownership, original timestamps, counts and recompute outcomes (146 ms)
+
+  ● typed application wire/queue parity across manager extraction (mock Firebase) › retains typed documents, legacy descriptors, ownership, original timestamps, counts and recompute outcomes
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      138 |             record('known-baseline-legacy-after-deliberate-save');
+      139 |             expect(__firestoreState.documents.get(preferences('A')).weeklyTargetDays).toBe(5);
+    > 140 |             expect(queue.getPendingCount()).toBe(0);
+          |                                             ^
+      141 |         }
+      142 |         // Fixture teardown for this deliberately obsolete descriptor. This is
+      143 |         // not evidence that today's Settings UI resolves an undated legacy
+
+      at Object.<anonymous> (tmp/root-legacy-conflict.test.js:140:45)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        1.307 s
+Ran all test suites within paths "tmp/root-legacy-conflict.test.js".

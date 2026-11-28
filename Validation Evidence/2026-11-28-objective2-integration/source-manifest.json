@@ -1,0 +1,440 @@
+{
+  "base": "3cf38202e5974acf97d0b2926ca365acf7019eba",
+  "sourceParent": "eed83cb6ff2b47935f011d4f6511b2d80482d730",
+  "basis": "Immutable Git blob bytes for all changed non-documentation application/tool/test files, plus repository rules. Final freeze adds documentation only; full tests and actual60 are NOT claimed by this manifest.",
+  "activeBackendRules": {
+    "componentHead": "618cacce0690524f4e48b8af92ed5360d5a6ccda",
+    "sha256": "96c0f5bbbde95808b666c62586ad5caa507f3dfe7007c65d6d4c9f97de24c451",
+    "ruleset": "000a8e44-8c4a-44f2-8c77-7eb222f7aee4",
+    "serverReleaseUpdateTime": "2026-11-27T18:02:01.679414Z",
+    "observedAt": "2026-11-28T17:22:44.366Z",
+    "scope": "Separately reviewed server component, ahead of repository base rules. No frontend acceptance inferred."
+  },
+  "files": [
+    {
+      "path": ".github/workflows/browser-gates.yml",
+      "bytes": 9395,
+      "sha256": "93669c8f3c758f6f79d481ce2c7bdc52bb2f995063296d70c312265eb562a007"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "bytes": 3111,
+      "sha256": "04a1ce0e3c36fb394de609f4949cac5436e2d31725a0962f23a16f0ef1be17fb"
+    },
+    {
+      "path": "css/components/progress.css",
+      "bytes": 6215,
+      "sha256": "bbe205d32c1ac4f54e369597be0221a84a25d2386bf42f396d24be04d7f10859"
+    },
+    {
+      "path": "firestore.rules",
+      "bytes": 7636,
+      "sha256": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504"
+    },
+    {
+      "path": "index.html",
+      "bytes": 31432,
+      "sha256": "58a9cf61da3625d9d992235f7ae32fcd69636f1e9c160e39a5e5bb4c841c01b9"
+    },
+    {
+      "path": "js/app.js",
+      "bytes": 82903,
+      "sha256": "f40a0a012173f674f5f8383266ccdb173c9e6549c108a5c5e4a69b7aa8b55017"
+    },
+    {
+      "path": "js/auth.js",
+      "bytes": 5335,
+      "sha256": "3ed342e63abf170506661bd8c097dd33fe4352d3ef17780a68bd04bb97d8e074"
+    },
+    {
+      "path": "js/exercise-cache.js",
+      "bytes": 24852,
+      "sha256": "7d854ca05c29a636c7ae741e73ed439da4f967739e4ccbf621311bf217ed7ab6"
+    },
+    {
+      "path": "js/i18n.js",
+      "bytes": 61015,
+      "sha256": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50"
+    },
+    {
+      "path": "js/modules/calendar.js",
+      "bytes": 28289,
+      "sha256": "54f671b50cf1474b6e9c820aa89834c854fb0efe48b7561c114671e52ceacd44"
+    },
+    {
+      "path": "js/modules/history-manager.js",
+      "bytes": 12270,
+      "sha256": "3f45fe54f1b93bf9f796d4ae11aa713513990fede9c549da76dddc9e59234292"
+    },
+    {
+      "path": "js/modules/session-manager.js",
+      "bytes": 45900,
+      "sha256": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c"
+    },
+    {
+      "path": "js/progress.js",
+      "bytes": 35984,
+      "sha256": "a5f00b1fd09c0abf251f107e49e65e3a13a9f3f29fdf62aa4f0f34d36148b116"
+    },
+    {
+      "path": "js/ui.js",
+      "bytes": 69970,
+      "sha256": "94c5655115f107718c37e18f0f8b6c5c479d28c8dfc096ef16c31aa31b4995ec"
+    },
+    {
+      "path": "js/utils/account-scope.js",
+      "bytes": 997,
+      "sha256": "9d48e6569eb63241de907bf0af88cc9e1656b7527861a23c5e05418ba98d9a62"
+    },
+    {
+      "path": "js/utils/auth-state.js",
+      "bytes": 233,
+      "sha256": "49cb3e81611b9c44b3a2d9cf95f3f5dc8b86d9aaf5a987446f6cef1a105afc29"
+    },
+    {
+      "path": "js/utils/cache-mutation-lock.js",
+      "bytes": 804,
+      "sha256": "6a1766a6b54b2ca4a738916d62ee49de75f50bb61c7e6cfcdcadf1a367b672e6"
+    },
+    {
+      "path": "js/utils/calendar-clock.js",
+      "bytes": 664,
+      "sha256": "16cf90832347596bfe1da0f79ff8b6a5b148990f0043a1adcf06e1c2df95b272"
+    },
+    {
+      "path": "js/utils/durable-outbox.js",
+      "bytes": 12859,
+      "sha256": "d6ff0541b49facf80683d5cb3c179e2c8172845694a88929b604693cb4927e11"
+    },
+    {
+      "path": "js/utils/local-first-cache.js",
+      "bytes": 24049,
+      "sha256": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4"
+    },
+    {
+      "path": "js/utils/offline-manager.js",
+      "bytes": 40101,
+      "sha256": "861201e10a6bb2333b67c8735dc8f4c3b92e13f441e24d787e47ab71af3a45c5"
+    },
+    {
+      "path": "js/utils/outbox-journal-storage.js",
+      "bytes": 4126,
+      "sha256": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690"
+    },
+    {
+      "path": "js/utils/outbox-order.js",
+      "bytes": 5530,
+      "sha256": "2edddfec323bb7d3f090224de185746a2c6e3671d23a7504e73bf7968427c66d"
+    },
+    {
+      "path": "js/utils/owned-transaction.js",
+      "bytes": 5124,
+      "sha256": "1a86547c871af4b3ac7c582fb9892de48fa91a68a2e933c5cdda8366b903b3d2"
+    },
+    {
+      "path": "js/utils/quick-log.js",
+      "bytes": 22047,
+      "sha256": "9cb5026c714e355b58b3598ecee46cd4302b96daf6f128cdd28a415218077109"
+    },
+    {
+      "path": "js/utils/secure-id.js",
+      "bytes": 538,
+      "sha256": "52969514e48e0dc7081a23966b790e14501de9db4624844c55c5bd5c3a45365e"
+    },
+    {
+      "path": "js/utils/session-mutations.js",
+      "bytes": 2034,
+      "sha256": "f3ff0bf9e2d7e37fed0b9af01b2b72de2d3d591b5e27eda8c54ff770f5f0f790"
+    },
+    {
+      "path": "js/utils/session-store.js",
+      "bytes": 5473,
+      "sha256": "600dd99b00a4754b8c0b0cfb3b48da8842751ef8d8058cbdc34a544a236ad545"
+    },
+    {
+      "path": "js/utils/sync-protocol-contract.js",
+      "bytes": 1065,
+      "sha256": "45c0cfa6382bbd6eeeacee6b413cc637664b31bda03de6570879dbe1e350be6f"
+    },
+    {
+      "path": "js/utils/sync-protocol.js",
+      "bytes": 2742,
+      "sha256": "2cd637a993bc267e0bbf07adb5ecd80c0fcde2a2c2067ece801891a1e24bb11e"
+    },
+    {
+      "path": "js/utils/weekly-preferences.js",
+      "bytes": 14722,
+      "sha256": "c652c6f115799275360b8604426c6d82d7e64083eb848231dc781525e44c86e3"
+    },
+    {
+      "path": "js/version-manager.js",
+      "bytes": 15696,
+      "sha256": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 685,
+      "sha256": "faa705b62ceeafa627d09d4c805fa4b7871a2d199ba548b2cce05a4ae7d8094a"
+    },
+    {
+      "path": "package.json",
+      "bytes": 3479,
+      "sha256": "6eb39010e82fd6313307ad76b0a4ebea72d1690a4b04ccbed29e49feb7fa70fc"
+    },
+    {
+      "path": "release.json",
+      "bytes": 7644,
+      "sha256": "f6385db5ba2e3548d23f1a1e2fe5b1ab1327819ba238c3ef6f4dff4f5b16d976"
+    },
+    {
+      "path": "scripts/browser-outbox-smoke.mjs",
+      "bytes": 41769,
+      "sha256": "f95b8450c8e1bee73bb3f8ca4e78be202e5f3679dc251a68c0f1fda1ff8f8450"
+    },
+    {
+      "path": "scripts/live-sync-qa-artifacts.mjs",
+      "bytes": 11752,
+      "sha256": "b7e4fec5c8a7314e4eff38ea62dea37f4ad080227a56d70743f5a6a30d3a53e6"
+    },
+    {
+      "path": "scripts/live-sync-qa-browser.mjs",
+      "bytes": 41103,
+      "sha256": "4179b4cb3ae1efd9d7ca2c0fa343d5ab7c3a3e11480485098ffa4aff13f6f609"
+    },
+    {
+      "path": "scripts/live-sync-qa-observations.mjs",
+      "bytes": 5617,
+      "sha256": "c9bd5e646a7c7095fce3221665d2677ed75a333fdb603f5258555d5bec82c5d2"
+    },
+    {
+      "path": "scripts/live-sync-qa-protocol.mjs",
+      "bytes": 25897,
+      "sha256": "768272f3151f26d3ea5a9545877fb92143f1bb128b165135ae57cb25c2d0c785"
+    },
+    {
+      "path": "scripts/live-sync-qa-scenarios.mjs",
+      "bytes": 5909,
+      "sha256": "56be850454040bc394eed2c89c251b18425e9fa9c41dd12df19d007ed1f93437"
+    },
+    {
+      "path": "scripts/live-sync-qa.mjs",
+      "bytes": 72058,
+      "sha256": "83a37d1c0b0a1fcf822e2de19ca34993cc508b303aa2faab40f78bb1dd546e7f"
+    },
+    {
+      "path": "scripts/reproduce-sync-baseline.mjs",
+      "bytes": 1932,
+      "sha256": "cd2a0004c19b3ba0699e0b92f20a25ea03a29aac089ae00fad6d6be38858be1d"
+    },
+    {
+      "path": "scripts/verify-outbox-smoke-negative.mjs",
+      "bytes": 3316,
+      "sha256": "672cf2f3f096a1520e5864840d55a76ea3f7a86083f82cbd7ebdea8165ca4647"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 10953,
+      "sha256": "8632f04188be0aef5577e8a45e8dfaaa1376eda19c4386e4b01327cd5e2c3927"
+    },
+    {
+      "path": "tests/browser/outbox-app-bootstrap.js",
+      "bytes": 12187,
+      "sha256": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836"
+    },
+    {
+      "path": "tests/browser/outbox-app-environment.js",
+      "bytes": 1639,
+      "sha256": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+    },
+    {
+      "path": "tests/fixtures/calendar-clock-matrix.mjs",
+      "bytes": 3267,
+      "sha256": "5764d85d17f100ba605f04a21209e1718fdebdb7e2d72ef88631aa3568f88b8d"
+    },
+    {
+      "path": "tests/fixtures/live-sync-qa-phases-949c791.json",
+      "bytes": 6161,
+      "sha256": "6639b73c75572b5a19c2270d7bfea639f7d48f515a95a8f442b57784f68cdb7f"
+    },
+    {
+      "path": "tests/integration/app-capture-durable-identity.test.js",
+      "bytes": 17791,
+      "sha256": "62d56aa6bed3709ffbcea5abe0574ca353d093e4ad5c4e18d8e37f9ca7bd2e5c"
+    },
+    {
+      "path": "tests/integration/app-offline-recovery.test.js",
+      "bytes": 11090,
+      "sha256": "2af82e3a14f98e445145c153c9eff13e75ce2773673b2fdc2017724e275553fb"
+    },
+    {
+      "path": "tests/integration/app-offline-retry.test.js",
+      "bytes": 8915,
+      "sha256": "bf8d931cdf1e7f32b90f3425aba0358010cf378938f2ddc9a15415e80284b8f3"
+    },
+    {
+      "path": "tests/integration/app-outbox-journal-v3.test.js",
+      "bytes": 26746,
+      "sha256": "2150dd0b4876f61b492d9b29906a04c33aa2f327e11cd3a43d1f399c8adb942e"
+    },
+    {
+      "path": "tests/integration/app-sync-accounts.test.js",
+      "bytes": 10953,
+      "sha256": "786629fd82d149e67b37d170a48b88557c34ce424cc68ddbcad948c130f73c93"
+    },
+    {
+      "path": "tests/integration/app-sync-completeness.test.js",
+      "bytes": 5632,
+      "sha256": "1ea8c003d192513441b35016d8e2c0454fb4fa60aa650d3aacf5b129398c1644"
+    },
+    {
+      "path": "tests/integration/app-sync-review-regressions.test.js",
+      "bytes": 20585,
+      "sha256": "3713df50a52488ac0dbf514bf015ff442dff1cc7a96077190567a2c057920cef"
+    },
+    {
+      "path": "tests/integration/app-sync-surfaces.test.js",
+      "bytes": 8783,
+      "sha256": "ef67aeedf1d3800fe044a621d9f28aecedc3ca9f55eb2e4d49226c75dba26194"
+    },
+    {
+      "path": "tests/mocks/firebase-firestore.js",
+      "bytes": 11233,
+      "sha256": "bb42d1a0ceeb1d62f223edd99c0d17d42ae967a500fe1716dd1c791b3f590376"
+    },
+    {
+      "path": "tests/mocks/firebase-state.js",
+      "bytes": 8202,
+      "sha256": "3d790c7e7b023471999a1e89465157a59db82d39e328d7ebe0bc42d6e1da2150"
+    },
+    {
+      "path": "tests/unit/calendar-clock.test.js",
+      "bytes": 1422,
+      "sha256": "dbb2a20033fdf4b604ec03f5864b4bf705afa3f176a58bbce60f8595395e6ce0"
+    },
+    {
+      "path": "tests/unit/calendar.test.js",
+      "bytes": 20555,
+      "sha256": "2dea80af213a7eda9d1caf07c9a6d2f33fda63da0dc04272280df29ac241b9fc"
+    },
+    {
+      "path": "tests/unit/denied-transaction-retry.test.js",
+      "bytes": 10580,
+      "sha256": "849bd7dcd38e0b20637806856b127670ac429a66fa780b2478625ccd8894b9e5"
+    },
+    {
+      "path": "tests/unit/durable-outbox.test.js",
+      "bytes": 5920,
+      "sha256": "6e12c5f8a0387bfc98a7446a227c7d44cd3fd3789ae189d4eba719dba8be5f26"
+    },
+    {
+      "path": "tests/unit/history-manager.test.js",
+      "bytes": 16730,
+      "sha256": "b91e1872bae83d9a7d0fd8f70dedeaf7970d3b67f6a2525a3b51d50cb8eb93b9"
+    },
+    {
+      "path": "tests/unit/live-sync-qa-artifacts.test.js",
+      "bytes": 16477,
+      "sha256": "9673c240260ebafe36b6d9f44b694dc22de2de19d610889a55a1684fbeb395c4"
+    },
+    {
+      "path": "tests/unit/live-sync-qa-extension.test.js",
+      "bytes": 15888,
+      "sha256": "d1a7ee97de4fed0069380d1fb9be205cafc8cae25a85de8d2de0a03f35e40ec8"
+    },
+    {
+      "path": "tests/unit/live-sync-qa-offline.test.js",
+      "bytes": 25220,
+      "sha256": "a3c1923505fbcdba703306dc451ebc640817f4ea9cb48b753d600886dfeebaa1"
+    },
+    {
+      "path": "tests/unit/live-sync-qa-ui.test.js",
+      "bytes": 9896,
+      "sha256": "bcec8a3f742d7b02546ecff096d73f8ae8328ee684b2edbc3a83ce4e1b5606f8"
+    },
+    {
+      "path": "tests/unit/live-sync-qa.test.js",
+      "bytes": 23593,
+      "sha256": "85c535d724f33a999953351d38d0995fac8faab57da856e74f85689b8366d814"
+    },
+    {
+      "path": "tests/unit/local-first-cache.test.js",
+      "bytes": 13135,
+      "sha256": "1c29c4fce2a4c74c9e4eec326c0653223a215ad6589dd557fcceeaaaa02b207c"
+    },
+    {
+      "path": "tests/unit/offline-manager.test.js",
+      "bytes": 18381,
+      "sha256": "78f1f927b0455015c14c50750e65d887b763bec276871d0a7f5999593d481465"
+    },
+    {
+      "path": "tests/unit/offline-owner-queue.test.js",
+      "bytes": 6200,
+      "sha256": "fc7a9b9744def47168441e46678817969be316a05fde16ccbf3a648ce140f5a8"
+    },
+    {
+      "path": "tests/unit/outbox-conflict-metadata.test.js",
+      "bytes": 10623,
+      "sha256": "ea3a4b94c76999803f49da6ece67c22601311f9152660d532a9fb1c71436c0e0"
+    },
+    {
+      "path": "tests/unit/outbox-journal-v3.test.js",
+      "bytes": 26525,
+      "sha256": "96d78ce926953547f1dd040a46aa1a5698e5f56e1cbb30946ea50e4b4d1ae7b1"
+    },
+    {
+      "path": "tests/unit/progress-flow.test.js",
+      "bytes": 27019,
+      "sha256": "985e8e3096734ab2407c8173a7a2bffd284be6134a52f42783abc88433251d1d"
+    },
+    {
+      "path": "tests/unit/quick-log.test.js",
+      "bytes": 23065,
+      "sha256": "7a3a395eeafb4b1e0e1941050d8ee734134d1f59e31d133856dba6e8dcdd3c29"
+    },
+    {
+      "path": "tests/unit/secure-id.test.js",
+      "bytes": 1484,
+      "sha256": "840060be42fb32e8cd4013bfa65befd9f1f63d37f56a72079c2081c9799f7c36"
+    },
+    {
+      "path": "tests/unit/session-manager.test.js",
+      "bytes": 31717,
+      "sha256": "8b2025e7ccec447703d2b1a9eec80f9ee68af5b20dbab4dda09cd841897870eb"
+    },
+    {
+      "path": "tests/unit/sync-protocol.test.js",
+      "bytes": 18240,
+      "sha256": "3da9cac2340e6d5cd1e4260261b9215f0e4a80f5fe6abf756dcca58fc671116b"
+    },
+    {
+      "path": "tests/unit/version-manager.test.js",
+      "bytes": 8429,
+      "sha256": "d0e96cbd13fb8fa0519041c4296d51362de116e524b30ccc4341963d5319e707"
+    },
+    {
+      "path": "tests/unit/weekly-conflict-resolution.test.js",
+      "bytes": 3796,
+      "sha256": "ad947ff19659f095aa4ddc46bf1df38c219d196e94d1ef651561653585ba8d9b"
+    },
+    {
+      "path": "tests/unit/weekly-observed-resolution.test.js",
+      "bytes": 18158,
+      "sha256": "2c954b6430fc630a99f5ae689d7a875f1d23711fe9e60c686958d0acdaa9f72d"
+    },
+    {
+      "path": "tests/unit/weekly-preferences.test.js",
+      "bytes": 11678,
+      "sha256": "39df6023f16c76cb910b44d067cf3f743188df1e4543e32e0b074cf2f1c64ddd"
+    },
+    {
+      "path": "tests/utils/app-harness.js",
+      "bytes": 1465,
+      "sha256": "4363a47b6a802dd2b3874a37892d066f5b93a5f07fceb394e58cd1b89bad8d00"
+    },
+    {
+      "path": "tests/utils/sync-protocol-fixture.js",
+      "bytes": 653,
+      "sha256": "778b930aea1c636e0f68d0f1e71b61bbe50736eaa19747da703b1fc44013d590"
+    }
+  ]
+}

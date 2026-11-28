@@ -1,0 +1,1 @@
+{"status":"failed","cleanupErrors":["cleanup-owner"],"output":"C:\\tmp\\gym-roadmap-02\\Validation Evidence\\2026-11-27-objective2-journal-v3\\browser-cleanup-negative"}

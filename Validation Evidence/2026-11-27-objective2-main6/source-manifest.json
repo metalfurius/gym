@@ -1,0 +1,363 @@
+{
+  "baseline": "3cf38202e5974acf97d0b2926ca365acf7019eba",
+  "checkoutBeforeIntegration": "08ae9fcfcf487fa9d28876c55bd3ea3492da3534",
+  "sourceBytes": "canonical Git index blobs; UTF-8 BOM preserved",
+  "artifactNormalization": "CRLF→LF; console trailing padding and EOF blank lines trimmed; source unchanged",
+  "sources": [
+    {
+      "path": ".gitattributes",
+      "sha256": "b5b4cbc8b6928598b26efe39aa3368d0658985ce5b569093247314fd7cd4b2f1"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "032ab9b19e7649d3c57fb5edcbe11c586ab59c4f05cd4076d5453330f167bd17"
+    },
+    {
+      "path": "css/components/progress.css",
+      "sha256": "bbe205d32c1ac4f54e369597be0221a84a25d2386bf42f396d24be04d7f10859"
+    },
+    {
+      "path": "docs/firestore-data-contract.md",
+      "sha256": "b56ff4b6d9893544e0d8d1e268bf885fb34063c7528bf1dd9e1d3be72cc75c2e"
+    },
+    {
+      "path": "docs/history-progress-sync-contract.md",
+      "sha256": "a1127ea53e5983ae00ccd8d419e562682138e05a955ab4a9041aa25a76beeb08"
+    },
+    {
+      "path": "docs/outbox-journal-v3.md",
+      "sha256": "fe65455f83a7978bcb11123ce49342b7dcbc5e5f564eae91c36240cdddb9cdaa"
+    },
+    {
+      "path": "index.html",
+      "sha256": "58a9cf61da3625d9d992235f7ae32fcd69636f1e9c160e39a5e5bb4c841c01b9"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "3992bf67a5872bd90721ff618feb43de973be68f1c2d0d68e6a1f69e93cdbcce"
+    },
+    {
+      "path": "js/auth.js",
+      "sha256": "3ed342e63abf170506661bd8c097dd33fe4352d3ef17780a68bd04bb97d8e074"
+    },
+    {
+      "path": "js/exercise-cache.js",
+      "sha256": "7d854ca05c29a636c7ae741e73ed439da4f967739e4ccbf621311bf217ed7ab6"
+    },
+    {
+      "path": "js/i18n.js",
+      "sha256": "964489db66e2951f8706cd67fd2b2d1a7878edba04b9a783ea431604b27e661b"
+    },
+    {
+      "path": "js/modules/calendar.js",
+      "sha256": "54f671b50cf1474b6e9c820aa89834c854fb0efe48b7561c114671e52ceacd44"
+    },
+    {
+      "path": "js/modules/history-manager.js",
+      "sha256": "3f45fe54f1b93bf9f796d4ae11aa713513990fede9c549da76dddc9e59234292"
+    },
+    {
+      "path": "js/modules/session-manager.js",
+      "sha256": "bbb7dde5fcea1bb4d4a513328057d1f84ecd927d157862601b3074c367d70541"
+    },
+    {
+      "path": "js/progress.js",
+      "sha256": "a5f00b1fd09c0abf251f107e49e65e3a13a9f3f29fdf62aa4f0f34d36148b116"
+    },
+    {
+      "path": "js/ui.js",
+      "sha256": "94c5655115f107718c37e18f0f8b6c5c479d28c8dfc096ef16c31aa31b4995ec"
+    },
+    {
+      "path": "js/utils/account-scope.js",
+      "sha256": "9d48e6569eb63241de907bf0af88cc9e1656b7527861a23c5e05418ba98d9a62"
+    },
+    {
+      "path": "js/utils/auth-state.js",
+      "sha256": "49cb3e81611b9c44b3a2d9cf95f3f5dc8b86d9aaf5a987446f6cef1a105afc29"
+    },
+    {
+      "path": "js/utils/cache-mutation-lock.js",
+      "sha256": "6a1766a6b54b2ca4a738916d62ee49de75f50bb61c7e6cfcdcadf1a367b672e6"
+    },
+    {
+      "path": "js/utils/calendar-clock.js",
+      "sha256": "16cf90832347596bfe1da0f79ff8b6a5b148990f0043a1adcf06e1c2df95b272"
+    },
+    {
+      "path": "js/utils/durable-outbox.js",
+      "sha256": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65"
+    },
+    {
+      "path": "js/utils/local-first-cache.js",
+      "sha256": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4"
+    },
+    {
+      "path": "js/utils/offline-manager.js",
+      "sha256": "225434ba7f5b1c3de4c1d046c1859b06796a72fb06741cedac89eae4a31df4c8"
+    },
+    {
+      "path": "js/utils/outbox-journal-storage.js",
+      "sha256": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690"
+    },
+    {
+      "path": "js/utils/outbox-order.js",
+      "sha256": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c"
+    },
+    {
+      "path": "js/utils/owned-transaction.js",
+      "sha256": "1a86547c871af4b3ac7c582fb9892de48fa91a68a2e933c5cdda8366b903b3d2"
+    },
+    {
+      "path": "js/utils/quick-log.js",
+      "sha256": "9cb5026c714e355b58b3598ecee46cd4302b96daf6f128cdd28a415218077109"
+    },
+    {
+      "path": "js/utils/secure-id.js",
+      "sha256": "52969514e48e0dc7081a23966b790e14501de9db4624844c55c5bd5c3a45365e"
+    },
+    {
+      "path": "js/utils/session-mutations.js",
+      "sha256": "f3ff0bf9e2d7e37fed0b9af01b2b72de2d3d591b5e27eda8c54ff770f5f0f790"
+    },
+    {
+      "path": "js/utils/session-store.js",
+      "sha256": "600dd99b00a4754b8c0b0cfb3b48da8842751ef8d8058cbdc34a544a236ad545"
+    },
+    {
+      "path": "js/utils/sync-protocol-contract.js",
+      "sha256": "45c0cfa6382bbd6eeeacee6b413cc637664b31bda03de6570879dbe1e350be6f"
+    },
+    {
+      "path": "js/utils/sync-protocol.js",
+      "sha256": "2cd637a993bc267e0bbf07adb5ecd80c0fcde2a2c2067ece801891a1e24bb11e"
+    },
+    {
+      "path": "js/utils/weekly-preferences.js",
+      "sha256": "c652c6f115799275360b8604426c6d82d7e64083eb848231dc781525e44c86e3"
+    },
+    {
+      "path": "js/version-manager.js",
+      "sha256": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "faa705b62ceeafa627d09d4c805fa4b7871a2d199ba548b2cce05a4ae7d8094a"
+    },
+    {
+      "path": "package.json",
+      "sha256": "6eb39010e82fd6313307ad76b0a4ebea72d1690a4b04ccbed29e49feb7fa70fc"
+    },
+    {
+      "path": "release.json",
+      "sha256": "77a0d4305e903f8bf957ca6d6f559e7abd9aaa600b23eab0078e1c2bf906ff56"
+    },
+    {
+      "path": "scripts/browser-outbox-smoke.mjs",
+      "sha256": "e164c3504b654ee9bba25146c8bb20c4cf3183610ddbc4f658452b516bd1c1d2"
+    },
+    {
+      "path": "scripts/reproduce-sync-baseline.mjs",
+      "sha256": "cd2a0004c19b3ba0699e0b92f20a25ea03a29aac089ae00fad6d6be38858be1d"
+    },
+    {
+      "path": "scripts/verify-outbox-smoke-negative.mjs",
+      "sha256": "e7ca7ae6b58fdaa4e9437499f8bd6d6836f68ad92d41bf0886128c3040d15c74"
+    },
+    {
+      "path": "sw.js",
+      "sha256": "8632f04188be0aef5577e8a45e8dfaaa1376eda19c4386e4b01327cd5e2c3927"
+    },
+    {
+      "path": "tests/README.md",
+      "sha256": "e49d842c8eaa567d21ffb6e5e84b8acaf95f2bd434d4609dc328c72bbee9b75d"
+    },
+    {
+      "path": "tests/browser/outbox-app-bootstrap.js",
+      "sha256": "d359b3ebe887778f1705c225703716eec9ac61cecad8c862daa76a46fa60e848"
+    },
+    {
+      "path": "tests/browser/outbox-app-environment.js",
+      "sha256": "a0b85a37b624160d32dd1438f651f289f2056706ae6c13410e83dc81fdcc69e0"
+    },
+    {
+      "path": "tests/fixtures/calendar-clock-matrix.mjs",
+      "sha256": "5764d85d17f100ba605f04a21209e1718fdebdb7e2d72ef88631aa3568f88b8d"
+    },
+    {
+      "path": "tests/integration/app-offline-recovery.test.js",
+      "sha256": "2af82e3a14f98e445145c153c9eff13e75ce2773673b2fdc2017724e275553fb"
+    },
+    {
+      "path": "tests/integration/app-offline-retry.test.js",
+      "sha256": "bf8d931cdf1e7f32b90f3425aba0358010cf378938f2ddc9a15415e80284b8f3"
+    },
+    {
+      "path": "tests/integration/app-outbox-journal-v3.test.js",
+      "sha256": "da750fcc7531b27c3f10ad5e7876c95e75c7476bb817c1123a13e34b3086051d"
+    },
+    {
+      "path": "tests/integration/app-sync-accounts.test.js",
+      "sha256": "786629fd82d149e67b37d170a48b88557c34ce424cc68ddbcad948c130f73c93"
+    },
+    {
+      "path": "tests/integration/app-sync-completeness.test.js",
+      "sha256": "1ea8c003d192513441b35016d8e2c0454fb4fa60aa650d3aacf5b129398c1644"
+    },
+    {
+      "path": "tests/integration/app-sync-review-regressions.test.js",
+      "sha256": "c38d8d64afd900f1907e85ca9ef0b13a2be1099ebfc1c41c460e0e232a21a3bf"
+    },
+    {
+      "path": "tests/integration/app-sync-surfaces.test.js",
+      "sha256": "ef67aeedf1d3800fe044a621d9f28aecedc3ca9f55eb2e4d49226c75dba26194"
+    },
+    {
+      "path": "tests/mocks/firebase-firestore.js",
+      "sha256": "bb42d1a0ceeb1d62f223edd99c0d17d42ae967a500fe1716dd1c791b3f590376"
+    },
+    {
+      "path": "tests/mocks/firebase-state.js",
+      "sha256": "3d790c7e7b023471999a1e89465157a59db82d39e328d7ebe0bc42d6e1da2150"
+    },
+    {
+      "path": "tests/unit/calendar-clock.test.js",
+      "sha256": "dbb2a20033fdf4b604ec03f5864b4bf705afa3f176a58bbce60f8595395e6ce0"
+    },
+    {
+      "path": "tests/unit/calendar.test.js",
+      "sha256": "2dea80af213a7eda9d1caf07c9a6d2f33fda63da0dc04272280df29ac241b9fc"
+    },
+    {
+      "path": "tests/unit/denied-transaction-retry.test.js",
+      "sha256": "849bd7dcd38e0b20637806856b127670ac429a66fa780b2478625ccd8894b9e5"
+    },
+    {
+      "path": "tests/unit/durable-outbox.test.js",
+      "sha256": "6e12c5f8a0387bfc98a7446a227c7d44cd3fd3789ae189d4eba719dba8be5f26"
+    },
+    {
+      "path": "tests/unit/history-manager.test.js",
+      "sha256": "b91e1872bae83d9a7d0fd8f70dedeaf7970d3b67f6a2525a3b51d50cb8eb93b9"
+    },
+    {
+      "path": "tests/unit/local-first-cache.test.js",
+      "sha256": "1c29c4fce2a4c74c9e4eec326c0653223a215ad6589dd557fcceeaaaa02b207c"
+    },
+    {
+      "path": "tests/unit/offline-manager.test.js",
+      "sha256": "78f1f927b0455015c14c50750e65d887b763bec276871d0a7f5999593d481465"
+    },
+    {
+      "path": "tests/unit/offline-owner-queue.test.js",
+      "sha256": "fc7a9b9744def47168441e46678817969be316a05fde16ccbf3a648ce140f5a8"
+    },
+    {
+      "path": "tests/unit/outbox-journal-v3.test.js",
+      "sha256": "96d78ce926953547f1dd040a46aa1a5698e5f56e1cbb30946ea50e4b4d1ae7b1"
+    },
+    {
+      "path": "tests/unit/progress-flow.test.js",
+      "sha256": "985e8e3096734ab2407c8173a7a2bffd284be6134a52f42783abc88433251d1d"
+    },
+    {
+      "path": "tests/unit/quick-log.test.js",
+      "sha256": "7a3a395eeafb4b1e0e1941050d8ee734134d1f59e31d133856dba6e8dcdd3c29"
+    },
+    {
+      "path": "tests/unit/secure-id.test.js",
+      "sha256": "840060be42fb32e8cd4013bfa65befd9f1f63d37f56a72079c2081c9799f7c36"
+    },
+    {
+      "path": "tests/unit/session-manager.test.js",
+      "sha256": "109aaa5fe34a5288520fc3623121b69605771742a3a6929d98bad7f2f6e7eeef"
+    },
+    {
+      "path": "tests/unit/sync-protocol.test.js",
+      "sha256": "3da9cac2340e6d5cd1e4260261b9215f0e4a80f5fe6abf756dcca58fc671116b"
+    },
+    {
+      "path": "tests/unit/version-manager.test.js",
+      "sha256": "d0e96cbd13fb8fa0519041c4296d51362de116e524b30ccc4341963d5319e707"
+    },
+    {
+      "path": "tests/unit/weekly-preferences.test.js",
+      "sha256": "39df6023f16c76cb910b44d067cf3f743188df1e4543e32e0b074cf2f1c64ddd"
+    },
+    {
+      "path": "tests/utils/app-harness.js",
+      "sha256": "4363a47b6a802dd2b3874a37892d066f5b93a5f07fceb394e58cd1b89bad8d00"
+    },
+    {
+      "path": "tests/utils/sync-protocol-fixture.js",
+      "sha256": "778b930aea1c636e0f68d0f1e71b61bbe50736eaa19747da703b1fc44013d590"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/lint.txt",
+      "sha256": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/coverage.txt",
+      "sha256": "956f9308d13b6cd8936b91b8f05b4ef9341c24f8e8f17962917e3d5dddc27455"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/app.txt",
+      "sha256": "868166493da539b1a6e43077821d11ef1fbb722273b6c701b1505f64587bab5b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/offline.txt",
+      "sha256": "8456a0521cc8b53b6e763792cc4383b18dbd0ce01a99e2ac67557101f2130324"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/native-positive.txt",
+      "sha256": "e607acd679686de214feb217f1b7fcc5e50b7e5fa38b7e2dcd055664201ca01f"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/native-cleanup-negative.txt",
+      "sha256": "c7b25d05fa5250634abb9ff673aaf92ad117ab80a19a47eae1dbb4823828e4b5"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/native-upgrade.txt",
+      "sha256": "8fefc242cc7dec9458ece7f4bb491b06a0322fce72ba31baf06b13c7b78d51b8"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/coverage-summary.json",
+      "sha256": "a3c8b8ccaa8590a016d5d2eda8431ce4cd3bc4684b7f008890f2eaf8d38c8028"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/native-positive.json",
+      "sha256": "c5b85ac3bbeb178c2b7c39677ab6a85eddc477c21d48cbdf8f17ebc8e61bb974"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/native-negative.json",
+      "sha256": "6ae3ef2b56fc3f72bb8a165dd9230a0bad6c514f165df76cf0cdc00887591928"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/negative-verification.json",
+      "sha256": "fa7c1ab5e57e88697116e7f38182718dae09336c00cf20f5ac67ec784ff1c525"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-main6/upgrade.json",
+      "sha256": "ed175c7b692197d9a7da10df183b1a21c6c1c983fdda217adac40a437c930094"
+    }
+  ],
+  "externalTraces": [
+    {
+      "path": "C:/tmp/gym-roadmap-02-main6-native-positive/trace.json",
+      "sha256Raw": "24ae4288e577a186b6c666d6177fe933e4113e2f1440bf20fd22f63323cb1cdf",
+      "bytes": 1012837
+    },
+    {
+      "path": "C:/tmp/gym-roadmap-02-main6-native-cleanup-negative/trace.json",
+      "sha256Raw": "3a558c6e4acd3c3a16ac02e390e907909f4ec077b8f07e28801fccaf58086ceb",
+      "bytes": 1030443
+    },
+    {
+      "path": "C:/tmp/gym-roadmap-02-main6-native-upgrade/trace.json",
+      "sha256Raw": "a7483aae7a92698dcccceb741d41a89545e031f14b730ebf5981112cd4981277",
+      "bytes": 136054
+    }
+  ]
+}

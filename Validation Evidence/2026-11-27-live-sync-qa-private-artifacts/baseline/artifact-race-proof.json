@@ -1,0 +1,10 @@
+{
+  "scope": "Actual runLiveSync artifact sink only, all fetch calls throw locally, no network/services/credentials",
+  "sha": "949c791ccc789058abe28254710c86f45326c1d0",
+  "fixture": "C:/tmp/gym-judge-a-02-949-probes/artifact-race-jJ1A7A",
+  "fetchCalls": 1,
+  "resultStatus": "failed",
+  "primaryError": "LOCAL_SYNTHETIC_STARTUP_FAILURE_NO_NETWORK",
+  "unrelatedResultOverwritten": true,
+  "unrelatedTraceOverwritten": true
+}

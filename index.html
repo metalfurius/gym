@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2c3e50" />
-    <meta name="gym-release-revision" content="v2.8.5">
+    <meta name="gym-release-revision" content="v2.8.6">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,6 +155,7 @@
                         <p id="daily-hub-best-streak" class="daily-hub-value">0</p>
                     </article>
                 </div>
+                <p id="daily-hub-data-status" class="hidden" role="status"></p>
                 <p id="daily-hub-empty-state" class="daily-hub-empty hidden" data-i18n="dashboard.daily_hub_empty">Aun no tienes sesiones guardadas este mes.</p>
             </div>
 
@@ -318,6 +319,7 @@
                 </div>
             </div>
 
+            <p id="progress-data-status" class="hidden" role="status"></p>
             <div class="progress-content">
                 <div id="progress-loading" class="spinner hidden"></div>
                 <div id="progress-chart-container" class="chart-container hidden">
@@ -484,6 +486,7 @@
                             <option value="6">6</option>
                             <option value="7">7</option>
                         </select>
+                        <p id="weekly-target-conflict-status" class="hidden" role="status"></p>
                         <button id="weekly-target-save-btn" class="btn btn-secondary">
                             <span data-i18n="settings.weekly_goal_save_btn">Guardar objetivo semanal</span>
                         </button>

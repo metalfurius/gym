@@ -1,0 +1,27 @@
+{
+  "candidate": "62b71bdf8831b1d5140c2f6103aceca370ad4d7e",
+  "mode": "actual outbox+weekly reducer modules; fixed enqueue clock; shared localStorage and repository Firestore transport mock; not live Firebase",
+  "order": [
+    {
+      "queueId": "a-second",
+      "operationId": "target-52dfa721-8393-42e9-931d-f74e886b1394",
+      "baseOperationId": "target-7f18842d-e2b8-4fbd-9bbf-82bde45fba3e",
+      "timestamp": 1806321600000
+    },
+    {
+      "queueId": "z-first",
+      "operationId": "target-7f18842d-e2b8-4fbd-9bbf-82bde45fba3e",
+      "baseOperationId": null,
+      "timestamp": 1806321600000
+    }
+  ],
+  "finalTarget": 4,
+  "expectedTarget": 7,
+  "pending": [
+    {
+      "id": "a-second",
+      "status": "conflict",
+      "currentRevision": 0
+    }
+  ]
+}

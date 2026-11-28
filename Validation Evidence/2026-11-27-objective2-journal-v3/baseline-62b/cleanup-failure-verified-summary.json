@@ -1,0 +1,6 @@
+{
+  "mode": "external harness copy with same source/root and one deliberately injected cleanup exception",
+  "exitCode": 1,
+  "evidenceStatus": "passed",
+  "traceExists": false
+}

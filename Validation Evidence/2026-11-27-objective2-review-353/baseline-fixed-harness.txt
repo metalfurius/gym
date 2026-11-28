@@ -1,0 +1,129 @@
+
+> my-workout-tracker@1.0.2 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/integration/app-outbox-journal-v3.test.js
+
+(node:21920) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/integration/app-outbox-journal-v3.test.js
+  actual app atomic journal and causal replay
+    × finishes one actual routine capture after offline without allocating an identity on a repeated Save (131 ms)
+    × finishes one actual routine capture after lost-rpc without allocating an identity on a repeated Save (97 ms)
+    × finishes one actual routine capture after unknown-journal without allocating an identity on a repeated Save (88 ms)
+    × keeps a proven-aborted capture form and owned draft for retry without a ghost (96 ms)
+    × finishes a queued capture before a fallible draft cleanup can make it retryable (90 ms)
+    √ gives two deliberate identical startSession captures distinct immutable IDs (127 ms)
+    √ does not clear a newer capture when an old queued completion crosses account A→B→A (148 ms)
+    × restores the authoritative queued weekly target over stale advisory cache before showing or extending it offline (162 ms)
+    √ replays offline Settings 4→7 after a cold queue read under a tied/rolled-back enqueue clock (0) (143 ms)
+    √ replays offline Settings 4→7 after a cold queue read under a tied/rolled-back enqueue clock (-60000) (137 ms)
+    √ a proven journal abort cannot leave a ghost Quick Log or issue RPC before a user retry (online=false) (123 ms)
+    √ a proven journal abort cannot leave a ghost Quick Log or issue RPC before a user retry (online=true) (110 ms)
+    √ keeps a conflicted parent and blocked child out of RPC, then clears that reviewed week after a deliberate new save (152 ms)
+    √ returns queued with the same session identity after a committed RPC loses its acknowledgement (110 ms)
+    √ keeps Quick Log form notes available for a failed enqueue retry and persists exactly one accepted queued identity (129 ms)
+    √ allows two deliberate identical captures as different persisted session identities (120 ms)
+    √ reports accepted Quick Log success when only ack persistence fails, then flushes the ack without another RPC (104 ms)
+    √ keeps a known accepted result successful when a refresh invalidator and the UI callback throw (88 ms)
+
+  ● actual app atomic journal and causal replay › finishes one actual routine capture after offline without allocating an identity on a repeated Save
+
+    expect(received).toBeNull()
+
+    Received: {"exercises": [{"executionMode": "two_hand", "name": "Bench", "reps": "8", "sets": 1, "type": "strength"}], "id": "capture-routine", "name": "One ongoing workout"}
+
+      86 |         try {
+      87 |             await capture.saveSessionData(accepted);
+    > 88 |             expect(capture.getCurrentRoutineForSession()).toBeNull();
+         |                                                           ^
+      89 |             expect(document.getElementById('session-view').classList.contains('hidden')).toBe(true);
+      90 |             expect(capture.loadInProgressSession()).toBeNull();
+      91 |             const [original] = offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save');
+
+      at tests/integration/app-outbox-journal-v3.test.js:88:59
+
+  ● actual app atomic journal and causal replay › finishes one actual routine capture after lost-rpc without allocating an identity on a repeated Save
+
+    expect(received).toBeNull()
+
+    Received: {"exercises": [{"executionMode": "two_hand", "name": "Bench", "reps": "8", "sets": 1, "type": "strength"}], "id": "capture-routine", "name": "One ongoing workout"}
+
+      86 |         try {
+      87 |             await capture.saveSessionData(accepted);
+    > 88 |             expect(capture.getCurrentRoutineForSession()).toBeNull();
+         |                                                           ^
+      89 |             expect(document.getElementById('session-view').classList.contains('hidden')).toBe(true);
+      90 |             expect(capture.loadInProgressSession()).toBeNull();
+      91 |             const [original] = offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save');
+
+      at tests/integration/app-outbox-journal-v3.test.js:88:59
+
+  ● actual app atomic journal and causal replay › finishes one actual routine capture after unknown-journal without allocating an identity on a repeated Save
+
+    expect(received).toBeNull()
+
+    Received: {"exercises": [{"executionMode": "two_hand", "name": "Bench", "reps": "8", "sets": 1, "type": "strength"}], "id": "capture-routine", "name": "One ongoing workout"}
+
+      86 |         try {
+      87 |             await capture.saveSessionData(accepted);
+    > 88 |             expect(capture.getCurrentRoutineForSession()).toBeNull();
+         |                                                           ^
+      89 |             expect(document.getElementById('session-view').classList.contains('hidden')).toBe(true);
+      90 |             expect(capture.loadInProgressSession()).toBeNull();
+      91 |             const [original] = offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save');
+
+      at tests/integration/app-outbox-journal-v3.test.js:88:59
+
+  ● actual app atomic journal and causal replay › keeps a proven-aborted capture form and owned draft for retry without a ghost
+
+    expect(received).toBeNull()
+
+    Received: {"exercises": [{"executionMode": "two_hand", "name": "Bench", "reps": "8", "sets": 1, "type": "strength"}], "id": "capture-routine", "name": "One ongoing workout"}
+
+      115 |             expect(sessions()).toHaveLength(0);
+      116 |             fail = false; await capture.saveSessionData();
+    > 117 |             expect(capture.getCurrentRoutineForSession()).toBeNull();
+          |                                                           ^
+      118 |             expect((await offlineManager.outbox.read()).entries.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(1);
+      119 |             online(true); await offlineManager.processPendingOperations(); expect(sessions()).toHaveLength(1);
+      120 |         } finally { restore(); }
+
+      at Object.<anonymous> (tests/integration/app-outbox-journal-v3.test.js:117:59)
+
+  ● actual app atomic journal and causal replay › finishes a queued capture before a fallible draft cleanup can make it retryable
+
+    expect(received).toBeNull()
+
+    Received: {"exercises": [{"executionMode": "two_hand", "name": "Bench", "reps": "8", "sets": 1, "type": "strength"}], "id": "capture-routine", "name": "One ongoing workout"}
+
+      130 |         try {
+      131 |             await capture.saveSessionData(); await capture.saveSessionData();
+    > 132 |             expect(capture.getCurrentRoutineForSession()).toBeNull();
+          |                                                           ^
+      133 |             expect(offlineManager.pendingOperations.filter(entry => entry.descriptor.type === 'session.save')).toHaveLength(1);
+      134 |             online(true); await offlineManager.processPendingOperations(); expect(sessions()).toHaveLength(1);
+      135 |         } finally { fault.mockRestore(); }
+
+      at Object.<anonymous> (tests/integration/app-outbox-journal-v3.test.js:132:59)
+
+  ● actual app atomic journal and causal replay › restores the authoritative queued weekly target over stale advisory cache before showing or extending it offline
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "4"
+    Received: "3"
+
+      184 |         offlineManager.pendingAcknowledgements.clear(); offlineManager.stagedIds.clear(); offlineManager.unknownIds.clear();
+      185 |         localFirstCache.memoryCache.clear(); await authenticate('A');
+    > 186 |         expect(document.getElementById('weekly-target-days-select').value).toBe('4');
+          |                                                                            ^
+      187 |         expect(document.getElementById('daily-hub-weekly-progress').textContent).toBe('0/4');
+      188 |         field('#weekly-target-days-select', '7'); document.getElementById('weekly-target-save-btn').click();
+      189 |         await wait(() => !document.getElementById('weekly-target-save-btn').disabled);
+
+      at Object.<anonymous> (tests/integration/app-outbox-journal-v3.test.js:186:76)
+
+Test Suites: 1 failed, 1 total
+Tests:       6 failed, 12 passed, 18 total
+Snapshots:   0 total
+Time:        3.698 s
+Ran all test suites matching tests/integration/app-outbox-journal-v3.test.js.

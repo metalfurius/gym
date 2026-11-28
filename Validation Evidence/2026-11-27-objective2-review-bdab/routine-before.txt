@@ -1,0 +1,91 @@
+(node:26428) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/integration/app-capture-durable-identity.test.js
+  actual app durable capture identity through stale draft recovery
+    × retries the immutable write-ahead after the routine goal changes across reauthentication (414 ms)
+    × retries the immutable write-ahead after the routine exercise-name changes across reauthentication (405 ms)
+    × retries the immutable write-ahead after the routine exercise-type changes across reauthentication (205 ms)
+    √ retries the immutable write-ahead after the routine load-type changes across reauthentication (274 ms)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession:A (ACK=false cold=false)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession:A (ACK=false cold=true)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession:A (ACK=true cold=false)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession:A (ACK=true cold=true)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession (ACK=false cold=false)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession (ACK=false cold=true)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession (ACK=true cold=false)
+    ○ skipped never reoffers/replays a consumed physical draft gymTracker_inProgressSession (ACK=true cold=true)
+    ○ skipped does not enqueue/RPC when write-ahead identity fails at gymTracker_inProgressSession:A, and retries the identical payload
+    ○ skipped does not enqueue/RPC when write-ahead identity fails at gymTracker_inProgressSession, and retries the identical payload
+    ○ skipped preserves a PWA5 no-ID backup through synchronous restoration, then migrates only on explicit Resume
+    ○ skipped blocks a legacy Resume whose identity cannot reach the compatibility mirror, retaining the original data
+    ○ skipped does not offer a consumed draft restored synchronously from a PWA update backup after cold auth
+    ○ skipped will not reuse a write-ahead queue/session ID for changed form data after partial persistence
+    ○ skipped requires retirement of an ID-less same-routine PWA recovery slot before accepting a save
+    ○ skipped fails closed before offering Resume when the owned journal cannot be read
+    ○ skipped retains write-ahead in both slots when an unknown append never committed, then cold-retries the original ID/body/date
+
+  ● actual app durable capture identity through stale draft recovery › retries the immutable write-ahead after the routine goal changes across reauthentication
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 1
+
+      Object {
+    -   "ok": true,
+    -   "queued": true,
+    -   "sessionId": "session-24bc9196-6eeb-4834-92e3-b24fff5b4bca",
+    +   "ok": false,
+      }
+
+      123 |             await document.getElementById('resume-session-btn').onclick();
+      124 |             const result = await capture.saveSessionData();
+    > 125 |             expect(result).toMatchObject({ ok: true, queued: true, sessionId: original.payload.sessionId });
+          |                            ^
+      126 |             const [intent] = (await offlineManager.outbox.read()).entries;
+      127 |             expect(intent.id).toBe(original.queueId); expect(intent.descriptor.payload).toEqual(original.payload);
+      128 |             online(true); await offlineManager.processPendingOperations();
+
+      at tests/integration/app-capture-durable-identity.test.js:125:28
+
+  ● actual app durable capture identity through stale draft recovery › retries the immutable write-ahead after the routine exercise-name changes across reauthentication
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      123 |             await document.getElementById('resume-session-btn').onclick();
+      124 |             const result = await capture.saveSessionData();
+    > 125 |             expect(result).toMatchObject({ ok: true, queued: true, sessionId: original.payload.sessionId });
+          |                            ^
+      126 |             const [intent] = (await offlineManager.outbox.read()).entries;
+      127 |             expect(intent.id).toBe(original.queueId); expect(intent.descriptor.payload).toEqual(original.payload);
+      128 |             online(true); await offlineManager.processPendingOperations();
+
+      at tests/integration/app-capture-durable-identity.test.js:125:28
+
+  ● actual app durable capture identity through stale draft recovery › retries the immutable write-ahead after the routine exercise-type changes across reauthentication
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      123 |             await document.getElementById('resume-session-btn').onclick();
+      124 |             const result = await capture.saveSessionData();
+    > 125 |             expect(result).toMatchObject({ ok: true, queued: true, sessionId: original.payload.sessionId });
+          |                            ^
+      126 |             const [intent] = (await offlineManager.outbox.read()).entries;
+      127 |             expect(intent.id).toBe(original.queueId); expect(intent.descriptor.payload).toEqual(original.payload);
+      128 |             online(true); await offlineManager.processPendingOperations();
+
+      at tests/integration/app-capture-durable-identity.test.js:125:28
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 17 skipped, 1 passed, 21 total
+Snapshots:   0 total
+Time:        4.075 s
+Ran all test suites matching tests/integration/app-capture-durable-identity.test.js with tests matching "retries the immutable write-ahead".

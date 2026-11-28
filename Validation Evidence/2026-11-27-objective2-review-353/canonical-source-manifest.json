@@ -1,0 +1,127 @@
+{
+  "baseline": "353d569152a7aa20b1df06ec566d0da34e6d5755",
+  "sources": [
+    {
+      "path": "docs/history-sync-review-fixes-353.md",
+      "sha256": "e94a959b6c3ded7b243d439d8a34c91a3e1795f9cee81b81a2368cf6458c0f14"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "2980af63429fa944192e72c63ef620432852267cad7656b110e60fdda4e28463"
+    },
+    {
+      "path": "js/modules/session-manager.js",
+      "sha256": "14053d9f183416061337e04f73955beb5e5e80e3bee8982d21904d4757ed86b4"
+    },
+    {
+      "path": "release.json",
+      "sha256": "b798ef5596a6cfb4138d83d997a9c0d428c9263e171a49b907b5c505fcd46020"
+    },
+    {
+      "path": "scripts/browser-outbox-smoke.mjs",
+      "sha256": "18c79bcd721ea6118024838e1a1370902a26e16b919256478fa4124d0157d122"
+    },
+    {
+      "path": "tests/browser/outbox-app-bootstrap.js",
+      "sha256": "0ca06ab1596e89b0ec436891361b61d0aa87cbcaf2ac92cc4ecc65b36189e51e"
+    },
+    {
+      "path": "tests/integration/app-outbox-journal-v3.test.js",
+      "sha256": "2150dd0b4876f61b492d9b29906a04c33aa2f327e11cd3a43d1f399c8adb942e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/author-handoff.json",
+      "sha256": "73118a41990978da23ceb41255ce4897bcc484b692695b23719369a6e6ba0b3f"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/coverage.txt",
+      "sha256": "7dc318f852b237d9efefa06640d924f1a3200ae5eb13a0fc9a6f5978d782194e"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/coverage-final.txt",
+      "sha256": "95aa37e26d62d023ca4aeb6a520ff564f6cbf87257ded127f0d2d7f647d747e5"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/baseline-fixed-harness.txt",
+      "sha256": "073a1c901e2f1403d1bd6418d1e4f94888882a35a4620d893fbc6a0498540708"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/app.txt",
+      "sha256": "a27e62ca984aa2a9133b1ccc7cb3cb8425ac9948ddae753275f68a08e3dbb893"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/offline.txt",
+      "sha256": "57f39c477d42ab1591832d33bbfae2fbd561f8fe4b2630d58474ed6cc3661a33"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/lint.txt",
+      "sha256": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/native-final.txt",
+      "sha256": "57b7026d6b00dea3e28d09a27d0d8841cebe43075a21a5fdd84ce4df6757c13f"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/native-negative.txt",
+      "sha256": "c7b25d05fa5250634abb9ff673aaf92ad117ab80a19a47eae1dbb4823828e4b5"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/upgrade.txt",
+      "sha256": "903eaaf89dd90bbf21afcb9c1ce158458a066a71407054c58f92ca5463ac7eef"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/native-positive.json",
+      "sha256": "391131824af6c161d4f279ba0fb9c1edeedea4fd60265dbe5a799794784fa50b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/native-negative.json",
+      "sha256": "859865240df2b2b4a4a08df9669d7b4e0854106d00b5be4d918df73e69279ed1"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/negative-verification.json",
+      "sha256": "fa7c1ab5e57e88697116e7f38182718dae09336c00cf20f5ac67ec784ff1c525"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-objective2-review-353/upgrade.json",
+      "sha256": "26d05beddc475dfc6df7a8bdd75c10290861f1edead3207d6686b31e5e7a2020"
+    }
+  ],
+  "unchangedContracts": [
+    "js/utils/durable-outbox.js",
+    "js/utils/outbox-order.js",
+    "js/utils/outbox-journal-storage.js",
+    "js/utils/offline-manager.js",
+    "js/utils/local-first-cache.js",
+    "js/utils/weekly-preferences.js",
+    "js/utils/session-store.js",
+    "js/utils/owned-transaction.js"
+  ],
+  "backendEvidence": [
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/rules-before.json",
+      "sha256": "c5ed85f6e1386d520f7224b4489005bfc9cefc017d3a2698efd01e13ae59ff13"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/rules-after.json",
+      "sha256": "91ca871dbc63b7dc726477565ababdef1281893c31bdff77b3ea7297c0f4545b"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/propagation-client.json",
+      "sha256": "cd7fc42913f5075552b950e3f904b21eb3dafee26c9faa45ed0995a37c1d75fb"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/activation-admin-record.json",
+      "sha256": "33f4aa4ee2b6947d1f060c9882d9934a400fdb32e044b48806f6a96eed961ca5"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/activation-client-readback.json",
+      "sha256": "11fb45f5027474a89ee99b9113159b9361f00878112221835ff11c9ffc351484"
+    },
+    {
+      "path": "Validation Evidence/2026-11-27-sync-backend-deployment/activation-console.png",
+      "sha256": "75bb0cc550f66f9db91d4b90f70367e2d9c37474e88ad7ae0d0a87ecfa109ef1"
+    }
+  ]
+}

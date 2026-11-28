@@ -1,0 +1,99 @@
+{
+  "base": "9a69595b33d6eb5f49475b5849e4a3e0d2bb0bb3",
+  "workingTreeDirty": true,
+  "frozenAt": "2026-11-27T17:08:24.0286792Z",
+  "noCommitOrVersionBump": true,
+  "node": "v22.23.5",
+  "files": [
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "c18983d7c3340440690d0d23f36b5002d7c204fb78dce3dbaeba8ee366a4fb5b"
+    },
+    {
+      "path": "docs/capture-durable-identity-review-9a.md",
+      "sha256": "03fc326bc23f9ede982e47619f19a79f7ac4649bbeb9e04cc2b9780f351a3ea4"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "9221c49eb9a447863259bbcdde9a8767e622839bd3a1b58771b1911099f477fa"
+    },
+    {
+      "path": "js/i18n.js",
+      "sha256": "986d91ee735a3630d99ab8b324e89c94f6578a54776feb90887362b1bf4c6386"
+    },
+    {
+      "path": "js/modules/session-manager.js",
+      "sha256": "437267eff9f38139d1a12fd560857b2e3f9337128b8b492d69a484577cd0a20f"
+    },
+    {
+      "path": "release.json",
+      "sha256": "9e03a8c4d079f27997490beb1126a14803e3360960d4df089aff850bcc6b9dad"
+    },
+    {
+      "path": "scripts/browser-outbox-smoke.mjs",
+      "sha256": "5bf4468241e4c508007d5d19c155f2eddae3a5daf7b6973a67a88ad27784dbc3"
+    },
+    {
+      "path": "tests/browser/outbox-app-bootstrap.js",
+      "sha256": "d85dd328a6fad7b38287d86020f7dc8d25abd7717c0df63c9450e7fca9a9d76c"
+    },
+    {
+      "path": "tests/browser/outbox-app-environment.js",
+      "sha256": "d2fa604ba8f2d2dc3d9643b4d035c2aeee658916b560dae9bc7675b3961fabee"
+    },
+    {
+      "path": "tests/integration/app-capture-durable-identity.test.js",
+      "sha256": "e00f612deee7b5b5ed587c4e3508e14157788b48470ca33437659b8b18e13779"
+    },
+    {
+      "path": "tests/unit/session-manager.test.js",
+      "sha256": "c59ea3cdebb9efdce635e27ff1da9aae716886c4e28e475a67f3de78c16b79b5"
+    }
+  ],
+  "contractsUnchanged": [
+    "js/utils/durable-outbox.js",
+    "js/utils/outbox-order.js",
+    "js/utils/outbox-journal-storage.js",
+    "js/utils/offline-manager.js",
+    "js/utils/local-first-cache.js",
+    "js/utils/weekly-preferences.js",
+    "js/utils/session-store.js",
+    "js/utils/owned-transaction.js",
+    "js/version-manager.js"
+  ],
+  "checks": {
+    "lint10": "PASS zero warnings/errors",
+    "noSkips": "PASS",
+    "app": "PASS 6 suites / 6 tests",
+    "offline": "PASS 2 suites / 2 tests",
+    "coverage": "PASS 74 suites / 1100 tests / 80.87% statements",
+    "release": "PASS v2.8.6 / 75 assets / two-build",
+    "native": "PASS real Chromium / native LS+IDB / fresh module realms / synthetic SDK",
+    "cleanupNegative": "PASS verifier; child exit 1 / final failed JSON / later cleanup",
+    "upgrade": "PASS A -> B / session / offline / reconnect",
+    "diffCheck": "PASS"
+  },
+  "artifacts": {
+    "native": "tmp/outbox-smoke/1795798639558",
+    "cleanupNegative": "tmp/outbox-cleanup-negative/1795798810601",
+    "upgrade": "tmp/upgrade-smoke/2026-11-27T16-57-20-400Z-17476",
+    "coverage": "tmp-review-9a-coverage-final.log",
+    "focused": "tmp-review-9a-focused-final.log"
+  },
+  "api": {
+    "loadInProgressSession": "sync unchanged signature; preserves captureId/submission",
+    "reconcileInProgressSession": "new named async export",
+    "checkAndOfferResumeSession": "now async; two app async callers await; guards/errors internal",
+    "draft": "captureId plus immutable submission{queueId,payload}; no server schema changes"
+  },
+  "measuredLimits": [
+    "native positive170.6s / deadline180s / CIstep4min; CI platforms pending",
+    "isolated cold coverage beforeAll5s timed out; complete unchanged repeat passed70.903s"
+  ],
+  "remaining": [
+    "parent final freeze/commit/rebase + Windows/Ubuntu CI",
+    "two fresh independent approvals on identical final SHA",
+    "parent-owned real PWA5/service/device verification",
+    "historical already-consumed ID-less drafts cannot be associated by content"
+  ]
+}

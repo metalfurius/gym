@@ -1,0 +1,49 @@
+{
+  "base": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "files": {
+    "js/utils/durable-outbox.js": {
+      "sha256Lf": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65",
+      "identicalToBase": true
+    },
+    "js/utils/outbox-order.js": {
+      "sha256Lf": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c",
+      "identicalToBase": true
+    },
+    "js/utils/outbox-journal-storage.js": {
+      "sha256Lf": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+      "identicalToBase": true
+    },
+    "js/utils/offline-manager.js": {
+      "sha256Lf": "225434ba7f5b1c3de4c1d046c1859b06796a72fb06741cedac89eae4a31df4c8",
+      "identicalToBase": true
+    },
+    "js/utils/local-first-cache.js": {
+      "sha256Lf": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+      "identicalToBase": true
+    },
+    "js/app.js": {
+      "sha256Lf": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+      "identicalToBase": true
+    },
+    "js/modules/session-manager.js": {
+      "sha256Lf": "10ff438dfd362c61642b96bc1839aa6fd8680d6a07b27e913e9ea16f21d2daf8",
+      "identicalToBase": true
+    },
+    "js/i18n.js": {
+      "sha256Lf": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50",
+      "identicalToBase": true
+    },
+    "js/version-manager.js": {
+      "sha256Lf": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983",
+      "identicalToBase": true
+    },
+    "tests/browser/outbox-app-bootstrap.js": {
+      "sha256Lf": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+      "identicalToBase": true
+    },
+    "tests/browser/outbox-app-environment.js": {
+      "sha256Lf": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e",
+      "identicalToBase": true
+    }
+  }
+}

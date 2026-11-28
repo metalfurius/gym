@@ -18,12 +18,10 @@ import { clearInProgressSession } from './modules/session-manager.js';
 import { initializeAppAfterAuth } from './app.js';
 import { logger } from './utils/logger.js';
 import { t } from './i18n.js';
+import { captureAccountScope, isAccountScopeCurrent } from './utils/account-scope.js';
+import { getCurrentUser, setCurrentUser } from './utils/auth-state.js';
 
-let currentUser = null;
-
-export function getCurrentUser() {
-    return currentUser;
-}
+export { getCurrentUser };
 
 function getFriendlyAuthErrorMessage(error) {
     switch (error.code) {
@@ -108,9 +106,10 @@ export async function handleEmailLogin(event) {
 }
 
 export async function handleLogout() {
+    const ownerId = getCurrentUser()?.uid;
     try {
         await firebaseSignOut(auth);
-        clearInProgressSession();
+        if (ownerId) clearInProgressSession(ownerId);
     } catch (error) {
         logger.error('Logout error:', error);
         alert(t('auth.logout_error'));
@@ -130,12 +129,15 @@ if (authElements.signupBtn) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    currentUser = user;
+    setCurrentUser(user);
     if (user) {
         logger.info('User logged in:', user.email);
         dashboardElements.userEmail.textContent = user.email;
         updateNav(true);
-        await initializeAppAfterAuth(user);
+        const initialization = initializeAppAfterAuth(user);
+        const scope = captureAccountScope(user.uid, { mutations: false });
+        await initialization;
+        if (!isAccountScopeCurrent(scope, getCurrentUser()?.uid)) return;
         showView('dashboard');
     } else {
         logger.info('User logged out');

@@ -1,0 +1,211 @@
+{
+  "baseline": "4a0f14163399e42955103f3482eee1920d1436bb",
+  "node": "v24.12.0",
+  "exit": 1,
+  "failed": 11,
+  "passed": 0
+}
+
+(node:24516) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/unit/progress-flow.test.js (7.28 s)
+  ● progress deferred UI ownership › ignores an old exercise success after the new chart, table and stats render
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      476 |         if (outcome === 'success') old.resolve(cached([10, 20, 30])); else old.reject(new Error('late old failure'));
+      477 |         await first;
+    > 478 |         expect(global.Chart).toHaveBeenCalledTimes(chartCount);
+          |                              ^
+      479 |         expect(global.Chart.mock.calls.at(-1)[1].data.datasets[0].data).toEqual([100, 110, 120]);
+      480 |         expect(progressElements.bestRecord.textContent).toBe('120.0 kg');
+      481 |         expect(progressElements.sessionCount.textContent).toBe('3');
+
+      at tests/unit/progress-flow.test.js:478:30
+
+  ● progress deferred UI ownership › ignores an old exercise error after the new chart, table and stats render
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      480 |         expect(progressElements.bestRecord.textContent).toBe('120.0 kg');
+      481 |         expect(progressElements.sessionCount.textContent).toBe('3');
+    > 482 |         expect(progressElements.noDataMessage.classList.contains('hidden')).toBe(true);
+          |                                                                             ^
+      483 |         expect(document.querySelector('#progress-data-table caption').textContent).toContain('Squats');
+      484 |         expect(document.querySelector('#progress-data-table tbody').textContent).toContain('120');
+      485 |         expect(progressElements.loadingSpinner.classList.contains('hidden')).toBe(true);
+
+      at tests/unit/progress-flow.test.js:482:77
+
+  ● progress deferred UI ownership › does not hide the latest spinner when an older period request finishes
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {}, {"data": {"datasets": [{"backgroundColor": "rgba(102, 126, 234, 0.1)", "borderColor": "rgb(102, 126, 234)", "data": [10, 20, 30], "fill": true, "label": "Peso máximo (kg)", "pointBackgroundColor": "rgb(102, 126, 234)", "pointBorderColor": "#fff", "pointBorderWidth": 2, "pointHoverRadius": 8, "pointRadius": 6, "tension": 0.4}], "labels": ["01 mar", "02 mar", "03 mar"]}, "options": {"interaction": {"intersect": false, "mode": "index"}, "maintainAspectRatio": false, "plugins": {"legend": {"display": false}, "title": {"color": "var(--text-color)", "display": true, "font": {"size": 16, "weight": "bold"}, "text": "Progreso de Bench Press - Peso máximo (kg)"}}, "responsive": true, "scales": {"x": {"grid": {"color": "rgba(0, 0, 0, 0.1)"}, "ticks": {"color": "var(--text-secondary-color)", "maxTicksLimit": 10}}, "y": {"beginAtZero": true, "grid": {"color": "rgba(0, 0, 0, 0.1)"}, "ticks": {"color": "var(--text-secondary-color)"}}}}, "type": "line"}
+
+      496 |         const second = updateChart();
+      497 |         old.resolve(cached([10, 20, 30])); await first;
+    > 498 |         expect(global.Chart).not.toHaveBeenCalled();
+          |                                  ^
+      499 |         expect(progressElements.loadingSpinner.classList.contains('hidden')).toBe(false);
+      500 |         latest.resolve(cached([100, 110, 120])); await second;
+      501 |         expect(global.Chart.mock.calls.at(-1)[1].data.datasets[0].data).toEqual([8, 8, 8]);
+
+      at Object.<anonymous> (tests/unit/progress-flow.test.js:498:34)
+
+  ● progress deferred UI ownership › invalidates delayed chart-library callbacks when selection is cleared
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {}, {"data": {"datasets": [{"backgroundColor": "rgba(102, 126, 234, 0.1)", "borderColor": "rgb(102, 126, 234)", "data": [10, 20, 30], "fill": true, "label": "Peso máximo (kg)", "pointBackgroundColor": "rgb(102, 126, 234)", "pointBorderColor": "#fff", "pointBorderWidth": 2, "pointHoverRadius": 8, "pointRadius": 6, "tension": 0.4}], "labels": ["01 mar", "02 mar", "03 mar"]}, "options": {"interaction": {"intersect": false, "mode": "index"}, "maintainAspectRatio": false, "plugins": {"legend": {"display": false}, "title": {"color": "var(--text-color)", "display": true, "font": {"size": 16, "weight": "bold"}, "text": "Progreso de Bench Press - Peso máximo (kg)"}}, "responsive": true, "scales": {"x": {"grid": {"color": "rgba(0, 0, 0, 0.1)"}, "ticks": {"color": "var(--text-secondary-color)", "maxTicksLimit": 10}}, "y": {"beginAtZero": true, "grid": {"color": "rgba(0, 0, 0, 0.1)"}, "ticks": {"color": "var(--text-secondary-color)"}}}}, "type": "line"}
+
+      511 |         global.Chart = jest.fn(() => ({ destroy: jest.fn() }));
+      512 |         await jest.advanceTimersByTimeAsync(2500);
+    > 513 |         expect(global.Chart).not.toHaveBeenCalled();
+          |                                  ^
+      514 |         expect(document.getElementById('progress-data-table')).toBeNull();
+      515 |     });
+      516 |
+
+      at Object.<anonymous> (tests/unit/progress-flow.test.js:513:34)
+
+  ● progress deferred UI ownership › rejects both result and selector cache application across A -> B -> A generations
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: "Squats (3 sesiones)"
+    Received array: ["-- Selecciona un ejercicio --", "Bench Press (3 sesiones)"]
+
+      524 |         await loadExerciseList();
+      525 |         old.resolve(cached([10, 20, 30])); await first;
+    > 526 |         expect([...progressElements.exerciseSelect.options].map(option => option.textContent)).toContain('Squats (3 sesiones)');
+          |                                                                                                ^
+      527 |         expect(progressElements.exerciseSelect.textContent).not.toContain('Bench Press');
+      528 |     });
+      529 |
+
+      at Object.<anonymous> (tests/unit/progress-flow.test.js:526:96)
+
+  ● progress deferred UI ownership › counts two persisted same-day sessions twice and deduplicates repeated IDs and duplicate exercise blocks
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "3"
+    Received: "2"
+
+      535 |         mockGetEntry.mockResolvedValue({ value: sessions, metadata: { complete: true } });
+      536 |         await updateChart();
+    > 537 |         expect(progressElements.sessionCount.textContent).toBe('3');
+          |                                                           ^
+      538 |         await loadExerciseList();
+      539 |         expect(progressElements.exerciseSelect.textContent).toContain('Bench Press (3 sesiones)');
+      540 |     });
+
+      at Object.<anonymous> (tests/unit/progress-flow.test.js:537:59)
+
+FAIL tests/unit/history-manager.test.js (5.922 s)
+  ● history deferred ownership and pagination › ignores old-account success after the current account has rows
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      354 |         if (outcome === 'error') old.reject(new Error('old account error')); else old.resolve(oldSnapshot);
+      355 |         await first;
+    > 356 |         expect(mockRenderHistoryList).toHaveBeenCalledTimes(calls);
+          |                                       ^
+      357 |         expect(getSessionsCache()).toHaveLength(1);
+      358 |         expect(historyElements.loadingSpinner.classList.contains('hidden')).toBe(true);
+      359 |         expect(historyElements.list.textContent).not.toContain('Error');
+
+      at tests/unit/history-manager.test.js:356:39
+
+  ● history deferred ownership and pagination › ignores old-account error after the current account has rows
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "Error"
+    Received string:        "Error al cargar el historial."
+
+      357 |         expect(getSessionsCache()).toHaveLength(1);
+      358 |         expect(historyElements.loadingSpinner.classList.contains('hidden')).toBe(true);
+    > 359 |         expect(historyElements.list.textContent).not.toContain('Error');
+          |                                                      ^
+      360 |         expect(mockCacheSet.mock.calls.map(([key]) => key)).toEqual(['history:history-B:page:1']);
+      361 |     });
+      362 |
+
+      at tests/unit/history-manager.test.js:359:54
+
+  ● history deferred ownership and pagination › keeps a single page advance when next is requested concurrently and results reverse
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 3
+
+      370 |         const rows = getSessionsCache().map(item => item.id);
+      371 |         firstGate.resolve(snapshots[0]); await first;
+    > 372 |         expect(getCurrentPageNumber()).toBe(2);
+          |                                        ^
+      373 |         expect(getSessionsCache().map(item => item.id)).toEqual(rows);
+      374 |         expect(historyElements.prevPageBtn.disabled).toBe(false);
+      375 |         expect(historyElements.nextPageBtn.disabled).toBe(false);
+
+      at Object.<anonymous> (tests/unit/history-manager.test.js:372:40)
+
+  ● history deferred ownership and pagination › does not cache a stale read after a persisted mutation and document IDs win over wire IDs
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: [{"fecha": 30, "id": "untrusted-wire-id"}]
+
+      383 |         invalidateSessionReads('history-A'); historyManagerModule.invalidateHistoryCache();
+      384 |         gate.resolve(snapshot); await pending;
+    > 385 |         expect(mockRenderHistoryList).not.toHaveBeenCalled(); expect(mockCacheSet).not.toHaveBeenCalled();
+          |                                           ^
+      386 |         __setMockQueryResultHandler(null);
+      387 |         await fetchAndRenderHistory();
+      388 |         expect(getSessionsCache()[0].id).toBe('real-id');
+
+      at Object.<anonymous> (tests/unit/history-manager.test.js:385:43)
+
+  ● history deferred ownership and pagination › retains owner-scoped offline pages without claiming a page is complete history
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: undefined
+
+      393 |         await fetchAndRenderHistory();
+      394 |         const saved = mockCacheSet.mock.calls[0][1];
+    > 395 |         expect(saved.complete).toBe(false); expect(saved.hasNext).toBe(true);
+          |                                ^
+      396 |         destroyHistoryManager(); mockCheckOnline.mockReturnValue(false);
+      397 |         mockCacheGetEntry.mockResolvedValue({ value: saved });
+      398 |         await fetchAndRenderHistory();
+
+      at Object.<anonymous> (tests/unit/history-manager.test.js:395:32)
+
+Test Suites: 2 failed, 2 total
+Tests:       11 failed, 26 skipped, 37 total
+Snapshots:   0 total
+Time:        49.637 s
+Ran all test suites matching tests/unit/progress-flow.test.js|tests/unit/history-manager.test.js with tests matching "progress deferred UI ownership|history deferred ownership".
+Test results written to: .sync-baseline-25744.json

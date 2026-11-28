@@ -6,5 +6,72 @@ firestore.rules text eol=lf
 "Validation Evidence/2026-11-20-firestore-fence/*.json" text eol=lf
 "Validation Evidence/2026-11-20-firestore-fence/*.txt" text eol=lf
 "Validation Evidence/2026-11-27-objective4-maintenance/**" text eol=lf
-
 "Validation Evidence/2026-11-27-maintenance-publication/*.json" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.json" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.txt" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.md" text eol=lf
+"Validation Evidence/2026-11-20-objective2/*.sha256" text eol=lf
+"Validation Evidence/2026-11-20-objective2/review-fixes/**/*.json" text eol=lf
+"Validation Evidence/2026-11-20-objective2/review-fixes/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-20-objective2/review-fixes/**/*.md" text eol=lf
+"Validation Evidence/2026-11-20-objective2/review-fixes/**/*.sha256" text eol=lf
+"Validation Evidence/2026-11-27-objective2/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-objective2/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-27-objective2/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-objective2/**/*.sha256" text eol=lf
+"Validation Evidence/2026-11-27-objective2-outbox/**" text eol=lf
+"Validation Evidence/2026-11-27-objective2-barriers/**" text eol=lf
+"Validation Evidence/2026-11-27-objective2-journal-v3/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-objective2-journal-v3/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-objective2-journal-v3/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-27-objective2-journal-v3/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-objective2-journal-v3/**/*.sha256" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-main6/*.json" text eol=lf
+"Validation Evidence/2026-11-27-objective2-main6/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-objective2-main6/*.md" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-review-353/*.json" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-review-353/*.txt" text eol=lf
+
+"Validation Evidence/2026-11-27-objective2-review-353/*.md" text eol=lf
+
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.json" text eol=lf
+
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.txt" text eol=lf
+
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.md" text eol=lf
+"Validation Evidence/2026-11-27-sync-backend-deployment/*.png" -text
+
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-objective2-durable-capture/**/*.png" -text
+
+"Validation Evidence/2026-11-27-objective2-review-bdab/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-objective2-review-bdab/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-objective2-review-bdab/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-objective2-review-bdab/**/*.png" -text
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-outbox-fixture-isolation/**/*.png" -text
+"Validation Evidence/2026-11-27-real-sync-47/**" text eol=lf
+
+"Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.json" text eol=lf
+"Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.md" text eol=lf
+"Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.mjs" text eol=lf
+"Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.png" -text
+"Validation Evidence/2026-11-28-live-qa-offline-authoring/**" text eol=lf
+
+"Validation Evidence/2026-11-28-weekly-offline-resolution/**/*.json" text eol=lf
+"Validation Evidence/2026-11-28-weekly-offline-resolution/**/*.xml" text eol=lf
+"Validation Evidence/2026-11-28-weekly-offline-resolution/**/*.txt" text eol=lf
+"Validation Evidence/2026-11-28-weekly-offline-resolution/**/*.md" text eol=lf
+"Validation Evidence/2026-11-28-weekly-offline-resolution/**/*.mjs" text eol=lf
+"Validation Evidence/2026-11-28-weekly-offline-resolution/**/*.png" -text
+"Validation Evidence/2026-11-28-objective2-integration/**/*.json" text eol=lf

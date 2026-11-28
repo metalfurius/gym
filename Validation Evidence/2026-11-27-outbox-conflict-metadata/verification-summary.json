@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "base": "949c791ccc789058abe28254710c86f45326c1d0",
+  "sources": 91,
+  "artifacts": 97,
+  "releaseAssets": 75,
+  "nativeSourceProofs": [
+    "Validation Evidence/2026-11-27-outbox-conflict-metadata/outbox-positive/result.json",
+    "Validation Evidence/2026-11-27-outbox-conflict-metadata/outbox-negative/result.json",
+    "Validation Evidence/2026-11-27-outbox-conflict-metadata/native-legacy-original/result.json",
+    "Validation Evidence/2026-11-27-outbox-conflict-metadata/native-metadata/result.json",
+    "Validation Evidence/2026-11-27-outbox-conflict-metadata/native-metadata-offline-replay-diagnostic/result.json"
+  ],
+  "changedRuntime": [
+    "js/utils/durable-outbox.js",
+    "js/utils/offline-manager.js",
+    "js/utils/outbox-order.js"
+  ],
+  "protectedSources": [
+    "js/app.js",
+    "js/i18n.js",
+    "js/modules/session-manager.js",
+    "js/utils/local-first-cache.js",
+    "js/utils/outbox-journal-storage.js",
+    "js/version-manager.js",
+    "tests/browser/outbox-app-bootstrap.js",
+    "tests/browser/outbox-app-environment.js"
+  ],
+  "sourceMismatches": [],
+  "artifactMismatches": [],
+  "historicalEvidenceChanges": [],
+  "scope": "Local integrity proof only; required online metadata scenario passes; offline replay remnant remains open"
+}

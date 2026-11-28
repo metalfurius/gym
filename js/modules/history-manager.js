@@ -11,10 +11,12 @@ import {
     getDocs,
     doc,
     getDoc,
-    deleteDoc,
     limit,
     startAfter
 } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+import { captureAccountScope, isAccountScopeCurrent } from '../utils/account-scope.js';
+import { publishSessionMutation, registerSessionMutationInvalidator } from '../utils/session-mutations.js';
+import { writeSessionDocument } from '../utils/session-store.js';
 import { getCurrentUser } from '../auth.js';
 import { historyElements, renderHistoryList, showSessionDetail, showLoading, hideLoading } from '../ui.js';
 import { logger } from '../utils/logger.js';
@@ -29,316 +31,170 @@ import { t } from '../i18n.js';
 const HISTORY_PAGE_SIZE = 10;
 const HISTORY_CACHE_TTL_MS = 5 * 60 * 1000;
 
-let historyPageLastDocSnapshot = null;
-let historyPageDocSnapshotsStack = [];
 let currentHistoryPageNumber = 1;
-let lastHistoryFetchTimestamp = 0;
-
+let ownerId = null;
+let requestId = 0;
+let detailRequestId = 0;
+let pageCursors = [null];
 let allSessionsCache = [];
+let lastHistoryFetchTimestamp = 0;
+let currentHasNext = false;
+let historyDataScope = null;
 
-function getHistoryCacheKey(userId, page = 1) {
-    return `history:${userId}:page:${page}`;
-}
-
-async function getCachedInitialHistory(userId) {
-    try {
-        const entry = await localFirstCache.getEntry(getHistoryCacheKey(userId, 1));
-        if (!entry?.value?.sessions || !Array.isArray(entry.value.sessions)) {
-            return { sessions: [], hasNext: false, isFresh: false };
-        }
-
-        return {
-            sessions: deserializeSessionsFromCache(entry.value.sessions),
-            hasNext: !!entry.value.hasNext,
-            isFresh: localFirstCache.isFresh(entry, HISTORY_CACHE_TTL_MS)
-        };
-    } catch (error) {
-        logger.warn('Could not read history cache:', error);
-        return { sessions: [], hasNext: false, isFresh: false };
-    }
-}
+function getHistoryCacheKey(userId, page = 1) { return `history:${userId}:page:${page}`; }
 
 export function getSessionsCache() {
-    return allSessionsCache;
-}
-
-export function invalidateHistoryCache() {
-    resetPaginationState();
+    return ownerId === getCurrentUser()?.uid && isAccountScopeCurrent(historyDataScope, ownerId) ? allSessionsCache : [];
 }
 
 function resetPaginationState() {
-    historyPageLastDocSnapshot = null;
-    historyPageDocSnapshotsStack = [];
-    currentHistoryPageNumber = 1;
-    allSessionsCache = [];
-    lastHistoryFetchTimestamp = 0;
+    ++requestId; ++detailRequestId;
+    currentHistoryPageNumber = 1; pageCursors = [null]; allSessionsCache = [];
+    lastHistoryFetchTimestamp = 0; currentHasNext = false;
+    historyDataScope = null;
 }
 
-function updatePaginationButtons(queryResultsLength) {
-    if (historyElements.prevPageBtn) {
-        historyElements.prevPageBtn.disabled = currentHistoryPageNumber === 1 || historyPageDocSnapshotsStack.length <= 1;
-    }
+export function invalidateHistoryCache() { resetPaginationState(); }
 
-    if (historyElements.nextPageBtn) {
-        historyElements.nextPageBtn.disabled = queryResultsLength < HISTORY_PAGE_SIZE || allSessionsCache.length === 0;
-    }
-
-    if (historyElements.pageInfo) {
-        historyElements.pageInfo.textContent = t('history.page', { page: currentHistoryPageNumber });
-    }
+function updatePaginationButtons(hasNext = currentHasNext, offline = false) {
+    if (historyElements.prevPageBtn) historyElements.prevPageBtn.disabled = currentHistoryPageNumber === 1;
+    if (historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = !hasNext;
+    if (historyElements.pageInfo) historyElements.pageInfo.textContent = t(offline ? 'history.page_cached' : 'history.page', { page: currentHistoryPageNumber });
 }
 
 export async function fetchAndRenderHistory(direction = 'initial') {
     const user = getCurrentUser();
+    if (ownerId !== user?.uid) { resetPaginationState(); ownerId = user?.uid || null; }
+    const request = ++requestId;
+    const scope = user ? captureAccountScope(user.uid) : null;
+    const isCurrent = () => request === requestId && isAccountScopeCurrent(scope, getCurrentUser()?.uid);
     if (!user) {
         historyElements.list.innerHTML = `<li>${t('history.login_required')}</li>`;
         historyElements.loadingSpinner.classList.add('hidden');
-        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
+        historyElements.paginationControls?.classList.add('hidden');
         return;
     }
-
-    if (direction === 'initial' && allSessionsCache.length > 0 && (Date.now() - lastHistoryFetchTimestamp) <= HISTORY_CACHE_TTL_MS) {
+    const page = direction === 'next' ? currentHistoryPageNumber + 1 : direction === 'prev' ? Math.max(1, currentHistoryPageNumber - 1) : 1;
+    if (page === 1 && currentHistoryPageNumber === 1 && direction === 'initial' && allSessionsCache.length
+        && isAccountScopeCurrent(historyDataScope, user.uid)
+        && Date.now() - lastHistoryFetchTimestamp <= HISTORY_CACHE_TTL_MS) {
+        renderHistoryList(allSessionsCache); updatePaginationButtons();
         historyElements.loadingSpinner.classList.add('hidden');
-        if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
-        renderHistoryList(allSessionsCache);
-        updatePaginationButtons(allSessionsCache.length);
+        historyElements.paginationControls?.classList.remove('hidden');
         return;
     }
-
-    if (!offlineManager.checkOnline()) {
-        if (direction === 'initial') {
-            const cached = await getCachedInitialHistory(user.uid);
-            if (cached.sessions.length > 0) {
-                allSessionsCache = [...cached.sessions];
-                currentHistoryPageNumber = 1;
-                renderHistoryList(cached.sessions);
-                if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
-                if (historyElements.prevPageBtn) historyElements.prevPageBtn.disabled = true;
-                if (historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = !cached.hasNext;
-                if (historyElements.pageInfo) historyElements.pageInfo.textContent = t('history.page_cached', { page: 1 });
-                historyElements.loadingSpinner.classList.add('hidden');
-                toast.info(t('history.cache_notice'));
-                return;
-            }
-        }
-
-        historyElements.list.innerHTML = `<li>${t('history.no_connection')}</li>`;
-        historyElements.loadingSpinner.classList.add('hidden');
-        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
-        toast.warning(t('history.no_connection_warning'));
-        return;
-    }
-
     historyElements.loadingSpinner.classList.remove('hidden');
-    historyElements.list.innerHTML = '';
-    if (historyElements.paginationControls) historyElements.paginationControls.classList.remove('hidden');
-
-    const userSessionsCollectionRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-    let q;
-
+    historyElements.paginationControls?.classList.remove('hidden');
     try {
-        if (direction === 'initial') {
-            resetPaginationState();
-            q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), limit(HISTORY_PAGE_SIZE));
-        } else if (direction === 'next' && historyPageLastDocSnapshot) {
-            q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), startAfter(historyPageLastDocSnapshot), limit(HISTORY_PAGE_SIZE));
-            currentHistoryPageNumber++;
-        } else if (direction === 'prev') {
-            if (historyPageDocSnapshotsStack.length > 0) {
-                historyPageDocSnapshotsStack.pop();
-                const prevPageStartAfterDoc = historyPageDocSnapshotsStack.pop();
-
-                if (prevPageStartAfterDoc) {
-                    q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), startAfter(prevPageStartAfterDoc), limit(HISTORY_PAGE_SIZE));
-                } else {
-                    q = query(userSessionsCollectionRef, orderBy('fecha', 'desc'), limit(HISTORY_PAGE_SIZE));
-                }
-
-                currentHistoryPageNumber--;
+        if (!offlineManager.checkOnline()) {
+            const entry = await localFirstCache.getEntry(getHistoryCacheKey(user.uid, page));
+            if (!isCurrent()) return;
+            if (Array.isArray(entry?.value?.sessions) && (!entry.value.ownerId || entry.value.ownerId === user.uid)) {
+                allSessionsCache = deserializeSessionsFromCache(entry.value.sessions);
+                historyDataScope = scope;
+                currentHistoryPageNumber = page; currentHasNext = entry.value.hasNext === true;
+                renderHistoryList(allSessionsCache); updatePaginationButtons(currentHasNext, true);
+                toast.info(t('history.cache_notice'));
             } else {
-                historyElements.loadingSpinner.classList.add('hidden');
-                if (historyElements.prevPageBtn) historyElements.prevPageBtn.disabled = true;
-                return;
+                historyElements.list.innerHTML = `<li>${t('history.no_connection')}</li>`;
+                historyElements.paginationControls?.classList.add('hidden');
+                toast.warning(t('history.no_connection_warning'));
             }
-        } else {
-            historyElements.loadingSpinner.classList.add('hidden');
-            if (direction === 'next' && historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = true;
             return;
         }
-
-        const querySnapshot = await getDocs(q);
-        firebaseUsageTracker.trackRead(querySnapshot.docs.length || 1, 'history.pageFetch', {
-            direction,
-            page: currentHistoryPageNumber
-        });
-
-        const sessionsForList = [];
-        querySnapshot.forEach((docSnap) => {
-            sessionsForList.push({ id: docSnap.id, ...docSnap.data() });
-        });
-
-        if (querySnapshot.docs.length > 0) {
-            const firstDocOfCurrentPage = querySnapshot.docs[0];
-
-            if (direction === 'initial') {
-                historyPageDocSnapshotsStack.push(null);
-            }
-
-            if (direction !== 'prev' || querySnapshot.docs.length > 0) {
-                historyPageDocSnapshotsStack.push(firstDocOfCurrentPage);
-            }
-
-            historyPageLastDocSnapshot = querySnapshot.docs[querySnapshot.docs.length - 1];
-        } else {
-            if (direction === 'next') historyPageLastDocSnapshot = null;
-            if (direction === 'prev' && historyPageDocSnapshotsStack.length <= 1) {
-                historyPageDocSnapshotsStack = [null];
-            }
+        const cursor = pageCursors[page - 1];
+        // A durable offline page has no live cursor. Restart deterministically.
+        if (page > 1 && !cursor) {
+            if (historyElements.nextPageBtn) historyElements.nextPageBtn.disabled = true;
+            return;
         }
-
-        allSessionsCache = [...sessionsForList];
+        const constraints = [orderBy('fecha', 'desc')];
+        if (cursor) constraints.push(startAfter(cursor));
+        constraints.push(limit(HISTORY_PAGE_SIZE + 1));
+        const snapshot = await getDocs(query(collection(db, 'users', user.uid, 'sesiones_entrenamiento'), ...constraints));
+        if (!isCurrent()) return;
+        firebaseUsageTracker.trackRead(snapshot.docs.length || 1, 'history.pageFetch', { direction, page });
+        const docs = snapshot.docs.slice(0, HISTORY_PAGE_SIZE);
+        // A deleted last page can disappear between requests. Show its predecessor.
+        if (!docs.length && page > 1) {
+            currentHistoryPageNumber = page;
+            await fetchAndRenderHistory('prev');
+            return;
+        }
+        const sessions = docs.map(item => ({ ...item.data(), id: item.id }));
+        currentHistoryPageNumber = page; allSessionsCache = sessions;
+        historyDataScope = scope;
+        currentHasNext = snapshot.docs.length > HISTORY_PAGE_SIZE;
+        pageCursors[page] = docs.at(-1) || null;
+        pageCursors.length = page + 1;
         lastHistoryFetchTimestamp = Date.now();
-
-        renderHistoryList(sessionsForList);
-        updatePaginationButtons(querySnapshot.docs.length);
-
-        if (direction === 'initial') {
-            await localFirstCache.set(getHistoryCacheKey(user.uid, 1), {
-                sessions: serializeSessionsForCache(sessionsForList),
-                hasNext: querySnapshot.docs.length >= HISTORY_PAGE_SIZE
-            }, {
-                metadata: { page: 1 }
-            });
-        }
+        renderHistoryList(sessions); updatePaginationButtons();
+        await localFirstCache.set(getHistoryCacheKey(user.uid, page), {
+            ownerId: user.uid, sessions: serializeSessionsForCache(sessions), hasNext: currentHasNext,
+            complete: page === 1 && !currentHasNext && snapshot.metadata?.fromCache !== true,
+        }, { metadata: { page, ownerId: user.uid, source: 'page' }, ifCurrent: isCurrent });
     } catch (error) {
+        if (!isCurrent()) return;
         logger.error('Error fetching history:', error);
         historyElements.list.innerHTML = `<li>${t('history.load_error')}</li>`;
-        if (historyElements.paginationControls) historyElements.paginationControls.classList.add('hidden');
-
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
-            const { loadFirebaseDiagnostics } = await import('../app.js');
-            loadFirebaseDiagnostics();
-        }
+        historyElements.paginationControls?.classList.add('hidden');
     } finally {
-        historyElements.loadingSpinner.classList.add('hidden');
+        if (isCurrent()) historyElements.loadingSpinner.classList.add('hidden');
     }
 }
 
 async function deleteSession(sessionId, targetButton) {
     const user = getCurrentUser();
     if (!user) return;
-
-    const sessionFromCache = allSessionsCache.find((session) => session.id === sessionId);
-    const sessionName = sessionFromCache ? (sessionFromCache.nombreEntrenamiento || t('history.this_session')) : t('history.this_session');
-
-    if (!confirm(t('history.delete_confirm', { name: sessionName }))) {
-        return;
-    }
-
+    const scope = captureAccountScope(user.uid, { mutations: false });
+    const isCurrent = () => isAccountScopeCurrent(scope, getCurrentUser()?.uid);
+    const cached = getSessionsCache().find(session => session.id === sessionId);
+    const name = cached?.nombreEntrenamiento || t('history.this_session');
+    if (!confirm(t('history.delete_confirm', { name }))) return;
     showLoading(targetButton, t('routines.delete_loading'));
-
     try {
-        const sessionDocRef = doc(db, 'users', user.uid, 'sesiones_entrenamiento', sessionId);
-        await deleteDoc(sessionDocRef);
-        firebaseUsageTracker.trackWrite(1, 'history.deleteSession');
-
-        localFirstCache.clearByPrefix(`history:${user.uid}:`).catch((cacheError) => {
-            logger.warn('Could not invalidate history cache after delete:', cacheError);
-        });
-
-        if (allSessionsCache.length === 1 && currentHistoryPageNumber > 1) {
-            fetchAndRenderHistory('prev');
-        } else {
-            await reloadCurrentPage(user);
-        }
-
-        toast.success(t('history.delete_success'));
+        const mutation = await offlineManager.executeWithOfflineHandling(
+            () => writeSessionDocument(db, user.uid, sessionId, null, { remove: true }),
+            t('history.delete_error'), true, { type: 'session.delete', payload: { userId: user.uid, sessionId } });
+        try { await publishSessionMutation({ userId: user.uid, sessionId, source: 'history', kind: 'delete' }, mutation); }
+        catch (error) { logger.warn('Deletion accepted; surface refresh deferred:', error); }
+        if (!isCurrent()) return;
+        invalidateHistoryCache();
+        await fetchAndRenderHistory('initial');
+        if (isCurrent()) toast.success(t('history.delete_success'));
     } catch (error) {
-        logger.error('Error deleting session:', error);
-        toast.error(t('history.delete_error'));
-        hideLoading(targetButton);
-
-        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT'))) {
-            const { loadFirebaseDiagnostics } = await import('../app.js');
-            loadFirebaseDiagnostics();
+        if (isCurrent()) {
+            if (error.message?.startsWith('Offline:')) toast.info(t('offline.queued_when_online'));
+            else { logger.error('Error deleting session:', error); toast.error(t('history.delete_error')); }
         }
-    }
-}
-
-async function reloadCurrentPage(user) {
-    const startAfterDocForReload = historyPageDocSnapshotsStack.length > 1
-        ? historyPageDocSnapshotsStack[historyPageDocSnapshotsStack.length - 2]
-        : null;
-
-    let qReload;
-    const userSessionsRef = collection(db, 'users', user.uid, 'sesiones_entrenamiento');
-
-    if (startAfterDocForReload) {
-        qReload = query(userSessionsRef, orderBy('fecha', 'desc'), startAfter(startAfterDocForReload), limit(HISTORY_PAGE_SIZE));
-    } else {
-        qReload = query(userSessionsRef, orderBy('fecha', 'desc'), limit(HISTORY_PAGE_SIZE));
-    }
-
-    const snapshot = await getDocs(qReload);
-    firebaseUsageTracker.trackRead(snapshot.docs.length || 1, 'history.reloadPage', {
-        page: currentHistoryPageNumber
-    });
-
-    const reloadedSessions = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-
-    allSessionsCache = [...reloadedSessions];
-    lastHistoryFetchTimestamp = Date.now();
-    renderHistoryList(reloadedSessions);
-
-    if (snapshot.docs.length > 0) {
-        historyPageLastDocSnapshot = snapshot.docs[snapshot.docs.length - 1];
-    } else {
-        historyPageLastDocSnapshot = null;
-    }
-
-    updatePaginationButtons(snapshot.docs.length);
-
-    if (currentHistoryPageNumber === 1) {
-        await localFirstCache.set(getHistoryCacheKey(user.uid, 1), {
-            sessions: serializeSessionsForCache(reloadedSessions),
-            hasNext: snapshot.docs.length >= HISTORY_PAGE_SIZE
-        }, {
-            metadata: { page: 1, refreshed: true }
-        });
+    } finally {
+        if (isCurrent()) hideLoading(targetButton);
     }
 }
 
 async function viewSessionDetails(sessionId) {
     const user = getCurrentUser();
     if (!user) return;
-
-    let sessionData = allSessionsCache.find((session) => session.id === sessionId);
-
+    const request = ++detailRequestId;
+    const scope = captureAccountScope(user.uid);
+    const isCurrent = () => request === detailRequestId && isAccountScopeCurrent(scope, getCurrentUser()?.uid);
+    let sessionData = getSessionsCache().find(session => session.id === sessionId);
     if (!sessionData) {
         historyElements.loadingSpinner.classList.remove('hidden');
         try {
-            const docRef = doc(db, 'users', user.uid, 'sesiones_entrenamiento', sessionId);
-            const docSnap = await getDoc(docRef);
-            firebaseUsageTracker.trackRead(docSnap.exists() ? 1 : 0, 'history.sessionDetail');
-
-            if (docSnap.exists()) {
-                sessionData = { id: docSnap.id, ...docSnap.data() };
-            } else {
-                toast.error(t('history.details_not_found'));
-                return;
-            }
+            const snapshot = await getDoc(doc(db, 'users', user.uid, 'sesiones_entrenamiento', sessionId));
+            if (!isCurrent()) return;
+            firebaseUsageTracker.trackRead(snapshot.exists() ? 1 : 0, 'history.sessionDetail');
+            if (!snapshot.exists()) { toast.error(t('history.details_not_found')); return; }
+            sessionData = { ...snapshot.data(), id: snapshot.id };
         } catch (error) {
-            logger.error('Error fetching session detail:', error);
-            toast.error(t('history.details_error'));
+            if (isCurrent()) { logger.error('Error fetching session detail:', error); toast.error(t('history.details_error')); }
             return;
         } finally {
-            historyElements.loadingSpinner.classList.add('hidden');
+            if (isCurrent()) historyElements.loadingSpinner.classList.add('hidden');
         }
     }
-
-    if (sessionData) {
-        showSessionDetail(sessionData);
-    }
+    if (sessionData && isCurrent()) showSessionDetail(sessionData);
 }
 
 async function handleHistoryListClick(event) {
@@ -389,6 +245,16 @@ export function getCurrentPageNumber() {
 export function getPageSize() {
     return HISTORY_PAGE_SIZE;
 }
+
+registerSessionMutationInvalidator(({ userId }) => {
+    if (ownerId === userId) invalidateHistoryCache();
+});
+
+offlineManager.registerOperationHandler('session.delete', async payload => {
+    if (!payload?.userId || !payload?.sessionId) throw new Error('Invalid queued delete payload');
+    const mutation = await writeSessionDocument(db, payload.userId, payload.sessionId, null, { remove: true });
+    await publishSessionMutation({ userId: payload.userId, sessionId: payload.sessionId, source: 'history', kind: 'delete', replayed: true }, mutation);
+});
 
 export default {
     fetchAndRenderHistory,

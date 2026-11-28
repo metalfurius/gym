@@ -1,6 +1,6 @@
 # Firestore Data Contract
 
-Last updated: September 17, 2026
+Last updated: November 27, 2026
 Status: Active
 
 ## Purpose
@@ -143,6 +143,10 @@ Current document shape:
       "targetSessions": 3,
       "targetDays": 3,
       "savesUsed": 1,
+      "revision": 1,
+      "commitRevision": 1,
+      "operationId": "<immutable-operation-id>",
+      "pending": false,
       "updatedAtIso": "2026-04-22T10:00:00.000Z"
     }
   },
@@ -157,7 +161,9 @@ Current document shape:
       "lockedAtIso": "2026-04-22T10:00:00.000Z"
     }
   },
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "preferencesRevision": 1,
+  "updatedAtIso": "2026-04-22T10:00:00.000Z",
   "updatedAt": "<Firestore Timestamp>"
 }
 ```
@@ -166,10 +172,55 @@ Fields:
 
 - `weeklyTargetSessions` (integer, clamped to `1..7`, default fallback `3`)
 - `weeklyTargetDays` (legacy alias for `weeklyTargetSessions`; new writes keep it synchronized)
+- `weeklyTargetBaselineSessions` (optional preserved scalar legacy target before the first dated target; absent older maps retain default `3` for unknown earlier weeks)
 - `weeklyTargetsByWeek` (object map keyed by `YYYY-MM-DD` week start, storing `targetSessions`, legacy `targetDays`, `savesUsed`, `updatedAtIso`)
 - `weeklyOutcomesByWeek` (object map keyed by `YYYY-MM-DD` week start, storing frozen `targetSessions`, `targetDays`, `sessionCount`, `activeSessions`, `activeDays`, `met`, `lockedAtIso`)
-- `schemaVersion` (integer, currently `2`)
+- `schemaVersion` (new target and derived-outcome writes use `3`; versionless/schema 2 documents remain readable)
+- `preferencesRevision` (atomic document commit order; independent of device clocks and `savesUsed`)
+- Per-week `revision`, `commitRevision` and `operationId` (verified-base concurrency metadata)
+- `updatedAtIso` (the original accepted user-intent timestamp; derived outcome writes preserve it)
 - `updatedAt` (`Timestamp`)
+
+### 5) Session revision and operation receipts
+
+- `users/{uid}/app_data/session_revision`: exactly `{ "revision": <nonnegative integer>, "lastSessionId": <session ID or null during activation> }`. Session create/delete and the `old+1` increment with matching `lastSessionId` commit atomically. Duplicate delivery of an existing session ID does not increment it. A marker without `lastSessionId` remains a readable legacy state until protocol onboarding initializes it atomically.
+- `users/{uid}/app_data/user_preferences/weekly_operations/{operationId}`: immutable target-operation receipt with `status` (`applied` or `conflict`), week, target, original `updatedAtIso` and accepted/current revision. Receipt and preference mutation commit atomically; retrying a receipt cannot overwrite a newer value.
+- `users/{uid}/session_mutations/{sessionId}/receipts/{kind}`: immutable session receipt/tombstone, where `kind` is `create` or `delete`, exactly `{ "sessionId": <persisted ID>, "kind": <kind>, "changed": <boolean>, "revision": <nonnegative integer> }`. Real session changes and their receipt/counter increment commit together. A no-op receipt records the unchanged counter revision. No receipt update/delete is permitted.
+
+All paths require the same authenticated owner UID. Firestore document IDs override any `id` field inside session data. New creates are idempotent transactions; an already existing session is preserved so a delayed old create cannot undo a future same-ID correction.
+
+Create receipts survive deletion. A previous create receipt or delete tombstone
+prevents a new create of that identity, including replay after a lost create
+acknowledgement. Deleting an absent ID creates a no-op tombstone, so an older
+concurrent create must retry and remain blocked. A legacy existing ID may acquire
+a no-op create receipt without changing its data or counter. New transactions
+read four documents and write three for a real change. Server rules separately
+validate receipt/session/counter relationships within Firestore access limits.
+Pending-cache recovery requires an authoritative immutable receipt/tombstone and
+does not infer operation completion from session existence or absence.
+
+### 6) Server synchronization protocol
+
+- `runtime_config/sync_protocol`: server-owned exactly `{ "version": 1, "epoch": "gym-sync-v1-2026-11" }`. Authenticated reads only; client writes denied. An admin publishes it only with matching reviewed server rules.
+- `users/{uid}/app_data/sync_protocol`: owner may create exactly the same two fields once, in the transaction initializing `session_revision`. Updates/deletes are denied. Initialization preserves an existing nonnegative integer revision or starts at zero and sets `lastSessionId:null`.
+
+Once the UID policy exists before or after a commit, server rules require the
+session/counter transaction and schema 3/exact-next preference revision. The
+fence remains active if the global policy disappears. No client may independently
+reset/delete the counter or mutate/delete a receipt. The client uses authoritative
+global proof and transactional UID validation before a completeness query; it
+does not freeze derived outcomes without this proof. The outcome transaction
+rechecks policies, epoch, session revision and target bases. Legacy session and
+preference data remain readable without destructive backfill; old unfenced
+writers are rejected after that UID opts in.
+
+New target queue descriptors add `baseFingerprint` (both target aliases,
+`savesUsed`, original timestamp) to revision/predecessor metadata. A legacy merge
+retaining revision/operation ID cannot match an obsolete semantic base. An old
+descriptor without verifiable semantic base is retained as an explicit conflict;
+an existing immutable acceptance receipt still makes retries idempotent.
+
+See [history/progress synchronization contract](history-progress-sync-contract.md) for verified-base conflict rules, durable queue migration, completeness and the required live validation sequence.
 
 ## Versioning Rules
 
@@ -202,7 +253,7 @@ Use this mapping when normalizing records for app use:
 
 - Session identity:
 - Canonical: Firestore document ID, mirrored in `sessionId` on new writes
-- Offline queue payload: `sessionId` (replay uses idempotent `setDoc` when present)
+- Offline queue payload: `sessionId` (replay uses an idempotent create transaction; legacy descriptors get a stable identity from their durable queue ID)
 
 ## Implemented Extension: Execution Mode (March 29, 2026)
 

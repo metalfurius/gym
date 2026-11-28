@@ -1,0 +1,5 @@
+
+> my-workout-tracker@1.0.2 test:e2e:outbox
+> node scripts/browser-outbox-smoke.mjs
+
+{"status":"failed","primaryError":"Expected values to be strictly equal:\n\n2 !== 0\n","cleanupErrors":[],"output":"C:\\tmp\\gym-roadmap-outbox-fixture-isolation\\Validation Evidence\\2026-11-27-outbox-fixture-isolation\\positive"}

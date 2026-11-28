@@ -1,5 +1,5 @@
 // This value is rewritten by update-version.cjs and is part of the release contract.
-const RELEASE_REVISION = 'v2.8.5';
+const RELEASE_REVISION = 'v2.8.6';
 const CACHE_NAME = `gym-tracker-${RELEASE_REVISION}`;
 const RELEASE_METADATA_PATHS = new Set(['manifest.json', 'release.json']);
 const OPTIONAL_ASSET_TIMEOUT_MS = 5_000;
@@ -42,6 +42,17 @@ const urlsToCache = [
     './js/timer.js',
     './js/theme-manager.js',
     './js/utils/logger.js',
+    './js/utils/account-scope.js',
+    './js/utils/auth-state.js',
+    './js/utils/calendar-clock.js',
+    './js/utils/owned-transaction.js',
+    './js/utils/session-mutations.js',
+    './js/utils/session-store.js',
+    './js/utils/secure-id.js',
+    './js/utils/cache-mutation-lock.js',
+    './js/utils/sync-protocol.js',
+    './js/utils/sync-protocol-contract.js',
+    './js/utils/weekly-preferences.js',
     './js/utils/numeric-input.js',
     './js/utils/input-validation.js',
     './js/utils/validation.js',
@@ -50,6 +61,9 @@ const urlsToCache = [
     './js/utils/event-manager.js',
     './js/utils/firebase-usage-tracker.js',
     './js/utils/offline-manager.js',
+    './js/utils/durable-outbox.js',
+    './js/utils/outbox-order.js',
+    './js/utils/outbox-journal-storage.js',
     './js/utils/routine-import.js',
     './js/utils/release-updater.js',
     './js/utils/bodyweight.js',

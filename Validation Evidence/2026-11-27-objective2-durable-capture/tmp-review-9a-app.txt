@@ -1,0 +1,26 @@
+
+> my-workout-tracker@1.0.2 test:app
+> npm run lint:errors && npm run test:app:only
+
+
+> my-workout-tracker@1.0.2 lint:errors
+> eslint . --quiet
+
+
+> my-workout-tracker@1.0.2 test:app:only
+> node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration/app-user-journey.test.js tests/integration/app-auth-navigation.test.js tests/integration/app-language-switch.test.js tests/integration/app-offline-recovery.test.js tests/integration/app-offline-retry.test.js tests/integration/app-numeric-inputs.test.js --runInBand
+
+(node:26956) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/integration/app-user-journey.test.js (10.225 s)
+PASS tests/integration/app-offline-recovery.test.js (7.261 s)
+PASS tests/integration/app-offline-retry.test.js (5.371 s)
+PASS tests/integration/app-auth-navigation.test.js
+PASS tests/integration/app-numeric-inputs.test.js
+PASS tests/integration/app-language-switch.test.js
+
+Test Suites: 6 passed, 6 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        33.09 s
+Ran all test suites matching tests/integration/app-user-journey.test.js|tests/integration/app-auth-navigation.test.js|tests/integration/app-language-switch.test.js|tests/integration/app-offline-recovery.test.js|tests/integration/app-offline-retry.test.js|tests/integration/app-numeric-inputs.test.js.

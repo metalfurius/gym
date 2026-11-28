@@ -1,0 +1,14 @@
+
+> my-workout-tracker@1.0.2 test:e2e:upgrade
+> node scripts/browser-upgrade-smoke.mjs
+
+[browser-upgrade-smoke] build-isolated-releases
+[browser-upgrade-smoke] wait-for-initialized-active-controlled-A
+[browser-upgrade-smoke] switch-server-and-request-B-update
+[browser-upgrade-smoke] wait-for-installed-waiting-B-and-update-UI
+[browser-upgrade-smoke] click-explicit-update-action
+[browser-upgrade-smoke] wait-for-fixture-reload-and-initialized-controlled-B
+[browser-upgrade-smoke] offline-restart
+[browser-upgrade-smoke] online-recovery
+[browser-upgrade-smoke] close-owned-browser-and-server
+[browser-upgrade-smoke] Chromium release upgrade passed; artifacts: C:\tmp\gym-roadmap-02-main6-native-upgrade

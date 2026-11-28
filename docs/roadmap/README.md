@@ -10,8 +10,9 @@ objectives into implementation and acceptance work. Their original planning base
 weekly-target and PWA fixes. Local branch `codex/stabilize-read-optimized-v1` and commit `9a6d883` are
 reference material, not a delivered implementation or an acceptable substitute baseline. Current published
 source is `fd82d8080007c19426a47a17cddb3428ea6ab59d` (v2.8.5); refresh dependency integration and both
-reviews against the actual final implementation head. Local implementations of objectives 2/3/5/6 and the
-pure-helper foundation for 7 are not shipped features.
+reviews against the actual final implementation head. Local implementations of objectives 2/3/5/6/7 are not
+shipped features. The real Windows/Ubuntu 47-phase run on unpublished `949c791` passed; review fixes and final
+acceptance remain open. [Dated evidence and limitations](../real-sync-47-2026-11-27.md).
 
 | Order | Individual plan                                            | Required dependencies                                  | Closure evidence                                                                                                |
 | ----- | ---------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
@@ -98,6 +99,8 @@ device never becomes a passing manual test.
 - Real devices/accounts: retain or obtain a designated test account, two independent devices for sync evidence,
   a previously installed client for production upgrades, and an actual iOS device for Safari/Home Screen PWA
   evidence. Record unavailable access as a dependency and keep the corresponding criteria open.
-- Backend activation: stricter rules source and its required emulator checks are merged. Actual rules deployment,
-  readback/propagation verification and the administrator-owned global sync attestation remain open. Client
-  features depending on that protocol are local until their own accepted rollout; do not infer deployment from CI.
+- Backend activation: the base rules were deployed and the administrator-owned global sync attestation was created.
+  The separately two-judge-reviewed editor rules extension then superseded them, with exact-source readback;
+  the real 47-phase run used that backend. See the dated evidence above for the server component SHA/hash and
+  its limited approval scope. Client features remain local until their own accepted rollout; server deployment
+  does not approve the frontend, editor scenarios or objective completion.

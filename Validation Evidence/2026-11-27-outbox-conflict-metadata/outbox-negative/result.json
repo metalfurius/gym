@@ -1,0 +1,4324 @@
+{
+  "status": "failed",
+  "runId": "5416eb77-1493-4b81-8c09-0db444ba7e86",
+  "startedAt": "2026-11-28T17:05:15.453Z",
+  "checkoutSha": "949c791ccc789058abe28254710c86f45326c1d0",
+  "mode": "actual app/outbox/cache modules; native Chromium pages + localStorage/IndexedDB; synthetic SDK only, no live backend",
+  "negativeCase": "cleanup-owner",
+  "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+  "scenarios": [
+    {
+      "id": "core-cross-tab-causal-barriers",
+      "origin": "http://127.0.0.1:62764",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:15.511Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "75DA3B855067D2C50710C83F2AE2976E",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "8C2530ADADF7C97D8EA050F86A520A94",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "B95DB579C4F257A40CB7C796E250830D",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "85C43ACDE749FA5EE7DFCB796664FDFC",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "36F8A2F754B055D22304BB8AC49CF3C8",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "4517AF3011FF250FEB2957A0718EB359",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "D8D7B37C908B527F32F46954D48E673A",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "2AF939783C9AF68FE5485938FF0ACAF7",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "6F76FF3BD4CC11EC7A284AD23AF22FF6",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "241E306E9BFE52F63E19738F796DAA03",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "E4A85086345268E33BAE1916B5AE88FD",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "5D28634CEDF52328E9EB65BBEC7D0E44",
+          "origin": "http://127.0.0.1:62764",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfter": {
+        "indexedDbBatches": 10,
+        "indexedDbBytes": 6470,
+        "indexedDbSha256": "64d648442b2bf17ac229db7a18646228cf00c90f376434017af641a6c580576f",
+        "localMirrorBatches": 10
+      },
+      "closedTargetIds": [
+        "6F76FF3BD4CC11EC7A284AD23AF22FF6",
+        "B95DB579C4F257A40CB7C796E250830D",
+        "36F8A2F754B055D22304BB8AC49CF3C8",
+        "85C43ACDE749FA5EE7DFCB796664FDFC",
+        "4517AF3011FF250FEB2957A0718EB359",
+        "E4A85086345268E33BAE1916B5AE88FD",
+        "5D28634CEDF52328E9EB65BBEC7D0E44",
+        "2AF939783C9AF68FE5485938FF0ACAF7",
+        "241E306E9BFE52F63E19738F796DAA03",
+        "D8D7B37C908B527F32F46954D48E673A"
+      ],
+      "completedAt": "2026-11-28T17:05:17.306Z",
+      "elapsedMs": 1794,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-success-abort",
+      "origin": "http://127.0.0.1:57237",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:17.309Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "B8C87603BCB9B118B48315F67E42434B",
+          "origin": "http://127.0.0.1:57237",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "36E9D2706052CA6CA692A36697E55708",
+          "origin": "http://127.0.0.1:57237",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "ead53ecd3f283ea82bdaa00108c095b8bd6761b0427a9bf07991473e79cbb21d",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7047,
+        "indexedDbSha256": "d689550870ba70dec6b0f69c5dcc0417709565afd42ffabc74af285c52a0438d",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "36E9D2706052CA6CA692A36697E55708"
+      ],
+      "completedAt": "2026-11-28T17:05:17.846Z",
+      "elapsedMs": 538,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-request-error-complete",
+      "origin": "http://127.0.0.1:54093",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:17.849Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "B463150A9929DDFC79A1344C6AF48CD6",
+          "origin": "http://127.0.0.1:54093",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "41E8DF9C7291BD2472C7B4B2D3445481",
+          "origin": "http://127.0.0.1:54093",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "ef4e0a5aa246cc7b326e04a36e5afae06ca7c2155b88da9b4d0e6b5615346dd0",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7164,
+        "indexedDbSha256": "5f88da9576c8018f797217a99fcfe7a0fc19a7f70f0681b964cad9bfdbfb7bad",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "41E8DF9C7291BD2472C7B4B2D3445481"
+      ],
+      "completedAt": "2026-11-28T17:05:18.403Z",
+      "elapsedMs": 554,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-mirror",
+      "origin": "http://127.0.0.1:52350",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:18.405Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "0D1085AEF7A91C6485A3B0B0DB4A0991",
+          "origin": "http://127.0.0.1:52350",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "2AE92E412ED0BCE1618AB87224AAB7D0",
+          "origin": "http://127.0.0.1:52350",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "18423dd060cdfc5ea433f298d32f88f2cf2c8487f4587278771ff3ae7c645313",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5749,
+        "indexedDbSha256": "dad147e31d3145f4a30a1355b3b0baf810f490f2b88125fdba8d82f6cd527aa1",
+        "localMirrorBatches": 4
+      },
+      "closedTargetIds": [
+        "2AE92E412ED0BCE1618AB87224AAB7D0"
+      ],
+      "completedAt": "2026-11-28T17:05:18.845Z",
+      "elapsedMs": 440,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-refresh",
+      "origin": "http://127.0.0.1:63258",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:18.847Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "BC412F707E8135CDCA3B11D3C2CC487A",
+          "origin": "http://127.0.0.1:63258",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "B404D065416E9153C6F258936D7958E4",
+          "origin": "http://127.0.0.1:63258",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "cedef164df0cac4b533c7d0312a3a69aa6f2b73a5eae188355c79711e5e1801a",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5759,
+        "indexedDbSha256": "b8e9d1e5d01a21fa9e71e14fe6e6fb14513cf6fe0d73e3dc4651f492579e4f4b",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "B404D065416E9153C6F258936D7958E4"
+      ],
+      "completedAt": "2026-11-28T17:05:19.268Z",
+      "elapsedMs": 421,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-ack-abort",
+      "origin": "http://127.0.0.1:57334",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:19.270Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "28D8B197856A6A99B0792C184D6850D4",
+          "origin": "http://127.0.0.1:57334",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "4B3D1B958E5EC1116453E39740913C12",
+          "origin": "http://127.0.0.1:57334",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "d84e907aaae65424d0a303070fed6ff8e5d8c765c6fa0b2e21c54f9ff1a783bc",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5779,
+        "indexedDbSha256": "a44d79f82623e9047a2fbcc2227ff08c8a85bfd75af28dd84eb990ce9998d1b9",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "4B3D1B958E5EC1116453E39740913C12"
+      ],
+      "completedAt": "2026-11-28T17:05:19.783Z",
+      "elapsedMs": 513,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "quicklog-lost-rpc",
+      "origin": "http://127.0.0.1:55275",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:19.786Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "C407B22BE6A7F4AC9DDD52E139EE628F",
+          "origin": "http://127.0.0.1:55275",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "76A049313760D2A79DAECBEBE2175625",
+          "origin": "http://127.0.0.1:55275",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "243a83be2774cb89b12bba0225f07cdaefbfd6101b597c6c23db8902b89a139c",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5769,
+        "indexedDbSha256": "c9904edbccc696b3f42686a1a9e27c72bead175b4827627ac6f6be89d5e3ee0f",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "76A049313760D2A79DAECBEBE2175625"
+      ],
+      "completedAt": "2026-11-28T17:05:20.201Z",
+      "elapsedMs": 415,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-offline",
+      "origin": "http://127.0.0.1:52550",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:20.204Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "ABA9A31E06203212DF916AB7D2A8BC67",
+          "origin": "http://127.0.0.1:52550",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "838D2DFA4CD00DBF51ED50DA8012E39D",
+          "origin": "http://127.0.0.1:52550",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "152bfbdcd7562ce2c0f77c7180a7f078cc9da2f67beabf7105feb97f7458cd75",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5837,
+        "indexedDbSha256": "93c412843cd5cf6f48350e745f52b47d6dea5bb7e25105a577c51594cdfb830b",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "838D2DFA4CD00DBF51ED50DA8012E39D"
+      ],
+      "completedAt": "2026-11-28T17:05:20.881Z",
+      "elapsedMs": 678,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-lost-rpc",
+      "origin": "http://127.0.0.1:65130",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:20.886Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "6F64F62447E75941C21308D462563E12",
+          "origin": "http://127.0.0.1:65130",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "08A3D050B5787350577AC0775A61E70A",
+          "origin": "http://127.0.0.1:65130",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "a623eb556e204c808f833105f0638ea713db82e67c3448126a25fb81468417f3",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5847,
+        "indexedDbSha256": "2b02c7e1bf04d9bc1c2012eb45550de03a36f6281edc686048cfc761e2ee17b6",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "08A3D050B5787350577AC0775A61E70A"
+      ],
+      "completedAt": "2026-11-28T17:05:21.507Z",
+      "elapsedMs": 621,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-unknown-journal",
+      "origin": "http://127.0.0.1:50558",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:21.510Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "6C03E5BED0CBA703312DDD081F5639E5",
+          "origin": "http://127.0.0.1:50558",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "149E22CC4E9C11B50219AE7975BE4219",
+          "origin": "http://127.0.0.1:50558",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "11d281fd1f9367655b808af2f907d65a2cfa3abd22e65d9545d876bf1b89c3a8",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5917,
+        "indexedDbSha256": "5c24bbca762549d6081dcd94222cceabb457a0f740995bcfd430298237d6f7ea",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "149E22CC4E9C11B50219AE7975BE4219"
+      ],
+      "completedAt": "2026-11-28T17:05:22.140Z",
+      "elapsedMs": 630,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-unknown-before-commit",
+      "origin": "http://127.0.0.1:57636",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:22.142Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "81F75AE47557D1ACC046CF73EEFB40F9",
+          "origin": "http://127.0.0.1:57636",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "827E702D684933D0B32D53F17F559E6D",
+          "origin": "http://127.0.0.1:57636",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "3B5640499537A4428CE0B82C506B2763",
+          "origin": "http://127.0.0.1:57636",
+          "app": true,
+          "coldCapture": true,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0dae7bf51de532e24875aca2cf0d2dbda406f4565b7375260ee661d311e02004",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5977,
+        "indexedDbSha256": "ecd1b858e325400ceb0db381e314821c8830df26bbf1d5e0c034d3cb122ef3d7",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "3B5640499537A4428CE0B82C506B2763",
+        "827E702D684933D0B32D53F17F559E6D"
+      ],
+      "completedAt": "2026-11-28T17:05:23.168Z",
+      "elapsedMs": 1026,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-draft-cleanup",
+      "origin": "http://127.0.0.1:55323",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:23.171Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "1BC76B2106B4DEE1A40C8B62CD69765E",
+          "origin": "http://127.0.0.1:55323",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "185FB206EBA45E6C8CB158A25ECCD877",
+          "origin": "http://127.0.0.1:55323",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "c8aaee92b1f400ec52cfb575db82f9a6e722901b1ee9c4abdb7742b5e24ba627",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5897,
+        "indexedDbSha256": "10cd94ff26fb8f07fa0e615f18891abd9ed363961407b82b533ba33ddf1feefa",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "185FB206EBA45E6C8CB158A25ECCD877"
+      ],
+      "completedAt": "2026-11-28T17:05:23.759Z",
+      "elapsedMs": 588,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-native-abort-retry",
+      "origin": "http://127.0.0.1:57240",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:23.761Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "5E5C4B0F302EDE724BCF803CC95AAB92",
+          "origin": "http://127.0.0.1:57240",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "4107B5054CFBD445BCA7214B99028062",
+          "origin": "http://127.0.0.1:57240",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "f612cc8bc25e4d5edc27191b0bd0816fafa8cdbc1b52b9ac3b389fb112e0e4bb",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7054,
+        "indexedDbSha256": "4e006fcc8cd4419c66381b0424b5625bb8b406e61b0e68ea5a89a137d097fead",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "4107B5054CFBD445BCA7214B99028062"
+      ],
+      "completedAt": "2026-11-28T17:05:24.462Z",
+      "elapsedMs": 700,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-auth-and-form-generation",
+      "origin": "http://127.0.0.1:50769",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:24.464Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "816D6599F7201CC7B3E4560B1C1CECEE",
+          "origin": "http://127.0.0.1:50769",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "2B29346EA5F06FDD025D3A259774F7D0",
+          "origin": "http://127.0.0.1:50769",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "a635a44a364843915404b5a4a90cca9e51684562d848b612249740e068623b62",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 7,
+        "indexedDbBytes": 6526,
+        "indexedDbSha256": "62e26a90ef39ed3113e2d9470716ce92952e9135e7185124f998fceb0aa9129d",
+        "localMirrorBatches": 7
+      },
+      "closedTargetIds": [
+        "2B29346EA5F06FDD025D3A259774F7D0"
+      ],
+      "completedAt": "2026-11-28T17:05:25.082Z",
+      "elapsedMs": 618,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-two-deliberate-starts",
+      "origin": "http://127.0.0.1:53224",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:25.085Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "96CB293BC3163749221BFBFBAFC434DA",
+          "origin": "http://127.0.0.1:53224",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "D135E0B9C3893B3F9DDF7099BBEB9F31",
+          "origin": "http://127.0.0.1:53224",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "63d1d5d379af4abd29b7e3ccd440afb4ec2c10a9fb845bc887cbc494d77e1047",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 8755,
+        "indexedDbSha256": "8590111f2a72b946f7139d2db39f7589e89854146b784a19c5a727c83efcaf27",
+        "localMirrorBatches": 8
+      },
+      "closedTargetIds": [
+        "D135E0B9C3893B3F9DDF7099BBEB9F31"
+      ],
+      "completedAt": "2026-11-28T17:05:25.610Z",
+      "elapsedMs": 524,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-primary-false-false",
+      "origin": "http://127.0.0.1:59778",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:25.612Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "8FD2EB45B6CADCC3A70352C4A51341E4",
+          "origin": "http://127.0.0.1:59778",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "34598046ABF4B20B15FB501C13D9675F",
+          "origin": "http://127.0.0.1:59778",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "6b0bee2d58dfda0976ca146200fbdbc45958fde819fd57ad6bd89b8e3c51f874",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5887,
+        "indexedDbSha256": "e708e01fe709f673a57a0499a4818f7a7b492cd131bb2864118717e4290dba40",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "34598046ABF4B20B15FB501C13D9675F"
+      ],
+      "completedAt": "2026-11-28T17:05:26.267Z",
+      "elapsedMs": 656,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-primary-false-true",
+      "origin": "http://127.0.0.1:51295",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:26.270Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "52B524B7A630008DC6E97CA40AB7E724",
+          "origin": "http://127.0.0.1:51295",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "E43A3EB0E5516E0A878A9A584EE14975",
+          "origin": "http://127.0.0.1:51295",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "67C16DF664E6989EB964D824757DD886",
+          "origin": "http://127.0.0.1:51295",
+          "app": true,
+          "coldCapture": true,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0ea321f0f98c57decd47c7f3bdbe13213c3785e4b7071ba27dc3189deeb18478",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "87d51eec083a3eca78bf4194c03e3200246b6999c101fb45243f9c84dc508450",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "E43A3EB0E5516E0A878A9A584EE14975",
+        "67C16DF664E6989EB964D824757DD886"
+      ],
+      "completedAt": "2026-11-28T17:05:27.111Z",
+      "elapsedMs": 841,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-primary-true-false",
+      "origin": "http://127.0.0.1:52650",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:27.114Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "2D067DBD61F2A335EE5E4CDA11CDB55A",
+          "origin": "http://127.0.0.1:52650",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "061B11AE05D2D6733988E067868A2678",
+          "origin": "http://127.0.0.1:52650",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "2895af9c623edab61e2d3cd1ece5a1c4404e3f6ee9ddd95c7adbaa42696a37a5",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "248ee2f40dc27ffc7693f3fec23126cd0940091303b278e88217295d4a28e20e",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "061B11AE05D2D6733988E067868A2678"
+      ],
+      "completedAt": "2026-11-28T17:05:28.766Z",
+      "elapsedMs": 1652,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-primary-true-true",
+      "origin": "http://127.0.0.1:54462",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:28.770Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "E548263FE95915D273976E98A71CB736",
+          "origin": "http://127.0.0.1:54462",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "67334CBDC4C9EC8B0264681CB620A356",
+          "origin": "http://127.0.0.1:54462",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "6293A699D496CD6AB2C3F036462DC13F",
+          "origin": "http://127.0.0.1:54462",
+          "app": true,
+          "coldCapture": true,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0af4394b09445bd3acc0c0388cf6ad22bc47b4ddd36426e91385291e1bfa750b",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "cdac6b0e085727a569ff8fc175112057566bdcce8b54c765c8a724378f10e9f6",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "6293A699D496CD6AB2C3F036462DC13F",
+        "67334CBDC4C9EC8B0264681CB620A356"
+      ],
+      "completedAt": "2026-11-28T17:05:30.314Z",
+      "elapsedMs": 1544,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-mirror-false-false",
+      "origin": "http://127.0.0.1:53254",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:30.317Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "3B3E6CAE74C896FF33A2DB1DBE38BD1B",
+          "origin": "http://127.0.0.1:53254",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "B83E8295C641E2477303E5B517CA820E",
+          "origin": "http://127.0.0.1:53254",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "d34a68fe97d4da1cc4bb7fbaeab067d23dd44ac3a3747ca7d989b0c713b966f7",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "b923cd450a1ec820bb74fdb029bc1acc3f1154125f70808ec8a512a54a65bb31",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "B83E8295C641E2477303E5B517CA820E"
+      ],
+      "completedAt": "2026-11-28T17:05:31.303Z",
+      "elapsedMs": 986,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-mirror-false-true",
+      "origin": "http://127.0.0.1:55261",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:31.306Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "895C3D061CDEC05AE767B02405A8B808",
+          "origin": "http://127.0.0.1:55261",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "D1D8DCDF469313AA1AEB6FBA66586753",
+          "origin": "http://127.0.0.1:55261",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "820CD3E2A264A84F0E7801F18C3093FA",
+          "origin": "http://127.0.0.1:55261",
+          "app": true,
+          "coldCapture": true,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "92825581f528595912749457b3d691e039f3a18a173f19309b03c3d9f189cdf5",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "e4039d38cbbe8e5101c3d81e82dd4bf190528d070a6b6beda7716190b5229177",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "820CD3E2A264A84F0E7801F18C3093FA",
+        "D1D8DCDF469313AA1AEB6FBA66586753"
+      ],
+      "completedAt": "2026-11-28T17:05:32.558Z",
+      "elapsedMs": 1252,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-mirror-true-false",
+      "origin": "http://127.0.0.1:60082",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:32.561Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "7994664226D11951F2C488BC9B49FAA0",
+          "origin": "http://127.0.0.1:60082",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "362BD183679679296F0F885FAD109917",
+          "origin": "http://127.0.0.1:60082",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "314aa91bf8b4da60a72e2e88d598689fb97d4265c9627f92da8a71ec8a3a62fa",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "883ba64ee679a86eb609ea4b6e6a15a74a575f968436d0bb091c7b029a99c4fd",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "362BD183679679296F0F885FAD109917"
+      ],
+      "completedAt": "2026-11-28T17:05:33.274Z",
+      "elapsedMs": 713,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "durable-mirror-true-true",
+      "origin": "http://127.0.0.1:58671",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:33.277Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "E7EE25753C1DF49510662F872125D157",
+          "origin": "http://127.0.0.1:58671",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "87BF84223E841A76D113781910DBD192",
+          "origin": "http://127.0.0.1:58671",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "BBEFEE55C87E878B829337863C56E06B",
+          "origin": "http://127.0.0.1:58671",
+          "app": true,
+          "coldCapture": true,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "f9ee0ea82afd127336d1e1105eb9c729a535d0ac693e36e1d4b877e2ed19c9d5",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5857,
+        "indexedDbSha256": "a91b13983c892b10e2f6f1f64ba890fce143d0b7fcff26a6eec2e011fbfce83f",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "87BF84223E841A76D113781910DBD192",
+        "BBEFEE55C87E878B829337863C56E06B"
+      ],
+      "completedAt": "2026-11-28T17:05:34.181Z",
+      "elapsedMs": 904,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "capture-legacy-PWA5-backup",
+      "origin": "http://127.0.0.1:50177",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:34.184Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "77968B5BED10BAE118ED46DEF02D3F73",
+          "origin": "http://127.0.0.1:50177",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "994EB433BB5B959A6FC63C5B42C10FFC",
+          "origin": "http://127.0.0.1:50177",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "96a1d296070d8a3696bf1d266dc33ef15f3634e5a15d11f1681412957f72f96e",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5807,
+        "indexedDbSha256": "e914e1d652d8d7f5cfd40227aab34479564e306069032a306c92683995636bfb",
+        "localMirrorBatches": 6
+      },
+      "closedTargetIds": [
+        "994EB433BB5B959A6FC63C5B42C10FFC"
+      ],
+      "completedAt": "2026-11-28T17:05:34.771Z",
+      "elapsedMs": 587,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "weekly-advisory-cache",
+      "origin": "http://127.0.0.1:62605",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:34.773Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "C23D19F9B6A7FFB571BFF59CDABF247D",
+          "origin": "http://127.0.0.1:62605",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "E9B58B4CA136077EC6952D9A1695F46A",
+          "origin": "http://127.0.0.1:62605",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "0fb9f986e141f334c1d424d8c5c4b5be059f7e9fe32755b8380ef63430b519f7",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 7559,
+        "indexedDbSha256": "af8678d1cfa88a653d6df6d0041237078102e5f1dcd2f79e1762f8d0548adc76",
+        "localMirrorBatches": 8
+      },
+      "closedTargetIds": [
+        "E9B58B4CA136077EC6952D9A1695F46A"
+      ],
+      "completedAt": "2026-11-28T17:05:35.405Z",
+      "elapsedMs": 631,
+      "profileAndStorageRetained": true
+    },
+    {
+      "id": "weekly-causal-chain",
+      "origin": "http://127.0.0.1:56312",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "startedAt": "2026-11-28T17:05:35.407Z",
+      "assertionsCompleted": true,
+      "pages": [
+        {
+          "targetId": "B719EE7A6915BA64128EF08C257DFC17",
+          "origin": "http://127.0.0.1:56312",
+          "app": false,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        },
+        {
+          "targetId": "2F94E7AE1DE184EB8E0547CE39406241",
+          "origin": "http://127.0.0.1:56312",
+          "app": true,
+          "coldCapture": false,
+          "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec"
+        }
+      ],
+      "journalBefore": {
+        "indexedDbBatches": 0,
+        "indexedDbBytes": 2,
+        "indexedDbSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "localMirrorBatches": 0
+      },
+      "journalAfterAppStartup": {
+        "indexedDbBatches": 2,
+        "indexedDbBytes": 1513,
+        "indexedDbSha256": "2101c2aad096d53ab4f4ea8afd1ae185fae61204236bf98fadaba48c63419647",
+        "localMirrorBatches": 2
+      },
+      "journalAfter": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 7283,
+        "indexedDbSha256": "56a4e49ba55e81e6e9d5d16daab04f428ffac7c5fcf840b117750b91e461bd8e",
+        "localMirrorBatches": 8
+      },
+      "closedTargetIds": [
+        "2F94E7AE1DE184EB8E0547CE39406241"
+      ],
+      "completedAt": "2026-11-28T17:05:35.932Z",
+      "elapsedMs": 524,
+      "profileAndStorageRetained": true
+    }
+  ],
+  "servers": [
+    {
+      "scenarioId": "core-cross-tab-causal-barriers",
+      "origin": "http://127.0.0.1:62764",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.881Z"
+    },
+    {
+      "scenarioId": "quicklog-success-abort",
+      "origin": "http://127.0.0.1:57237",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.881Z"
+    },
+    {
+      "scenarioId": "quicklog-request-error-complete",
+      "origin": "http://127.0.0.1:54093",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.881Z"
+    },
+    {
+      "scenarioId": "quicklog-mirror",
+      "origin": "http://127.0.0.1:52350",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.881Z"
+    },
+    {
+      "scenarioId": "quicklog-refresh",
+      "origin": "http://127.0.0.1:63258",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.882Z"
+    },
+    {
+      "scenarioId": "quicklog-ack-abort",
+      "origin": "http://127.0.0.1:57334",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.882Z"
+    },
+    {
+      "scenarioId": "quicklog-lost-rpc",
+      "origin": "http://127.0.0.1:55275",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.882Z"
+    },
+    {
+      "scenarioId": "capture-offline",
+      "origin": "http://127.0.0.1:52550",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.882Z"
+    },
+    {
+      "scenarioId": "capture-lost-rpc",
+      "origin": "http://127.0.0.1:65130",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.883Z"
+    },
+    {
+      "scenarioId": "capture-unknown-journal",
+      "origin": "http://127.0.0.1:50558",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.883Z"
+    },
+    {
+      "scenarioId": "capture-unknown-before-commit",
+      "origin": "http://127.0.0.1:57636",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.883Z"
+    },
+    {
+      "scenarioId": "capture-draft-cleanup",
+      "origin": "http://127.0.0.1:55323",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.884Z"
+    },
+    {
+      "scenarioId": "capture-native-abort-retry",
+      "origin": "http://127.0.0.1:57240",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.884Z"
+    },
+    {
+      "scenarioId": "capture-auth-and-form-generation",
+      "origin": "http://127.0.0.1:50769",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.884Z"
+    },
+    {
+      "scenarioId": "capture-two-deliberate-starts",
+      "origin": "http://127.0.0.1:53224",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.885Z"
+    },
+    {
+      "scenarioId": "durable-primary-false-false",
+      "origin": "http://127.0.0.1:59778",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.885Z"
+    },
+    {
+      "scenarioId": "durable-primary-false-true",
+      "origin": "http://127.0.0.1:51295",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.885Z"
+    },
+    {
+      "scenarioId": "durable-primary-true-false",
+      "origin": "http://127.0.0.1:52650",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.885Z"
+    },
+    {
+      "scenarioId": "durable-primary-true-true",
+      "origin": "http://127.0.0.1:54462",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.886Z"
+    },
+    {
+      "scenarioId": "durable-mirror-false-false",
+      "origin": "http://127.0.0.1:53254",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.886Z"
+    },
+    {
+      "scenarioId": "durable-mirror-false-true",
+      "origin": "http://127.0.0.1:55261",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.886Z"
+    },
+    {
+      "scenarioId": "durable-mirror-true-false",
+      "origin": "http://127.0.0.1:60082",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.886Z"
+    },
+    {
+      "scenarioId": "durable-mirror-true-true",
+      "origin": "http://127.0.0.1:58671",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.887Z"
+    },
+    {
+      "scenarioId": "capture-legacy-PWA5-backup",
+      "origin": "http://127.0.0.1:50177",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.887Z"
+    },
+    {
+      "scenarioId": "weekly-advisory-cache",
+      "origin": "http://127.0.0.1:62605",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.887Z"
+    },
+    {
+      "scenarioId": "weekly-causal-chain",
+      "origin": "http://127.0.0.1:56312",
+      "closed": true,
+      "closedAt": "2026-11-28T17:05:38.887Z"
+    }
+  ],
+  "sourceHashesLf": {
+    "js/utils/durable-outbox.js": "d6ff0541b49facf80683d5cb3c179e2c8172845694a88929b604693cb4927e11",
+    "js/utils/outbox-order.js": "2edddfec323bb7d3f090224de185746a2c6e3671d23a7504e73bf7968427c66d",
+    "js/utils/outbox-journal-storage.js": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690",
+    "js/utils/offline-manager.js": "35e249e0cff0a7e35b1c5988552b79e0a943d549683dbf085626c9a1dd9c1843",
+    "js/utils/local-first-cache.js": "3129e9966a2aa29474421d695350f181a2bce8c9f6d5a69f0edc4a6cd4e7a8a4",
+    "js/app.js": "871301337ecd8eefd66d0ff9f1d3d91766fee526808412fb78d2e659c43aa7a6",
+    "js/modules/session-manager.js": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c",
+    "js/i18n.js": "47c54076679e578f349db1642f8f3cf9eac6697b187c98bbd36c9d61d0949e50",
+    "js/version-manager.js": "67766d3096392cdbd8c4a3b371a6813c66fc4c0d4b80f340799f5ea24a616983",
+    "tests/browser/outbox-app-bootstrap.js": "3d3bdc6f069c9b2f36325c021788e312ca8e2f8bd2f7f6515e4d1201723b2836",
+    "tests/browser/outbox-app-environment.js": "5102f315e9e89069715fbaf13abdd5795355f1ed787814ed9403df78d405e87e"
+  },
+  "fixtureSourceHashesLf": {
+    "scripts/browser-outbox-smoke.mjs": "f95b8450c8e1bee73bb3f8ca4e78be202e5f3679dc251a68c0f1fda1ff8f8450",
+    "scripts/verify-outbox-smoke-negative.mjs": "672cf2f3f096a1520e5864840d55a76ea3f7a86083f82cbd7ebdea8165ca4647"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.36",
+    "revision": "@14d6f648e8cd7ad750a4044200ce94d3321be260",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.31"
+  },
+  "afterReopen": {
+    "pending": [
+      {
+        "id": "intent-A",
+        "status": "pending",
+        "owner": "owner-A"
+      },
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      }
+    ],
+    "local": [
+      "intent:intent-A:",
+      "intent:intent-B:"
+    ],
+    "indexedDb": [
+      "intent:intent-A:",
+      "intent:intent-B:"
+    ],
+    "durableBatches": 2
+  },
+  "afterAcknowledgement": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "pending",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 4
+  },
+  "afterConflict": {
+    "pending": [
+      {
+        "id": "intent-B",
+        "status": "conflict",
+        "owner": "owner-B"
+      },
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 5
+  },
+  "afterResolution": {
+    "pending": [
+      {
+        "id": "intent-C",
+        "status": "pending",
+        "owner": "owner-A"
+      }
+    ],
+    "local": [
+      "ack:intent-A:accepted",
+      "ack:intent-B:resolved",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "indexedDb": [
+      "ack:intent-A:accepted",
+      "ack:intent-B:resolved",
+      "conflict:intent-B:",
+      "intent:intent-A:",
+      "intent:intent-B:",
+      "intent:intent-C:"
+    ],
+    "durableBatches": 6
+  },
+  "sameOwnerCausal": {
+    "before": [
+      {
+        "id": "same-z-first",
+        "timestamp": 1806321600000
+      },
+      {
+        "id": "same-a-second",
+        "timestamp": 1806321540000
+      }
+    ],
+    "calls": [
+      "same-op-A",
+      "same-op-B"
+    ],
+    "remaining": 0
+  },
+  "afterUnknownMutation": {
+    "blockedBefore": true,
+    "blockedAfter": true,
+    "pending": [
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete",
+      "late-delete"
+    ]
+  },
+  "coldUnknownSnapshot": null,
+  "localStorageFallback": {
+    "mode": "simulated no-IDB capability; native Storage.setItem QuotaExceededError injection",
+    "error": {
+      "message": "Durable local storage unavailable",
+      "provenNotCommitted": true
+    },
+    "ghost": false,
+    "pending": false
+  },
+  "appCases": [
+    {
+      "mode": "success-abort",
+      "first": {
+        "ok": false,
+        "reason": "error",
+        "error": "Outbox journal transaction aborted"
+      },
+      "retry": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-98169645-479d-428f-9555-3d0dd2998cfb",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "nativeEvents": [
+        "request-success",
+        "tx-abort"
+      ],
+      "sessions": [
+        {
+          "path": "users/native-success-abort/sesiones_entrenamiento/session-98169645-479d-428f-9555-3d0dd2998cfb",
+          "sessionId": "session-98169645-479d-428f-9555-3d0dd2998cfb",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "request-error-complete",
+      "first": {
+        "ok": false,
+        "reason": "error",
+        "error": "Key already exists in the object store."
+      },
+      "retry": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-250f63e7-3f4e-4726-9b1c-f00882aa0076",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "nativeEvents": [
+        "request-error",
+        "tx-complete"
+      ],
+      "sessions": [
+        {
+          "path": "users/native-request-error-complete/sesiones_entrenamiento/session-250f63e7-3f4e-4726-9b1c-f00882aa0076",
+          "sessionId": "session-250f63e7-3f4e-4726-9b1c-f00882aa0076",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "mirror",
+      "saved": {
+        "ok": true,
+        "queued": false,
+        "sessionId": "session-6c293fda-739b-470e-9d29-df38b9ea4847",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-mirror/sesiones_entrenamiento/session-6c293fda-739b-470e-9d29-df38b9ea4847",
+          "sessionId": "session-6c293fda-739b-470e-9d29-df38b9ea4847",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "refresh",
+      "saved": {
+        "ok": true,
+        "queued": false,
+        "sessionId": "session-c645cd86-50c2-4bd2-9589-6e4cc89a6394",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-refresh/sesiones_entrenamiento/session-c645cd86-50c2-4bd2-9589-6e4cc89a6394",
+          "sessionId": "session-c645cd86-50c2-4bd2-9589-6e4cc89a6394",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "ack-abort",
+      "saved": {
+        "ok": true,
+        "queued": false,
+        "sessionId": "session-39483d20-4b13-409b-bab3-90fadbb6f4ac",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-ack-abort/sesiones_entrenamiento/session-39483d20-4b13-409b-bab3-90fadbb6f4ac",
+          "sessionId": "session-39483d20-4b13-409b-bab3-90fadbb6f4ac",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "mode": "lost-rpc",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-9a3721c0-5540-4ce9-95fa-00f42b779dd6",
+        "fechaIso": "2026-11-27T11:00:00.000Z"
+      },
+      "sessions": [
+        {
+          "path": "users/native-lost-rpc/sesiones_entrenamiento/session-9a3721c0-5540-4ce9-95fa-00f42b779dd6",
+          "sessionId": "session-9a3721c0-5540-4ce9-95fa-00f42b779dd6",
+          "fechaIso": "2026-11-27T11:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "captureCases": [
+    {
+      "mode": "offline",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-c446fad2-5062-419d-89d6-68e1ce16ded6"
+      },
+      "first": {
+        "owner": "native-capture-offline",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-e5482f8e-5c13-4b5e-ad2d-19294e4825a3",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-offline",
+                "sessionData": {
+                  "sessionId": "session-c446fad2-5062-419d-89d6-68e1ce16ded6",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-offline",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-c446fad2-5062-419d-89d6-68e1ce16ded6"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "repeated": {
+        "owner": "native-capture-offline",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-e5482f8e-5c13-4b5e-ad2d-19294e4825a3",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-offline",
+                "sessionData": {
+                  "sessionId": "session-c446fad2-5062-419d-89d6-68e1ce16ded6",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-offline",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-c446fad2-5062-419d-89d6-68e1ce16ded6"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "final": {
+        "owner": "native-capture-offline",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-offline/sesiones_entrenamiento/session-c446fad2-5062-419d-89d6-68e1ce16ded6",
+            "sessionId": "session-c446fad2-5062-419d-89d6-68e1ce16ded6",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "mode": "lost-rpc",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007"
+      },
+      "first": {
+        "owner": "native-capture-lost-rpc",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-lost-rpc/sesiones_entrenamiento/session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+            "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-800e094f-0b70-41dc-9503-ee350e6acbae",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-lost-rpc",
+                "sessionData": {
+                  "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-lost-rpc",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "repeated": {
+        "owner": "native-capture-lost-rpc",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-lost-rpc/sesiones_entrenamiento/session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+            "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-800e094f-0b70-41dc-9503-ee350e6acbae",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-lost-rpc",
+                "sessionData": {
+                  "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-lost-rpc",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "final": {
+        "owner": "native-capture-lost-rpc",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-lost-rpc/sesiones_entrenamiento/session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+            "sessionId": "session-d1bf5f58-0069-4716-9a51-e65d97d53007",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "mode": "unknown-journal",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-c09ac925-5b61-456f-845c-c08f98282720"
+      },
+      "first": {
+        "owner": "native-capture-unknown-journal",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-1d1d3b13-aa12-4ae3-8c99-018ad2317e2e",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-unknown-journal",
+                "sessionData": {
+                  "sessionId": "session-c09ac925-5b61-456f-845c-c08f98282720",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-unknown-journal",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-c09ac925-5b61-456f-845c-c08f98282720"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "repeated": {
+        "owner": "native-capture-unknown-journal",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-1d1d3b13-aa12-4ae3-8c99-018ad2317e2e",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-unknown-journal",
+                "sessionData": {
+                  "sessionId": "session-c09ac925-5b61-456f-845c-c08f98282720",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-unknown-journal",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-c09ac925-5b61-456f-845c-c08f98282720"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "final": {
+        "owner": "native-capture-unknown-journal",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-unknown-journal/sesiones_entrenamiento/session-c09ac925-5b61-456f-845c-c08f98282720",
+            "sessionId": "session-c09ac925-5b61-456f-845c-c08f98282720",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "mode": "unknown-before-commit",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed"
+      },
+      "first": {
+        "owner": "native-capture-unknown-before-commit",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-cdcdb60b-7b7f-41a2-ba4b-957686e31e26",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-unknown-before-commit",
+                "sessionData": {
+                  "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-unknown-before-commit",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "repeated": {
+        "owner": "native-capture-unknown-before-commit",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-cdcdb60b-7b7f-41a2-ba4b-957686e31e26",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-unknown-before-commit",
+                "sessionData": {
+                  "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-unknown-before-commit",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "writeAhead": {
+        "primary": {
+          "routineId": "capture-routine",
+          "data": {
+            "ejercicios": [
+              {
+                "nombreEjercicio": "Bench",
+                "tipoEjercicio": "strength",
+                "objetivoSets": 1,
+                "objetivoReps": "8",
+                "sets": [
+                  {
+                    "peso": 50,
+                    "reps": 8,
+                    "tiempoDescanso": "00:00"
+                  }
+                ],
+                "notasEjercicio": "",
+                "modoEjecucion": "two_hand",
+                "tipoCarga": "external"
+              }
+            ],
+            "pesoUsuario": null,
+            "validation": {
+              "isValid": true,
+              "errors": []
+            }
+          },
+          "timestamp": 1795780800000,
+          "ownerId": "native-capture-unknown-before-commit",
+          "captureId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+          "submission": {
+            "queueId": "capture-save-cdcdb60b-7b7f-41a2-ba4b-957686e31e26",
+            "payload": {
+              "userId": "native-capture-unknown-before-commit",
+              "sessionData": {
+                "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+                "routineId": "capture-routine",
+                "nombreEntrenamiento": "One ongoing workout",
+                "userId": "native-capture-unknown-before-commit",
+                "ejercicios": [
+                  {
+                    "nombreEjercicio": "Bench",
+                    "tipoEjercicio": "strength",
+                    "objetivoSets": 1,
+                    "objetivoReps": "8",
+                    "sets": [
+                      {
+                        "peso": 50,
+                        "reps": 8,
+                        "tiempoDescanso": "00:00"
+                      }
+                    ],
+                    "notasEjercicio": "",
+                    "modoEjecucion": "two_hand",
+                    "tipoCarga": "external"
+                  }
+                ],
+                "pesoUsuario": null,
+                "fechaIso": "2026-11-27T12:00:00.000Z"
+              },
+              "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed"
+            }
+          }
+        },
+        "mirror": {
+          "routineId": "capture-routine",
+          "data": {
+            "ejercicios": [
+              {
+                "nombreEjercicio": "Bench",
+                "tipoEjercicio": "strength",
+                "objetivoSets": 1,
+                "objetivoReps": "8",
+                "sets": [
+                  {
+                    "peso": 50,
+                    "reps": 8,
+                    "tiempoDescanso": "00:00"
+                  }
+                ],
+                "notasEjercicio": "",
+                "modoEjecucion": "two_hand",
+                "tipoCarga": "external"
+              }
+            ],
+            "pesoUsuario": null,
+            "validation": {
+              "isValid": true,
+              "errors": []
+            }
+          },
+          "timestamp": 1795780800000,
+          "ownerId": "native-capture-unknown-before-commit",
+          "captureId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+          "submission": {
+            "queueId": "capture-save-cdcdb60b-7b7f-41a2-ba4b-957686e31e26",
+            "payload": {
+              "userId": "native-capture-unknown-before-commit",
+              "sessionData": {
+                "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+                "routineId": "capture-routine",
+                "nombreEntrenamiento": "One ongoing workout",
+                "userId": "native-capture-unknown-before-commit",
+                "ejercicios": [
+                  {
+                    "nombreEjercicio": "Bench",
+                    "tipoEjercicio": "strength",
+                    "objetivoSets": 1,
+                    "objetivoReps": "8",
+                    "sets": [
+                      {
+                        "peso": 50,
+                        "reps": 8,
+                        "tiempoDescanso": "00:00"
+                      }
+                    ],
+                    "notasEjercicio": "",
+                    "modoEjecucion": "two_hand",
+                    "tipoCarga": "external"
+                  }
+                ],
+                "pesoUsuario": null,
+                "fechaIso": "2026-11-27T12:00:00.000Z"
+              },
+              "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed"
+            }
+          }
+        }
+      },
+      "final": {
+        "owner": "native-capture-unknown-before-commit",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-unknown-before-commit/sesiones_entrenamiento/session-a311ea1b-0205-494b-9704-c86496b309ed",
+            "sessionId": "session-a311ea1b-0205-494b-9704-c86496b309ed",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "mode": "draft-cleanup",
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-e8a86be9-0e50-4fe0-8242-32b09965fcb8"
+      },
+      "first": {
+        "owner": "native-capture-draft-cleanup",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-0ef826d4-2a14-486f-af70-649a14fd1de5",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-draft-cleanup",
+                "sessionData": {
+                  "sessionId": "session-e8a86be9-0e50-4fe0-8242-32b09965fcb8",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-draft-cleanup",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-e8a86be9-0e50-4fe0-8242-32b09965fcb8"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "repeated": {
+        "owner": "native-capture-draft-cleanup",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [
+          {
+            "id": "capture-save-0ef826d4-2a14-486f-af70-649a14fd1de5",
+            "descriptor": {
+              "type": "session.save",
+              "payload": {
+                "userId": "native-capture-draft-cleanup",
+                "sessionData": {
+                  "sessionId": "session-e8a86be9-0e50-4fe0-8242-32b09965fcb8",
+                  "routineId": "capture-routine",
+                  "nombreEntrenamiento": "One ongoing workout",
+                  "userId": "native-capture-draft-cleanup",
+                  "ejercicios": [
+                    {
+                      "nombreEjercicio": "Bench",
+                      "tipoEjercicio": "strength",
+                      "objetivoSets": 1,
+                      "objetivoReps": "8",
+                      "sets": [
+                        {
+                          "peso": 50,
+                          "reps": 8,
+                          "tiempoDescanso": "00:00"
+                        }
+                      ],
+                      "notasEjercicio": "",
+                      "modoEjecucion": "two_hand",
+                      "tipoCarga": "external"
+                    }
+                  ],
+                  "pesoUsuario": null,
+                  "fechaIso": "2026-11-27T12:00:00.000Z"
+                },
+                "sessionId": "session-e8a86be9-0e50-4fe0-8242-32b09965fcb8"
+              }
+            },
+            "timestamp": 1795780800000
+          }
+        ],
+        "nativeEvents": []
+      },
+      "final": {
+        "owner": "native-capture-draft-cleanup",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-draft-cleanup/sesiones_entrenamiento/session-e8a86be9-0e50-4fe0-8242-32b09965fcb8",
+            "sessionId": "session-e8a86be9-0e50-4fe0-8242-32b09965fcb8",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "mode": "native-proven-abort-retry",
+      "failedCapture": {
+        "ok": false
+      },
+      "abortedCapture": {
+        "owner": "native-capture-abort",
+        "online": false,
+        "sessions": [],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": "One ongoing workout",
+          "visible": true,
+          "saveEnabled": true,
+          "weight": "50",
+          "draft": {
+            "routineId": "capture-routine",
+            "data": {
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "validation": {
+                "isValid": true,
+                "errors": []
+              }
+            },
+            "timestamp": 1795780800000,
+            "ownerId": "native-capture-abort",
+            "captureId": "session-97ffdbd1-5230-4b4f-a782-55091d9f4776"
+          }
+        },
+        "pending": [],
+        "nativeEvents": [
+          {
+            "mode": "success-abort",
+            "event": "request-success"
+          },
+          {
+            "mode": "success-abort",
+            "event": "tx-abort"
+          }
+        ]
+      },
+      "retriedCapture": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-97ffdbd1-5230-4b4f-a782-55091d9f4776"
+      },
+      "finalCapture": {
+        "owner": "native-capture-abort",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/native-capture-abort/sesiones_entrenamiento/session-97ffdbd1-5230-4b4f-a782-55091d9f4776",
+            "sessionId": "session-97ffdbd1-5230-4b4f-a782-55091d9f4776",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": [
+          {
+            "mode": "success-abort",
+            "event": "request-success"
+          },
+          {
+            "mode": "success-abort",
+            "event": "tx-abort"
+          }
+        ]
+      }
+    }
+  ],
+  "captureAba": {
+    "owner": "native-capture-ABA",
+    "online": false,
+    "sessions": [],
+    "target": 3,
+    "uiTarget": "3",
+    "capture": {
+      "routine": "New A capture",
+      "visible": true,
+      "saveEnabled": true,
+      "weight": "50",
+      "draft": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "native-capture-ABA",
+        "captureId": "session-49a41fae-ac1d-4535-a739-436f1c73d951"
+      }
+    },
+    "pending": [
+      {
+        "id": "capture-save-a2108049-9c28-435f-8973-04b730bda107",
+        "descriptor": {
+          "type": "session.save",
+          "payload": {
+            "userId": "native-capture-ABA",
+            "sessionData": {
+              "sessionId": "session-c3f552a9-59a8-4459-91c0-a2fdcdbc579f",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "Old A capture",
+              "userId": "native-capture-ABA",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-c3f552a9-59a8-4459-91c0-a2fdcdbc579f"
+          }
+        },
+        "timestamp": 1795780800000
+      }
+    ],
+    "nativeEvents": []
+  },
+  "captureSameOwner": {
+    "owner": "native-capture-ABA",
+    "online": false,
+    "sessions": [],
+    "target": 3,
+    "uiTarget": "3",
+    "capture": {
+      "routine": "New same-owner capture",
+      "visible": true,
+      "saveEnabled": false,
+      "weight": "50",
+      "draft": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "native-capture-ABA",
+        "captureId": "session-acfc9965-3f9b-4899-b855-bf2b9b340b01"
+      }
+    },
+    "pending": [
+      {
+        "id": "capture-save-a2108049-9c28-435f-8973-04b730bda107",
+        "descriptor": {
+          "type": "session.save",
+          "payload": {
+            "userId": "native-capture-ABA",
+            "sessionData": {
+              "sessionId": "session-c3f552a9-59a8-4459-91c0-a2fdcdbc579f",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "Old A capture",
+              "userId": "native-capture-ABA",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-c3f552a9-59a8-4459-91c0-a2fdcdbc579f"
+          }
+        },
+        "timestamp": 1795780800000
+      },
+      {
+        "id": "capture-save-a0aaccaf-d76f-4f5b-a218-d4fe9170a3ac",
+        "descriptor": {
+          "type": "session.save",
+          "payload": {
+            "userId": "native-capture-ABA",
+            "sessionData": {
+              "sessionId": "session-49a41fae-ac1d-4535-a739-436f1c73d951",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "Old same-owner capture",
+              "userId": "native-capture-ABA",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-49a41fae-ac1d-4535-a739-436f1c73d951"
+          }
+        },
+        "timestamp": 1795780800000
+      }
+    ],
+    "nativeEvents": []
+  },
+  "deliberateCaptures": {
+    "owner": "native-capture-two-deliberate",
+    "online": true,
+    "sessions": [
+      {
+        "path": "users/native-capture-two-deliberate/sesiones_entrenamiento/session-7b765547-e1cb-4329-b28f-d75e7c672ae1",
+        "sessionId": "session-7b765547-e1cb-4329-b28f-d75e7c672ae1",
+        "fechaIso": "2026-11-27T12:00:00.000Z"
+      },
+      {
+        "path": "users/native-capture-two-deliberate/sesiones_entrenamiento/session-a553dad4-159d-4e16-9ae4-2734ffbcea97",
+        "sessionId": "session-a553dad4-159d-4e16-9ae4-2734ffbcea97",
+        "fechaIso": "2026-11-27T12:00:00.000Z"
+      }
+    ],
+    "target": 3,
+    "uiTarget": "3",
+    "capture": {
+      "routine": null,
+      "visible": false,
+      "saveEnabled": true,
+      "weight": "",
+      "draft": null
+    },
+    "pending": [],
+    "nativeEvents": []
+  },
+  "durableCaptureCases": [
+    {
+      "slot": "primary",
+      "acknowledged": false,
+      "coldRealm": false,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-c7757a17-b5ab-40a6-b2ab-76cd1f37cdd5"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-primary-false-false",
+        "captureId": "session-c7757a17-b5ab-40a6-b2ab-76cd1f37cdd5",
+        "submission": {
+          "queueId": "capture-save-c1de6e82-1ec9-4a68-975c-51e00b5a22fd",
+          "payload": {
+            "userId": "durable-primary-false-false",
+            "sessionData": {
+              "sessionId": "session-c7757a17-b5ab-40a6-b2ab-76cd1f37cdd5",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-primary-false-false",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-c7757a17-b5ab-40a6-b2ab-76cd1f37cdd5"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-primary-false-false",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-primary-false-false/sesiones_entrenamiento/session-c7757a17-b5ab-40a6-b2ab-76cd1f37cdd5",
+            "sessionId": "session-c7757a17-b5ab-40a6-b2ab-76cd1f37cdd5",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "primary",
+      "acknowledged": false,
+      "coldRealm": true,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-53aa65bc-d1bd-48df-99b9-19bb8b033e1e"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-primary-false-true",
+        "captureId": "session-53aa65bc-d1bd-48df-99b9-19bb8b033e1e",
+        "submission": {
+          "queueId": "capture-save-c2047805-d703-4c96-85e3-8d009eefb82e",
+          "payload": {
+            "userId": "durable-primary-false-true",
+            "sessionData": {
+              "sessionId": "session-53aa65bc-d1bd-48df-99b9-19bb8b033e1e",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-primary-false-true",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-53aa65bc-d1bd-48df-99b9-19bb8b033e1e"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-primary-false-true",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-primary-false-true/sesiones_entrenamiento/session-53aa65bc-d1bd-48df-99b9-19bb8b033e1e",
+            "sessionId": "session-53aa65bc-d1bd-48df-99b9-19bb8b033e1e",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "primary",
+      "acknowledged": true,
+      "coldRealm": false,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-b8fd615b-1b3f-4d69-a2b7-522167aebd31"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-primary-true-false",
+        "captureId": "session-b8fd615b-1b3f-4d69-a2b7-522167aebd31",
+        "submission": {
+          "queueId": "capture-save-ef8ca371-0bb3-400d-95f3-54610ad1a1fd",
+          "payload": {
+            "userId": "durable-primary-true-false",
+            "sessionData": {
+              "sessionId": "session-b8fd615b-1b3f-4d69-a2b7-522167aebd31",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-primary-true-false",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-b8fd615b-1b3f-4d69-a2b7-522167aebd31"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-primary-true-false",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-primary-true-false/sesiones_entrenamiento/session-b8fd615b-1b3f-4d69-a2b7-522167aebd31",
+            "sessionId": "session-b8fd615b-1b3f-4d69-a2b7-522167aebd31",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "primary",
+      "acknowledged": true,
+      "coldRealm": true,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-8b038cd0-bd5d-4436-809b-549cb60c88d8"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-primary-true-true",
+        "captureId": "session-8b038cd0-bd5d-4436-809b-549cb60c88d8",
+        "submission": {
+          "queueId": "capture-save-5e07b97a-88ca-472b-b12e-d17a05d75032",
+          "payload": {
+            "userId": "durable-primary-true-true",
+            "sessionData": {
+              "sessionId": "session-8b038cd0-bd5d-4436-809b-549cb60c88d8",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-primary-true-true",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-8b038cd0-bd5d-4436-809b-549cb60c88d8"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-primary-true-true",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-primary-true-true/sesiones_entrenamiento/session-8b038cd0-bd5d-4436-809b-549cb60c88d8",
+            "sessionId": "session-8b038cd0-bd5d-4436-809b-549cb60c88d8",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "mirror",
+      "acknowledged": false,
+      "coldRealm": false,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-60f6effe-648f-4965-81ba-041e44df7d99"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-mirror-false-false",
+        "captureId": "session-60f6effe-648f-4965-81ba-041e44df7d99",
+        "submission": {
+          "queueId": "capture-save-8168b93f-a581-4f63-9ed8-7c2c4570a5d5",
+          "payload": {
+            "userId": "durable-mirror-false-false",
+            "sessionData": {
+              "sessionId": "session-60f6effe-648f-4965-81ba-041e44df7d99",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-mirror-false-false",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-60f6effe-648f-4965-81ba-041e44df7d99"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-mirror-false-false",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-mirror-false-false/sesiones_entrenamiento/session-60f6effe-648f-4965-81ba-041e44df7d99",
+            "sessionId": "session-60f6effe-648f-4965-81ba-041e44df7d99",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "mirror",
+      "acknowledged": false,
+      "coldRealm": true,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-3c8ce606-1c67-4a65-9fd5-4e1a0e3691a1"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-mirror-false-true",
+        "captureId": "session-3c8ce606-1c67-4a65-9fd5-4e1a0e3691a1",
+        "submission": {
+          "queueId": "capture-save-71279a07-b26d-4428-a289-d4160807675c",
+          "payload": {
+            "userId": "durable-mirror-false-true",
+            "sessionData": {
+              "sessionId": "session-3c8ce606-1c67-4a65-9fd5-4e1a0e3691a1",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-mirror-false-true",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-3c8ce606-1c67-4a65-9fd5-4e1a0e3691a1"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-mirror-false-true",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-mirror-false-true/sesiones_entrenamiento/session-3c8ce606-1c67-4a65-9fd5-4e1a0e3691a1",
+            "sessionId": "session-3c8ce606-1c67-4a65-9fd5-4e1a0e3691a1",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "mirror",
+      "acknowledged": true,
+      "coldRealm": false,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-06e59518-a869-4253-aa8f-19b964221c89"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-mirror-true-false",
+        "captureId": "session-06e59518-a869-4253-aa8f-19b964221c89",
+        "submission": {
+          "queueId": "capture-save-000674dd-dc21-4093-864f-db819c012a75",
+          "payload": {
+            "userId": "durable-mirror-true-false",
+            "sessionData": {
+              "sessionId": "session-06e59518-a869-4253-aa8f-19b964221c89",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-mirror-true-false",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-06e59518-a869-4253-aa8f-19b964221c89"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-mirror-true-false",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-mirror-true-false/sesiones_entrenamiento/session-06e59518-a869-4253-aa8f-19b964221c89",
+            "sessionId": "session-06e59518-a869-4253-aa8f-19b964221c89",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "weight": "",
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    },
+    {
+      "slot": "mirror",
+      "acknowledged": true,
+      "coldRealm": true,
+      "saved": {
+        "ok": true,
+        "queued": true,
+        "sessionId": "session-b1fa4acb-27f4-4340-9bd6-00702fa9137a"
+      },
+      "stale": {
+        "routineId": "capture-routine",
+        "data": {
+          "ejercicios": [
+            {
+              "nombreEjercicio": "Bench",
+              "tipoEjercicio": "strength",
+              "objetivoSets": 1,
+              "objetivoReps": "8",
+              "sets": [
+                {
+                  "peso": 50,
+                  "reps": 8,
+                  "tiempoDescanso": "00:00"
+                }
+              ],
+              "notasEjercicio": "",
+              "modoEjecucion": "two_hand",
+              "tipoCarga": "external"
+            }
+          ],
+          "pesoUsuario": null,
+          "validation": {
+            "isValid": true,
+            "errors": []
+          }
+        },
+        "timestamp": 1795780800000,
+        "ownerId": "durable-mirror-true-true",
+        "captureId": "session-b1fa4acb-27f4-4340-9bd6-00702fa9137a",
+        "submission": {
+          "queueId": "capture-save-d037c333-9958-4253-aff0-c082bdf41694",
+          "payload": {
+            "userId": "durable-mirror-true-true",
+            "sessionData": {
+              "sessionId": "session-b1fa4acb-27f4-4340-9bd6-00702fa9137a",
+              "routineId": "capture-routine",
+              "nombreEntrenamiento": "One ongoing workout",
+              "userId": "durable-mirror-true-true",
+              "ejercicios": [
+                {
+                  "nombreEjercicio": "Bench",
+                  "tipoEjercicio": "strength",
+                  "objetivoSets": 1,
+                  "objetivoReps": "8",
+                  "sets": [
+                    {
+                      "peso": 50,
+                      "reps": 8,
+                      "tiempoDescanso": "00:00"
+                    }
+                  ],
+                  "notasEjercicio": "",
+                  "modoEjecucion": "two_hand",
+                  "tipoCarga": "external"
+                }
+              ],
+              "pesoUsuario": null,
+              "fechaIso": "2026-11-27T12:00:00.000Z"
+            },
+            "sessionId": "session-b1fa4acb-27f4-4340-9bd6-00702fa9137a"
+          }
+        }
+      },
+      "final": {
+        "owner": "durable-mirror-true-true",
+        "online": true,
+        "sessions": [
+          {
+            "path": "users/durable-mirror-true-true/sesiones_entrenamiento/session-b1fa4acb-27f4-4340-9bd6-00702fa9137a",
+            "sessionId": "session-b1fa4acb-27f4-4340-9bd6-00702fa9137a",
+            "fechaIso": "2026-11-27T12:00:00.000Z"
+          }
+        ],
+        "target": 3,
+        "uiTarget": "3",
+        "capture": {
+          "routine": null,
+          "visible": false,
+          "saveEnabled": true,
+          "draft": null
+        },
+        "pending": [],
+        "nativeEvents": []
+      }
+    }
+  ],
+  "legacyCapture": {
+    "restored": true,
+    "snapshot": {
+      "routineId": "capture-routine",
+      "timestamp": 1700000000000,
+      "data": {
+        "pesoUsuario": 75.3,
+        "ejercicios": [
+          {
+            "nombreEjercicio": "Bench",
+            "tipoEjercicio": "strength",
+            "modoEjecucion": "pulley",
+            "tipoCarga": "external",
+            "sets": [
+              {
+                "peso": 62.5,
+                "reps": 8
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "final": {
+      "owner": "native-legacy-no-ID",
+      "online": true,
+      "sessions": [
+        {
+          "path": "users/native-legacy-no-ID/sesiones_entrenamiento/session-7a371033-abfb-4b69-adab-3fae931476c1",
+          "sessionId": "session-7a371033-abfb-4b69-adab-3fae931476c1",
+          "fechaIso": "2026-11-27T12:00:00.000Z"
+        }
+      ],
+      "target": 3,
+      "uiTarget": "3",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "weight": "",
+        "draft": null
+      },
+      "pending": [],
+      "nativeEvents": []
+    }
+  },
+  "weeklyAdvisoryFailure": {
+    "advisoryFirst": {
+      "owner": "native-weekly-advisory",
+      "online": false,
+      "sessions": [],
+      "target": 3,
+      "uiTarget": "4",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "draft": null
+      },
+      "pending": [
+        {
+          "id": "weekly-advisory-first",
+          "descriptor": {
+            "type": "preferences.saveWeeklyTarget",
+            "payload": {
+              "userId": "native-weekly-advisory",
+              "weekKey": "2026-11-23",
+              "operationId": "target-c21c3599-95b5-492f-91ba-8e8f08af2085",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "baseRevision": 0,
+              "baseOperationId": null,
+              "baseFingerprint": "absent",
+              "weekRecord": {
+                "targetSessions": 4,
+                "targetDays": 4,
+                "savesUsed": 1,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            }
+          },
+          "timestamp": 1795780800000
+        }
+      ],
+      "nativeEvents": []
+    },
+    "afterMemoryRestart": {
+      "owner": "native-weekly-advisory",
+      "online": false,
+      "sessions": [],
+      "target": 3,
+      "uiTarget": "4",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "draft": null
+      },
+      "pending": [
+        {
+          "id": "weekly-advisory-first",
+          "descriptor": {
+            "type": "preferences.saveWeeklyTarget",
+            "payload": {
+              "userId": "native-weekly-advisory",
+              "weekKey": "2026-11-23",
+              "operationId": "target-c21c3599-95b5-492f-91ba-8e8f08af2085",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "baseRevision": 0,
+              "baseOperationId": null,
+              "baseFingerprint": "absent",
+              "weekRecord": {
+                "targetSessions": 4,
+                "targetDays": 4,
+                "savesUsed": 1,
+                "updatedAtIso": "2026-11-27T12:00:00.000Z"
+              }
+            }
+          },
+          "timestamp": 1795780800000
+        }
+      ],
+      "nativeEvents": []
+    },
+    "advisoryIntents": [
+      {
+        "id": "weekly-advisory-first",
+        "description": "Sin conexión. El objetivo semanal se guardará al volver a estar en línea.",
+        "timestamp": 1795780800000,
+        "predecessorIds": [
+          "offline-bd4c5a33-4efc-4786-884b-ad0788a3e557"
+        ],
+        "semanticDependencyIds": [],
+        "ownerId": "native-weekly-advisory",
+        "descriptor": {
+          "type": "preferences.saveWeeklyTarget",
+          "payload": {
+            "userId": "native-weekly-advisory",
+            "weekKey": "2026-11-23",
+            "operationId": "target-c21c3599-95b5-492f-91ba-8e8f08af2085",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "baseRevision": 0,
+            "baseOperationId": null,
+            "baseFingerprint": "absent",
+            "weekRecord": {
+              "targetSessions": 4,
+              "targetDays": 4,
+              "savesUsed": 1,
+              "updatedAtIso": "2026-11-27T12:00:00.000Z"
+            }
+          }
+        },
+        "operation": null
+      },
+      {
+        "id": "weekly-advisory-second",
+        "description": "Sin conexión. El objetivo semanal se guardará al volver a estar en línea.",
+        "timestamp": 1795780800000,
+        "predecessorIds": [
+          "weekly-advisory-first"
+        ],
+        "semanticDependencyIds": [
+          "weekly-advisory-first"
+        ],
+        "ownerId": "native-weekly-advisory",
+        "descriptor": {
+          "type": "preferences.saveWeeklyTarget",
+          "payload": {
+            "userId": "native-weekly-advisory",
+            "weekKey": "2026-11-23",
+            "operationId": "target-999daef1-447f-4f26-9110-dd68384c7d4a",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "baseRevision": 1,
+            "baseOperationId": "target-c21c3599-95b5-492f-91ba-8e8f08af2085",
+            "baseFingerprint": "[4,4,1,\"2026-11-27T12:00:00.000Z\"]",
+            "weekRecord": {
+              "targetSessions": 7,
+              "targetDays": 7,
+              "savesUsed": 2,
+              "updatedAtIso": "2026-11-27T12:00:00.000Z"
+            }
+          }
+        },
+        "operation": null
+      }
+    ],
+    "advisoryFinal": {
+      "owner": "native-weekly-advisory",
+      "online": true,
+      "sessions": [],
+      "target": 7,
+      "uiTarget": "7",
+      "capture": {
+        "routine": null,
+        "visible": false,
+        "saveEnabled": true,
+        "draft": null
+      },
+      "pending": [],
+      "nativeEvents": []
+    }
+  },
+  "weekly": {
+    "owner": "native-weekly",
+    "online": true,
+    "sessions": [],
+    "target": 7,
+    "uiTarget": "7",
+    "capture": {
+      "routine": null,
+      "visible": false,
+      "saveEnabled": true,
+      "draft": null
+    },
+    "pending": [],
+    "nativeEvents": [],
+    "originalIntents": [
+      {
+        "id": "z-first",
+        "timestamp": 1806321600000,
+        "payload": {
+          "userId": "native-weekly",
+          "weekKey": "2026-11-23",
+          "operationId": "target-bfff0279-36d2-4a3a-8f76-3c9ec71bfe56",
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "baseRevision": 0,
+          "baseOperationId": null,
+          "baseFingerprint": "absent",
+          "weekRecord": {
+            "targetSessions": 4,
+            "targetDays": 4,
+            "savesUsed": 1,
+            "updatedAtIso": "2026-11-27T12:00:00.000Z"
+          }
+        }
+      },
+      {
+        "id": "a-second",
+        "timestamp": 1806321540000,
+        "payload": {
+          "userId": "native-weekly",
+          "weekKey": "2026-11-23",
+          "operationId": "target-67e25208-d840-42e4-97a5-2a612cf6bbf6",
+          "updatedAtIso": "2026-11-27T12:00:00.000Z",
+          "baseRevision": 1,
+          "baseOperationId": "target-bfff0279-36d2-4a3a-8f76-3c9ec71bfe56",
+          "baseFingerprint": "[4,4,1,\"2026-11-27T12:00:00.000Z\"]",
+          "weekRecord": {
+            "targetSessions": 7,
+            "targetDays": 7,
+            "savesUsed": 2,
+            "updatedAtIso": "2026-11-27T12:00:00.000Z"
+          }
+        }
+      }
+    ]
+  },
+  "retainedOrigins": [
+    {
+      "scenarioId": "core-cross-tab-causal-barriers",
+      "origin": "http://127.0.0.1:62764",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "0F5CB27206FDDCAFC167CD0A9A71D59E",
+      "footprint": {
+        "indexedDbBatches": 10,
+        "indexedDbBytes": 6470,
+        "indexedDbSha256": "64d648442b2bf17ac229db7a18646228cf00c90f376434017af641a6c580576f",
+        "localMirrorBatches": 10
+      },
+      "verifiedAt": "2026-11-28T17:05:36.047Z"
+    },
+    {
+      "scenarioId": "quicklog-success-abort",
+      "origin": "http://127.0.0.1:57237",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "497584BF46C06FE9C0EA6B715F9CE04F",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7047,
+        "indexedDbSha256": "d689550870ba70dec6b0f69c5dcc0417709565afd42ffabc74af285c52a0438d",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.157Z"
+    },
+    {
+      "scenarioId": "quicklog-request-error-complete",
+      "origin": "http://127.0.0.1:54093",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "12E7C67DA643B4148D4259D070B2B3D5",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7164,
+        "indexedDbSha256": "5f88da9576c8018f797217a99fcfe7a0fc19a7f70f0681b964cad9bfdbfb7bad",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.248Z"
+    },
+    {
+      "scenarioId": "quicklog-mirror",
+      "origin": "http://127.0.0.1:52350",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "6FE2D96199C9031221F4FC404239C335",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5749,
+        "indexedDbSha256": "dad147e31d3145f4a30a1355b3b0baf810f490f2b88125fdba8d82f6cd527aa1",
+        "localMirrorBatches": 4
+      },
+      "verifiedAt": "2026-11-28T17:05:36.343Z"
+    },
+    {
+      "scenarioId": "quicklog-refresh",
+      "origin": "http://127.0.0.1:63258",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "5557946F5512C2315D0566EC336CBE6A",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5759,
+        "indexedDbSha256": "b8e9d1e5d01a21fa9e71e14fe6e6fb14513cf6fe0d73e3dc4651f492579e4f4b",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.452Z"
+    },
+    {
+      "scenarioId": "quicklog-ack-abort",
+      "origin": "http://127.0.0.1:57334",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "47B14F16B2157F9A7AC7B3ED09428123",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5779,
+        "indexedDbSha256": "a44d79f82623e9047a2fbcc2227ff08c8a85bfd75af28dd84eb990ce9998d1b9",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.559Z"
+    },
+    {
+      "scenarioId": "quicklog-lost-rpc",
+      "origin": "http://127.0.0.1:55275",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "FF2A8802294F19D2B28F525EBC3214A0",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5769,
+        "indexedDbSha256": "c9904edbccc696b3f42686a1a9e27c72bead175b4827627ac6f6be89d5e3ee0f",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.655Z"
+    },
+    {
+      "scenarioId": "capture-offline",
+      "origin": "http://127.0.0.1:52550",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "9C245CAA295483484143968894C9C071",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5837,
+        "indexedDbSha256": "93c412843cd5cf6f48350e745f52b47d6dea5bb7e25105a577c51594cdfb830b",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.747Z"
+    },
+    {
+      "scenarioId": "capture-lost-rpc",
+      "origin": "http://127.0.0.1:65130",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "5194B087E6AB1BB2FA874EE8B06053C0",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5847,
+        "indexedDbSha256": "2b02c7e1bf04d9bc1c2012eb45550de03a36f6281edc686048cfc761e2ee17b6",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.839Z"
+    },
+    {
+      "scenarioId": "capture-unknown-journal",
+      "origin": "http://127.0.0.1:50558",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "F49FAE43B26287BB8738F12B4E7538D5",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5917,
+        "indexedDbSha256": "5c24bbca762549d6081dcd94222cceabb457a0f740995bcfd430298237d6f7ea",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:36.949Z"
+    },
+    {
+      "scenarioId": "capture-unknown-before-commit",
+      "origin": "http://127.0.0.1:57636",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "A2DC693CEB54C0B8BA49C1F1F4D56A85",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5977,
+        "indexedDbSha256": "ecd1b858e325400ceb0db381e314821c8830df26bbf1d5e0c034d3cb122ef3d7",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.058Z"
+    },
+    {
+      "scenarioId": "capture-draft-cleanup",
+      "origin": "http://127.0.0.1:55323",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "795CF7E7CAC1B13D6631D2FB975F0A01",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5897,
+        "indexedDbSha256": "10cd94ff26fb8f07fa0e615f18891abd9ed363961407b82b533ba33ddf1feefa",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.183Z"
+    },
+    {
+      "scenarioId": "capture-native-abort-retry",
+      "origin": "http://127.0.0.1:57240",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "0B69AE58CB5265353ACE2349D483E493",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 7054,
+        "indexedDbSha256": "4e006fcc8cd4419c66381b0424b5625bb8b406e61b0e68ea5a89a137d097fead",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.354Z"
+    },
+    {
+      "scenarioId": "capture-auth-and-form-generation",
+      "origin": "http://127.0.0.1:50769",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "061C39C99DD93170DB9D61EF937BF767",
+      "footprint": {
+        "indexedDbBatches": 7,
+        "indexedDbBytes": 6526,
+        "indexedDbSha256": "62e26a90ef39ed3113e2d9470716ce92952e9135e7185124f998fceb0aa9129d",
+        "localMirrorBatches": 7
+      },
+      "verifiedAt": "2026-11-28T17:05:37.462Z"
+    },
+    {
+      "scenarioId": "capture-two-deliberate-starts",
+      "origin": "http://127.0.0.1:53224",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "101C13A4380C1352A2C54CCFA9B0C04B",
+      "footprint": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 8755,
+        "indexedDbSha256": "8590111f2a72b946f7139d2db39f7589e89854146b784a19c5a727c83efcaf27",
+        "localMirrorBatches": 8
+      },
+      "verifiedAt": "2026-11-28T17:05:37.573Z"
+    },
+    {
+      "scenarioId": "durable-primary-false-false",
+      "origin": "http://127.0.0.1:59778",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "0305DE30950CB871D3BD60161B1E3CF4",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5887,
+        "indexedDbSha256": "e708e01fe709f673a57a0499a4818f7a7b492cd131bb2864118717e4290dba40",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.667Z"
+    },
+    {
+      "scenarioId": "durable-primary-false-true",
+      "origin": "http://127.0.0.1:51295",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "D135D508BFDAABB6AD48F6A8DBE391E6",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "87d51eec083a3eca78bf4194c03e3200246b6999c101fb45243f9c84dc508450",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.775Z"
+    },
+    {
+      "scenarioId": "durable-primary-true-false",
+      "origin": "http://127.0.0.1:52650",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "5448582D176734E0DFAE002795799888",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "248ee2f40dc27ffc7693f3fec23126cd0940091303b278e88217295d4a28e20e",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.867Z"
+    },
+    {
+      "scenarioId": "durable-primary-true-true",
+      "origin": "http://127.0.0.1:54462",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "4D2BC54598D379D9A36DC0F8325F1411",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "cdac6b0e085727a569ff8fc175112057566bdcce8b54c765c8a724378f10e9f6",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:37.975Z"
+    },
+    {
+      "scenarioId": "durable-mirror-false-false",
+      "origin": "http://127.0.0.1:53254",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "5ED9B3671D1E669A37084EC893E6BF44",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5877,
+        "indexedDbSha256": "b923cd450a1ec820bb74fdb029bc1acc3f1154125f70808ec8a512a54a65bb31",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:38.071Z"
+    },
+    {
+      "scenarioId": "durable-mirror-false-true",
+      "origin": "http://127.0.0.1:55261",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "E5C6148D0EBAD5F9EE5623A9538662E1",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "e4039d38cbbe8e5101c3d81e82dd4bf190528d070a6b6beda7716190b5229177",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:38.161Z"
+    },
+    {
+      "scenarioId": "durable-mirror-true-false",
+      "origin": "http://127.0.0.1:60082",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "D4D3AB1934599E92A58C46B477CF19BE",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5867,
+        "indexedDbSha256": "883ba64ee679a86eb609ea4b6e6a15a74a575f968436d0bb091c7b029a99c4fd",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:38.255Z"
+    },
+    {
+      "scenarioId": "durable-mirror-true-true",
+      "origin": "http://127.0.0.1:58671",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "49C20A0A9900F038A70C9CE9280BD7E1",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5857,
+        "indexedDbSha256": "a91b13983c892b10e2f6f1f64ba890fce143d0b7fcff26a6eec2e011fbfce83f",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:38.347Z"
+    },
+    {
+      "scenarioId": "capture-legacy-PWA5-backup",
+      "origin": "http://127.0.0.1:50177",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "A684896B7C886CCAB7E8D9547A15F423",
+      "footprint": {
+        "indexedDbBatches": 6,
+        "indexedDbBytes": 5807,
+        "indexedDbSha256": "e914e1d652d8d7f5cfd40227aab34479564e306069032a306c92683995636bfb",
+        "localMirrorBatches": 6
+      },
+      "verifiedAt": "2026-11-28T17:05:38.457Z"
+    },
+    {
+      "scenarioId": "weekly-advisory-cache",
+      "origin": "http://127.0.0.1:62605",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "04F7ECABE872F9468364AF21237818C5",
+      "footprint": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 7559,
+        "indexedDbSha256": "af8678d1cfa88a653d6df6d0041237078102e5f1dcd2f79e1762f8d0548adc76",
+        "localMirrorBatches": 8
+      },
+      "verifiedAt": "2026-11-28T17:05:38.567Z"
+    },
+    {
+      "scenarioId": "weekly-causal-chain",
+      "origin": "http://127.0.0.1:56312",
+      "ownedProfileId": "8e9b547f-06d3-449d-aa3a-03b5822983ec",
+      "targetId": "795EEB227ABCB0AB0135E1802BB2ED31",
+      "footprint": {
+        "indexedDbBatches": 8,
+        "indexedDbBytes": 7283,
+        "indexedDbSha256": "56a4e49ba55e81e6e9d5d16daab04f428ffac7c5fcf840b117750b91e461bd8e",
+        "localMirrorBatches": 8
+      },
+      "verifiedAt": "2026-11-28T17:05:38.677Z"
+    }
+  ],
+  "cleanupErrors": [
+    {
+      "stage": "cleanup-owner",
+      "message": "Deliberately injected cleanup-owner failure after real cleanup",
+      "stack": "Error: Deliberately injected cleanup-owner failure after real cleanup\n    at cleanup (file:///C:/tmp/gym-outbox-conflict-metadata/scripts/browser-outbox-smoke.mjs:508:68)\n    at async file:///C:/tmp/gym-outbox-conflict-metadata/scripts/browser-outbox-smoke.mjs:511:5"
+    }
+  ],
+  "completedAt": "2026-11-28T17:05:38.997Z",
+  "elapsedMs": 23544
+}

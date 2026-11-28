@@ -1,0 +1,32 @@
+{
+  "candidate": "62b71bdf8831b1d5140c2f6103aceca370ad4d7e",
+  "mode": "actual outbox/cache modules; fixed equal enqueue clock; shared localStorage boundary",
+  "hotOrder": [
+    {
+      "id": "z-first",
+      "timestamp": 1806321600000,
+      "operation": "operation-A"
+    },
+    {
+      "id": "a-second",
+      "timestamp": 1806321600000,
+      "operation": "operation-B"
+    }
+  ],
+  "coldOrder": [
+    {
+      "id": "a-second",
+      "timestamp": 1806321600000,
+      "operation": "operation-B"
+    },
+    {
+      "id": "z-first",
+      "timestamp": 1806321600000,
+      "operation": "operation-A"
+    }
+  ],
+  "expectedColdOrder": [
+    "operation-A",
+    "operation-B"
+  ]
+}

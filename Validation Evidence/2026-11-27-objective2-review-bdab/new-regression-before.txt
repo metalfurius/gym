@@ -1,0 +1,38 @@
+(node:9228) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL tests/integration/app-sync-review-regressions.test.js
+  actual app independent-review regressions
+    × retires an undated legacy target conflict after an explicit save for its original week (130 ms)
+    ○ skipped preserves B notes when A Quick Log finishes after the account transition
+    ○ skipped finalizes the first legacy scalar-7 week as 4/7 and unmet, before any dated target exists
+    ○ skipped finishes the initial exercise selector when the period changes during its read
+    ○ skipped renders unfenced history as limited and never freezes a seemingly consistent unmarked query
+    ○ skipped acknowledges an accepted Quick Log without retry duplication when only post-commit cache completion fails
+    ○ skipped keeps a UI-deleted session absent when the original Quick Log descriptor replays
+    ○ skipped queues the original Quick Log identity after bounded denial exhaustion and replays it once
+    ○ skipped retains an exhausted History deletion as an owned durable intent and refreshes after replay
+    ○ skipped retains only a recompute intent when derived finalization exhausts its denial retries
+    ○ skipped preserves the weekly UI intent base and timestamp in the durable queue after denial exhaustion
+
+  ● actual app independent-review regressions › retires an undated legacy target conflict after an explicit save for its original week
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      59 |         const immutableReceipt = JSON.stringify(receipt[1]);
+      60 |         await pressTarget(5);
+    > 61 |         expect(offlineManager.getPendingCount()).toBe(0);
+         |                                                  ^
+      62 |         expect(offlineManager.getConflictCount()).toBe(0);
+      63 |         expect(document.getElementById('weekly-target-conflict-status').classList.contains('hidden')).toBe(true);
+      64 |         await offlineManager.restorePersistedQueue();
+
+      at Object.<anonymous> (tests/integration/app-sync-review-regressions.test.js:61:50)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 10 skipped, 11 total
+Snapshots:   0 total
+Time:        1.923 s
+Ran all test suites matching tests/integration/app-sync-review-regressions.test.js with tests matching "retires an undated legacy".

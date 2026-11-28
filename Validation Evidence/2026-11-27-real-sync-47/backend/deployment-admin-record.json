@@ -1,0 +1,17 @@
+{
+  "startedAt": "2026-11-27T18:02:02.603Z",
+  "project": "gymm-178fb",
+  "database": "(default)",
+  "approvedHead": "618cacce0690524f4e48b8af92ed5360d5a6ccda",
+  "approvedSha256": "96c0f5bbbde95808b666c62586ad5caa507f3dfe7007c65d6d4c9f97de24c451",
+  "approvedBytes": 12878,
+  "previousSha256": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504",
+  "previousRuleset": "6ad50078-80c5-4675-8590-e4c1241d3770",
+  "reviewers": {
+    "a": "GPT6.1Solxhigh scopedAPPROVE43actualengine",
+    "b": "GPT6.1Solxhigh scopedAPPROVE30engine+6negativechecks"
+  },
+  "scope": "Only rules, no frontend/version or app-data writes. Componentapprovaldoesnotcloseobjective06.",
+  "prePublishEditorShaVerified": true,
+  "prePublishDraftCorrection": "NativeCtrlA didnotselectall; initialdraftconcatenationdetectedbySHAguard andneverpublished. ReplacedviaCodeMirrorpublictransaction; exactapproved12878-byteSHAverified."
+}

@@ -24,6 +24,8 @@
     "test:e2e:upgrade:firefox": "node scripts/browser-upgrade-smoke-firefox.mjs",
     "test:e2e:numeric": "node scripts/browser-numeric-input-smoke.mjs",
     "test:e2e:session-counting": "node scripts/browser-session-counting-smoke.mjs",
+    "test:e2e:outbox": "node scripts/browser-outbox-smoke.mjs",
+    "test:e2e:outbox:negative": "node scripts/verify-outbox-smoke-negative.mjs",
     "production:release:smoke": "node scripts/production-release-smoke.mjs",
     "cloudflare:cache:purge": "node scripts/cloudflare-cache-control.mjs --validate-and-purge",
     "test:manual": "echo 'Open tests/manual/index.html in a browser to run manual tests'",

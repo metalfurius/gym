@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "mode": "real Chromium child; injected owner-close exception after actual owner cleanup",
+  "childExitCode": 1,
+  "evidenceStatus": "failed",
+  "traceExists": true,
+  "cleanupErrors": [
+    "cleanup-owner"
+  ]
+}

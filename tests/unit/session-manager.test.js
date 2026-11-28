@@ -16,6 +16,7 @@ const mockClearTimerData = jest.fn();
 const mockInvalidateProgressCache = jest.fn();
 const mockTrackWrite = jest.fn();
 const mockClearByPrefix = jest.fn(() => Promise.resolve());
+const mockWithSessionMutation = jest.fn((_userId, operation) => operation());
 const mockRegisterOperationHandler = jest.fn();
 const mockExecuteWithOfflineHandling = jest.fn(async operation => operation());
 const mockProcessCompletedSession = jest.fn();
@@ -52,6 +53,7 @@ jest.unstable_mockModule('../../js/ui.js', () => ({
 
 jest.unstable_mockModule('../../js/utils/logger.js', () => ({
     logger: {
+        info: jest.fn(),
         debug: jest.fn(),
         warn: jest.fn(),
         error: jest.fn(),
@@ -79,12 +81,16 @@ jest.unstable_mockModule('../../js/utils/offline-manager.js', () => ({
     offlineManager: {
         registerOperationHandler: mockRegisterOperationHandler,
         executeWithOfflineHandling: mockExecuteWithOfflineHandling,
+        restorePersistedQueue: jest.fn(async () => {}),
+        pendingOperations: [], knownIntents: new Map(), retiredIntents: new Map(), acknowledged: new Map(),
     },
 }));
 
 jest.unstable_mockModule('../../js/utils/local-first-cache.js', () => ({
     localFirstCache: {
+        withSessionMutation: mockWithSessionMutation,
         clearByPrefix: mockClearByPrefix,
+        remove: mockClearByPrefix,
     },
 }));
 
@@ -433,14 +439,14 @@ describe('Session Manager', () => {
             expect.objectContaining({
                 type: 'session.save',
                 payload: expect.objectContaining({ userId: user.uid }),
-            })
+            }),
+            { id: expect.stringMatching(/^capture-save-/) }
         );
-        expect(mockTrackWrite).toHaveBeenCalledWith(1, 'session.save');
-        expect(mockProcessCompletedSession).toHaveBeenCalled();
+        expect(mockTrackWrite).toHaveBeenCalledWith(3, 'session.mutation.commit');
+        // Suggestion rebuilding is subscribed to the shared mutation contract.
+        expect(mockProcessCompletedSession).not.toHaveBeenCalled();
         expect(mockInvalidateProgressCache).toHaveBeenCalled();
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`history:${user.uid}:`);
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`calendar:${user.uid}:`);
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`progress:sessions:${user.uid}`);
+        expect(mockWithSessionMutation).toHaveBeenCalledWith(user.uid, expect.any(Function), expect.objectContaining({ kind: 'create' }));
         expect(mockToastSuccess).toHaveBeenCalled();
         expect(mockShowView).toHaveBeenCalledWith('dashboard');
         expect(mockClearTimerData).toHaveBeenCalled();
@@ -527,10 +533,9 @@ describe('Session Manager', () => {
                 payload: expect.objectContaining({ userId: user.uid }),
             })
         );
-        expect(mockTrackWrite).toHaveBeenCalledWith(1, 'quicklog.save');
+        expect(mockTrackWrite).toHaveBeenCalledWith(3, 'session.mutation.commit');
         expect(mockInvalidateProgressCache).toHaveBeenCalled();
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`history:${user.uid}:`);
-        expect(mockClearByPrefix).toHaveBeenCalledWith(`calendar:${user.uid}:`);
+        expect(mockWithSessionMutation).toHaveBeenCalledWith(user.uid, expect.any(Function), expect.objectContaining({ kind: 'create' }));
         expect(onSuccess).toHaveBeenCalled();
         expect(mockShowLoading).toHaveBeenCalled();
         expect(mockHideLoading).toHaveBeenCalled();
@@ -675,7 +680,7 @@ describe('Session Manager', () => {
         };
         localStorage.setItem(IN_PROGRESS_SESSION_KEY, JSON.stringify(inProgressData));
 
-        checkAndOfferResumeSession([routine]);
+        await checkAndOfferResumeSession([routine]);
 
         expect(dashboardElements.resumeSessionInfo.textContent).toContain('Push Day');
         expect(dashboardElements.resumeSessionBtn.classList.contains('hidden')).toBe(false);
@@ -741,5 +746,47 @@ describe('Session Manager', () => {
             modoEjecucion: 'machine',
             tipoCarga: 'bodyweight',
         });
+    });
+});
+
+describe('draft account ownership and legacy upgrade recovery', () => {
+    const routine = { id: 'verified-routine', name: 'Owned routine', exercises: [] };
+    beforeEach(() => { setupDom(); mockGetCurrentUser.mockReturnValue({ uid: 'draft-A' }); });
+
+    it('keeps separate primary drafts while the global compatibility mirror changes owners', () => {
+        saveInProgressSession(routine.id, { private: 'A values' });
+        const first = loadInProgressSession();
+        mockGetCurrentUser.mockReturnValue({ uid: 'draft-B' });
+        expect(loadInProgressSession({ verifiedRoutines: [routine] })).toBeNull();
+        saveInProgressSession(routine.id, { private: 'B values' });
+        mockGetCurrentUser.mockReturnValue({ uid: 'draft-A' });
+        expect(loadInProgressSession()).toEqual(first);
+        expect(loadInProgressSession().data.private).toBe('A values');
+    });
+
+    it('does not expose or adopt another owner through version-manager automatic backup restoration', async () => {
+        const { checkForBackupSession } = await import('../../js/version-manager.js');
+        const foreign = { ownerId: 'draft-A', routineId: routine.id, data: { private: 'A values' }, timestamp: 1 };
+        localStorage.setItem('gym-tracker-backup-session', JSON.stringify(foreign));
+        mockGetCurrentUser.mockReturnValue({ uid: 'draft-B' });
+        expect(checkForBackupSession()).toBe(false);
+        expect(loadInProgressSession({ verifiedRoutines: [routine] })).toBeNull();
+        expect(localStorage.getItem(IN_PROGRESS_SESSION_KEY)).toBeNull();
+        expect(JSON.parse(localStorage.getItem('gym-tracker-backup-session')).ownerId).toBe('draft-A');
+    });
+
+    it('retains an unowned legacy fixture until a matching routine and explicit Resume establish ownership', async () => {
+        const { checkForBackupSession } = await import('../../js/version-manager.js');
+        const legacy = { routineId: routine.id, data: { ejercicios: [{ sets: [{ peso: 42.5, reps: 8 }] }] }, timestamp: 1700000000000 };
+        localStorage.setItem('gym-tracker-backup-session', JSON.stringify(legacy));
+        expect(checkForBackupSession()).toBe(true);
+        expect(loadInProgressSession()).toBeNull();
+        expect(loadInProgressSession({ verifiedRoutines: [{ id: 'other-routine' }] })).toBeNull();
+        await checkAndOfferResumeSession([routine]);
+        expect(JSON.parse(localStorage.getItem(IN_PROGRESS_SESSION_KEY)).ownerId).toBeUndefined();
+        await dashboardElements.resumeSessionBtn.onclick();
+        expect(loadInProgressSession()).toMatchObject({ ownerId: 'draft-A', timestamp: legacy.timestamp, data: legacy.data });
+        mockGetCurrentUser.mockReturnValue({ uid: 'draft-B' });
+        expect(loadInProgressSession({ verifiedRoutines: [routine] })).toBeNull();
     });
 });

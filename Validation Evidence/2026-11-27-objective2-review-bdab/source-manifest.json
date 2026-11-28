@@ -1,0 +1,39 @@
+{
+  "base": "bdab128435e128a70bce1a382bfa22340cb64c74",
+  "scope": "Two runtime modules plus regressions; rules, journal, payloads and submission shapes unchanged",
+  "basis": "Canonical staged Git LF/BOM preserved",
+  "files": {
+    ".gitattributes": {
+      "bytes": 3298,
+      "sha256": "b8cb71f9b5f084abe0c9fb52c47cee267657e77bccb45393beda933bf3b7c415"
+    },
+    "js/modules/session-manager.js": {
+      "bytes": 45900,
+      "sha256": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c"
+    },
+    "js/utils/offline-manager.js": {
+      "bytes": 35667,
+      "sha256": "cb5c6c5f19dff5c2b7841b2df37531dd2be51737512915106079096993b105f7"
+    },
+    "release.json": {
+      "bytes": 7644,
+      "sha256": "8e96f409cfa28ba014d2482837e86e7bc31b5e4526124f950826f6b3e9907faf"
+    },
+    "tests/integration/app-capture-durable-identity.test.js": {
+      "bytes": 17791,
+      "sha256": "62d56aa6bed3709ffbcea5abe0574ca353d093e4ad5c4e18d8e37f9ca7bd2e5c"
+    },
+    "tests/integration/app-sync-review-regressions.test.js": {
+      "bytes": 20585,
+      "sha256": "3713df50a52488ac0dbf514bf015ff442dff1cc7a96077190567a2c057920cef"
+    },
+    "tests/unit/weekly-conflict-resolution.test.js": {
+      "bytes": 3796,
+      "sha256": "ad947ff19659f095aa4ddc46bf1df38c219d196e94d1ef651561653585ba8d9b"
+    },
+    "docs/sync-recovery-review-bdab.md": {
+      "bytes": 2612,
+      "sha256": "0ad8d4d4ab6b3896b48eaa4ecc879973b328ce20c5629f4a1a4983a0f108f92c"
+    }
+  }
+}

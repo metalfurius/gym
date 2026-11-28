@@ -1,0 +1,1 @@
+{"status":"passed","output":"C:\\tmp\\gym-outbox-conflict-metadata\\Validation Evidence\\2026-11-27-outbox-conflict-metadata\\native-metadata","cleanupErrors":[]}
