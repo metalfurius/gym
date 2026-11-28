@@ -68,6 +68,10 @@
     "github-metadata.json": {
       "bytes": 966,
       "sha256": "19ca823ffe7da486c03728d34c1cb0dcc549030fe7156cbbfeef80c08c2e69fd"
+    },
+    "judge-b-scoped-evidence-review.json": {
+      "bytes": 1155,
+      "sha256": "5bc54e2c79446d422c6ee56ebd435201d9a332975dcb42e7d34a8497d0842778"
     }
   }
 }
