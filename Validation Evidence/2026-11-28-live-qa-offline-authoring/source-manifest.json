@@ -1,0 +1,68 @@
+{
+  "status": "authoring-only-live-NOT-RUN",
+  "base": "949c791ccc789058abe28254710c86f45326c1d0",
+  "branch": "codex/roadmap-live-qa-offline-sessions",
+  "canonicalization": "UTF-8 canonical LF for sources and text artifacts; no binary artifacts",
+  "sources": {
+    ".gitattributes": "3640ae922b615c12fa68608a0b4dab6e0f75ca53346ae7360301960c99a3497c",
+    "docs/live-sync-qa.md": "3bebae77609516acc1eb3beb6011a31cbb5a0f72922f9770ef798add68fe778a",
+    "scripts/live-sync-qa-browser.mjs": "4179b4cb3ae1efd9d7ca2c0fa343d5ab7c3a3e11480485098ffa4aff13f6f609",
+    "scripts/live-sync-qa-scenarios.mjs": "56be850454040bc394eed2c89c251b18425e9fa9c41dd12df19d007ed1f93437",
+    "scripts/live-sync-qa.mjs": "2bb802f7d5e2442fb9e76d3d5213ce41cb7020e49d02cfba287c42f8bc296260",
+    "tests/fixtures/live-sync-qa-phases-949c791.json": "6639b73c75572b5a19c2270d7bfea639f7d48f515a95a8f442b57784f68cdb7f",
+    "tests/unit/live-sync-qa-extension.test.js": "d1a7ee97de4fed0069380d1fb9be205cafc8cae25a85de8d2de0a03f35e40ec8",
+    "tests/unit/live-sync-qa-offline.test.js": "a3c1923505fbcdba703306dc451ebc640817f4ea9cb48b753d600886dfeebaa1",
+    "tests/unit/live-sync-qa-ui.test.js": "bcec8a3f742d7b02546ecff096d73f8ae8328ee684b2edbc3a83ce4e1b5606f8"
+  },
+  "sourceBundleSha256": "0419ee7cbe30e382555cc1f8fe2c2c848aa62892faf38bd27df38069c90d786a",
+  "unchanged": {
+    "scripts/live-sync-qa-protocol.mjs": "768272f3151f26d3ea5a9545877fb92143f1bb128b165135ae57cb25c2d0c785",
+    "scripts/live-sync-qa-observations.mjs": "c9bd5e646a7c7095fce3221665d2677ed75a333fdb603f5258555d5bec82c5d2",
+    ".github/workflows/browser-gates.yml": "93669c8f3c758f6f79d481ce2c7bdc52bb2f995063296d70c312265eb562a007",
+    "package.json": "6eb39010e82fd6313307ad76b0a4ebea72d1690a4b04ccbed29e49feb7fa70fc",
+    "package-lock.json": "4708814f70ffb2a98f999f54c42e7f016edadda6fc2faac40e21d47960ebcadd",
+    "index.html": "58a9cf61da3625d9d992235f7ae32fcd69636f1e9c160e39a5e5bb4c841c01b9",
+    "manifest.json": "faa705b62ceeafa627d09d4c805fa4b7871a2d199ba548b2cce05a4ae7d8094a",
+    "release.json": "8e96f409cfa28ba014d2482837e86e7bc31b5e4526124f950826f6b3e9907faf",
+    "sw.js": "8632f04188be0aef5577e8a45e8dfaaa1376eda19c4386e4b01327cd5e2c3927",
+    "firestore.rules": "b177634716de15d1d320ffe07f28f2581a6198a57ec7aef8d90ecc9977805504",
+    "firebase.json": "87a5ae2b815c313c7a4926baff5e7ae64cf9e0f57fb58792ceef12e6a9adbd0f"
+  },
+  "unchangedEntrySlices": {
+    "startupAndAllocationPrefixSha256Lf": "2be760c2528e14a1341c715356a7da277a42934871e2ba8d1cc2136acfdebe8d",
+    "authPreflightLoopFinalWriteMainSuffixSha256Lf": "e1ee61a06062819fa181c1c482a314810fa6e79af3353dbf0d2ab36bb7f837c9"
+  },
+  "unchangedBrowserStartSha256Lf": "c1f6088aefb17a30cdb7bbf2ac8530f60d68b69ea49b2619dfc67d908d0313ae",
+  "originalPhasesPreserved": 47,
+  "totalPhases": 60,
+  "authoringTests": {
+    "suites": 7,
+    "tests": 129
+  },
+  "artifacts": {
+    "README.md": "508b5b5c16e7c2a77ff2a88db72d572c284925da9aecbc4b02adbd2786a2d530",
+    "focused.txt": "257606e324d874a143a76432282cbe1db92a5413cdff66735c38d7110c6958c6",
+    "lint.txt": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b",
+    "no-skips.txt": "ad3610f3461b3abebdd85bd73539540a508f4d493db8a966eb9391445d8c897b",
+    "release.txt": "a0246d07fce78ec5cbd914ac399843354442068cc1162e8c5b1234df10dc864b",
+    "static-checks.json": "71454f96ff210a99f5c8ed061a351b9650c94fadb95d4cf752b78c19bf84dcff"
+  },
+  "live": false,
+  "commitOrDispatchByAuthor": "local commit only; no push or dispatch",
+  "pending": [
+    "Integrate artifact-allocation/final-write fix",
+    "Integrate observed-conflict/atomic ACK replay runtime fix",
+    "Two independent reviews of combined exact SHA",
+    "Actual complete Windows-A/Ubuntu-B run with a new UUID/unfrozen calendar pair"
+  ],
+  "rootArtifactNormalization": {
+    "authorOriginalHead": "3732b0ce88302d45354bc72b0ca8b00d8141d7ad",
+    "path": "lint.txt",
+    "reason": "Remove redundant console EOF blank only for staged diff whitespace validation; results and source hash records unchanged. Original bytes are retained here and outside Git.",
+    "rawBytes": 70,
+    "rawSha256": "22aa9323d71d3ea28bf066294a23029669982ce4646db9d949549d1e211aa966",
+    "rawBase64": "Cj4gbXktd29ya291dC10cmFja2VyQDEuMC4yIGxpbnQ6cmF0Y2hldAo+IGVzbGludCAuIC0tbWF4LXdhcm5pbmdzIDAKCg==",
+    "canonicalBytes": 69,
+    "canonicalSha256": "c6b3446a873ec29d25179c417bf533683d776b14fa87ff68b770bcfa3112a94b"
+  }
+}

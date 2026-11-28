@@ -259,7 +259,7 @@ describe('real runner artifact boundary across long awaits (all fetches throw lo
             }
             const prefix = kind === 'file-hardlinks' ? 'retained-' : '';
             const stored = JSON.parse(fs.readFileSync(path.join(retained, prefix + 'result.json'), 'utf8'));
-            expect(stored).toMatchObject({ status: 'failed', sourceSha: sha, phaseCount: 0, requiredPhases: 47 });
+            expect(stored).toMatchObject({ status: 'failed', sourceSha: sha, phaseCount: 0, requiredPhases: 60 });
             const trace = JSON.parse(fs.readFileSync(path.join(retained, prefix + 'trace.json'), 'utf8'));
             expect(Array.isArray(trace.events)).toBe(true);
             expect(trace.cleanupErrors.some(entry => entry.name === 'private-artifact-identity')).toBe(!renameBlocked);

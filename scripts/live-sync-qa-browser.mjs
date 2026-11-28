@@ -35,6 +35,21 @@ export function readSessionDetailDom(session, expectedDateText) {
     };
 }
 
+export function verifyOfflineSessionPair(rows, captureIso, quickLogIso) {
+    assert.equal(rows.length, 2, 'QA_TWO_OFFLINE_SESSION_INTENTS_REQUIRED');
+    assert.deepEqual(rows.map(row => row.type), ['session.save', 'quicklog.save'], 'QA_OFFLINE_SESSION_FIFO');
+    assert.equal(new Set(rows.map(row => row.id)).size, 2, 'QA_DUPLICATE_OFFLINE_QUEUE_ID');
+    assert.equal(new Set(rows.map(row => row.sessionId)).size, 2, 'QA_DUPLICATE_OFFLINE_SESSION_ID');
+    for (const [index, row] of rows.entries()) {
+        assert(row.owner === 'primary' && row.status === 'pending', 'QA_OFFLINE_SESSION_NOT_ELIGIBLE_OWN_INTENT');
+        assert(typeof row.sessionId === 'string' && /^[\w-]+$/.test(row.sessionId), 'QA_OFFLINE_SESSION_ID_REQUIRED');
+        assert.equal(row.sessionFechaIso, index ? quickLogIso : captureIso, 'QA_OFFLINE_SESSION_DATE_CHANGED');
+        assert(/^[a-f\d]{64}$/.test(row.sessionPayloadHash || ''), 'QA_OFFLINE_SESSION_PAYLOAD_PROOF_REQUIRED');
+        assert(Number.isFinite(row.timestamp), 'QA_OFFLINE_SESSION_ENQUEUE_TIMESTAMP_REQUIRED');
+    }
+    return rows;
+}
+
 export function canonicalCandidate(
     root,
     expectedSha,
@@ -190,6 +205,20 @@ export class QaBrowser {
     event(event) {
         try {
             this.commitObservation.observe(event, () => this.client.evaluate('navigator.onLine'));
+            if (this.offlineObservation) {
+                const response = event.params?.response;
+                const raw = event.method === 'Network.requestWillBeSent' ? event.params?.request?.url : response?.url;
+                const origin = raw && new URL(raw).origin;
+                if (origin === 'https://firestore.googleapis.com') {
+                    if (event.method === 'Network.requestWillBeSent') this.offlineObservation.attempts++;
+                    if (event.method === 'Network.responseReceived') {
+                        if (response.fromDiskCache || response.fromServiceWorker || response.fromPrefetchCache) {
+                            this.offlineObservation.cachedResponses++;
+                        } else this.offlineObservation.serverResponses++;
+                    }
+                }
+                if (event.method === 'Network.loadingFailed') this.offlineObservation.failedTransportEvents++;
+            }
         } catch {
             this.observationError ||= new Error('QA_COMMIT_OBSERVATION_FAILED');
         }
@@ -349,6 +378,12 @@ export class QaBrowser {
                 .map(e=>({id:e.id,operationId:e.descriptor.payload.operationId,baseRevision:e.descriptor.payload.baseRevision,baseOperationId:e.descriptor.payload.baseOperationId,baseFingerprint:e.descriptor.payload.baseFingerprint,
                     target:e.descriptor.payload.weekRecord.targetSessions,updatedAtIso:e.descriptor.payload.updatedAtIso}));})()`);
     }
+    async queueAcknowledgements(ids) {
+        assert(ids.every(id => typeof id === 'string' && /^[\w-]+$/.test(id)), 'QA_ACK_IDS_REQUIRED');
+        return this.client.evaluate(`(async()=>{const {offlineManager:q}=await import('./js/utils/offline-manager.js');
+            const state=await q.outbox.read();return ${JSON.stringify(ids)}.map(id=>({id,
+                outcome:state.acknowledgements.get(id)||null,pending:state.entries.some(entry=>entry.id===id)}));})()`);
+    }
     async clockAt(value) {
         assert(Number.isFinite(Date.parse(value)), 'QA_INVALID_CALENDAR_CLOCK');
         this.clock = value;
@@ -453,12 +488,16 @@ export class QaBrowser {
             const idbRows=await localFirstCache.getAllFromIndexedDb('offline:journal:v3:batch:');
             const idbJournalHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(idbRows))))].map(b=>b.toString(16).padStart(2,'0')).join('');
             const owner=uid===${JSON.stringify(PRIMARY_UID)}?'primary':uid===${JSON.stringify(OTHER_UID)}?'other':uid?'unexpected':null;
-            const queue=q.pendingOperations.map(e=>({id:e.id,type:e.descriptor?.type,owner:e.descriptor?.payload?.userId===${JSON.stringify(PRIMARY_UID)}?'primary':'other',
+            const sorted=value=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.keys(value).sort().map(k=>[k,sorted(value[k])])):Array.isArray(value)?value.map(sorted):value;
+            const queue=await Promise.all(q.pendingOperations.map(async e=>({id:e.id,type:e.descriptor?.type,owner:e.descriptor?.payload?.userId===${JSON.stringify(PRIMARY_UID)}?'primary':'other',
                 status:e.status||'pending',timestamp:e.timestamp,operationId:e.descriptor?.payload?.operationId||null,weekKey:e.descriptor?.payload?.weekKey||null,
                 updatedAtIso:e.descriptor?.payload?.updatedAtIso||null,target:e.descriptor?.payload?.weekRecord?.targetSessions??null,
                 baseRevision:e.descriptor?.payload?.baseRevision??null,baseOperationId:e.descriptor?.payload?.baseOperationId||null,
                 sessionId:e.descriptor?.payload?.sessionId||null,
-                predecessorIds:e.predecessorIds||[],semanticDependencyIds:e.semanticDependencyIds||[]}));
+                observedWeeklyConflictIds:e.descriptor?.observedWeeklyConflictIds||[],
+                sessionFechaIso:e.descriptor?.payload?.sessionData?.fechaIso||null,
+                sessionPayloadHash:['session.save','quicklog.save'].includes(e.descriptor?.type)?[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sorted(e.descriptor.payload)))))].map(b=>b.toString(16).padStart(2,'0')).join(''):null,
+                predecessorIds:e.predecessorIds||[],semanticDependencyIds:e.semanticDependencyIds||[]})));
             return {owner,project:auth.app.options.projectId,online:navigator.onLine,clock:globalThis.__GYM_WEEKLY_TARGET_NOW_ISO,
                 revision:document.querySelector('meta[name="gym-release-revision"]').content,controller:!!navigator.serviceWorker.controller,
                 target:Number(document.getElementById('weekly-target-days-select').value),visiblePending:q.getPendingCount(),conflicts:q.getConflictCount(),
@@ -490,9 +529,10 @@ export class QaBrowser {
             'queue-empty'
         );
     }
-    async coldOffline() {
+    async coldOffline({ minimum = 2, requireEmpty = false, observeNetwork = false } = {}) {
         const before = await this.waitQueue(
-            state => !state.online && state.queue.length >= 2 && state.staged === 0 && state.unknown === 0,
+            state => !state.online && state.queue.length >= minimum && (!requireEmpty || state.visiblePending === 0)
+                && state.verified && state.staged === 0 && state.unknown === 0 && state.pendingAcks === 0,
             'durable-offline-queue'
         );
         await this.waitPage('!!navigator.serviceWorker.controller', 'real-worker-controller');
@@ -502,6 +542,10 @@ export class QaBrowser {
             'QA_PROFILE_IDB_NOT_PRESERVED'
         );
         this.clockScript = null;
+        if (observeNetwork) {
+            assert(!this.offlineObservation, 'QA_OFFLINE_OBSERVATION_ALREADY_ACTIVE');
+            this.offlineObservation = { attempts: 0, serverResponses: 0, cachedResponses: 0, failedTransportEvents: 0 };
+        }
         await this.start(true);
         await this.authenticated();
         const after = await this.waitQueue(
@@ -534,20 +578,56 @@ export class QaBrowser {
         assert.equal(after.revision, before.revision);
         return { before, after, sameOwnedProfile: true, profileIdentity: digest(this.profileRealPath) };
     }
-    async historyIds() {
+    endOfflineObservation() {
+        const result = this.offlineObservation;
+        this.offlineObservation = null;
+        assert(result, 'QA_OFFLINE_OBSERVATION_NOT_ACTIVE');
+        assert.equal(result.serverResponses, 0, 'QA_OFFLINE_BROWSER_RECEIVED_SERVER_RESPONSE');
+        return { ...result, scope: 'owned browser CDP events; Node coordination remains online', failedAttemptsAllowed: true };
+    }
+    async queueOfflineSessions({ fixtureId, capture, runId, currentCalendarIso, currentDateKey }) {
+        await this.stableEmpty();
+        await this.network(true);
+        await this.clockAt(capture.calendarIso);
+        await this.reload();
+        await this.assertOwner();
+        await this.waitPage('navigator.onLine===false&&!!navigator.serviceWorker.controller', 'offline-session-worker');
+        await this.field('#day-select', fixtureId);
+        await this.click('#start-session-btn');
+        await this.waitPage('!!document.querySelector(\'input[name="weight-0-0"]\')', 'offline-strength-form');
+        await this.field('input[name="weight-0-0"]', capture.weight);
+        await this.field('input[name="reps-0-0"]', capture.reps);
+        await this.click('#save-session-btn');
+        await this.waitPage('!document.getElementById("dashboard-view").classList.contains("hidden")', 'offline-capture-terminal-ui');
+        await this.waitQueue(state => !state.online && state.queue.length === 1 && state.verified && !state.staged && !state.unknown, 'offline-strength-durable');
+        await this.clockAt(currentCalendarIso);
+        const localDateTime = `${currentDateKey}T13:04`;
+        const quickLogIso = await this.client.evaluate(`new Date(${JSON.stringify(localDateTime)}).toISOString()`);
+        await this.field('#quick-log-label', `QA ${runId} 4`);
+        await this.field('#quick-log-notes', `codexLiveQaRun:${runId}:4`);
+        await this.field('#quick-log-datetime', localDateTime);
+        await this.click('#quick-log-save-btn');
+        const state = await this.waitQueue(value => !value.online && value.queue.length === 2 && value.verified
+            && !value.staged && !value.unknown && !value.pendingAcks, 'offline-strength-and-quicklog-durable');
+        await this.waitPage('!document.getElementById("quick-log-save-btn").disabled', 'offline-quicklog-terminal-ui');
+        verifyOfflineSessionPair(state.queue, capture.calendarIso, quickLogIso);
+        return { queued: state.queue, captureIso: capture.calendarIso, quickLogIso };
+    }
+    async historyIds({ allowEmpty = false } = {}) {
         await this.closeSettings();
         await this.click('#nav-history');
+        const emptyText = allowEmpty ? await this.client.evaluate(`(async()=>{const {t}=await import('./js/i18n.js');return t('history.empty');})()`) : null;
         await this.waitPage(
-            'document.getElementById("history-loading").classList.contains("hidden")&&document.querySelectorAll("#history-list li[data-session-id]").length>0',
+            `document.getElementById("history-loading").classList.contains("hidden")&&(document.querySelectorAll("#history-list li[data-session-id]").length>0${allowEmpty ? `||document.getElementById('history-list').textContent.trim()===${JSON.stringify(emptyText)}` : ''})`,
             'history-loaded'
         );
         return this.client.evaluate(
             '[...document.querySelectorAll("#history-list li[data-session-id]")].map(e=>e.dataset.sessionId)'
         );
     }
-    async allHistoryIds() {
+    async allHistoryIds({ allowEmpty = false } = {}) {
         await this.reload();
-        await this.historyIds();
+        await this.historyIds({ allowEmpty });
         const ids = [];
         for (let page = 0; page < 30; page++) {
             await this.waitPage(
@@ -635,6 +715,17 @@ export class QaBrowser {
             '!document.getElementById("session-view").classList.contains("hidden")&&!!document.querySelector(\'input[name="weight-0-0"]\')',
             'suggestion-fresh-capture-view'
         );
+        if (!expected) {
+            await this.waitPage(
+                '!!document.querySelector(".no-exercise-history")&&!document.querySelector(".last-workout-info")&&!document.querySelector(\'input[name="weight-0-0"]\').dataset.suggestion&&!document.querySelector(\'input[name="reps-0-0"]\').dataset.suggestion',
+                'no-owned-suggestions-after-cleanup'
+            );
+            this.pendingCancel = true;
+            try { await this.click('#cancel-session-btn'); }
+            finally { this.pendingCancel = false; }
+            await this.waitPage('!document.getElementById("dashboard-view").classList.contains("hidden")', 'empty-suggestion-inspection-cancelled');
+            return { absent: true, publicCaptureInspected: true, saved: false };
+        }
         await this.waitPage(
             `Number(document.querySelector('input[name="weight-0-0"]')?.dataset.suggestion)===${expected.weight}&&Number(document.querySelector('input[name="reps-0-0"]')?.dataset.suggestion)===${expected.reps}`,
             'visible-latest-strength-suggestion'

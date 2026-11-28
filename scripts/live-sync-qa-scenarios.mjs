@@ -3,6 +3,13 @@
 export function liveSyncPhases() {
     const phases = [
         { name: 'initial-calendar-both', actor: 'both', action: 'initial' },
+        { name: 'mixed-both-read-unfrozen-base-weeks', actor: 'both', action: 'mixed-base' },
+        { name: 'mixed-A-offline-X-then-Y-return-base-clock', actor: 'A', action: 'mixed-queue' },
+        { name: 'mixed-B-online-new-X', actor: 'B', action: 'mixed-new-X' },
+        { name: 'mixed-A-reconnect-X-conflict-Y-applied', actor: 'A', action: 'mixed-reconnect' },
+        { name: 'mixed-both-verify-independent-week-receipts', actor: 'both', action: 'mixed-verify' },
+        { name: 'mixed-A-public-resolution-X-at-base-clock', actor: 'A', action: 'mixed-resolve' },
+        { name: 'mixed-both-reload-drained-base-clock', actor: 'both', action: 'mixed-converge' },
         { name: 'different-week-A-offline-plus7d', actor: 'A', action: 'different-offline' },
         { name: 'different-week-B-online-base', actor: 'B', action: 'target', value: 6, initialWeek: true },
         { name: 'different-week-A-reconnect', actor: 'A', action: 'different-reconnect' },
@@ -56,12 +63,18 @@ export function liveSyncPhases() {
         { name: 'owner-A-primary-login-replays-only-primary', actor: 'A', action: 'owner-primary' },
         { name: 'both-logout-login-reload', actor: 'both', action: 'reauthenticate' },
         { name: 'session-baseline-and-verify-create-only-routine', actor: 'A', action: 'routine' },
+        { name: 'offline-A-queues-strength-and-quicklog', actor: 'A', action: 'offline-sessions-queue' },
+        { name: 'offline-A-cold-same-profile-session-intents', actor: 'A', action: 'offline-sessions-cold' },
+        { name: 'offline-A-replays-two-sessions-exactly-once', actor: 'A', action: 'offline-sessions-replay' },
         { name: 'sessions-four-captures-and-quicklogs', actor: 'A', action: 'sessions' },
         { name: 'both-all-surfaces-before-delete', actor: 'both', action: 'surfaces' },
         { name: 'B-deletes-single-owned-last-page-record', actor: 'B', action: 'delete-sentinel' },
         { name: 'both-all-surfaces-after-delete', actor: 'both', action: 'surfaces' },
         { name: 'B-deletes-latest-owned-strength', actor: 'B', action: 'delete-latest-strength' },
         { name: 'both-surfaces-fallback-previous-strength', actor: 'both', action: 'surfaces' },
+        { name: 'both-reload-warm-all-surfaces-after-deletes', actor: 'both', action: 'deleted-warm' },
+        { name: 'both-cold-offline-same-profile-no-deleted-records', actor: 'both', action: 'deleted-cold' },
+        { name: 'both-return-online-reconcile-deleted-records', actor: 'both', action: 'deleted-reconcile' },
         { name: 'A-ui-cleans-only-run-sessions', actor: 'A', action: 'cleanup-sessions' },
         { name: 'both-baseline-records-preserved', actor: 'both', action: 'baseline-preserved' }
     );

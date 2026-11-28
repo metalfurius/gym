@@ -10,7 +10,7 @@ jest.unstable_mockModule('../../js/auth.js', () => ({ getCurrentUser: () => ({ u
 const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
 document.documentElement.innerHTML = html;
 const ui = await import('../../js/ui.js');
-const { setLanguage } = await import('../../js/i18n.js');
+const { setLanguage, t } = await import('../../js/i18n.js');
 const { beginAccountSession } = await import('../../js/utils/account-scope.js');
 const { exerciseCache } = await import('../../js/exercise-cache.js');
 const fixture = captureFixtures(calendarFixture());
@@ -149,6 +149,24 @@ describe('runner detail observations on actual ES/EN render output', () => {
 });
 
 describe('runner public suggestion observations (provided local cache fixture)', () => {
+    it.each(['es', 'en'])('accepts a genuine empty history but rejects an error/uncached message as empty (%s)', async language => {
+        setLanguage(language);
+        const browser = adapter();
+        const evaluate = browser.client.evaluate;
+        browser.client.evaluate = expression => expression.includes("return t('history.empty')")
+            ? Promise.resolve(t('history.empty')) : evaluate(expression);
+        ui.renderHistoryList([]);
+        document.getElementById('history-loading').classList.add('hidden');
+        expect(await browser.historyIds({ allowEmpty: true })).toEqual([]);
+        document.getElementById('history-list').innerHTML = '<li>Uncached/error fixture</li>';
+        await expect(browser.historyIds({ allowEmpty: true })).rejects.toThrow('QA_TIMEOUT:history-loaded');
+    });
+    it.each(['es', 'en'])('observes the real empty suggestion UI after owned cleanup (%s)', async language => {
+        setLanguage(language);
+        const result = await adapter().suggestions(routine.id, null);
+        expect(result).toMatchObject({ absent: true, publicCaptureInspected: true, saved: false });
+        expect(document.getElementById('dashboard-view').classList.contains('hidden')).toBe(false);
+    });
     it.each(['es', 'en'])(
         'accepts 53.5 then 52.5 after a fresh fixture rebuild and uses the real fill button (%s)',
         async language => {

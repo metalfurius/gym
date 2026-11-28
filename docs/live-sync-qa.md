@@ -41,6 +41,10 @@ precondition failure, not permission to remove an outcome. After the first scena
 freeze the earlier week. A retry therefore needs a **new UUID and a later, unfrozen calendar pair** on both hosts.
 Record the chosen pair with that run; never reuse an occupied role claim or overwrite old artifacts.
 
+The default remains unchanged for compatibility. Root reports that the November 27 week was legitimately frozen
+by the earlier 47-phase run. A new 60-phase execution therefore needs a new UUID and December 4→December 11,
+or a later pair that passes the same unfrozen-week/range guards. Never delete an outcome to reuse a calendar pair.
+
 After the matching-source/calendar barrier and before either browser login, role A creates the single routine
 fixture with a create-only precondition. Both roles wait for its verified creation. This keeps routine caches
 honest: the runner does not clear storage or call private refresh functions to reveal an out-of-band fixture.
@@ -53,7 +57,7 @@ These commands do not contain credentials:
 ```powershell
 $runId = [guid]::NewGuid().ToString()
 $candidateSha = (git rev-parse HEAD).Trim()
-$baseCalendarIso = '2026-11-27T12:00:00.000Z'
+$baseCalendarIso = '2026-12-04T12:00:00.000Z'
 $runtimeDirectory = Join-Path $env:TEMP ('gym-real-sync-runtime-' + $runId)
 $env:BROWSER_SMOKE_INSTALL_RECEIPT = Join-Path $runtimeDirectory 'browser-install.json'
 $env:BROWSER_SMOKE_CACHE_DIR = Join-Path $env:TEMP 'gym-smoke-browser-runtimes'
@@ -99,11 +103,25 @@ that cannot count as acceptance.
 
 ## Executed live sequence when enabled
 
-The [declarative phase list](../scripts/live-sync-qa-scenarios.mjs) contains **47 barriers**. Each role publishes
+The [declarative phase list](../scripts/live-sync-qa-scenarios.mjs) contains **60 barriers**, preserving all 47
+original phase specifications and their relative order. Each role publishes
 ready/done/error state and its own results under `roleA` or `roleB` in
 `users/{primaryUid}/qa_sync_runs/{runUUID}`. Creation/role claiming uses existence/update-time preconditions;
 subsequent PATCHes mask only that role field, preserving the peer. Reads poll at one-second intervals with
 bounded phase/global waits (15-minute scenario budget plus bounded cleanup). A peer error aborts waiting.
+
+Before step 1 can advance/freeze the earlier week, both reload at the base clock. A goes offline and saves
+target 4 for X (base week), then target 5 for Y (the second week), recording both original operation IDs/times.
+A restores its base clock **before reconnecting**. B saves a newer X=6 online. A reconnects: X must remain a
+visible durable conflict, while independent Y applies exactly once, drains and has its immutable receipt.
+Both verify per-week/global revisions, both original timestamps and unchanged frozen outcomes. A then goes
+offline again, makes a new explicit X=3 press, proves the new intent durable, and reconnects. Its receipt must
+apply, native journal ACKs must be old-X=`resolved`/new-X=`accepted`, Y and both original receipts must remain
+unchanged, and both reload/drain at the base clock. The replacement's **descriptor** `observedWeeklyConflictIds`
+must contain exactly the old X queue ID; this is existing runtime metadata outside the payload, observed by
+QA rather than added to product state by this runner. The 47 original phases then continue. This new offline
+resolution intentionally requires the separate product replay-resolution fix; source 949c791 alone is not
+expected to pass it. No product fix is embedded in this QA tooling.
 
 1. Start at base date. A goes offline, advances seven days and queues target 4; B stays at base and saves 6.
    A reconnects; both verify that the two week records survive, then both use the second date.
@@ -128,7 +146,19 @@ bounded phase/global waits (15-minute scenario budget plus bounded cleanup). A p
 6. A queues an owned target offline, logs out, reconnects and logs into other. Primary work stays pending and
    invisible to other's pending count; other's data remains isolated. Returning to primary replays it. Both hosts
    then logout/login/reload through the public UI.
-7. A verifies the unchanged UUID-marked pre-auth routine fixture. A creates **four** normal captures with
+7. A verifies the unchanged UUID-marked pre-auth routine fixture. First, while offline, A saves the **first**
+   strength capture (50.5×8) and ordinary Quick Log index 4 through public controls. Both immutable queue IDs,
+   session IDs, original model dates, enqueue timestamps and payload SHA-256 values must be durable, with no
+   corresponding server documents. A closes its entire browser and starts offline on the **same profile**;
+   offline is applied before navigation from `about:blank`, with the real worker still active. Native journal
+   rows/hash, owned auth, revision and both complete metadata entries must survive. On reconnect, exactly those
+   two IDs must appear once, their server dates/values must match the original intents, the session revision
+   increases exactly twice, both immutable create receipts prove the same IDs/revision order, and a further
+   reload must not duplicate them. Both clients later open these
+   two exact IDs in the normal surface/detail checks below. They count inside the original manifest, preserving
+   four captures and the true single-row last page; they are not two extra records.
+
+   A then completes the remaining online records for **four** normal captures in total, with
    `50.5`, `51.5`, `52.5`, `53.5` kg and 8 reps, followed by enough Quick Logs for 11–20 total new sessions,
    making the total collection count end in 1. The four supported calendar values are `currentCalendarIso`
    plus 1, 2, 3 and 4 seconds on the same Europe/Paris day. The runner checks their persisted original timestamps
@@ -147,9 +177,20 @@ bounded phase/global waits (15-minute scenario budget plus bounded cleanup). A p
    the latest strength ID through UI. Both repeat all surfaces and remaining detail assertions: exactly three
    strength records remain, Progress/chart/table best is **52.5**, and the actual capture suggestion/reuse button
    must fall back to the preceding **52.5/8** record. The >=3 Progress threshold remains exercised after deletion.
+   Both clients then reload online and warm all history pages, calendar, Hub, Progress/chart/table, details and
+   suggestions after **both deletions**. Each closes the whole owned browser and cold-starts offline on its
+   same profile. Public navigation must still show the exact remaining IDs/counts, three strength records,
+   52.5/8 chart/table/suggestion values, and no deleted ID. The offline helper consumes its previously verified
+   checkpoint and cannot fetch a REST product snapshot to supply the UI. CDP metadata records SDK attempts and
+   failed transport events without requiring zero attempts; any noncached Firestore response in that browser
+   window fails. Node coordination remains online and is not a browser-cache read. Both finally reconnect,
+   reload and reconcile every surface against the actual server again.
 10. A deletes only newly identified run sessions through UI. Previous IDs and full values remain identical.
     Fixture cleanup verifies marker/content/current update time and uses CAS deletion; changed or still-referenced
-    fixtures are retained with a failure. Receipts and the control document remain as evidence; preference changes
+    fixtures are retained with a failure. **Both roles reload and observe UI convergence before destruction**:
+    all history IDs and Hub/calendar counts equal the complete original baseline, the run's unique Progress
+    exercise is absent and a fresh public capture has no saved suggestion. “Zero” means zero run-owned records;
+    a nonempty pre-existing baseline is preserved, not forced to an empty account. Receipts and the control document remain as evidence; preference changes
     are not blindly rolled back.
 
 ## Online race measurement and limits
@@ -214,7 +255,7 @@ The early reserved empty files are not a completed result. Acceptance requires t
 process exit and proved closure of the retained handles as well as the cleanup/trace and paired-readiness checks.
 
 Acceptance requires **both** complete successful role artifacts, identical final SHA/revision/UUID/calendar,
-47 completed phases each, matching control results, all actual UI/server/queue assertions and zero cleanup errors.
+60 completed phases each, matching control results, all actual UI/server/queue assertions and zero cleanup errors.
 These scripts have not run live during authorship and provide no final two-judge approval. A real paired run can
 support SYNC-04/two-device evidence as agreed; it cannot prove iOS, phones or installed-client update behavior.
 Commit-response loss injection is deliberately not implemented: existing unit/native tests cover that boundary,

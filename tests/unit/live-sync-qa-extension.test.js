@@ -334,8 +334,8 @@ describe('four-capture fixture and online CAS acceptance assertions', () => {
     });
     it('declares online public race/resolve and strength fallback without replacing the last-page sentinel scenario', () => {
         const phases = liveSyncPhases();
-        expect(phases).toHaveLength(47);
-        expect(new Set(phases.map(item => item.name)).size).toBe(47);
+        expect(phases).toHaveLength(60);
+        expect(new Set(phases.map(item => item.name)).size).toBe(60);
         const names = phases.map(item => item.name);
         expect(names.indexOf('online-race-identical-online-base')).toBeLessThan(
             names.indexOf('online-race-public-press')

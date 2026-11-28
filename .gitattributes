@@ -66,3 +66,4 @@ firestore.rules text eol=lf
 "Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.md" text eol=lf
 "Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.mjs" text eol=lf
 "Validation Evidence/2026-11-27-outbox-conflict-metadata/**/*.png" -text
+"Validation Evidence/2026-11-28-live-qa-offline-authoring/**" text eol=lf
