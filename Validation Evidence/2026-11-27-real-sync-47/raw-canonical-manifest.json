@@ -1,0 +1,103 @@
+{
+  "basis": "Raw originals retained outside Git; JSON CRLF normalized to LF for repository, UTF-8 BOM preserved. No semantic changes. Hash exact byte buffers.",
+  "files": [
+    {
+      "path": "A/result.json",
+      "rawBytes": 160310,
+      "rawSha256": "105b8ce2eccc91c0441c1aa92491f0d5682d4b3c3acf683726afa91f49774a24",
+      "bytes": 160310,
+      "sha256": "105b8ce2eccc91c0441c1aa92491f0d5682d4b3c3acf683726afa91f49774a24"
+    },
+    {
+      "path": "A/trace.json",
+      "rawBytes": 3907882,
+      "rawSha256": "57c2a1dfdefa23b118fac050ba8c941374cfff3be20bc4db8db360948a94a6d1",
+      "bytes": 3907882,
+      "sha256": "57c2a1dfdefa23b118fac050ba8c941374cfff3be20bc4db8db360948a94a6d1"
+    },
+    {
+      "path": "B-remote/role-B/result.json",
+      "rawBytes": 128555,
+      "rawSha256": "ba440c806977ab0b67e8d2292491dcc6dc9dc5cc716b541448c605ad2fee2608",
+      "bytes": 128555,
+      "sha256": "ba440c806977ab0b67e8d2292491dcc6dc9dc5cc716b541448c605ad2fee2608"
+    },
+    {
+      "path": "B-remote/role-B/trace.json",
+      "rawBytes": 2408734,
+      "rawSha256": "dc58571b568cf0c3f4145207187b92388d15990f1a2ad511c85a589d152309fb",
+      "bytes": 2408734,
+      "sha256": "dc58571b568cf0c3f4145207187b92388d15990f1a2ad511c85a589d152309fb"
+    },
+    {
+      "path": "B-remote/browser-install.json",
+      "rawBytes": 596,
+      "rawSha256": "a1258ecf1af1ee1e5bfb71b5ac217b37c5684bf61d4a1021515c07da5ef58478",
+      "bytes": 596,
+      "sha256": "a1258ecf1af1ee1e5bfb71b5ac217b37c5684bf61d4a1021515c07da5ef58478"
+    },
+    {
+      "path": "B-remote/sandbox-helper.json",
+      "rawBytes": 1086,
+      "rawSha256": "c4e9373b4913539e42f2fc592119e699f50fa6bd7b54cedf2a929eca1be415f3",
+      "bytes": 1086,
+      "sha256": "c4e9373b4913539e42f2fc592119e699f50fa6bd7b54cedf2a929eca1be415f3"
+    },
+    {
+      "path": "paired-summary.json",
+      "rawBytes": 4088,
+      "rawSha256": "a5564a3a177311aa1f824072e57f827e34be427a307598c39538a1d4cb9a5102",
+      "bytes": 4088,
+      "sha256": "a5564a3a177311aa1f824072e57f827e34be427a307598c39538a1d4cb9a5102"
+    },
+    {
+      "path": "independent-codeql-triage.json",
+      "rawBytes": 2964,
+      "rawSha256": "ba67a757785286e95cd13a94561a7aafedbc7a73d7fa38f50e5bde05efc797e4",
+      "bytes": 2901,
+      "sha256": "d983d218687bd2ff55447243a401c699fca05890cd686e12698061059b30c3a1"
+    },
+    {
+      "path": "root-stack-ac5-manifest-verification.json",
+      "rawBytes": 870,
+      "rawSha256": "45290dd16c2fc6e5c4dcb44becae0111377a1ef93bc808ee7185e43703f582a7",
+      "bytes": 870,
+      "sha256": "45290dd16c2fc6e5c4dcb44becae0111377a1ef93bc808ee7185e43703f582a7"
+    },
+    {
+      "path": "backend/preimage.json",
+      "rawBytes": 8209,
+      "rawSha256": "d2eb9b313c45b19982b7fc2e2bbb45ba357cc279f40abaf44d0c09a09df60209",
+      "bytes": 8209,
+      "sha256": "d2eb9b313c45b19982b7fc2e2bbb45ba357cc279f40abaf44d0c09a09df60209"
+    },
+    {
+      "path": "backend/deployment-admin-record.json",
+      "rawBytes": 915,
+      "rawSha256": "bfb6d1d16f55716c2cbf08edb2ef58876c6b3c737629bf6a54e5ab7de57b9c9c",
+      "bytes": 915,
+      "sha256": "bfb6d1d16f55716c2cbf08edb2ef58876c6b3c737629bf6a54e5ab7de57b9c9c"
+    },
+    {
+      "path": "backend/publication-ui-response.json",
+      "rawBytes": 1654,
+      "rawSha256": "ade6541b2b2f7d572ed5aa5cb289947a07bab2761aad261f936fb7656c723952",
+      "bytes": 1654,
+      "sha256": "ade6541b2b2f7d572ed5aa5cb289947a07bab2761aad261f936fb7656c723952"
+    },
+    {
+      "path": "backend/server-ui-readback.json",
+      "rawBytes": 15546,
+      "rawSha256": "dc756eae372e9c2757f6043bb41a4ad5177a77664a3d0a5da67ad4138ba4f6ca",
+      "bytes": 15546,
+      "sha256": "dc756eae372e9c2757f6043bb41a4ad5177a77664a3d0a5da67ad4138ba4f6ca"
+    },
+    {
+      "path": "github-metadata.json",
+      "rawBytes": 994,
+      "rawSha256": "587bfe59cbed229440f0ef0a1edf511569c4e7089167fa3b2fffc7fe00dbcb29",
+      "bytes": 966,
+      "sha256": "19ca823ffe7da486c03728d34c1cb0dcc549030fe7156cbbfeef80c08c2e69fd"
+    }
+  ]
+}

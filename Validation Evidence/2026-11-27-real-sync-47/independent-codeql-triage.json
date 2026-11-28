@@ -1,0 +1,63 @@
+{
+  "sourceSha": "949c791ccc789058abe28254710c86f45326c1d0",
+  "at": "2026-11-27T18:28:17.1328705Z",
+  "independentReviewers": [
+    "/root/judge_a GPT-6.1-Sol xhigh",
+    "/root/judge_b GPT-6.1-Sol xhigh"
+  ],
+  "realAlertsLeftOpen": [
+    32,
+    33
+  ],
+  "items": [
+    {
+      "number": 6,
+      "rule": "js/incomplete-url-substring-sanitization",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: event.filename only selects fixed local diagnostics/messages. It never authorizes URLs, redirects, imports input paths or grants access. Contextual FP."
+    },
+    {
+      "number": 26,
+      "rule": "js/bad-code-sanitization",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: JSON.stringify emits quoted JS literals for direct CDP Runtime.evaluate, not HTML. Fixed UID/validated UUID selectors cannot escape the literal. No executable input sanitizer."
+    },
+    {
+      "number": 27,
+      "rule": "js/bad-code-sanitization",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: quoted JSON literals go directly to CDP JavaScript evaluation, with no HTML parsing. Fixed UID/validated UUID-derived selectors remain literal data and cannot become executable fragments."
+    },
+    {
+      "number": 28,
+      "rule": "js/bad-code-sanitization",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: JSON.stringify creates quoted data within direct CDP JavaScript, not HTML. Reviewed selectors use fixed UID/validated UUID; no code or URL authorization relies on sanitization."
+    },
+    {
+      "number": 29,
+      "rule": "js/bad-code-sanitization",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: JSON.stringify emits direct CDP JavaScript literals, not HTML. Numeric interpolation is bounded to counts3/4. No input can escape the literal or become an executable fragment."
+    },
+    {
+      "number": 30,
+      "rule": "js/bad-code-sanitization",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: JSON.stringify builds data literals in direct CDP expressions, not HTML. Validated UUID selectors remain quoted; no untrusted executable fragment or sanitizer trust boundary."
+    },
+    {
+      "number": 31,
+      "rule": "js/file-system-race",
+      "state": "dismissed",
+      "reason": "false positive",
+      "comment": "A+B independent Sol6.1 xhigh, H949c791: fixed /usr/lib/gym-smoke-sandbox has root-owned non-writable ancestors; regular/non-symlink/root:root/nlink/hash checked before SUID and readback4755. No unprivileged replacement race in reviewed CI."
+    }
+  ]
+}

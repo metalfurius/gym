@@ -1,0 +1,38 @@
+{
+  "at": "2026-11-27T18:28:36.923Z",
+  "basis": "Exact Git HEAD blob buffers; no text decoding/reencoding or PNG conversion",
+  "results": [
+    {
+      "objective": 3,
+      "head": "56e5f1f0ee72ca5194f60c04f9940e1099098cca",
+      "sources": 38,
+      "artifacts": 86,
+      "mismatches": 0,
+      "clean": true
+    },
+    {
+      "objective": 5,
+      "head": "1718ff8fa433e91d5dfd4c79da6cc3896191c37f",
+      "sources": 47,
+      "artifacts": 107,
+      "mismatches": 0,
+      "clean": true
+    },
+    {
+      "objective": 6,
+      "head": "42d42dfb5e7ead470fcd08699aa3d04b55a12144",
+      "sources": 61,
+      "artifacts": 122,
+      "mismatches": 0,
+      "clean": true
+    },
+    {
+      "objective": 7,
+      "head": "82d99a493a1786eb5f37afe9f93f81a38876bbbb",
+      "sources": 52,
+      "artifacts": 137,
+      "mismatches": 0,
+      "clean": true
+    }
+  ]
+}

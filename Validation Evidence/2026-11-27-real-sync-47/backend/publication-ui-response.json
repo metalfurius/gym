@@ -1,0 +1,55 @@
+{
+  "observedAt": "2026-11-27T18:03:21.632Z",
+  "buttons": [],
+  "diagnostics": [],
+  "recentRuleResources": [
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb/rulesets/478ef78c-b02d-4ba5-949c-15141b9682ea",
+      "status": 200,
+      "at": "2026-11-27T17:57:24.805Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/static/proxy.html",
+      "status": 0,
+      "at": "2026-11-27T17:58:55.503Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb:test",
+      "status": 200,
+      "at": "2026-11-27T18:00:50.965Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb:test",
+      "status": 200,
+      "at": "2026-11-27T18:01:44.963Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb/rulesets",
+      "status": 200,
+      "at": "2026-11-27T18:02:02.634Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb/releases/cloud.firestore",
+      "status": 200,
+      "at": "2026-11-27T18:02:04.266Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb/rulesets",
+      "status": 200,
+      "at": "2026-11-27T18:02:05.437Z"
+    },
+    {
+      "origin": "https://firebaserules.clients6.google.com",
+      "path": "/v1/projects/gymm-178fb/rulesets/000a8e44-8c4a-44f2-8c77-7eb222f7aee4",
+      "status": 200,
+      "at": "2026-11-27T18:02:06.191Z"
+    }
+  ]
+}

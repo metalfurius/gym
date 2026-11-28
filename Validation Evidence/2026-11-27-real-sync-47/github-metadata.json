@@ -1,0 +1,28 @@
+{
+  "observedAt": "2026-11-28T17:00:20.0448571Z",
+  "run": {
+    "conclusion": "success",
+    "created_at": "2026-11-27T18:10:32Z",
+    "head_sha": "949c791ccc789058abe28254710c86f45326c1d0",
+    "html_url": "https://github.com/metalfurius/gym/actions/runs/46047451029",
+    "id": 46047451029,
+    "run_attempt": 1,
+    "status": "completed",
+    "updated_at": "2026-11-27T18:19:43Z"
+  },
+  "artifact": {
+    "created_at": "2026-11-27T18:19:39Z",
+    "digest": "sha256:cdbcf806f6bc6830839d18cadb695bebccb0eadf73fda4e0267f95ae507bbe9c",
+    "expired": false,
+    "id": 15223118402,
+    "name": "real-sync-qa-949c791ccc789058abe28254710c86f45326c1d0-1a069681-4a4d-4e12-9b13-13f13590b442-B-1",
+    "size_in_bytes": 96263,
+    "workflow_run": {
+      "head_branch": "codex/roadmap-02-history-sync",
+      "head_repository_id": 977968105,
+      "head_sha": "949c791ccc789058abe28254710c86f45326c1d0",
+      "id": 46047451029,
+      "repository_id": 977968105
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "head": "949c791ccc789058abe28254710c86f45326c1d0",
+  "basis": "Immutable Git blob buffers of source used during actual run; does not assert final source acceptance",
+  "files": [
+    {
+      "path": "scripts/live-sync-qa.mjs",
+      "bytes": 52153,
+      "sha256": "dde035923479cae9893707a3676128cf34e872affd0566c3d82562531c6cc5ea"
+    },
+    {
+      "path": "scripts/live-sync-qa-browser.mjs",
+      "bytes": 33861,
+      "sha256": "b2b9264b20e1f49acdc3c52734274ffc955a90d5ecde7c7f4784c39562cd215b"
+    },
+    {
+      "path": "scripts/live-sync-qa-protocol.mjs",
+      "bytes": 25897,
+      "sha256": "768272f3151f26d3ea5a9545877fb92143f1bb128b165135ae57cb25c2d0c785"
+    },
+    {
+      "path": "scripts/live-sync-qa-scenarios.mjs",
+      "bytes": 4585,
+      "sha256": "6b4ee425fb54babee346e10ae86610baf71f578dacf05a0690fcb640a430d588"
+    },
+    {
+      "path": "scripts/live-sync-qa-observations.mjs",
+      "bytes": 5617,
+      "sha256": "c9bd5e646a7c7095fce3221665d2677ed75a333fdb603f5258555d5bec82c5d2"
+    },
+    {
+      "path": ".github/workflows/browser-gates.yml",
+      "bytes": 9395,
+      "sha256": "93669c8f3c758f6f79d481ce2c7bdc52bb2f995063296d70c312265eb562a007"
+    },
+    {
+      "path": "js/utils/outbox-order.js",
+      "bytes": 3567,
+      "sha256": "8a3cebbe7d6e95e8eb7544c8efd2113b26d8503bf774c5ddd5104a1640cfa29c"
+    },
+    {
+      "path": "js/utils/durable-outbox.js",
+      "bytes": 10757,
+      "sha256": "361518d1e7b250ead27f42726c49fa749634e082e9c1d4fd738b8094b28a3a65"
+    },
+    {
+      "path": "js/utils/outbox-journal-storage.js",
+      "bytes": 4126,
+      "sha256": "da20eebdc4d924ba888c416d9f34750d571fa54d300d345a5932b8b5a2107690"
+    },
+    {
+      "path": "js/utils/offline-manager.js",
+      "bytes": 35667,
+      "sha256": "cb5c6c5f19dff5c2b7841b2df37531dd2be51737512915106079096993b105f7"
+    },
+    {
+      "path": "js/modules/session-manager.js",
+      "bytes": 45900,
+      "sha256": "b6127a826ef19ac58229413a6ea69388933a9bbd3a4b06b29c5c9c767920fd6c"
+    },
+    {
+      "path": "release.json",
+      "bytes": 7644,
+      "sha256": "8e96f409cfa28ba014d2482837e86e7bc31b5e4526124f950826f6b3e9907faf"
+    }
+  ]
+}

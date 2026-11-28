@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "startedAt": "2026-11-27T18:10:50.653Z",
+  "source": {
+    "path": "/home/runner/work/_temp/gym-smoke-browser-runtimes/chromium-158.0.8127.36-linux-dba9cc838e1c/chrome-linux64/chrome_sandbox",
+    "sha256": "c6733ac7189cd66d34b0dc5715d58b7ae30b01984a7cc814a7cd8f824f81ea7a",
+    "archiveSha256": "dba9cc838e1ce269c33ea68170881127bd15d078fc3ca5891c90802819a4d7c7"
+  },
+  "destination": "/usr/lib/gym-smoke-sandbox/chrome-sandbox-c6733ac7189cd66d34b0dc5715d58b7ae30b01984a7cc814a7cd8f824f81ea7a",
+  "installedSha256": "c6733ac7189cd66d34b0dc5715d58b7ae30b01984a7cc814a7cd8f824f81ea7a",
+  "uid": 0,
+  "gid": 0,
+  "mode": "4755",
+  "root": {
+    "path": "/usr/lib/gym-smoke-sandbox",
+    "uid": 0,
+    "gid": 0,
+    "mode": "755"
+  },
+  "ancestors": [
+    {
+      "path": "/",
+      "uid": 0,
+      "gid": 0,
+      "mode": "755"
+    },
+    {
+      "path": "/usr",
+      "uid": 0,
+      "gid": 0,
+      "mode": "755"
+    },
+    {
+      "path": "/usr/lib",
+      "uid": 0,
+      "gid": 0,
+      "mode": "755"
+    }
+  ],
+  "completedAt": "2026-11-27T18:10:50.685Z"
+}

@@ -1,0 +1,4878 @@
+{
+  "mode": "real-Firebase-real-SDK-two-machine-acceptance",
+  "live": true,
+  "role": "A",
+  "runId": "1a069681-4a4d-4e12-9b13-13f13590b442",
+  "sourceSha": "949c791ccc789058abe28254710c86f45326c1d0",
+  "baseCalendarIso": "2026-11-27T12:00:00.000Z",
+  "currentCalendarIso": "2026-12-04T12:00:00.000Z",
+  "revision": "v2.8.6",
+  "project": "gymm-178fb",
+  "startedAt": "2026-11-27T18:11:28.877Z",
+  "syntheticFixedAccountsOnly": true,
+  "physicalPhone": false,
+  "installedPwa": false,
+  "plan": [
+    {
+      "name": "initial-calendar-both",
+      "actor": "both",
+      "action": "initial"
+    },
+    {
+      "name": "different-week-A-offline-plus7d",
+      "actor": "A",
+      "action": "different-offline"
+    },
+    {
+      "name": "different-week-B-online-base",
+      "actor": "B",
+      "action": "target",
+      "value": 6,
+      "initialWeek": true
+    },
+    {
+      "name": "different-week-A-reconnect",
+      "actor": "A",
+      "action": "different-reconnect"
+    },
+    {
+      "name": "different-weeks-both-confirm-plus7d",
+      "actor": "both",
+      "action": "different-converge"
+    },
+    {
+      "name": "same-week-read-identical-base",
+      "actor": "both",
+      "action": "base",
+      "key": "same"
+    },
+    {
+      "name": "same-week-A-applies",
+      "actor": "A",
+      "action": "target",
+      "value": 5
+    },
+    {
+      "name": "same-week-B-stale-conflict",
+      "actor": "B",
+      "action": "stale",
+      "value": 7,
+      "preserved": 5
+    },
+    {
+      "name": "same-week-B-explicit-resolution",
+      "actor": "B",
+      "action": "target",
+      "value": 7
+    },
+    {
+      "name": "same-week-both-reload-converge",
+      "actor": "both",
+      "action": "converge",
+      "value": 7
+    },
+    {
+      "name": "cold-A-two-offline-intents",
+      "actor": "A",
+      "action": "queue-two",
+      "key": "cold",
+      "first": 4,
+      "second": 5
+    },
+    {
+      "name": "cold-B-new-server-value",
+      "actor": "B",
+      "action": "target",
+      "value": 6
+    },
+    {
+      "name": "cold-A-full-process-offline-restart",
+      "actor": "A",
+      "action": "cold-restart"
+    },
+    {
+      "name": "cold-A-reconnect-conflict-blocked",
+      "actor": "A",
+      "action": "reconnect-conflict",
+      "key": "cold",
+      "preserved": 6
+    },
+    {
+      "name": "cold-A-explicit-resolution",
+      "actor": "A",
+      "action": "target",
+      "value": 3
+    },
+    {
+      "name": "cold-both-reload-converge",
+      "actor": "both",
+      "action": "converge",
+      "value": 3
+    },
+    {
+      "name": "A-then-B-both-read-base",
+      "actor": "both",
+      "action": "base",
+      "key": "A-then-B"
+    },
+    {
+      "name": "A-then-B-both-offline-multiple",
+      "actor": "both",
+      "action": "queue-two",
+      "key": "A-then-B"
+    },
+    {
+      "name": "A-then-B-first-reconnect-A",
+      "actor": "A",
+      "action": "reconnect-accepted",
+      "key": "A-then-B",
+      "value": 5
+    },
+    {
+      "name": "A-then-B-second-reconnect-B",
+      "actor": "B",
+      "action": "reconnect-conflict",
+      "key": "A-then-B",
+      "preserved": 5
+    },
+    {
+      "name": "A-then-B-second-explicit-resolution",
+      "actor": "B",
+      "action": "target",
+      "value": 2
+    },
+    {
+      "name": "A-then-B-both-reload-converge",
+      "actor": "both",
+      "action": "converge",
+      "value": 2
+    },
+    {
+      "name": "B-then-A-both-read-base",
+      "actor": "both",
+      "action": "base",
+      "key": "B-then-A"
+    },
+    {
+      "name": "B-then-A-both-offline-multiple",
+      "actor": "both",
+      "action": "queue-two",
+      "key": "B-then-A"
+    },
+    {
+      "name": "B-then-A-first-reconnect-B",
+      "actor": "B",
+      "action": "reconnect-accepted",
+      "key": "B-then-A",
+      "value": 7
+    },
+    {
+      "name": "B-then-A-second-reconnect-A",
+      "actor": "A",
+      "action": "reconnect-conflict",
+      "key": "B-then-A",
+      "preserved": 7
+    },
+    {
+      "name": "B-then-A-second-explicit-resolution",
+      "actor": "A",
+      "action": "target",
+      "value": 3
+    },
+    {
+      "name": "B-then-A-both-reload-converge",
+      "actor": "both",
+      "action": "converge",
+      "value": 3
+    },
+    {
+      "name": "online-race-identical-online-base",
+      "actor": "both",
+      "action": "online-base"
+    },
+    {
+      "name": "online-race-ready-public-controls",
+      "actor": "both",
+      "action": "online-ready"
+    },
+    {
+      "name": "online-race-public-press",
+      "actor": "both",
+      "action": "online-press"
+    },
+    {
+      "name": "online-race-exact-one-winner-conflict",
+      "actor": "both",
+      "action": "online-verify"
+    },
+    {
+      "name": "online-race-loser-explicit-resolution",
+      "actor": "both",
+      "action": "online-resolve"
+    },
+    {
+      "name": "online-race-both-converge",
+      "actor": "both",
+      "action": "converge",
+      "value": 7,
+      "onlineReceipts": true
+    },
+    {
+      "name": "owner-A-queue-primary-offline",
+      "actor": "A",
+      "action": "owner-queue"
+    },
+    {
+      "name": "owner-A-other-login-no-primary-replay",
+      "actor": "A",
+      "action": "owner-other"
+    },
+    {
+      "name": "owner-A-primary-login-replays-only-primary",
+      "actor": "A",
+      "action": "owner-primary"
+    },
+    {
+      "name": "both-logout-login-reload",
+      "actor": "both",
+      "action": "reauthenticate"
+    },
+    {
+      "name": "session-baseline-and-verify-create-only-routine",
+      "actor": "A",
+      "action": "routine"
+    },
+    {
+      "name": "sessions-four-captures-and-quicklogs",
+      "actor": "A",
+      "action": "sessions"
+    },
+    {
+      "name": "both-all-surfaces-before-delete",
+      "actor": "both",
+      "action": "surfaces"
+    },
+    {
+      "name": "B-deletes-single-owned-last-page-record",
+      "actor": "B",
+      "action": "delete-sentinel"
+    },
+    {
+      "name": "both-all-surfaces-after-delete",
+      "actor": "both",
+      "action": "surfaces"
+    },
+    {
+      "name": "B-deletes-latest-owned-strength",
+      "actor": "B",
+      "action": "delete-latest-strength"
+    },
+    {
+      "name": "both-surfaces-fallback-previous-strength",
+      "actor": "both",
+      "action": "surfaces"
+    },
+    {
+      "name": "A-ui-cleans-only-run-sessions",
+      "actor": "A",
+      "action": "cleanup-sessions"
+    },
+    {
+      "name": "both-baseline-records-preserved",
+      "actor": "both",
+      "action": "baseline-preserved"
+    }
+  ],
+  "phases": [
+    {
+      "name": "initial-calendar-both",
+      "at": "2026-11-27T18:11:43.509Z",
+      "action": {
+        "clock": "2026-11-27T12:00:00.000Z"
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-11-27T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 2,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 3,
+            "revision": 2,
+            "operationId": "target-d0b48a08-7a98-4f34-8104-64adedf10869",
+            "updatedAtIso": "2026-11-27T16:28:02.932Z",
+            "fingerprint": "[3,3,2,\"2026-11-27T16:28:02.932Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 2,
+        "idbJournalHash": "20b7679c1a7237afdd361da107dc7ea174007cd146eafa0da664cf8e3748c5b6",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 3,
+        "weekRevision": 0,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "different-week-A-offline-plus7d",
+      "at": "2026-11-27T18:11:45.982Z",
+      "action": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 1,
+        "conflicts": 0,
+        "preferenceRevision": 2,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 3,
+            "revision": 2,
+            "operationId": "target-d0b48a08-7a98-4f34-8104-64adedf10869",
+            "updatedAtIso": "2026-11-27T16:28:02.932Z",
+            "fingerprint": "[3,3,2,\"2026-11-27T16:28:02.932Z\"]"
+          },
+          "2026-11-30": {
+            "target": 4,
+            "revision": 1,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "fingerprint": "[4,4,1,\"2026-12-04T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-8fa64f30-70be-4323-8cfb-0043fd4ae5c9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803104920,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "target": 4,
+            "baseRevision": 0,
+            "baseOperationId": null,
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-db16e5f6-f951-4f17-b7d9-f9246a55b6e1"
+            ],
+            "semanticDependencyIds": []
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 3,
+        "idbJournalHash": "1fb424f7e877b0e9ed3d2d41e9fccb85e5023ed3f327cd84bfe684e37be1a6b8",
+        "monthCount": 0,
+        "weekly": "0/4",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 1,
+        "conflicts": 0,
+        "preferenceRevision": 2,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 3,
+            "revision": 2,
+            "operationId": "target-d0b48a08-7a98-4f34-8104-64adedf10869",
+            "updatedAtIso": "2026-11-27T16:28:02.932Z",
+            "fingerprint": "[3,3,2,\"2026-11-27T16:28:02.932Z\"]"
+          },
+          "2026-11-30": {
+            "target": 4,
+            "revision": 1,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "fingerprint": "[4,4,1,\"2026-12-04T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-8fa64f30-70be-4323-8cfb-0043fd4ae5c9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803104920,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "target": 4,
+            "baseRevision": 0,
+            "baseOperationId": null,
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-db16e5f6-f951-4f17-b7d9-f9246a55b6e1"
+            ],
+            "semanticDependencyIds": []
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 3,
+        "idbJournalHash": "1fb424f7e877b0e9ed3d2d41e9fccb85e5023ed3f327cd84bfe684e37be1a6b8",
+        "monthCount": 0,
+        "weekly": "0/4",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 3,
+        "weekRevision": 0,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "different-week-B-online-base",
+      "at": "2026-11-27T18:11:48.489Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 1,
+        "conflicts": 0,
+        "preferenceRevision": 2,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 3,
+            "revision": 2,
+            "operationId": "target-d0b48a08-7a98-4f34-8104-64adedf10869",
+            "updatedAtIso": "2026-11-27T16:28:02.932Z",
+            "fingerprint": "[3,3,2,\"2026-11-27T16:28:02.932Z\"]"
+          },
+          "2026-11-30": {
+            "target": 4,
+            "revision": 1,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "fingerprint": "[4,4,1,\"2026-12-04T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-8fa64f30-70be-4323-8cfb-0043fd4ae5c9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803104920,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "target": 4,
+            "baseRevision": 0,
+            "baseOperationId": null,
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-db16e5f6-f951-4f17-b7d9-f9246a55b6e1"
+            ],
+            "semanticDependencyIds": []
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 3,
+        "idbJournalHash": "1fb424f7e877b0e9ed3d2d41e9fccb85e5023ed3f327cd84bfe684e37be1a6b8",
+        "monthCount": 0,
+        "weekly": "0/4",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 3,
+        "weekRevision": 0,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "different-week-A-reconnect",
+      "at": "2026-11-27T18:11:55.294Z",
+      "action": {
+        "bothWeeksPreserved": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 4,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 4,
+            "revision": 1,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "fingerprint": "[4,4,1,\"2026-12-04T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 4,
+        "idbJournalHash": "ae578d01960dd928f4e83c2cf311113bfb895ed65b5bef276c517c095c72ab85",
+        "monthCount": 0,
+        "weekly": "0/4",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 4,
+        "oldWeekTarget": 6,
+        "weekRevision": 1,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "different-weeks-both-confirm-plus7d",
+      "at": "2026-11-27T18:11:58.995Z",
+      "action": {
+        "oldWeek": 6,
+        "currentWeek": 4
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 4,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 4,
+            "revision": 1,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "fingerprint": "[4,4,1,\"2026-12-04T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 4,
+        "idbJournalHash": "ae578d01960dd928f4e83c2cf311113bfb895ed65b5bef276c517c095c72ab85",
+        "monthCount": 0,
+        "weekly": "0/4",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 4,
+        "oldWeekTarget": 6,
+        "weekRevision": 1,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "same-week-read-identical-base",
+      "at": "2026-11-27T18:12:06.696Z",
+      "action": {
+        "revision": 1,
+        "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c"
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 4,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 4,
+            "revision": 1,
+            "operationId": "target-602a2238-bdee-4570-abec-12c90bfd0b6c",
+            "updatedAtIso": "2026-12-04T12:00:00.000Z",
+            "fingerprint": "[4,4,1,\"2026-12-04T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 4,
+        "idbJournalHash": "ae578d01960dd928f4e83c2cf311113bfb895ed65b5bef276c517c095c72ab85",
+        "monthCount": 0,
+        "weekly": "0/4",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 4,
+        "oldWeekTarget": 6,
+        "weekRevision": 1,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "same-week-A-applies",
+      "at": "2026-11-27T18:12:14.822Z",
+      "action": {
+        "accepted": 5
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:16.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 5,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 2,
+            "operationId": "target-430ed1a3-0703-41b0-babd-f7e1d0c930e4",
+            "updatedAtIso": "2026-12-04T12:00:16.000Z",
+            "fingerprint": "[5,5,2,\"2026-12-04T12:00:16.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 6,
+        "idbJournalHash": "58d72798899bc0dde2720ba6a0e77df898a02745984421d79890aac161d2e939",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 5,
+        "oldWeekTarget": 6,
+        "weekRevision": 2,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "same-week-B-stale-conflict",
+      "at": "2026-11-27T18:12:16.253Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:16.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 5,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 2,
+            "operationId": "target-430ed1a3-0703-41b0-babd-f7e1d0c930e4",
+            "updatedAtIso": "2026-12-04T12:00:16.000Z",
+            "fingerprint": "[5,5,2,\"2026-12-04T12:00:16.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 6,
+        "idbJournalHash": "58d72798899bc0dde2720ba6a0e77df898a02745984421d79890aac161d2e939",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 5,
+        "oldWeekTarget": 6,
+        "weekRevision": 2,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "same-week-B-explicit-resolution",
+      "at": "2026-11-27T18:12:25.252Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:16.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 5,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 2,
+            "operationId": "target-430ed1a3-0703-41b0-babd-f7e1d0c930e4",
+            "updatedAtIso": "2026-12-04T12:00:16.000Z",
+            "fingerprint": "[5,5,2,\"2026-12-04T12:00:16.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 6,
+        "idbJournalHash": "58d72798899bc0dde2720ba6a0e77df898a02745984421d79890aac161d2e939",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 5,
+        "oldWeekTarget": 6,
+        "weekRevision": 2,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "same-week-both-reload-converge",
+      "at": "2026-11-27T18:12:32.105Z",
+      "action": {
+        "converged": 7
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:16.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 7,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 6,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 7,
+            "revision": 3,
+            "operationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+            "updatedAtIso": "2026-12-04T12:00:18.000Z",
+            "fingerprint": "[7,7,3,\"2026-12-04T12:00:18.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 6,
+        "idbJournalHash": "58d72798899bc0dde2720ba6a0e77df898a02745984421d79890aac161d2e939",
+        "monthCount": 0,
+        "weekly": "0/7",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 3,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "cold-A-two-offline-intents",
+      "at": "2026-11-27T18:12:41.015Z",
+      "action": {
+        "queued": [
+          {
+            "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803158911,
+            "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:20.000Z",
+            "target": 4,
+            "baseRevision": 3,
+            "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803159940,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "target": 5,
+            "baseRevision": 4,
+            "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ],
+            "semanticDependencyIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ]
+          }
+        ],
+        "clockRollback": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:02:19.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 2,
+        "conflicts": 0,
+        "preferenceRevision": 6,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 5,
+            "revision": 5,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "fingerprint": "[5,5,5,\"2026-12-04T12:02:19.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803158911,
+            "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:20.000Z",
+            "target": 4,
+            "baseRevision": 3,
+            "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803159940,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "target": 5,
+            "baseRevision": 4,
+            "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ],
+            "semanticDependencyIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 8,
+        "idbJournalHash": "c680b8112d205ccb4fd98f553af12e3c23113d582196dfe9a176eb916b525120",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 3,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "cold-B-new-server-value",
+      "at": "2026-11-27T18:12:42.606Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:02:19.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 2,
+        "conflicts": 0,
+        "preferenceRevision": 6,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 5,
+            "revision": 5,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "fingerprint": "[5,5,5,\"2026-12-04T12:02:19.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803158911,
+            "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:20.000Z",
+            "target": 4,
+            "baseRevision": 3,
+            "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803159940,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "target": 5,
+            "baseRevision": 4,
+            "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ],
+            "semanticDependencyIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 8,
+        "idbJournalHash": "c680b8112d205ccb4fd98f553af12e3c23113d582196dfe9a176eb916b525120",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 3,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "cold-A-full-process-offline-restart",
+      "at": "2026-11-27T18:12:49.193Z",
+      "action": {
+        "before": {
+          "owner": "primary",
+          "project": "gymm-178fb",
+          "online": false,
+          "clock": "2026-12-04T12:02:19.000Z",
+          "revision": "v2.8.6",
+          "controller": true,
+          "target": 5,
+          "visiblePending": 2,
+          "conflicts": 0,
+          "preferenceRevision": 6,
+          "weekRecords": {
+            "2026-11-30": {
+              "target": 5,
+              "revision": 5,
+              "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+              "updatedAtIso": "2026-12-04T12:02:19.000Z",
+              "fingerprint": "[5,5,5,\"2026-12-04T12:02:19.000Z\"]"
+            },
+            "2026-11-23": {
+              "target": 6,
+              "revision": 3,
+              "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+            }
+          },
+          "queue": [
+            {
+              "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "pending",
+              "timestamp": 1795803158911,
+              "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:02:20.000Z",
+              "target": 4,
+              "baseRevision": 3,
+              "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+              ],
+              "semanticDependencyIds": []
+            },
+            {
+              "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "pending",
+              "timestamp": 1795803159940,
+              "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:02:19.000Z",
+              "target": 5,
+              "baseRevision": 4,
+              "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+              ],
+              "semanticDependencyIds": [
+                "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+              ]
+            }
+          ],
+          "verified": true,
+          "staged": 0,
+          "unknown": 0,
+          "pendingAcks": 0,
+          "idbJournalRows": 8,
+          "idbJournalHash": "c680b8112d205ccb4fd98f553af12e3c23113d582196dfe9a176eb916b525120",
+          "monthCount": 0,
+          "weekly": "0/5",
+          "databases": [
+            "firebase-heartbeat-database",
+            "firebaseLocalStorageDb",
+            "gym-tracker-local-cache"
+          ]
+        },
+        "after": {
+          "owner": "primary",
+          "project": "gymm-178fb",
+          "online": false,
+          "clock": "2026-12-04T12:02:19.000Z",
+          "revision": "v2.8.6",
+          "controller": true,
+          "target": 5,
+          "visiblePending": 2,
+          "conflicts": 0,
+          "preferenceRevision": 6,
+          "weekRecords": {
+            "2026-11-30": {
+              "target": 5,
+              "revision": 5,
+              "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+              "updatedAtIso": "2026-12-04T12:02:19.000Z",
+              "fingerprint": "[5,5,5,\"2026-12-04T12:02:19.000Z\"]"
+            },
+            "2026-11-23": {
+              "target": 6,
+              "revision": 3,
+              "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+            }
+          },
+          "queue": [
+            {
+              "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "pending",
+              "timestamp": 1795803158911,
+              "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:02:20.000Z",
+              "target": 4,
+              "baseRevision": 3,
+              "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+              ],
+              "semanticDependencyIds": []
+            },
+            {
+              "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "pending",
+              "timestamp": 1795803159940,
+              "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:02:19.000Z",
+              "target": 5,
+              "baseRevision": 4,
+              "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+              ],
+              "semanticDependencyIds": [
+                "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+              ]
+            }
+          ],
+          "verified": true,
+          "staged": 0,
+          "unknown": 0,
+          "pendingAcks": 0,
+          "idbJournalRows": 8,
+          "idbJournalHash": "c680b8112d205ccb4fd98f553af12e3c23113d582196dfe9a176eb916b525120",
+          "monthCount": 0,
+          "weekly": "0/5",
+          "databases": [
+            "firebase-heartbeat-database",
+            "firebaseLocalStorageDb",
+            "gym-tracker-local-cache"
+          ]
+        },
+        "sameOwnedProfile": true,
+        "profileIdentity": "f040d8d626ac4304038d0899c0dd6c544bc26f7deedd74af228d48383bc0ca46"
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:02:19.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 2,
+        "conflicts": 0,
+        "preferenceRevision": 6,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 5,
+            "revision": 5,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "fingerprint": "[5,5,5,\"2026-12-04T12:02:19.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803158911,
+            "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:20.000Z",
+            "target": 4,
+            "baseRevision": 3,
+            "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803159940,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "target": 5,
+            "baseRevision": 4,
+            "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ],
+            "semanticDependencyIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 8,
+        "idbJournalHash": "c680b8112d205ccb4fd98f553af12e3c23113d582196dfe9a176eb916b525120",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 6,
+        "oldWeekTarget": 6,
+        "weekRevision": 4,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "cold-A-reconnect-conflict-blocked",
+      "at": "2026-11-27T18:12:53.116Z",
+      "action": {
+        "ui": {
+          "owner": "primary",
+          "project": "gymm-178fb",
+          "online": true,
+          "clock": "2026-12-04T12:02:19.000Z",
+          "revision": "v2.8.6",
+          "controller": true,
+          "target": 6,
+          "visiblePending": 2,
+          "conflicts": 1,
+          "preferenceRevision": 7,
+          "weekRecords": {
+            "2026-11-23": {
+              "target": 6,
+              "revision": 3,
+              "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+            },
+            "2026-11-30": {
+              "target": 6,
+              "revision": 4,
+              "operationId": "target-32e6131a-a852-47dd-b9c7-9eb216a7e80d",
+              "updatedAtIso": "2026-12-04T12:00:21.000Z",
+              "fingerprint": "[6,6,4,\"2026-12-04T12:00:21.000Z\"]"
+            }
+          },
+          "queue": [
+            {
+              "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "conflict",
+              "timestamp": 1795803158911,
+              "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:02:20.000Z",
+              "target": 4,
+              "baseRevision": 3,
+              "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+              ],
+              "semanticDependencyIds": []
+            },
+            {
+              "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "blocked",
+              "timestamp": 1795803159940,
+              "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:02:19.000Z",
+              "target": 5,
+              "baseRevision": 4,
+              "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+              ],
+              "semanticDependencyIds": [
+                "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+              ]
+            }
+          ],
+          "verified": true,
+          "staged": 0,
+          "unknown": 0,
+          "pendingAcks": 0,
+          "idbJournalRows": 9,
+          "idbJournalHash": "9c97a38e28134bd6b4dbf07be1c748f0867c04d28bdf05b69f37b3407c1501b7",
+          "monthCount": 0,
+          "weekly": "0/6",
+          "databases": [
+            "firebase-heartbeat-database",
+            "firebaseLocalStorageDb",
+            "gym-tracker-local-cache"
+          ]
+        },
+        "receipts": [
+          {
+            "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "status": "conflict",
+            "updatedAtIso": "2026-12-04T12:02:20.000Z",
+            "revision": null
+          },
+          {
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "status": "not-submitted-blocked"
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:02:19.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 6,
+        "visiblePending": 2,
+        "conflicts": 1,
+        "preferenceRevision": 7,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 6,
+            "revision": 4,
+            "operationId": "target-32e6131a-a852-47dd-b9c7-9eb216a7e80d",
+            "updatedAtIso": "2026-12-04T12:00:21.000Z",
+            "fingerprint": "[6,6,4,\"2026-12-04T12:00:21.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "conflict",
+            "timestamp": 1795803158911,
+            "operationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:20.000Z",
+            "target": 4,
+            "baseRevision": 3,
+            "baseOperationId": "target-7de42dee-12a5-4f79-9cae-17e2284a1b7b",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-2d1599c7-40dd-4b2c-aa69-e240ab60f9d4"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-cd921569-3e6d-49b0-8d5f-6120bc180de9",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "blocked",
+            "timestamp": 1795803159940,
+            "operationId": "target-1910d74b-039e-46dd-88dd-380ab528404e",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:19.000Z",
+            "target": 5,
+            "baseRevision": 4,
+            "baseOperationId": "target-1945c127-b5a5-401f-b386-db2ebc20bbe6",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ],
+            "semanticDependencyIds": [
+              "offline-32ca876d-b0be-453e-b844-3cd489ba2ed9"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 9,
+        "idbJournalHash": "9c97a38e28134bd6b4dbf07be1c748f0867c04d28bdf05b69f37b3407c1501b7",
+        "monthCount": 0,
+        "weekly": "0/6",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 6,
+        "oldWeekTarget": 6,
+        "weekRevision": 4,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "cold-A-explicit-resolution",
+      "at": "2026-11-27T18:12:55.830Z",
+      "action": {
+        "accepted": 3
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:24.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 8,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 3,
+            "revision": 5,
+            "operationId": "target-31f09f1c-6b17-48a3-b162-4a856b61f8f9",
+            "updatedAtIso": "2026-12-04T12:00:24.000Z",
+            "fingerprint": "[3,3,5,\"2026-12-04T12:00:24.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 12,
+        "idbJournalHash": "48cb3a18496f05a810152ea5a9be4cd63e00fea41abf2b67ee0ddd7cf4aeb807",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 5,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "cold-both-reload-converge",
+      "at": "2026-11-27T18:12:59.701Z",
+      "action": {
+        "converged": 3
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:24.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 8,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 3,
+            "revision": 5,
+            "operationId": "target-31f09f1c-6b17-48a3-b162-4a856b61f8f9",
+            "updatedAtIso": "2026-12-04T12:00:24.000Z",
+            "fingerprint": "[3,3,5,\"2026-12-04T12:00:24.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 12,
+        "idbJournalHash": "48cb3a18496f05a810152ea5a9be4cd63e00fea41abf2b67ee0ddd7cf4aeb807",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 5,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "A-then-B-both-read-base",
+      "at": "2026-11-27T18:13:09.890Z",
+      "action": {
+        "revision": 5,
+        "operationId": "target-31f09f1c-6b17-48a3-b162-4a856b61f8f9"
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:00:24.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 8,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 3,
+            "revision": 5,
+            "operationId": "target-31f09f1c-6b17-48a3-b162-4a856b61f8f9",
+            "updatedAtIso": "2026-12-04T12:00:24.000Z",
+            "fingerprint": "[3,3,5,\"2026-12-04T12:00:24.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 12,
+        "idbJournalHash": "48cb3a18496f05a810152ea5a9be4cd63e00fea41abf2b67ee0ddd7cf4aeb807",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 5,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "A-then-B-both-offline-multiple",
+      "at": "2026-11-27T18:13:15.786Z",
+      "action": {
+        "queued": [
+          {
+            "id": "offline-8575b920-8fc6-4b84-84f7-eb2c72310df6",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803193698,
+            "operationId": "target-320b33ff-982b-4906-bc3b-b39e63b4f6aa",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:48.000Z",
+            "target": 4,
+            "baseRevision": 5,
+            "baseOperationId": "target-31f09f1c-6b17-48a3-b162-4a856b61f8f9",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-50842b53-31b6-4c8b-9d0e-8a6a4b19ecfa"
+            ],
+            "semanticDependencyIds": [
+              "offline-50842b53-31b6-4c8b-9d0e-8a6a4b19ecfa"
+            ]
+          },
+          {
+            "id": "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803194717,
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "target": 5,
+            "baseRevision": 6,
+            "baseOperationId": "target-320b33ff-982b-4906-bc3b-b39e63b4f6aa",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-8575b920-8fc6-4b84-84f7-eb2c72310df6"
+            ],
+            "semanticDependencyIds": [
+              "offline-8575b920-8fc6-4b84-84f7-eb2c72310df6"
+            ]
+          }
+        ],
+        "clockRollback": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:02:47.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 2,
+        "conflicts": 0,
+        "preferenceRevision": 8,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 5,
+            "revision": 7,
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "fingerprint": "[5,5,7,\"2026-12-04T12:02:47.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-8575b920-8fc6-4b84-84f7-eb2c72310df6",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803193698,
+            "operationId": "target-320b33ff-982b-4906-bc3b-b39e63b4f6aa",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:48.000Z",
+            "target": 4,
+            "baseRevision": 5,
+            "baseOperationId": "target-31f09f1c-6b17-48a3-b162-4a856b61f8f9",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-50842b53-31b6-4c8b-9d0e-8a6a4b19ecfa"
+            ],
+            "semanticDependencyIds": [
+              "offline-50842b53-31b6-4c8b-9d0e-8a6a4b19ecfa"
+            ]
+          },
+          {
+            "id": "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803194717,
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "target": 5,
+            "baseRevision": 6,
+            "baseOperationId": "target-320b33ff-982b-4906-bc3b-b39e63b4f6aa",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-8575b920-8fc6-4b84-84f7-eb2c72310df6"
+            ],
+            "semanticDependencyIds": [
+              "offline-8575b920-8fc6-4b84-84f7-eb2c72310df6"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 14,
+        "idbJournalHash": "780a713bfc5946ff64e84d873484a5fbd5cd36835acc08e2adb39bf8158e66b9",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 5,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "A-then-B-first-reconnect-A",
+      "at": "2026-11-27T18:13:21.728Z",
+      "action": {
+        "finalTarget": 5,
+        "receipts": [
+          {
+            "operationId": "target-320b33ff-982b-4906-bc3b-b39e63b4f6aa",
+            "status": "applied",
+            "updatedAtIso": "2026-12-04T12:02:48.000Z",
+            "revision": 6
+          },
+          {
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "status": "applied",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "revision": 7
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:02:47.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 10,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 7,
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "fingerprint": "[5,5,7,\"2026-12-04T12:02:47.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 16,
+        "idbJournalHash": "05e7569ceca51ecca70cffd0c5bc56a96480a9532d6be208f666829005c01149",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 5,
+        "oldWeekTarget": 6,
+        "weekRevision": 7,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "A-then-B-second-reconnect-B",
+      "at": "2026-11-27T18:13:23.430Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:02:47.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 10,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 7,
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "fingerprint": "[5,5,7,\"2026-12-04T12:02:47.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 16,
+        "idbJournalHash": "05e7569ceca51ecca70cffd0c5bc56a96480a9532d6be208f666829005c01149",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 5,
+        "oldWeekTarget": 6,
+        "weekRevision": 7,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "A-then-B-second-explicit-resolution",
+      "at": "2026-11-27T18:13:30.364Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:02:47.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 10,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 7,
+            "operationId": "target-4cd8f5d7-76a8-425c-bdaa-82f9af973636",
+            "updatedAtIso": "2026-12-04T12:02:47.000Z",
+            "fingerprint": "[5,5,7,\"2026-12-04T12:02:47.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 16,
+        "idbJournalHash": "05e7569ceca51ecca70cffd0c5bc56a96480a9532d6be208f666829005c01149",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 5,
+        "oldWeekTarget": 6,
+        "weekRevision": 7,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "A-then-B-both-reload-converge",
+      "at": "2026-11-27T18:13:37.473Z",
+      "action": {
+        "converged": 2
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:02:47.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 11,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 2,
+            "revision": 8,
+            "operationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+            "updatedAtIso": "2026-12-04T12:00:30.000Z",
+            "fingerprint": "[2,2,8,\"2026-12-04T12:00:30.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 16,
+        "idbJournalHash": "05e7569ceca51ecca70cffd0c5bc56a96480a9532d6be208f666829005c01149",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 8,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "B-then-A-both-read-base",
+      "at": "2026-11-27T18:13:44.487Z",
+      "action": {
+        "revision": 8,
+        "operationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996"
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:02:47.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 11,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 8,
+            "operationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+            "updatedAtIso": "2026-12-04T12:00:30.000Z",
+            "fingerprint": "[2,2,8,\"2026-12-04T12:00:30.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 16,
+        "idbJournalHash": "05e7569ceca51ecca70cffd0c5bc56a96480a9532d6be208f666829005c01149",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 8,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "B-then-A-both-offline-multiple",
+      "at": "2026-11-27T18:13:53.582Z",
+      "action": {
+        "queued": [
+          {
+            "id": "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803231489,
+            "operationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:12.000Z",
+            "target": 4,
+            "baseRevision": 8,
+            "baseOperationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-c996f49d-61d3-49aa-8e53-2836c6c26876",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803232508,
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:11.000Z",
+            "target": 5,
+            "baseRevision": 9,
+            "baseOperationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ],
+            "semanticDependencyIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ]
+          }
+        ],
+        "clockRollback": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:03:11.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 2,
+        "conflicts": 0,
+        "preferenceRevision": 11,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 10,
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "updatedAtIso": "2026-12-04T12:03:11.000Z",
+            "fingerprint": "[5,5,10,\"2026-12-04T12:03:11.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803231489,
+            "operationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:12.000Z",
+            "target": 4,
+            "baseRevision": 8,
+            "baseOperationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-c996f49d-61d3-49aa-8e53-2836c6c26876",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803232508,
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:11.000Z",
+            "target": 5,
+            "baseRevision": 9,
+            "baseOperationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ],
+            "semanticDependencyIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 18,
+        "idbJournalHash": "cd6d1a9ed66923033986f493177502dc0891f0b61a0e2c63489262b8903de255",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 8,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "B-then-A-first-reconnect-B",
+      "at": "2026-11-27T18:13:55.273Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:03:11.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 5,
+        "visiblePending": 2,
+        "conflicts": 0,
+        "preferenceRevision": 11,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 5,
+            "revision": 10,
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "updatedAtIso": "2026-12-04T12:03:11.000Z",
+            "fingerprint": "[5,5,10,\"2026-12-04T12:03:11.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803231489,
+            "operationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:12.000Z",
+            "target": 4,
+            "baseRevision": 8,
+            "baseOperationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-c996f49d-61d3-49aa-8e53-2836c6c26876",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803232508,
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:11.000Z",
+            "target": 5,
+            "baseRevision": 9,
+            "baseOperationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ],
+            "semanticDependencyIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 18,
+        "idbJournalHash": "cd6d1a9ed66923033986f493177502dc0891f0b61a0e2c63489262b8903de255",
+        "monthCount": 0,
+        "weekly": "0/5",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 8,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "B-then-A-second-reconnect-A",
+      "at": "2026-11-27T18:14:08.134Z",
+      "action": {
+        "ui": {
+          "owner": "primary",
+          "project": "gymm-178fb",
+          "online": true,
+          "clock": "2026-12-04T12:03:11.000Z",
+          "revision": "v2.8.6",
+          "controller": true,
+          "target": 7,
+          "visiblePending": 2,
+          "conflicts": 1,
+          "preferenceRevision": 13,
+          "weekRecords": {
+            "2026-11-23": {
+              "target": 6,
+              "revision": 3,
+              "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+              "updatedAtIso": "2026-11-27T12:00:00.000Z",
+              "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+            },
+            "2026-11-30": {
+              "target": 7,
+              "revision": 10,
+              "operationId": "target-8e10dbdb-b8fd-43df-9039-c32b4889a403",
+              "updatedAtIso": "2026-12-04T12:03:13.000Z",
+              "fingerprint": "[7,7,10,\"2026-12-04T12:03:13.000Z\"]"
+            }
+          },
+          "queue": [
+            {
+              "id": "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "conflict",
+              "timestamp": 1795803231489,
+              "operationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:03:12.000Z",
+              "target": 4,
+              "baseRevision": 8,
+              "baseOperationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705"
+              ],
+              "semanticDependencyIds": []
+            },
+            {
+              "id": "offline-c996f49d-61d3-49aa-8e53-2836c6c26876",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "blocked",
+              "timestamp": 1795803232508,
+              "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:03:11.000Z",
+              "target": 5,
+              "baseRevision": 9,
+              "baseOperationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+              ],
+              "semanticDependencyIds": [
+                "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+              ]
+            }
+          ],
+          "verified": true,
+          "staged": 0,
+          "unknown": 0,
+          "pendingAcks": 0,
+          "idbJournalRows": 19,
+          "idbJournalHash": "f784b760d64be30bae327d73e6b1f37d559a87e3769b898723720cf5e648a912",
+          "monthCount": 0,
+          "weekly": "0/7",
+          "databases": [
+            "firebase-heartbeat-database",
+            "firebaseLocalStorageDb",
+            "gym-tracker-local-cache"
+          ]
+        },
+        "receipts": [
+          {
+            "operationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "status": "conflict",
+            "updatedAtIso": "2026-12-04T12:03:12.000Z",
+            "revision": null
+          },
+          {
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "status": "not-submitted-blocked"
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:03:11.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 7,
+        "visiblePending": 2,
+        "conflicts": 1,
+        "preferenceRevision": 13,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 7,
+            "revision": 10,
+            "operationId": "target-8e10dbdb-b8fd-43df-9039-c32b4889a403",
+            "updatedAtIso": "2026-12-04T12:03:13.000Z",
+            "fingerprint": "[7,7,10,\"2026-12-04T12:03:13.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "conflict",
+            "timestamp": 1795803231489,
+            "operationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:12.000Z",
+            "target": 4,
+            "baseRevision": 8,
+            "baseOperationId": "target-4afd91ec-367d-4d45-9554-42e90c57f996",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-f0a0f80b-28a6-4a31-80ab-01e28a4d3705"
+            ],
+            "semanticDependencyIds": []
+          },
+          {
+            "id": "offline-c996f49d-61d3-49aa-8e53-2836c6c26876",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "blocked",
+            "timestamp": 1795803232508,
+            "operationId": "target-c727d9a5-3486-46ae-9925-15d6be7edeb7",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:03:11.000Z",
+            "target": 5,
+            "baseRevision": 9,
+            "baseOperationId": "target-a4a35ec6-a6e5-440e-90ff-9446d6247f52",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ],
+            "semanticDependencyIds": [
+              "offline-fbe9b27a-1b6c-4825-84cd-3ae426cd3e4a"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 19,
+        "idbJournalHash": "f784b760d64be30bae327d73e6b1f37d559a87e3769b898723720cf5e648a912",
+        "monthCount": 0,
+        "weekly": "0/7",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 10,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "B-then-A-second-explicit-resolution",
+      "at": "2026-11-27T18:14:11.000Z",
+      "action": {
+        "accepted": 3
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:36.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 14,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 3,
+            "revision": 11,
+            "operationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+            "updatedAtIso": "2026-12-04T12:00:36.000Z",
+            "fingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 22,
+        "idbJournalHash": "673164f7b24964bd405d788266e0c860df8c9aa4b0684023f46c8651d8254ae3",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 11,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "B-then-A-both-reload-converge",
+      "at": "2026-11-27T18:14:15.913Z",
+      "action": {
+        "converged": 3
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:36.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 14,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 3,
+            "revision": 11,
+            "operationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+            "updatedAtIso": "2026-12-04T12:00:36.000Z",
+            "fingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 22,
+        "idbJournalHash": "673164f7b24964bd405d788266e0c860df8c9aa4b0684023f46c8651d8254ae3",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 11,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "online-race-identical-online-base",
+      "at": "2026-11-27T18:14:23.016Z",
+      "action": {
+        "weekKey": "2026-11-30",
+        "revision": 11,
+        "preferencesRevision": 14,
+        "operationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+        "target": 3,
+        "fingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]",
+        "serverRecordHash": "c105d55937844b776d3aa30e7016e581343525f7d012b0e9ee5b4fbc7f26d617"
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:36.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 14,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 3,
+            "revision": 11,
+            "operationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+            "updatedAtIso": "2026-12-04T12:00:36.000Z",
+            "fingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 22,
+        "idbJournalHash": "673164f7b24964bd405d788266e0c860df8c9aa4b0684023f46c8651d8254ae3",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 11,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "online-race-ready-public-controls",
+      "at": "2026-11-27T18:14:28.125Z",
+      "action": {
+        "online": true,
+        "latencyMs": 15000,
+        "controlsReady": true,
+        "base": {
+          "weekKey": "2026-11-30",
+          "revision": 11,
+          "preferencesRevision": 14,
+          "operationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+          "target": 3,
+          "fingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]",
+          "serverRecordHash": "c105d55937844b776d3aa30e7016e581343525f7d012b0e9ee5b4fbc7f26d617"
+        }
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:10:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 4,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 14,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 3,
+            "revision": 11,
+            "operationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+            "updatedAtIso": "2026-12-04T12:00:36.000Z",
+            "fingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 22,
+        "idbJournalHash": "673164f7b24964bd405d788266e0c860df8c9aa4b0684023f46c8651d8254ae3",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 3,
+        "oldWeekTarget": 6,
+        "weekRevision": 11,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "online-race-public-press",
+      "at": "2026-11-27T18:14:48.932Z",
+      "action": {
+        "role": "A",
+        "beforeOnline": true,
+        "afterOnline": true,
+        "intent": {
+          "id": "offline-75fe5862-130d-4fc6-af15-2340857dc11c",
+          "operationId": "target-8ec7e834-2752-468c-8103-63a7fa2817bd",
+          "baseRevision": 11,
+          "baseOperationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+          "baseFingerprint": "[3,3,11,\"2026-12-04T12:00:36.000Z\"]",
+          "target": 4,
+          "updatedAtIso": "2026-12-04T12:10:00.000Z"
+        },
+        "receipt": {
+          "targetSessions": 4,
+          "operationId": "target-8ec7e834-2752-468c-8103-63a7fa2817bd",
+          "status": "conflict",
+          "weekKey": "2026-11-30",
+          "updatedAtIso": "2026-12-04T12:10:00.000Z",
+          "currentRevision": 12
+        },
+        "receiptHash": "0e3ea7c2f09a916cdba9464d1a53f0c423460ec50e70f6bad8c2569cfaa7c17d",
+        "overlap": {
+          "aOrdinal": 1,
+          "bOrdinal": 1,
+          "sameARequestStillOpen": true,
+          "bObservedOpenBetween": true,
+          "online": true,
+          "clockSynchronizationAssumed": false
+        },
+        "commits": [
+          {
+            "ordinal": 1,
+            "startMono": 26147.952596,
+            "startWallMs": 1795803284913.003,
+            "online": true,
+            "httpStatus": 403,
+            "endMono": 26149.823866,
+            "endWallMs": 1795803286784.273,
+            "failedTransport": false
+          },
+          {
+            "ordinal": 2,
+            "startMono": 26150.142965,
+            "startWallMs": 1795803287103.3772,
+            "online": true,
+            "httpStatus": 200,
+            "endMono": 26150.222554,
+            "endWallMs": 1795803287182.9663,
+            "failedTransport": false
+          },
+          {
+            "ordinal": 3,
+            "startMono": 26150.469283,
+            "startWallMs": 1795803287429.71,
+            "online": true,
+            "httpStatus": 200,
+            "endMono": 26150.526615,
+            "endWallMs": 1795803287487.042,
+            "failedTransport": false
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:10:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 6,
+        "visiblePending": 1,
+        "conflicts": 1,
+        "preferenceRevision": 15,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 6,
+            "revision": 12,
+            "operationId": "target-abff4e34-e60d-4d22-abdf-ee416090583b",
+            "updatedAtIso": "2026-12-04T12:10:01.000Z",
+            "fingerprint": "[6,6,12,\"2026-12-04T12:10:01.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-75fe5862-130d-4fc6-af15-2340857dc11c",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "conflict",
+            "timestamp": 1795803269850,
+            "operationId": "target-8ec7e834-2752-468c-8103-63a7fa2817bd",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:10:00.000Z",
+            "target": 4,
+            "baseRevision": 11,
+            "baseOperationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-f68545bf-9c46-4f96-8a9e-aa89883585e4"
+            ],
+            "semanticDependencyIds": [
+              "offline-f68545bf-9c46-4f96-8a9e-aa89883585e4"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 24,
+        "idbJournalHash": "70508a3845bc16dc7dd57dba12aca639b91ad48b549f87331de11c0573aa9e6d",
+        "monthCount": 0,
+        "weekly": "0/6",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 6,
+        "oldWeekTarget": 6,
+        "weekRevision": 12,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "online-race-exact-one-winner-conflict",
+      "at": "2026-11-27T18:14:52.238Z",
+      "action": {
+        "winner": "B",
+        "loser": "A",
+        "revision": 12,
+        "overlap": {
+          "sameARequestStillOpen": true,
+          "online": true,
+          "bOrdinal": 1,
+          "clockSynchronizationAssumed": false,
+          "aOrdinal": 1,
+          "bObservedOpenBetween": true
+        },
+        "receipts": [
+          {
+            "operationId": "target-8ec7e834-2752-468c-8103-63a7fa2817bd",
+            "dataHash": "0e3ea7c2f09a916cdba9464d1a53f0c423460ec50e70f6bad8c2569cfaa7c17d"
+          },
+          {
+            "operationId": "target-abff4e34-e60d-4d22-abdf-ee416090583b",
+            "dataHash": "85139c94a8d5446127a04f7b55742e50d7fb8be3046987645955b3fba77a07dd"
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:10:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 6,
+        "visiblePending": 1,
+        "conflicts": 1,
+        "preferenceRevision": 15,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 6,
+            "revision": 12,
+            "operationId": "target-abff4e34-e60d-4d22-abdf-ee416090583b",
+            "updatedAtIso": "2026-12-04T12:10:01.000Z",
+            "fingerprint": "[6,6,12,\"2026-12-04T12:10:01.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-75fe5862-130d-4fc6-af15-2340857dc11c",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "conflict",
+            "timestamp": 1795803269850,
+            "operationId": "target-8ec7e834-2752-468c-8103-63a7fa2817bd",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:10:00.000Z",
+            "target": 4,
+            "baseRevision": 11,
+            "baseOperationId": "target-c57f094e-ed7c-49d0-973c-827c2a2b4386",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-f68545bf-9c46-4f96-8a9e-aa89883585e4"
+            ],
+            "semanticDependencyIds": [
+              "offline-f68545bf-9c46-4f96-8a9e-aa89883585e4"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 24,
+        "idbJournalHash": "70508a3845bc16dc7dd57dba12aca639b91ad48b549f87331de11c0573aa9e6d",
+        "monthCount": 0,
+        "weekly": "0/6",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 6,
+        "oldWeekTarget": 6,
+        "weekRevision": 12,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "online-race-loser-explicit-resolution",
+      "at": "2026-11-27T18:14:56.272Z",
+      "action": {
+        "role": "A",
+        "resolvedByThisRole": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:42.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 7,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 16,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 7,
+            "revision": 13,
+            "operationId": "target-9fc8ab92-f3f2-436d-af39-3c3ca6628661",
+            "updatedAtIso": "2026-12-04T12:00:42.000Z",
+            "fingerprint": "[7,7,13,\"2026-12-04T12:00:42.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 27,
+        "idbJournalHash": "5558bcbb399d1b86704203546db91aa8c72dc9c3742834957f8b2dd64d2174e7",
+        "monthCount": 0,
+        "weekly": "0/7",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 13,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "online-race-both-converge",
+      "at": "2026-11-27T18:15:00.315Z",
+      "action": {
+        "converged": 7
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:42.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 7,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 16,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 7,
+            "revision": 13,
+            "operationId": "target-9fc8ab92-f3f2-436d-af39-3c3ca6628661",
+            "updatedAtIso": "2026-12-04T12:00:42.000Z",
+            "fingerprint": "[7,7,13,\"2026-12-04T12:00:42.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 27,
+        "idbJournalHash": "5558bcbb399d1b86704203546db91aa8c72dc9c3742834957f8b2dd64d2174e7",
+        "monthCount": 0,
+        "weekly": "0/7",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 13,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "owner-A-queue-primary-offline",
+      "at": "2026-11-27T18:15:07.622Z",
+      "action": {
+        "queue": [
+          {
+            "id": "offline-a5d56e35-f75b-4ec1-8f6d-d271c262dedb",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803306506,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "target": 2,
+            "baseRevision": 13,
+            "baseOperationId": "target-9fc8ab92-f3f2-436d-af39-3c3ca6628661",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+            ],
+            "semanticDependencyIds": [
+              "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+            ]
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": false,
+        "clock": "2026-12-04T12:05:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 1,
+        "conflicts": 0,
+        "preferenceRevision": 16,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [
+          {
+            "id": "offline-a5d56e35-f75b-4ec1-8f6d-d271c262dedb",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803306506,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "target": 2,
+            "baseRevision": 13,
+            "baseOperationId": "target-9fc8ab92-f3f2-436d-af39-3c3ca6628661",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+            ],
+            "semanticDependencyIds": [
+              "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 28,
+        "idbJournalHash": "229e4dd74965649c1a907106f55f17a82609afe5af719ad1949eba12136b0e57",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 13,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "owner-A-other-login-no-primary-replay",
+      "at": "2026-11-27T18:15:14.036Z",
+      "action": {
+        "ui": {
+          "owner": "other",
+          "project": "gymm-178fb",
+          "online": true,
+          "clock": "2026-12-04T12:05:00.000Z",
+          "revision": "v2.8.6",
+          "controller": true,
+          "target": 3,
+          "visiblePending": 0,
+          "conflicts": 0,
+          "preferenceRevision": 0,
+          "weekRecords": {},
+          "queue": [
+            {
+              "id": "offline-a5d56e35-f75b-4ec1-8f6d-d271c262dedb",
+              "type": "preferences.saveWeeklyTarget",
+              "owner": "primary",
+              "status": "pending",
+              "timestamp": 1795803306506,
+              "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+              "weekKey": "2026-11-30",
+              "updatedAtIso": "2026-12-04T12:05:00.000Z",
+              "target": 2,
+              "baseRevision": 13,
+              "baseOperationId": "target-9fc8ab92-f3f2-436d-af39-3c3ca6628661",
+              "sessionId": null,
+              "predecessorIds": [
+                "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+              ],
+              "semanticDependencyIds": [
+                "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+              ]
+            }
+          ],
+          "verified": true,
+          "staged": 0,
+          "unknown": 0,
+          "pendingAcks": 0,
+          "idbJournalRows": 30,
+          "idbJournalHash": "7f93457ae878bd137b6895fbe27ef069100c811bf05e764a3432ec69961411bc",
+          "monthCount": 0,
+          "weekly": "0/3",
+          "databases": [
+            "firebase-heartbeat-database",
+            "firebaseLocalStorageDb",
+            "gym-tracker-local-cache"
+          ]
+        },
+        "primaryDidNotReplay": true,
+        "otherUnchanged": true
+      },
+      "ui": {
+        "owner": "other",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:05:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 3,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 0,
+        "weekRecords": {},
+        "queue": [
+          {
+            "id": "offline-a5d56e35-f75b-4ec1-8f6d-d271c262dedb",
+            "type": "preferences.saveWeeklyTarget",
+            "owner": "primary",
+            "status": "pending",
+            "timestamp": 1795803306506,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "weekKey": "2026-11-30",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "target": 2,
+            "baseRevision": 13,
+            "baseOperationId": "target-9fc8ab92-f3f2-436d-af39-3c3ca6628661",
+            "sessionId": null,
+            "predecessorIds": [
+              "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+            ],
+            "semanticDependencyIds": [
+              "offline-e3c044a1-d384-4b8c-91a5-0d2c22552aba"
+            ]
+          }
+        ],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 30,
+        "idbJournalHash": "7f93457ae878bd137b6895fbe27ef069100c811bf05e764a3432ec69961411bc",
+        "monthCount": 0,
+        "weekly": "0/3",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 7,
+        "oldWeekTarget": 6,
+        "weekRevision": 13,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "owner-A-primary-login-replays-only-primary",
+      "at": "2026-11-27T18:15:20.251Z",
+      "action": {
+        "receipts": [
+          {
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "status": "applied",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "revision": 14
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:05:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 17,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 31,
+        "idbJournalHash": "7efb18e79a22e9092ae1030d97b09c32dd59452dfd18fa7dc1e94aea5db66300",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "both-logout-login-reload",
+      "at": "2026-11-27T18:15:27.516Z",
+      "action": {
+        "ownerRestored": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:05:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 17,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 31,
+        "idbJournalHash": "7efb18e79a22e9092ae1030d97b09c32dd59452dfd18fa7dc1e94aea5db66300",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "session-baseline-and-verify-create-only-routine",
+      "at": "2026-11-27T18:15:39.498Z",
+      "action": {
+        "fixtureId": "codex-live-qa-1a069681-4a4d-4e12-9b13-13f13590b442",
+        "createOnly": true,
+        "preAuthFixtureVerified": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:05:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 17,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 31,
+        "idbJournalHash": "7efb18e79a22e9092ae1030d97b09c32dd59452dfd18fa7dc1e94aea5db66300",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [],
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    },
+    {
+      "name": "sessions-four-captures-and-quicklogs",
+      "at": "2026-11-27T18:16:28.033Z",
+      "action": {
+        "createdIds": [
+          "session-ec9beb47-1278-4762-b1c2-ef272a80035f",
+          "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+          "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+          "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+          "session-0e33f325-b39a-4779-abd1-0fef7f19032d",
+          "session-5e0fd8b6-5e16-444e-a4e5-a2c8806c44b5",
+          "session-5dfcf241-e6e7-49e3-8501-8a61726d3cf1",
+          "session-d1087c43-f783-439f-b8e0-c2bd3ba0187f",
+          "session-5d16bb13-3fcf-4c46-bc4e-e142725af6a5",
+          "session-37aa2045-7b24-40a8-ad44-60f6a9c98a11",
+          "session-a77b3846-fdba-482b-bc21-004395c2f47e"
+        ],
+        "sentinelId": "session-a77b3846-fdba-482b-bc21-004395c2f47e",
+        "count": 11,
+        "baselineCount": 0,
+        "captures": [
+          {
+            "id": "session-ec9beb47-1278-4762-b1c2-ef272a80035f",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:01.000Z",
+            "dataHash": "4352fd218890a1fa1b81594e2abfcd6bdd3a4642f26a60e20cee59f64bf25231",
+            "index": 0,
+            "weight": 50.5,
+            "reps": 8
+          },
+          {
+            "id": "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:02.000Z",
+            "dataHash": "997579b36a968d81c8af12271de78b93ea1189720e3d35836dd3d5301fba3b12",
+            "index": 1,
+            "weight": 51.5,
+            "reps": 8
+          },
+          {
+            "id": "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:03.000Z",
+            "dataHash": "002563ec185399c12c937f4bbf6f790c80487f2eb87c89466428c5a7e3fe7807",
+            "index": 2,
+            "weight": 52.5,
+            "reps": 8
+          },
+          {
+            "id": "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:04.000Z",
+            "dataHash": "618ad87d38eff1ccbffb862e589870c67e218cfaa8b3f533a8f7235894d6a179",
+            "index": 3,
+            "weight": 53.5,
+            "reps": 8
+          }
+        ],
+        "records": [
+          {
+            "id": "session-ec9beb47-1278-4762-b1c2-ef272a80035f",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:01.000Z",
+            "dataHash": "4352fd218890a1fa1b81594e2abfcd6bdd3a4642f26a60e20cee59f64bf25231",
+            "index": 0,
+            "weight": 50.5,
+            "reps": 8
+          },
+          {
+            "id": "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:02.000Z",
+            "dataHash": "997579b36a968d81c8af12271de78b93ea1189720e3d35836dd3d5301fba3b12",
+            "index": 1,
+            "weight": 51.5,
+            "reps": 8
+          },
+          {
+            "id": "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:03.000Z",
+            "dataHash": "002563ec185399c12c937f4bbf6f790c80487f2eb87c89466428c5a7e3fe7807",
+            "index": 2,
+            "weight": 52.5,
+            "reps": 8
+          },
+          {
+            "id": "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "calendarIso": "2026-12-04T12:00:04.000Z",
+            "dataHash": "618ad87d38eff1ccbffb862e589870c67e218cfaa8b3f533a8f7235894d6a179",
+            "index": 3,
+            "weight": 53.5,
+            "reps": 8
+          },
+          {
+            "id": "session-0e33f325-b39a-4779-abd1-0fef7f19032d",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 4",
+            "calendarIso": "2026-12-04T12:04:00Z",
+            "dataHash": "cde839147445812782a945a7fdab1010f12d8a5928ebb0e042bce3c5882d1a5b",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:4"
+          },
+          {
+            "id": "session-5e0fd8b6-5e16-444e-a4e5-a2c8806c44b5",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 5",
+            "calendarIso": "2026-12-04T12:05:00Z",
+            "dataHash": "d7eb7ff374f4dd9b22f023a4ed2ba795195f79241f5c8a2cf2681ba8f3663e8d",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:5"
+          },
+          {
+            "id": "session-5dfcf241-e6e7-49e3-8501-8a61726d3cf1",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 6",
+            "calendarIso": "2026-12-04T12:06:00Z",
+            "dataHash": "cc753d4608fea32410715059048f57274411c7d1e100acb6546ca927aaafac96",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:6"
+          },
+          {
+            "id": "session-d1087c43-f783-439f-b8e0-c2bd3ba0187f",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 7",
+            "calendarIso": "2026-12-04T12:07:00Z",
+            "dataHash": "c44d5851661a561f63a51feaf538bbc0386016aed28f4e29cd0c27fd7cbe4156",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:7"
+          },
+          {
+            "id": "session-5d16bb13-3fcf-4c46-bc4e-e142725af6a5",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 8",
+            "calendarIso": "2026-12-04T12:08:00Z",
+            "dataHash": "22914a6c3e7d3c8df388da5ba3f056c54a998d9a2945c3d5f066b75986ded5bd",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:8"
+          },
+          {
+            "id": "session-37aa2045-7b24-40a8-ad44-60f6a9c98a11",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 9",
+            "calendarIso": "2026-12-04T12:09:00Z",
+            "dataHash": "fc1d6de0b324a698bb14dfd5fc4bc23b64d0406370e2fb3b7008a3b7a3e46277",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:9"
+          },
+          {
+            "id": "session-a77b3846-fdba-482b-bc21-004395c2f47e",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 10",
+            "calendarIso": "2026-10-31T11:00:00Z",
+            "dataHash": "86af9168d28d2ba6477785c60bbcd5c80b161e12ff67bf7fc9e0b529c0a85e24",
+            "noteMarker": "codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:10"
+          }
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 53,
+        "idbJournalHash": "efd1b5b5889a7cf95b9ec6d64d722e7d4df97a9200cc4f51420ff4e8339ec7df",
+        "monthCount": 10,
+        "weekly": "10/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-03-09",
+          "2026-04-06",
+          "2026-11-09",
+          "2026-05-25",
+          "2026-11-02",
+          "2026-10-05",
+          "2025-12-29",
+          "2026-08-17",
+          "2025-12-15",
+          "2026-02-09",
+          "2026-10-19",
+          "2025-12-08",
+          "2026-06-15",
+          "2026-07-13",
+          "2026-01-12",
+          "2026-06-08",
+          "2026-09-28",
+          "2026-09-14",
+          "2026-03-30",
+          "2026-03-16",
+          "2026-02-16",
+          "2026-01-05",
+          "2026-08-10",
+          "2026-07-06",
+          "2026-05-04",
+          "2026-05-18",
+          "2026-08-24",
+          "2026-04-27",
+          "2026-01-26",
+          "2026-06-22",
+          "2026-11-23",
+          "2026-04-13",
+          "2026-10-26",
+          "2026-02-23",
+          "2026-06-29",
+          "2026-01-19",
+          "2026-10-12",
+          "2026-06-01",
+          "2026-11-16",
+          "2026-07-20",
+          "2026-07-27",
+          "2026-04-20",
+          "2026-09-07",
+          "2026-03-23",
+          "2025-12-22",
+          "2026-02-02",
+          "2026-05-11",
+          "2026-08-03",
+          "2026-09-21",
+          "2026-08-31",
+          "2026-03-02"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "both-all-surfaces-before-delete",
+      "at": "2026-11-27T18:16:53.358Z",
+      "action": {
+        "serverCount": 11,
+        "ownIds": [
+          "session-0e33f325-b39a-4779-abd1-0fef7f19032d",
+          "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+          "session-37aa2045-7b24-40a8-ad44-60f6a9c98a11",
+          "session-5d16bb13-3fcf-4c46-bc4e-e142725af6a5",
+          "session-5dfcf241-e6e7-49e3-8501-8a61726d3cf1",
+          "session-5e0fd8b6-5e16-444e-a4e5-a2c8806c44b5",
+          "session-a77b3846-fdba-482b-bc21-004395c2f47e",
+          "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+          "session-d1087c43-f783-439f-b8e0-c2bd3ba0187f",
+          "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+          "session-ec9beb47-1278-4762-b1c2-ef272a80035f"
+        ],
+        "historyCount": 11,
+        "historyIdsHash": "70a07aeb5990c11cdf31247a0a8e8c352ca39f2fe4cbbf9b35d62529744127f6",
+        "monthCount": 10,
+        "weekCount": 10,
+        "dayCount": 10,
+        "progressSessions": 4,
+        "weight": 53.5,
+        "reps": 8,
+        "details": [
+          {
+            "id": "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+            "dateIso": "2026-12-04T12:00:03.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 52.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 52.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-a77b3846-fdba-482b-bc21-004395c2f47e",
+            "dateIso": "2026-10-31T11:00:00.000Z",
+            "label": "QA 1a069681-4a4d-4e12-9b13-13f13590b442 10",
+            "expectedDateText": "31 de octubre de 2026 a las 12:00",
+            "dateText": "31 de octubre de 2026 a las 12:00",
+            "sets": [],
+            "body": "Nota 1otherNotas: codexLiveQaRun:1a069681-4a4d-4e12-9b13-13f13590b442:10"
+          },
+          {
+            "id": "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+            "dateIso": "2026-12-04T12:00:02.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 51.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 51.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+            "dateIso": "2026-12-04T12:00:04.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 53.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 53.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-ec9beb47-1278-4762-b1c2-ef272a80035f",
+            "dateIso": "2026-12-04T12:00:01.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 50.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 50.5 kg x 8 repeticiones"
+          }
+        ],
+        "suggestions": {
+          "weight": 53.5,
+          "reps": 8,
+          "lastSet": "S1: 53.5kg x 8",
+          "expectedSessionId": "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+          "originalDate": "2026-12-04T12:00:04.000Z",
+          "filledFromPublicButton": true
+        },
+        "chartAndTableAgree": true,
+        "queueEmpty": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 53,
+        "idbJournalHash": "efd1b5b5889a7cf95b9ec6d64d722e7d4df97a9200cc4f51420ff4e8339ec7df",
+        "monthCount": 10,
+        "weekly": "10/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-01-05",
+          "2026-08-10",
+          "2026-10-05",
+          "2026-02-02",
+          "2026-06-08",
+          "2026-02-23",
+          "2026-07-27",
+          "2026-01-26",
+          "2026-07-13",
+          "2026-01-19",
+          "2026-09-07",
+          "2026-08-17",
+          "2026-03-16",
+          "2026-11-02",
+          "2026-09-21",
+          "2026-08-03",
+          "2026-06-29",
+          "2026-03-02",
+          "2025-12-29",
+          "2026-10-26",
+          "2026-07-06",
+          "2026-08-24",
+          "2026-10-12",
+          "2026-09-28",
+          "2026-05-11",
+          "2025-12-08",
+          "2026-10-19",
+          "2026-03-30",
+          "2026-11-09",
+          "2026-02-09",
+          "2026-08-31",
+          "2026-11-16",
+          "2026-07-20",
+          "2026-04-27",
+          "2026-03-09",
+          "2025-12-15",
+          "2026-04-06",
+          "2026-04-13",
+          "2026-09-14",
+          "2026-02-16",
+          "2026-04-20",
+          "2026-01-12",
+          "2025-12-22",
+          "2026-06-22",
+          "2026-06-15",
+          "2026-05-18",
+          "2026-03-23",
+          "2026-05-25",
+          "2026-11-23",
+          "2026-05-04",
+          "2026-06-01"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "B-deletes-single-owned-last-page-record",
+      "at": "2026-11-27T18:17:15.653Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 53,
+        "idbJournalHash": "efd1b5b5889a7cf95b9ec6d64d722e7d4df97a9200cc4f51420ff4e8339ec7df",
+        "monthCount": 10,
+        "weekly": "10/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-05-11",
+          "2026-07-13",
+          "2026-02-23",
+          "2026-10-05",
+          "2026-03-30",
+          "2026-02-02",
+          "2026-01-26",
+          "2026-03-02",
+          "2025-12-08",
+          "2026-05-04",
+          "2026-06-22",
+          "2026-06-15",
+          "2026-08-31",
+          "2026-06-01",
+          "2026-11-09",
+          "2026-02-09",
+          "2026-07-27",
+          "2026-04-20",
+          "2026-11-02",
+          "2026-07-20",
+          "2026-03-16",
+          "2025-12-22",
+          "2026-03-09",
+          "2026-08-10",
+          "2026-06-29",
+          "2026-09-21",
+          "2025-12-15",
+          "2026-08-24",
+          "2026-01-05",
+          "2026-09-07",
+          "2026-02-16",
+          "2026-01-19",
+          "2026-03-23",
+          "2026-09-14",
+          "2026-05-18",
+          "2026-04-06",
+          "2026-11-16",
+          "2026-05-25",
+          "2026-07-06",
+          "2026-10-19",
+          "2026-10-12",
+          "2026-11-23",
+          "2025-12-29",
+          "2026-10-26",
+          "2026-06-08",
+          "2026-09-28",
+          "2026-01-12",
+          "2026-04-27",
+          "2026-08-03",
+          "2026-08-17",
+          "2026-04-13"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "both-all-surfaces-after-delete",
+      "at": "2026-11-27T18:17:47.671Z",
+      "action": {
+        "serverCount": 10,
+        "ownIds": [
+          "session-0e33f325-b39a-4779-abd1-0fef7f19032d",
+          "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+          "session-37aa2045-7b24-40a8-ad44-60f6a9c98a11",
+          "session-5d16bb13-3fcf-4c46-bc4e-e142725af6a5",
+          "session-5dfcf241-e6e7-49e3-8501-8a61726d3cf1",
+          "session-5e0fd8b6-5e16-444e-a4e5-a2c8806c44b5",
+          "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+          "session-d1087c43-f783-439f-b8e0-c2bd3ba0187f",
+          "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+          "session-ec9beb47-1278-4762-b1c2-ef272a80035f"
+        ],
+        "historyCount": 10,
+        "historyIdsHash": "28a281e0781ca236ab6321df3cc9019f18a5d072a31b5b23c15b3780382d59a4",
+        "monthCount": 10,
+        "weekCount": 10,
+        "dayCount": 10,
+        "progressSessions": 4,
+        "weight": 53.5,
+        "reps": 8,
+        "details": [
+          {
+            "id": "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+            "dateIso": "2026-12-04T12:00:03.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 52.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 52.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+            "dateIso": "2026-12-04T12:00:02.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 51.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 51.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+            "dateIso": "2026-12-04T12:00:04.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 53.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 53.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-ec9beb47-1278-4762-b1c2-ef272a80035f",
+            "dateIso": "2026-12-04T12:00:01.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 50.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 50.5 kg x 8 repeticiones"
+          }
+        ],
+        "suggestions": {
+          "weight": 53.5,
+          "reps": 8,
+          "lastSet": "S1: 53.5kg x 8",
+          "expectedSessionId": "session-d1cf3b24-ec79-4474-8289-309124b34d5b",
+          "originalDate": "2026-12-04T12:00:04.000Z",
+          "filledFromPublicButton": true
+        },
+        "chartAndTableAgree": true,
+        "queueEmpty": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 53,
+        "idbJournalHash": "efd1b5b5889a7cf95b9ec6d64d722e7d4df97a9200cc4f51420ff4e8339ec7df",
+        "monthCount": 10,
+        "weekly": "10/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-02-16",
+          "2026-09-14",
+          "2026-06-29",
+          "2026-07-06",
+          "2026-03-09",
+          "2026-09-07",
+          "2026-07-27",
+          "2026-05-11",
+          "2026-08-31",
+          "2026-07-20",
+          "2026-01-19",
+          "2026-10-05",
+          "2026-05-25",
+          "2026-04-27",
+          "2025-12-15",
+          "2026-04-20",
+          "2026-06-15",
+          "2026-02-02",
+          "2026-04-06",
+          "2026-01-05",
+          "2026-06-08",
+          "2026-08-03",
+          "2026-02-09",
+          "2026-10-19",
+          "2026-06-22",
+          "2026-11-23",
+          "2026-08-24",
+          "2026-01-12",
+          "2026-05-18",
+          "2026-07-13",
+          "2026-11-02",
+          "2026-10-12",
+          "2026-06-01",
+          "2026-11-16",
+          "2026-11-09",
+          "2025-12-29",
+          "2026-03-02",
+          "2026-08-17",
+          "2026-08-10",
+          "2026-09-28",
+          "2026-03-16",
+          "2026-10-26",
+          "2026-05-04",
+          "2026-02-23",
+          "2026-03-30",
+          "2026-04-13",
+          "2026-01-26",
+          "2025-12-22",
+          "2026-09-21",
+          "2025-12-08",
+          "2026-03-23"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "B-deletes-latest-owned-strength",
+      "at": "2026-11-27T18:18:03.402Z",
+      "action": {
+        "standby": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 53,
+        "idbJournalHash": "efd1b5b5889a7cf95b9ec6d64d722e7d4df97a9200cc4f51420ff4e8339ec7df",
+        "monthCount": 10,
+        "weekly": "10/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-04-27",
+          "2026-01-12",
+          "2026-04-13",
+          "2026-08-17",
+          "2026-08-03",
+          "2026-06-08",
+          "2026-10-26",
+          "2026-09-28",
+          "2026-05-25",
+          "2026-04-06",
+          "2026-11-16",
+          "2025-12-29",
+          "2026-11-23",
+          "2026-10-12",
+          "2026-10-19",
+          "2026-07-06",
+          "2026-01-05",
+          "2026-09-07",
+          "2026-08-24",
+          "2025-12-15",
+          "2026-05-18",
+          "2026-09-14",
+          "2026-03-23",
+          "2026-02-16",
+          "2026-01-19",
+          "2026-06-29",
+          "2026-08-10",
+          "2026-03-09",
+          "2025-12-22",
+          "2026-09-21",
+          "2026-08-31",
+          "2026-06-15",
+          "2026-06-22",
+          "2026-03-16",
+          "2026-07-20",
+          "2026-11-02",
+          "2026-07-27",
+          "2026-04-20",
+          "2026-11-09",
+          "2026-02-09",
+          "2026-06-01",
+          "2026-03-02",
+          "2026-05-04",
+          "2025-12-08",
+          "2026-07-13",
+          "2026-02-23",
+          "2026-05-11",
+          "2026-01-26",
+          "2026-03-30",
+          "2026-02-02",
+          "2026-10-05"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "both-surfaces-fallback-previous-strength",
+      "at": "2026-11-27T18:18:31.531Z",
+      "action": {
+        "serverCount": 9,
+        "ownIds": [
+          "session-0e33f325-b39a-4779-abd1-0fef7f19032d",
+          "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+          "session-37aa2045-7b24-40a8-ad44-60f6a9c98a11",
+          "session-5d16bb13-3fcf-4c46-bc4e-e142725af6a5",
+          "session-5dfcf241-e6e7-49e3-8501-8a61726d3cf1",
+          "session-5e0fd8b6-5e16-444e-a4e5-a2c8806c44b5",
+          "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+          "session-d1087c43-f783-439f-b8e0-c2bd3ba0187f",
+          "session-ec9beb47-1278-4762-b1c2-ef272a80035f"
+        ],
+        "historyCount": 9,
+        "historyIdsHash": "32cf7c9987ab1d6b8abcaab89076da904abc8fce9954dba9f6821f519c71aef1",
+        "monthCount": 9,
+        "weekCount": 9,
+        "dayCount": 9,
+        "progressSessions": 3,
+        "weight": 52.5,
+        "reps": 8,
+        "details": [
+          {
+            "id": "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+            "dateIso": "2026-12-04T12:00:03.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 52.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 52.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+            "dateIso": "2026-12-04T12:00:02.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 51.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 51.5 kg x 8 repeticiones"
+          },
+          {
+            "id": "session-ec9beb47-1278-4762-b1c2-ef272a80035f",
+            "dateIso": "2026-12-04T12:00:01.000Z",
+            "label": "Codex QA 1a069681-4a4d-4e12-9b13-13f13590b442",
+            "expectedDateText": "4 de diciembre de 2026 a las 13:00",
+            "dateText": "4 de diciembre de 2026 a las 13:00",
+            "sets": [
+              "Serie 1: 50.5 kg x 8 repeticiones"
+            ],
+            "body": "QA Press 1a069681-4a4d-4e12-9b13-13f13590b442FuerzaModo: Dos manosCarga: Carga externaSerie 1: 50.5 kg x 8 repeticiones"
+          }
+        ],
+        "suggestions": {
+          "weight": 52.5,
+          "reps": 8,
+          "lastSet": "S1: 52.5kg x 8",
+          "expectedSessionId": "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+          "originalDate": "2026-12-04T12:00:03.000Z",
+          "filledFromPublicButton": true
+        },
+        "chartAndTableAgree": true,
+        "queueEmpty": true
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          },
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 53,
+        "idbJournalHash": "efd1b5b5889a7cf95b9ec6d64d722e7d4df97a9200cc4f51420ff4e8339ec7df",
+        "monthCount": 9,
+        "weekly": "9/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-08-10",
+          "2026-01-05",
+          "2026-02-23",
+          "2026-06-08",
+          "2026-10-05",
+          "2026-02-02",
+          "2026-01-26",
+          "2026-07-27",
+          "2026-11-02",
+          "2026-08-17",
+          "2026-09-07",
+          "2026-07-13",
+          "2026-01-19",
+          "2026-03-16",
+          "2026-06-29",
+          "2026-03-02",
+          "2026-09-21",
+          "2026-08-03",
+          "2026-10-26",
+          "2026-07-06",
+          "2025-12-29",
+          "2026-08-24",
+          "2026-09-28",
+          "2026-05-11",
+          "2026-10-12",
+          "2025-12-08",
+          "2026-03-30",
+          "2026-10-19",
+          "2026-08-31",
+          "2026-07-20",
+          "2026-11-16",
+          "2026-04-27",
+          "2026-11-09",
+          "2026-02-09",
+          "2026-04-13",
+          "2026-04-06",
+          "2025-12-15",
+          "2026-03-09",
+          "2026-02-16",
+          "2026-09-14",
+          "2026-06-22",
+          "2026-01-12",
+          "2026-04-20",
+          "2025-12-22",
+          "2026-06-15",
+          "2026-05-25",
+          "2026-05-18",
+          "2026-03-23",
+          "2026-06-01",
+          "2026-11-23",
+          "2026-05-04"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "A-ui-cleans-only-run-sessions",
+      "at": "2026-11-27T18:19:30.006Z",
+      "action": {
+        "deletedOwnSessions": [
+          "session-0e33f325-b39a-4779-abd1-0fef7f19032d",
+          "session-125d88b6-2135-40c4-9dbf-93af042711ab",
+          "session-37aa2045-7b24-40a8-ad44-60f6a9c98a11",
+          "session-5d16bb13-3fcf-4c46-bc4e-e142725af6a5",
+          "session-5dfcf241-e6e7-49e3-8501-8a61726d3cf1",
+          "session-5e0fd8b6-5e16-444e-a4e5-a2c8806c44b5",
+          "session-c8eba3ca-4d66-440b-98a2-9e1c25c54d89",
+          "session-d1087c43-f783-439f-b8e0-c2bd3ba0187f",
+          "session-ec9beb47-1278-4762-b1c2-ef272a80035f"
+        ]
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 71,
+        "idbJournalHash": "ec551d3aa8bd072af4365a66e7e48121017f8502e2429a773b7506ddfd21c525",
+        "monthCount": 1,
+        "weekly": "1/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2026-01-26",
+          "2026-04-13",
+          "2026-03-30",
+          "2026-02-23",
+          "2025-12-22",
+          "2026-09-21",
+          "2025-12-08",
+          "2026-03-23",
+          "2026-09-28",
+          "2026-03-16",
+          "2026-10-26",
+          "2026-05-04",
+          "2026-03-02",
+          "2025-12-29",
+          "2026-08-17",
+          "2026-08-10",
+          "2026-05-18",
+          "2026-11-02",
+          "2026-07-13",
+          "2026-06-01",
+          "2026-10-12",
+          "2026-11-16",
+          "2026-11-09",
+          "2026-02-02",
+          "2026-06-15",
+          "2026-01-05",
+          "2026-04-06",
+          "2026-06-08",
+          "2026-08-03",
+          "2026-10-19",
+          "2026-06-22",
+          "2026-02-09",
+          "2026-11-23",
+          "2026-08-24",
+          "2026-01-12",
+          "2026-08-31",
+          "2026-10-05",
+          "2026-05-25",
+          "2026-01-19",
+          "2026-07-20",
+          "2026-04-27",
+          "2026-04-20",
+          "2025-12-15",
+          "2026-09-07",
+          "2026-07-27",
+          "2026-05-11",
+          "2026-02-16",
+          "2026-06-29",
+          "2026-09-14",
+          "2026-07-06",
+          "2026-03-09"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    },
+    {
+      "name": "both-baseline-records-preserved",
+      "at": "2026-11-27T18:19:33.440Z",
+      "action": {
+        "baselineCount": 0,
+        "baselinePreserved": true,
+        "ownSessionsRemaining": 0
+      },
+      "ui": {
+        "owner": "primary",
+        "project": "gymm-178fb",
+        "online": true,
+        "clock": "2026-12-04T12:00:00.000Z",
+        "revision": "v2.8.6",
+        "controller": true,
+        "target": 2,
+        "visiblePending": 0,
+        "conflicts": 0,
+        "preferenceRevision": 18,
+        "weekRecords": {
+          "2026-11-23": {
+            "target": 6,
+            "revision": 3,
+            "operationId": "target-1c146be9-e491-45c0-a216-168d6c37cd69",
+            "updatedAtIso": "2026-11-27T12:00:00.000Z",
+            "fingerprint": "[6,6,3,\"2026-11-27T12:00:00.000Z\"]"
+          },
+          "2026-11-30": {
+            "target": 2,
+            "revision": 14,
+            "operationId": "target-1dde344a-271b-4598-ba11-0396d6a37586",
+            "updatedAtIso": "2026-12-04T12:05:00.000Z",
+            "fingerprint": "[2,2,14,\"2026-12-04T12:05:00.000Z\"]"
+          }
+        },
+        "queue": [],
+        "verified": true,
+        "staged": 0,
+        "unknown": 0,
+        "pendingAcks": 0,
+        "idbJournalRows": 71,
+        "idbJournalHash": "ec551d3aa8bd072af4365a66e7e48121017f8502e2429a773b7506ddfd21c525",
+        "monthCount": 0,
+        "weekly": "0/2",
+        "databases": [
+          "firebase-heartbeat-database",
+          "firebaseLocalStorageDb",
+          "gym-tracker-local-cache"
+        ]
+      },
+      "server": {
+        "currentTarget": 2,
+        "oldWeekTarget": 6,
+        "weekRevision": 14,
+        "frozenWeeks": [
+          "2025-12-29",
+          "2026-03-16",
+          "2026-06-08",
+          "2026-02-16",
+          "2025-12-15",
+          "2026-01-26",
+          "2026-08-03",
+          "2026-04-20",
+          "2026-10-12",
+          "2026-08-10",
+          "2026-09-21",
+          "2026-06-01",
+          "2026-05-25",
+          "2026-09-14",
+          "2026-06-22",
+          "2026-11-23",
+          "2026-11-09",
+          "2026-03-02",
+          "2026-03-30",
+          "2026-09-28",
+          "2026-11-02",
+          "2026-11-16",
+          "2026-08-17",
+          "2025-12-08",
+          "2026-08-24",
+          "2026-07-06",
+          "2026-01-19",
+          "2026-10-05",
+          "2026-09-07",
+          "2026-04-27",
+          "2026-04-13",
+          "2026-07-27",
+          "2026-04-06",
+          "2026-06-15",
+          "2026-02-02",
+          "2026-05-04",
+          "2026-10-19",
+          "2026-01-05",
+          "2026-02-23",
+          "2025-12-22",
+          "2026-05-11",
+          "2026-02-09",
+          "2026-08-31",
+          "2026-07-20",
+          "2026-07-13",
+          "2026-10-26",
+          "2026-06-29",
+          "2026-03-09",
+          "2026-03-23",
+          "2026-01-12",
+          "2026-05-18"
+        ],
+        "frozenHash": "018bf442c7191e9c48fa36bc7fa2414f4ba36e4c4099ead00f53c9ee56ee4e15"
+      }
+    }
+  ],
+  "notes": [
+    "No SDK/HTML/request replacement; all product mutations use public UI.",
+    "No forced Commit-response loss is injected by this runner.",
+    "Online race records causally overlapping HTTP in-flight windows with real CDP latency; it does not establish simultaneous server execution or inspect request bodies.",
+    "QA session/preference receipts and the control document are retained; fences and previous records are never reset."
+  ],
+  "baseline": {
+    "count": 0,
+    "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  "startupFixture": {
+    "fixtureId": "codex-live-qa-1a069681-4a4d-4e12-9b13-13f13590b442",
+    "createOnly": true
+  },
+  "residualOwnSessionIds": [],
+  "status": "passed",
+  "primaryError": null,
+  "cleanupErrors": [],
+  "completedAt": "2026-11-27T18:19:42.226Z",
+  "platform": "win32",
+  "phaseCount": 47,
+  "requiredPhases": 47,
+  "browser": "Chrome/158.0.8127.36",
+  "ownedProfile": {
+    "basename": "gym-smoke-real-sync-zmawlQ",
+    "removed": true
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "validatedAt": "2026-11-27T18:27:02.237Z",
+  "sourceSha": "949c791ccc789058abe28254710c86f45326c1d0",
+  "runId": "1a069681-4a4d-4e12-9b13-13f13590b442",
+  "status": "passed-scoped-real-47",
+  "roles": [
+    {
+      "role": "A",
+      "platform": "win32",
+      "browser": "Chrome/158.0.8127.36",
+      "phaseCount": 47,
+      "requiredPhases": 47,
+      "baseline": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "finalDomain": {
+        "baselineCount": 0,
+        "baselinePreserved": true,
+        "ownSessionsRemaining": 0
+      },
+      "cleanupErrors": [],
+      "ownedProfile": {
+        "basename": "gym-smoke-real-sync-zmawlQ",
+        "removed": true
+      }
+    },
+    {
+      "role": "B",
+      "platform": "linux",
+      "browser": "Chrome/158.0.8127.36",
+      "phaseCount": 47,
+      "requiredPhases": 47,
+      "baseline": {
+        "count": 0,
+        "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "frozenHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "finalDomain": {
+        "baselineCount": 0,
+        "baselinePreserved": true,
+        "ownSessionsRemaining": 0
+      },
+      "cleanupErrors": [],
+      "ownedProfile": {
+        "basename": "gym-smoke-real-sync-Ttl1sd",
+        "removed": true
+      }
+    }
+  ],
+  "onlineRace": {
+    "baseRevision": 11,
+    "afterRaceRevision": 12,
+    "winner": "B",
+    "loser": "A",
+    "causalHttpOverlap": true,
+    "serverExecutionSimultaneityClaimed": false
+  },
+  "surfaces": [
+    {
+      "phase": "both-all-surfaces-before-delete",
+      "history": 11,
+      "calendar": 10,
+      "progress": 4,
+      "lastWeight": 53.5,
+      "historyIdsHash": "70a07aeb5990c11cdf31247a0a8e8c352ca39f2fe4cbbf9b35d62529744127f6",
+      "detailsCompared": 5,
+      "chartTableAgree": true,
+      "suggestionFromPublicButton": true
+    },
+    {
+      "phase": "both-all-surfaces-after-delete",
+      "history": 10,
+      "calendar": 10,
+      "progress": 4,
+      "lastWeight": 53.5,
+      "historyIdsHash": "28a281e0781ca236ab6321df3cc9019f18a5d072a31b5b23c15b3780382d59a4",
+      "detailsCompared": 4,
+      "chartTableAgree": true,
+      "suggestionFromPublicButton": true
+    },
+    {
+      "phase": "both-surfaces-fallback-previous-strength",
+      "history": 9,
+      "calendar": 9,
+      "progress": 3,
+      "lastWeight": 52.5,
+      "historyIdsHash": "32cf7c9987ab1d6b8abcaab89076da904abc8fce9954dba9f6821f519c71aef1",
+      "detailsCompared": 3,
+      "chartTableAgree": true,
+      "suggestionFromPublicButton": true
+    }
+  ],
+  "scopeExclusions": [
+    "No final source approval; two P2 findings on949 are still open",
+    "No physical iOS device or OS installed PWA proof",
+    "No forced real lost-ACK boundary injection",
+    "Cleanup checks server baseline; final peer UI is not refreshed after bulk cleanup"
+  ],
+  "artifacts": [
+    {
+      "path": "A/result.json",
+      "bytes": 160310,
+      "sha256": "105b8ce2eccc91c0441c1aa92491f0d5682d4b3c3acf683726afa91f49774a24"
+    },
+    {
+      "path": "A/trace.json",
+      "bytes": 3907882,
+      "sha256": "57c2a1dfdefa23b118fac050ba8c941374cfff3be20bc4db8db360948a94a6d1"
+    },
+    {
+      "path": "B-remote/role-B/result.json",
+      "bytes": 128555,
+      "sha256": "ba440c806977ab0b67e8d2292491dcc6dc9dc5cc716b541448c605ad2fee2608"
+    },
+    {
+      "path": "B-remote/role-B/trace.json",
+      "bytes": 2408734,
+      "sha256": "dc58571b568cf0c3f4145207187b92388d15990f1a2ad511c85a589d152309fb"
+    },
+    {
+      "path": "B-remote/browser-install.json",
+      "bytes": 596,
+      "sha256": "a1258ecf1af1ee1e5bfb71b5ac217b37c5684bf61d4a1021515c07da5ef58478"
+    },
+    {
+      "path": "B-remote/sandbox-helper.json",
+      "bytes": 1086,
+      "sha256": "c4e9373b4913539e42f2fc592119e699f50fa6bd7b54cedf2a929eca1be415f3"
+    }
+  ],
+  "secretPatternScan": "passed: JWT/API-key/non-redacted credential fields absent"
+}
